@@ -26,22 +26,31 @@
 /* ==================================================
    2. THEMES
    ================================================== */
-body.theme-dark{
-  --bg:#0e1116; --bg2:#141922; --surface:#1a2029; --panel-bg: rgba(26,32,41,.94);
-  --text:#e8edf3; --text-dim:#8a96a5; --border: #262e3a;
-  --accent:#4f8cff; --accent2:#7c5cff;
-  --x-color:#4f8cff; --o-color:#ff6b6b;
-  --board:#1c222c; --board2:#171c24; --line:#2c3542; --glow:#4f8cff;
+body.theme-blue{
+  --bg:#090e17; --bg2:#0f172a; --surface:#1e293b; --panel-bg: rgba(26,32,41,.94);
+  --text:#e8edf3; --text-dim:#8a96a5; --border:#262e3a;
+  --accent:#38bdf8; --accent2:#0284c7;
+  --x-color:#38bdf8; --o-color:#38bdf8;
+  --board:#0f172a; --board2:#090e17; --line:#38bdf8; --glow:#4f8cff;
   --success:#3ddc97; --danger:#ff6b6b;
   --font-display: var(--font-body);
 }
+body.theme-dark{
+  --bg:#000000; --bg2:#000000; --surface:#000000; --panel-bg: rgba(0,0,0,.97);
+  --text:#ffffff; --text-dim:#a3a3a3; --border:#333333;
+  --accent:#ffffff; --accent2:#e5e5e5;
+  --x-color:#ffffff; --o-color:#ffffff;
+  --board:#000000; --board2:#000000; --line:#ffffff; --glow:#ffffff;
+  --success:#10b981; --danger:#ef4444;
+  --font-display: var(--font-body);
+}
 body.theme-light{
-  --bg:#f3f5f8; --bg2:#ffffff; --surface:#ffffff; --panel-bg: rgba(255,255,255,.96);
-  --text:#161a20; --text-dim:#616b78; --border:#dfe3e9;
-  --accent:#2f6fed; --accent2:#e0526b;
-  --x-color:#2f6fed; --o-color:#e0526b;
-  --board:#eceef2; --board2:#e2e5eb; --line:#cfd4dc; --glow:#2f6fed;
-  --success:#1e9e6a; --danger:#d63f57;
+  --bg:#f8fafc; --bg2:#ffffff; --surface:#ffffff; --panel-bg: rgba(255,255,255,.96);
+  --text:#000000; --text-dim:#64748b; --border:#cbd5e1;
+  --accent:#000000; --accent2:#2d3748;
+  --x-color:#000000; --o-color:#000000;
+  --board:#ffffff; --board2:#f1f5f9; --line:#000000; --glow:#000000;
+  --success:#10b981; --danger:#ef4444;
   --font-display: var(--font-body);
 }
 body.theme-cyber{
@@ -187,7 +196,7 @@ button{font-family:inherit; cursor:pointer; border:none; outline:none; backgroun
   background:linear-gradient(135deg, var(--accent), var(--accent2));
   color:#0a0d12; border:none; font-weight:800;
 }
-body.theme-light .btn-primary, body.theme-glass .btn-primary{color:#fff;}
+body.theme-light .btn-primary{color:#ffffff; font-weight:800;} body.theme-dark .btn-primary{color:#000000; font-weight:800;} body.theme-blue .btn-primary{color:#ffffff; font-weight:800;} body.theme-glass .btn-primary{color:#fff;}
 .btn-ghost{background:transparent;}
 .btn-danger{color:var(--danger); border-color:var(--danger);}
 .btn-small{padding:8px 12px; font-size:12px; width:auto;}
@@ -207,8 +216,8 @@ body.theme-light .btn-primary, body.theme-glass .btn-primary{color:#fff;}
 .switch.on{background:var(--accent);}
 .switch.on::after{transform:translateX(18px);}
 .theme-swatch{
-  aspect-ratio:1; border-radius:var(--radius-s); border:2px solid transparent; cursor:pointer;
-  display:flex; align-items:flex-end; padding:6px; font-size:9px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  height:62px; border-radius:var(--radius-s); border:2px solid transparent; cursor:pointer;
+  display:flex; align-items:flex-end; padding:8px; font-size:9px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
   transition:transform var(--dur-fast), border-color var(--dur-fast); position:relative; overflow:hidden;
 }
 .theme-swatch.active{border-color:var(--accent); transform:scale(1.04);}
@@ -276,7 +285,7 @@ body.theme-light .btn-primary, body.theme-glass .btn-primary{color:#fff;}
   box-shadow:0 30px 80px rgba(0,0,0,.45);
 }
 .modal-backdrop.hidden .modal{transform:scale(.9);}
-.modal-icon{width:60px; height:60px; margin:0 auto 14px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--surface); border:1px solid var(--border);}
+.modal-icon{width:64px; height:64px; margin:0 auto 14px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--surface); border:2px solid var(--border); transition:all 0.3s ease;}
 .modal-icon svg{width:28px; height:28px;}
 #win-title{font-family:var(--font-display); font-size:24px; font-weight:800; margin-bottom:6px; letter-spacing:.02em;}
 #win-sub{color:var(--text-dim); font-size:13px; margin-bottom:20px;}
@@ -381,7 +390,12 @@ body.theme-light .btn-primary, body.theme-glass .btn-primary{color:#fff;}
     <div class="eyebrow">Settings</div>
     <div class="panel">
       <div class="eyebrow" style="text-align:left;">Theme</div>
-      <div class="option-grid cols-5" id="theme-grid"></div>
+      <div class="option-grid" id="theme-grid" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px;"></div>
+    <div id="custom-theme-edit-row" style="margin-top:10px;">
+      <button class="btn btn-small" id="btn-open-custom-modal" style="width:100%; display:flex; align-items:center; justify-content:center; gap:6px;">
+        <svg viewBox="0 0 24 24" style="width:16px; height:16px; stroke:currentColor; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round;"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg> <span>Customize Colors</span>
+      </button>
+    </div>
     </div>
     <div class="panel">
       <div class="toggle-row" id="row-sound">
@@ -457,6 +471,7 @@ body.theme-light .btn-primary, body.theme-glass .btn-primary{color:#fff;}
   </div>
   <div id="canvas-container">
     <canvas id="three-canvas"></canvas>
+    <svg id="win-line-svg" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:15; display:none;"><line id="win-line-path" x1="0" y1="0" x2="0" y2="0" stroke="#00f0ff" stroke-width="10" stroke-linecap="round" style="filter: drop-shadow(0 0 14px #00f0ff); transition: stroke-dashoffset 0.35s ease-out;" /></svg>
     <div id="hint-bar">Tap a tile to place your mark</div>
   </div>
   <div id="status-live" role="status" aria-live="polite"></div>
@@ -468,7 +483,7 @@ body.theme-light .btn-primary, body.theme-glass .btn-primary{color:#fff;}
 <div id="win-modal" class="modal-backdrop hidden">
   <div class="modal fade-up">
     <div class="modal-icon" id="win-icon">
-      <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="var(--success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" fill="none" stroke="var(--success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
     <div id="win-title">Player X Wins</div>
     <div id="win-sub">A brilliant victory!</div>
@@ -502,6 +517,7 @@ body.theme-light .btn-primary, body.theme-glass .btn-primary{color:#fff;}
 </div><!-- /#app -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script>
 (function(){
 "use strict";
@@ -516,12 +532,12 @@ var WIN_LINES = [
 var HUMAN = 'X', AI_SYM = 'O';
 var STORAGE_KEY = 'triad_ttt_save_v1';
 var CELL = 1.15;
+var defaultCustomTheme = {board:'#0e1116', line:'#00f0ff', x:'#00f0ff', o:'#ff2fd0', accent:'#00f0ff', accent2:'#ff2fd0', bg:'#050609'};
 var THEME_HEX = {
-  dark:   {board:'#1c222c', line:'#2c3542', x:'#4f8cff', o:'#ff6b6b', accent:'#4f8cff', accent2:'#7c5cff', bg:'#0e1116'},
-  light:  {board:'#eceef2', line:'#cfd4dc', x:'#2f6fed', o:'#e0526b', accent:'#2f6fed', accent2:'#e0526b', bg:'#f3f5f8'},
-  cyber:  {board:'#081018', line:'#0f3244', x:'#00f0ff', o:'#ff2fd0', accent:'#00f0ff', accent2:'#ff2fd0', bg:'#050609'},
-  glass:  {board:'#2a3040', line:'#7f8aa3', x:'#8fd3ff', o:'#c9a8ff', accent:'#8fd3ff', accent2:'#c9a8ff', bg:'#141826'},
-  wood:   {board:'#4a2f18', line:'#6b4526', x:'#e8b06a', o:'#a6472f', accent:'#d99b4e', accent2:'#a85a3a', bg:'#241609'}
+  light:  {board:'#ffffff', line:'#000000', x:'#000000', o:'#000000', accent:'#000000', accent2:'#2d3748', bg:'#f8fafc'},
+  dark:   {board:'#000000', line:'#ffffff', x:'#ffffff', o:'#ffffff', accent:'#ffffff', accent2:'#e5e5e5', bg:'#000000'},
+  cyber:  {board:'#081018', line:'#0f3244', x:'#00f0ff', o:'#00f0ff', accent:'#00f0ff', accent2:'#00f0ff', bg:'#050609'},
+  get custom(){ return (SAVE && SAVE.settings && SAVE.settings.customTheme) ? SAVE.settings.customTheme : defaultCustomTheme; }
 };
 
 /* ==================================================
@@ -542,7 +558,7 @@ var pendingConfirm = null;
    ================================================== */
 function defaultSave(){
   return {
-    settings:{ theme:'cyber', sound:true, voice:false, vibration:true, reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches },
+    settings:{ theme:'light', sound:true, voice:false, vibration:true, reducedMotion: matchMedia('(prefers-reduced-motion: reduce)').matches },
     stats:{
       local:{ xWins:0, oWins:0, draws:0 },
       easy:{ wins:0, losses:0, draws:0 },
@@ -580,15 +596,61 @@ function saveSnapshot(){
 /* ==================================================
    4. THEME MANAGER
    ================================================== */
-var THEME_ORDER = ['dark','light','cyber','glass','wood'];
+var THEME_ORDER = ['light','dark','cyber'];
 function applyTheme(name, skipPersist){
   document.body.className = 'theme-' + name;
   SAVE.settings.theme = name;
+  if(name === 'custom'){
+    var ct = THEME_HEX.custom;
+    document.body.style.setProperty('--bg', ct.bg);
+    document.body.style.setProperty('--bg2', ct.bg);
+    document.body.style.setProperty('--surface', ct.board);
+    document.body.style.setProperty('--panel-bg', ct.board + 'f5');
+    document.body.style.setProperty('--text', '#ffffff');
+    document.body.style.setProperty('--border', ct.line);
+    document.body.style.setProperty('--accent', ct.x);
+    document.body.style.setProperty('--accent2', ct.o);
+    document.body.style.setProperty('--x-color', ct.x);
+    document.body.style.setProperty('--o-color', ct.o);
+    document.body.style.setProperty('--board', ct.board);
+    document.body.style.setProperty('--line', ct.line);
+  } else {
+    document.body.removeAttribute('style');
+  }
   if(!skipPersist) persist();
   updateThemeSwatchActive();
+  var cRow = document.getElementById('custom-theme-edit-row');
+  if(cRow) cRow.classList.toggle('hidden', name !== 'custom');
   if(sceneReady) refreshSceneTheme();
 }
+
 function buildThemeGrid(){
+
+  var btnOpenCustom = document.getElementById('btn-open-custom-modal');
+  if(btnOpenCustom) btnOpenCustom.addEventListener('click', function(){ applyTheme('custom'); openModal('custom-theme-modal'); });
+
+  var btnCloseCustom = document.getElementById('btn-close-custom-modal');
+  if(btnCloseCustom) btnCloseCustom.addEventListener('click', function(){ closeModal('custom-theme-modal'); });
+
+  var btnSaveCustom = document.getElementById('btn-save-custom-modal');
+  if(btnSaveCustom) btnSaveCustom.addEventListener('click', function(){ closeModal('custom-theme-modal'); });
+
+
+  var pickers = ['board', 'line', 'x', 'o', 'bg'];
+  pickers.forEach(function(k){
+    var p = document.getElementById('picker-' + k);
+    if(p){
+      p.value = THEME_HEX.custom[k] || '#000000';
+      p.addEventListener('input', function(e){
+        SAVE.settings.customTheme = SAVE.settings.customTheme || Object.assign({}, defaultCustomTheme);
+        SAVE.settings.customTheme[k] = e.target.value;
+        if(k === 'x') SAVE.settings.customTheme.accent = e.target.value;
+        if(k === 'o') SAVE.settings.customTheme.accent2 = e.target.value;
+        persist();
+        if(SAVE.settings.theme === 'custom') applyTheme('custom');
+      });
+    }
+  });
   var grid = document.getElementById('theme-grid');
   grid.innerHTML='';
   THEME_ORDER.forEach(function(t){
@@ -597,9 +659,9 @@ function buildThemeGrid(){
     el.className = 'theme-swatch';
     el.dataset.theme = t;
     el.style.background = 'linear-gradient(135deg,' + hx.bg + ',' + hx.board + ')';
-    el.style.color = '#fff';
+    el.style.color = (t === 'light') ? '#0f172a' : '#fff';
     el.innerHTML = '<span>' + t + '</span>';
-    el.addEventListener('click', function(){ applyTheme(t); });
+    el.addEventListener('click', function(){ applyTheme(t); if(t === 'custom') openModal('custom-theme-modal'); });
     grid.appendChild(el);
   });
   updateThemeSwatchActive();
@@ -786,11 +848,16 @@ function getAIMove(board, difficulty){
 var scene, camera, renderer, canvas, container;
 var boardGroup, cellMeshes=[], pieceMeshes=new Array(9).fill(null), hoverMesh;
 var ambientLight, keyLight, accentLight;
+var ambientParticles, hoverGhostGroup, winBeamMesh, victoryCrownMesh, victoryShockwaveMesh;
 var sceneReady = false;
 var raycaster, pointerNDC = new (window.THREE?THREE.Vector2:Object)();
 var clock;
 var tweens = [];
 var particleSystems = [];
+var shatteredPieces = [];
+var laserScanMesh = null;
+var activeRockets = [];
+var arcadeStampMesh = null;
 var pointerTarget = {x:0,y:0}, pointerCurrent = {x:0,y:0};
 var resizeObserver;
 var perfLastCheck = 0, perfFrames = 0, lowPerfMode = false;
@@ -811,11 +878,26 @@ function initScene(){
   keyLight = new THREE.DirectionalLight(0xffffff, 0.9);
   keyLight.position.set(3, 6, 4);
   scene.add(keyLight);
-  accentLight = new THREE.PointLight(0x00f0ff, 1.4, 20);
+  accentLight = new THREE.PointLight(0xffffff, 1.4, 20);
   accentLight.position.set(0, 3, 0);
   scene.add(accentLight);
 
+  var count = 95;
+  var gGeo = new THREE.BufferGeometry();
+  var gPos = new Float32Array(count * 3);
+  for(var i=0; i<count*3; i+=3){
+    gPos[i] = (Math.random() - 0.5) * 20;
+    gPos[i+1] = (Math.random() - 0.5) * 12 + 2;
+    gPos[i+2] = (Math.random() - 0.5) * 20;
+  }
+  gGeo.setAttribute('position', new THREE.BufferAttribute(gPos, 3));
+  var gMat = new THREE.PointsMaterial({ color: 0x00f0ff, size: 0.08, transparent: true, opacity: 0.5 });
+  ambientParticles = new THREE.Points(gGeo, gMat);
+  scene.add(ambientParticles);
+
   buildBoard();
+  hoverGhostGroup = new THREE.Group();
+  if(boardGroup) boardGroup.add(hoverGhostGroup);
   positionCameraDefault();
 
   resizeObserver = new ResizeObserver(function(){ onResize(); });
@@ -901,6 +983,7 @@ function refreshSceneTheme(){
     if(child.userData.isCell) child.material.color.set(hx.board);
   });
   accentLight.color.set(hx.accent);
+  if(ambientParticles) ambientParticles.material.color.set(hx.accent);
   hoverMesh.material.color.set(hx.accent);
   scene.background = null;
   pieceMeshes.forEach(function(p, i){
@@ -909,13 +992,30 @@ function refreshSceneTheme(){
 }
 
 function colorPiece(mesh, sym){
-  var hx = THEME_HEX[SAVE.settings.theme];
+  var theme = SAVE.settings.theme;
+  var hx = THEME_HEX[theme];
   var col = sym==='X' ? hx.x : hx.o;
   mesh.traverse(function(o){
     if(o.isMesh){
       o.material.color.set(col);
-      o.material.emissive.set(col);
-      o.material.emissiveIntensity = 0.35;
+      if(theme === 'light'){
+        o.material.color.set(0x000000);
+        o.material.emissive.set(0x000000);
+        o.material.emissiveIntensity = 0;
+        o.material.roughness = 0.55;
+        o.material.metalness = 0.0;
+      } else if(theme === 'dark'){
+        o.material.color.set(0xffffff);
+        o.material.emissive.set(0xffffff);
+        o.material.emissiveIntensity = 0.5;
+        o.material.roughness = 0.2;
+        o.material.metalness = 0.6;
+      } else {
+        o.material.emissive.set(col);
+        o.material.emissiveIntensity = 0.15;
+        o.material.roughness = 0.55;
+        o.material.metalness = 0.1;
+      }
     }
   });
 }
@@ -924,14 +1024,14 @@ function makeXMesh(){
   var g = new THREE.Group();
   var geo = new THREE.BoxGeometry(CELL*0.62, 0.14, 0.15);
   var mat = new THREE.MeshStandardMaterial({ roughness:0.35, metalness:0.4 });
-  var b1 = new THREE.Mesh(geo, mat); b1.rotation.y = Math.PI/4;
-  var b2 = new THREE.Mesh(geo, mat.clone()); b2.rotation.y = -Math.PI/4;
+  var b1 = new THREE.Mesh(geo, mat); b1.rotation.y = Math.PI/4; b1.position.y = 0.001;
+  var b2 = new THREE.Mesh(geo, mat.clone()); b2.rotation.y = -Math.PI/4; b2.position.y = -0.001;
   g.add(b1); g.add(b2);
   return g;
 }
 function makeOMesh(){
   var geo = new THREE.TorusGeometry(0.34, 0.11, 20, 36);
-  var mat = new THREE.MeshStandardMaterial({ roughness:0.3, metalness:0.4 });
+  var mat = new THREE.MeshStandardMaterial({ roughness:0.55, metalness:0.1 });
   var m = new THREE.Mesh(geo, mat);
   m.rotation.x = Math.PI/2;
   var g = new THREE.Group(); g.add(m);
@@ -965,10 +1065,36 @@ function setHover(idx){
   if(idx===hoveredIndex) return;
   hoveredIndex = idx;
   var canPlace = idx>=0 && !game.board[idx] && !game.gameOver && isHumanTurn();
-  hoverMesh.material.opacity = canPlace ? 0.35 : 0;
+  hoverMesh.material.opacity = canPlace ? 0.25 : 0;
+
+  while(hoverGhostGroup && hoverGhostGroup.children.length > 0){
+    var child = hoverGhostGroup.children[0];
+    hoverGhostGroup.remove(child);
+    if(child.geometry) child.geometry.dispose();
+    if(child.material) child.material.dispose();
+  }
+
   if(canPlace){
     var r = Math.floor(idx/3), c = idx%3;
-    hoverMesh.position.set((c-1)*CELL, 0.05, (r-1)*CELL);
+    var px = (c-1)*CELL, pz = (r-1)*CELL;
+    hoverMesh.position.set(px, 0.05, pz);
+    hoverGhostGroup.position.set(px, 0.18, pz);
+
+    var sym = game.current;
+    var hx = getThemeHex(SAVE.settings.theme);
+    var colHex = sym==='X' ? hx.x : hx.o;
+    var gMat = new THREE.MeshStandardMaterial({ color: colHex, transparent: true, opacity: 0.45, roughness: 0.3, metalness: 0.2 });
+
+    if(sym==='X'){
+      var g1 = new THREE.BoxGeometry(0.68, 0.12, 0.15);
+      var m1 = new THREE.Mesh(g1, gMat); m1.rotation.y = Math.PI/4; m1.position.y = 0.001;
+      var m2 = new THREE.Mesh(g1, gMat); m2.rotation.y = -Math.PI/4; m2.position.y = -0.001;
+      hoverGhostGroup.add(m1); hoverGhostGroup.add(m2);
+    } else {
+      var gTor = new THREE.TorusGeometry(0.3, 0.08, 16, 32);
+      var mTor = new THREE.Mesh(gTor, gMat); mTor.rotation.x = Math.PI/2;
+      hoverGhostGroup.add(mTor);
+    }
   }
 }
 function isHumanTurn(){
@@ -1070,17 +1196,89 @@ function loop(){
 
   updateTweens(now);
   updateParticles(dt);
+  if(game.cameraShake > 0){
+    game.cameraShake -= dt * 1.5;
+    var shk = Math.max(0, game.cameraShake) * 0.18;
+    camera.position.x += (Math.random() - 0.5) * shk;
+    camera.position.y += (Math.random() - 0.5) * shk;
+  }
+  if(activeRockets.length > 0){
+    for(var ri = activeRockets.length - 1; ri >= 0; ri--){
+      var rkt = activeRockets[ri];
+      rkt.position.y += rkt.userData.vy * dt;
+      spawnParticles(rkt.position.clone(), new THREE.Color(rkt.userData.color), 3, false);
+      if(rkt.position.y >= 4.5){
+        spawnParticles(rkt.position.clone(), new THREE.Color(rkt.userData.color), 70, true);
+        if(boardGroup) boardGroup.remove(rkt);
+        disposeMesh(rkt);
+        activeRockets.splice(ri, 1);
+      }
+    }
+  }
+  if(laserScanMesh && laserScanMesh.userData.active){
+    laserScanMesh.userData.progress += dt * 5.2;
+    laserScanMesh.position.x = laserScanMesh.userData.progress;
+    if(laserScanMesh.position.x > 3.4){
+      boardGroup.remove(laserScanMesh);
+      disposeMesh(laserScanMesh);
+      laserScanMesh = null;
+    }
+  }
+  if(game.isShattered && shatteredPieces.length > 0){
+    shatteredPieces.forEach(function(child){
+      child.position.addScaledVector(child.userData.vel, dt);
+      child.userData.vel.y -= dt * 1.5;
+      child.rotation.x += child.userData.rotVel.x * dt;
+      child.rotation.y += child.userData.rotVel.y * dt;
+      child.rotation.z += child.userData.rotVel.z * dt;
+    });
+  }
+  if(victoryShockwaveMesh){
+    victoryShockwaveMesh.userData.scale += dt * 7.5;
+    victoryShockwaveMesh.userData.opacity -= dt * 0.9;
+    var sShk = victoryShockwaveMesh.userData.scale;
+    victoryShockwaveMesh.scale.set(sShk, sShk, sShk);
+    victoryShockwaveMesh.material.opacity = Math.max(0, victoryShockwaveMesh.userData.opacity);
+    if(victoryShockwaveMesh.userData.opacity <= 0){
+      boardGroup.remove(victoryShockwaveMesh);
+      disposeMesh(victoryShockwaveMesh);
+      victoryShockwaveMesh = null;
+    }
+  }
+  if(victoryCrownMesh){
+    victoryCrownMesh.rotation.y = t * 1.6;
+    victoryCrownMesh.position.y = 1.6 + Math.sin(t * 4) * 0.15;
+  }
+  if(winBeamMesh && winBeamMesh.material){
+    winBeamMesh.material.emissiveIntensity = 0.6 + Math.sin(t * 8) * 0.4;
+  }
+  if(ambientParticles){
+    ambientParticles.rotation.y = t * 0.03;
+    ambientParticles.rotation.x = Math.sin(t * 0.02) * 0.03;
+  }
+  if(hoverGhostGroup && hoveredIndex >= 0){
+    hoverGhostGroup.position.y = 0.18 + Math.sin(t * 5) * 0.03;
+  }
 
   var reduced = SAVE.settings.reducedMotion;
   pointerCurrent.x += (pointerTarget.x-pointerCurrent.x)*0.04;
   pointerCurrent.y += (pointerTarget.y-pointerCurrent.y)*0.04;
-  var wobble = reduced ? 0 : Math.sin(t*0.15)*0.12;
-  var radius = 7.6, height = 5.6;
-  var theta = wobble + pointerCurrent.x*0.35;
-  camera.position.x = Math.sin(theta)*radius*0.55;
-  camera.position.z = radius*0.6 + Math.cos(theta)*0.6;
-  camera.position.y = height - pointerCurrent.y*0.7;
-  camera.lookAt(0,0,0);
+  if(game.victoryOrbit){
+    game.victoryAngle = (game.victoryAngle || 0) + dt * 1.2;
+    var vR = 5.4;
+    camera.position.x = Math.sin(game.victoryAngle) * vR;
+    camera.position.z = Math.cos(game.victoryAngle) * vR;
+    camera.position.y = 3.4 + Math.sin(game.victoryAngle * 0.5) * 0.5;
+    camera.lookAt(0, 0.2, 0);
+  } else {
+    var wobble = reduced ? 0 : Math.sin(t*0.15)*0.12;
+    var radius = 7.6, height = 5.6;
+    var theta = wobble + pointerCurrent.x*0.35;
+    camera.position.x = Math.sin(theta)*radius*0.55;
+    camera.position.z = radius*0.6 + Math.cos(theta)*0.6;
+    camera.position.y = height - pointerCurrent.y*0.7;
+    camera.lookAt(0,0,0);
+  }
 
   accentLight.intensity = 1.2 + Math.sin(t*1.6)*0.25;
 
@@ -1101,8 +1299,19 @@ function loop(){
    GAME FLOW
    ================================================== */
 function resetBoardVisual(){
+  restoreBoardShatter();
+  game.victoryOrbit = false;
+  positionCameraDefault();
+  if(winBeamMesh){ boardGroup.remove(winBeamMesh); winBeamMesh = null; }
+  if(victoryCrownMesh){ boardGroup.remove(victoryCrownMesh); disposeMesh(victoryCrownMesh); victoryCrownMesh = null; }
+  if(victoryShockwaveMesh){ boardGroup.remove(victoryShockwaveMesh); disposeMesh(victoryShockwaveMesh); victoryShockwaveMesh = null; }
+  if(window.clearVictoryAuraAndBanner) clearVictoryAuraAndBanner();
+  game.victoryOrbit = false;
+  positionCameraDefault();
   pieceMeshes.forEach(function(p){ if(p){ boardGroup.remove(p); disposeMesh(p); } });
   pieceMeshes = new Array(9).fill(null);
+  if(winBeamMesh){ boardGroup.remove(winBeamMesh); winBeamMesh = null; }
+  var svg = document.getElementById('win-line-svg'); if(svg) svg.style.display = 'none';
   cellMeshes.forEach(function(m){ m.material.emissive && m.material.emissive.set(0x000000); });
 }
 function disposeMesh(g){
@@ -1124,6 +1333,22 @@ function newGame(mode, difficulty){
   updateHUD();
   updateHintBar();
   saveSnapshot();
+  var streakEl = document.getElementById('streak-badge');
+  if(!streakEl){
+    streakEl = document.createElement('div');
+    streakEl.id = 'streak-badge';
+    streakEl.style.cssText = 'position:absolute; top:70px; left:50%; transform:translateX(-50%); font-size:11px; font-weight:700; color:var(--accent); letter-spacing:.08em; text-transform:uppercase; pointer-events:none; z-index:10; opacity:0.9; display:none;';
+    var gameScreen = document.getElementById('game-screen');
+    if(gameScreen) gameScreen.appendChild(streakEl);
+  }
+  if(streakEl){
+    if(SAVE.stats && SAVE.stats.streak > 0){
+      streakEl.textContent = '🔥 ' + SAVE.stats.streak + ' Win Streak';
+      streakEl.style.display = 'block';
+    } else {
+      streakEl.style.display = 'none';
+    }
+  }
   announce('New game started. ' + (mode==='local'?'Local multiplayer.':'Versus computer, '+difficulty+' difficulty.') + ' Player X starts.');
   if (mode === 'computer' && game.current === AI_SYM) {
     setTimeout(function() {
@@ -1211,7 +1436,108 @@ function tweenScalar(scaleObj, target, duration){
   requestAnimationFrame(step);
 }
 
+function spawnShockwave(colHex){
+  if(victoryShockwaveMesh){ boardGroup.remove(victoryShockwaveMesh); disposeMesh(victoryShockwaveMesh); victoryShockwaveMesh=null; }
+  var geo = new THREE.TorusGeometry(0.3, 0.05, 16, 48);
+  var mat = new THREE.MeshStandardMaterial({ color: colHex, emissive: colHex, emissiveIntensity: 1.4, transparent: true, opacity: 0.9 });
+  victoryShockwaveMesh = new THREE.Mesh(geo, mat);
+  victoryShockwaveMesh.rotation.x = Math.PI / 2;
+  victoryShockwaveMesh.position.set(0, 0.08, 0);
+  victoryShockwaveMesh.userData = { scale: 1, opacity: 0.9 };
+  if(boardGroup) boardGroup.add(victoryShockwaveMesh);
+}
+function spawn3DCrown(){
+  if(victoryCrownMesh){ boardGroup.remove(victoryCrownMesh); disposeMesh(victoryCrownMesh); victoryCrownMesh=null; }
+  var g = new THREE.Group();
+  var goldMat = new THREE.MeshStandardMaterial({ color:0xffd700, metalness:0.9, roughness:0.2, emissive:0x664400, emissiveIntensity:0.3 });
+  var ringGeo = new THREE.TorusGeometry(0.4, 0.07, 16, 32);
+  var ring = new THREE.Mesh(ringGeo, goldMat); ring.rotation.x = Math.PI / 2; g.add(ring);
+  for(var i=0; i<5; i++){
+    var angle = (i / 5) * Math.PI * 2;
+    var spikeGeo = new THREE.ConeGeometry(0.1, 0.4, 12);
+    var spike = new THREE.Mesh(spikeGeo, goldMat);
+    spike.position.set(Math.cos(angle) * 0.4, 0.2, Math.sin(angle) * 0.4);
+    g.add(spike);
+    var gemGeo = new THREE.SphereGeometry(0.06, 12, 12);
+    var gemMat = new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00ffff, emissiveIntensity: 0.8 });
+    var gem = new THREE.Mesh(gemGeo, gemMat);
+    gem.position.set(Math.cos(angle) * 0.4, 0.42, Math.sin(angle) * 0.4);
+    g.add(gem);
+  }
+  g.position.set(0, 1.6, 0);
+  victoryCrownMesh = g;
+  if(boardGroup) boardGroup.add(victoryCrownMesh);
+}
+function triggerVictoryAuraAndBanner(winnerSym){
+  if(!winnerSym) return;
+  var isVsAI = (game.mode === 'computer');
+  var winText = (isVsAI && winnerSym === AI_SYM) ? 'DEFEAT' : 'VICTORY!';
+  var hx = THEME_HEX[SAVE.settings.theme];
+  var col = winnerSym === 'X' ? (hx ? hx.x : '#00f0ff') : (hx ? hx.o : '#ff2a6d');
+
+  var aura = document.getElementById('victory-aura');
+  if(!aura){
+    aura = document.createElement('div');
+    aura.id = 'victory-aura';
+    aura.style.cssText = 'position:fixed; inset:0; pointer-events:none; z-index:12; opacity:0; transition:opacity 0.4s ease;';
+    document.body.appendChild(aura);
+  }
+  aura.style.boxShadow = 'inset 0 0 80px ' + col;
+  aura.style.opacity = '1';
+
+  var banner = document.getElementById('victory-banner');
+  if(!banner){
+    banner = document.createElement('div');
+    banner.id = 'victory-banner';
+    banner.style.cssText = 'position:fixed; top:20%; left:50%; transform:translate(-50%, -50%) scale(0.7); font-family:var(--font-display); font-size:36px; font-weight:900; letter-spacing:0.22em; text-transform:uppercase; pointer-events:none; z-index:14; opacity:0; transition:all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);';
+    document.body.appendChild(banner);
+  }
+  banner.textContent = winText;
+  banner.style.color = col;
+  banner.style.textShadow = '0 0 30px ' + col;
+  banner.style.opacity = '1';
+  banner.style.transform = 'translate(-50%, -50%) scale(1.1)';
+}
+
+function clearVictoryAuraAndBanner(){
+  var aura = document.getElementById('victory-aura');
+  if(aura) aura.style.opacity = '0';
+  var banner = document.getElementById('victory-banner');
+  if(banner){ banner.style.opacity = '0'; banner.style.transform = 'translate(-50%, -50%) scale(0.7)'; }
+}
+function triggerBoardShatter(){
+  shatteredPieces = [];
+  if(!boardGroup) return;
+  boardGroup.children.forEach(function(child){
+    if(child === hoverMesh || child === hoverGhostGroup) return;
+    child.userData.origPos = child.position.clone();
+    child.userData.origRot = child.rotation.clone();
+    child.userData.vel = new THREE.Vector3(
+      (Math.random() - 0.5) * 3.5,
+      Math.random() * 2.5 + 1.2,
+      (Math.random() - 0.5) * 3.5
+    );
+    child.userData.rotVel = new THREE.Vector3(
+      (Math.random() - 0.5) * 4,
+      (Math.random() - 0.5) * 4,
+      (Math.random() - 0.5) * 4
+    );
+    shatteredPieces.push(child);
+  });
+  game.isShattered = true;
+}
+
+function restoreBoardShatter(){
+  game.isShattered = false;
+  shatteredPieces.forEach(function(child){
+    if(child.userData.origPos) child.position.copy(child.userData.origPos);
+    if(child.userData.origRot) child.rotation.copy(child.userData.origRot);
+  });
+  shatteredPieces = [];
+}
 function endGame(winnerSym, line){
+  game.victoryOrbit = false;
+  if(winnerSym && window.THREE){ triggerBoardShatter(); }
   game.gameOver = true;
   game.winner = winnerSym;
   game.winLine = line;
@@ -1269,6 +1595,7 @@ function tweenPulse(mesh){
     var t = (now-start)/1000;
     var s = 1 + Math.sin(t*4)*0.08;
     mesh.scale.setScalar(s);
+    mesh.rotation.y += 0.035;
     if(game.gameOver && !game.replaying) requestAnimationFrame(step);
   }
   requestAnimationFrame(step);
@@ -1281,15 +1608,21 @@ function showWinModal(winnerSym, isVsAI){
   if(!winnerSym){
     title.textContent = "It's a Draw";
     sub.textContent = 'Nobody claimed the board.';
-    icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 12h12" stroke="var(--text-dim)" stroke-width="3" stroke-linecap="round"/></svg>';
+    icon.style.background = 'rgba(255, 255, 255, 0.08)';
+    icon.style.borderColor = 'var(--text-dim)';
+    icon.innerHTML = '<svg viewBox="0 0 24 24" style="width:32px; height:32px;"><path d="M5 9h14M5 15h14" fill="none" stroke="var(--text-dim)" stroke-width="3.5" stroke-linecap="round"/></svg>';
   } else if(isVsAI && winnerSym===AI_SYM){
     title.textContent = 'Computer Wins';
     sub.textContent = 'Better luck next round.';
-    icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="var(--danger)" stroke-width="3" stroke-linecap="round"/></svg>';
+    icon.style.background = 'rgba(239, 68, 68, 0.15)';
+    icon.style.borderColor = 'var(--danger)';
+    icon.innerHTML = '<svg viewBox="0 0 24 24" style="width:32px; height:32px;"><path d="M18 6L6 18M6 6l12 12" fill="none" stroke="var(--danger)" stroke-width="3.5" stroke-linecap="round"/></svg>';
   } else {
     title.textContent = isVsAI ? 'You Win!' : (game.playerNames[winnerSym] + ' Wins!');
     sub.textContent = 'A brilliant victory!';
-    icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke="var(--success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    icon.style.background = 'rgba(16, 185, 129, 0.15)';
+    icon.style.borderColor = 'var(--success)';
+    icon.innerHTML = '<svg viewBox="0 0 24 24" style="width:32px; height:32px;"><path d="M4 12.5l5 5L20 6" fill="none" stroke="var(--success)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   }
   announce(title.textContent + '. ' + sub.textContent);
   openModal('win-modal');
@@ -1344,6 +1677,7 @@ function replay(){
   closeModal('win-modal');
   var moves = game.history.slice();
   game.replaying = true;
+  updateHUD();
   resetBoardVisual();
   var b = new Array(9).fill(null);
   var i = 0;
@@ -1351,6 +1685,7 @@ function replay(){
   function step(){
     if(i>=moves.length){
       game.replaying = false;
+      updateHUD();
       setTimeout(function(){ showWinModal(game.winner, game.mode==='computer'); }, 500);
       return;
     }
@@ -1401,6 +1736,23 @@ function updateQuickSoundBtn(){
   }
 }
 function updateHUD(){
+  updateQuickSoundBtn();
+  var hudActions = document.getElementById('hud-actions');
+  var btnMenu = document.getElementById('btn-menu');
+  var btnUndo = document.getElementById('btn-undo');
+  var btnRestart = document.getElementById('btn-restart');
+
+  if(game.replaying){
+    if(btnUndo) btnUndo.disabled = true;
+    if(btnRestart) btnRestart.disabled = true;
+    if(btnMenu) btnMenu.disabled = true;
+    if(hudActions) hudActions.style.display = 'none';
+    if(btnMenu) btnMenu.style.visibility = 'hidden';
+    return;
+  } else {
+    if(btnMenu) { btnMenu.disabled = false; btnMenu.style.visibility = 'visible'; }
+    if(hudActions) hudActions.style.display = 'flex';
+  }
   updateQuickSoundBtn();
   var pieceEl = document.getElementById('turn-piece');
   var textEl = document.getElementById('turn-text');
@@ -1656,5 +2008,46 @@ if(document.readyState==='loading'){
 
 })();
 </script>
+
+<!-- CUSTOM THEME CREATOR MODAL -->
+<div id="custom-theme-modal" class="modal-backdrop hidden">
+  <div class="modal fade-up" style="max-width:420px; width:90%;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <div style="font-family:var(--font-display); font-weight:800; font-size:18px;"><svg viewBox="0 0 24 24" style="width:16px; height:16px; stroke:currentColor; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round;"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg> <span style="margin-left:4px;">Custom Theme Studio</span></div>
+      <button class="icon-btn" id="btn-close-custom-modal" aria-label="Close">
+        <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div style="font-size:12px; color:var(--text-dim); margin-bottom:16px;">Customize your 3D board, grid lines, pieces, and background colors:</div>
+    
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;">
+      <div style="background:var(--surface); padding:8px 12px; border-radius:var(--radius-s); border:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:12px; font-weight:600;">3D Board</span>
+        <input type="color" id="picker-board" value="#0e1116" style="width:34px; height:28px; border:none; border-radius:4px; cursor:pointer; background:none;">
+      </div>
+      <div style="background:var(--surface); padding:8px 12px; border-radius:var(--radius-s); border:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:12px; font-weight:600;">Grid Lines (#)</span>
+        <input type="color" id="picker-line" value="#00f0ff" style="width:34px; height:28px; border:none; border-radius:4px; cursor:pointer; background:none;">
+      </div>
+      <div style="background:var(--surface); padding:8px 12px; border-radius:var(--radius-s); border:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:12px; font-weight:600;">Player X</span>
+        <input type="color" id="picker-x" value="#00f0ff" style="width:34px; height:28px; border:none; border-radius:4px; cursor:pointer; background:none;">
+      </div>
+      <div style="background:var(--surface); padding:8px 12px; border-radius:var(--radius-s); border:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:12px; font-weight:600;">Player O</span>
+        <input type="color" id="picker-o" value="#ff2fd0" style="width:34px; height:28px; border:none; border-radius:4px; cursor:pointer; background:none;">
+      </div>
+      <div style="background:var(--surface); padding:8px 12px; border-radius:var(--radius-s); border:1px solid var(--border); grid-column:span 2; display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:12px; font-weight:600;">Background Void</span>
+        <input type="color" id="picker-bg" value="#050609" style="width:34px; height:28px; border:none; border-radius:4px; cursor:pointer; background:none;">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="btn-save-custom-modal">Done / Save</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

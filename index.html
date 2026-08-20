@@ -215,6 +215,8 @@ body.theme-light .btn-primary{color:#ffffff; font-weight:800;} body.theme-dark .
 .switch::after{content:''; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:transform var(--dur-fast) var(--ease); box-shadow:0 1px 3px rgba(0,0,0,.3);}
 .switch.on{background:var(--accent);}
 .switch.on::after{transform:translateX(18px);}
+body.theme-dark .switch.on::after{background:#000000;}
+
 .theme-swatch{
   height:62px; border-radius:var(--radius-s); border:2px solid transparent; cursor:pointer;
   display:flex; align-items:flex-end; padding:8px; font-size:9px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
@@ -536,7 +538,7 @@ var defaultCustomTheme = {board:'#0e1116', line:'#00f0ff', x:'#00f0ff', o:'#ff2f
 var THEME_HEX = {
   light:  {board:'#ffffff', line:'#000000', x:'#000000', o:'#000000', accent:'#000000', accent2:'#2d3748', bg:'#f8fafc'},
   dark:   {board:'#000000', line:'#ffffff', x:'#ffffff', o:'#ffffff', accent:'#ffffff', accent2:'#e5e5e5', bg:'#000000'},
-  cyber:  {board:'#081018', line:'#0f3244', x:'#00f0ff', o:'#00f0ff', accent:'#00f0ff', accent2:'#00f0ff', bg:'#050609'},
+  cyber:  {board:'#083244', line:'#00f0ff', x:'#00f0ff', o:'#00f0ff', accent:'#00f0ff', accent2:'#00f0ff', bg:'#0084a5'},
   get custom(){ return (SAVE && SAVE.settings && SAVE.settings.customTheme) ? SAVE.settings.customTheme : defaultCustomTheme; }
 };
 
@@ -658,8 +660,13 @@ function buildThemeGrid(){
     var el = document.createElement('div');
     el.className = 'theme-swatch';
     el.dataset.theme = t;
-    el.style.background = 'linear-gradient(135deg,' + hx.bg + ',' + hx.board + ')';
-    el.style.color = (t === 'light') ? '#0f172a' : '#fff';
+    if(t === 'cyber'){
+      el.style.background = 'linear-gradient(135deg, #007791 0%, #00a8cc 100%)';
+      el.style.color = '#ffffff';
+    } else {
+      el.style.background = 'linear-gradient(135deg, ' + hx.bg + ', ' + hx.board + ')';
+      el.style.color = (t === 'light') ? '#0f172a' : '#ffffff';
+    }
     el.innerHTML = '<span>' + t + '</span>';
     el.addEventListener('click', function(){ applyTheme(t); if(t === 'custom') openModal('custom-theme-modal'); });
     grid.appendChild(el);
@@ -1677,14 +1684,22 @@ function replay(){
   closeModal('win-modal');
   var moves = game.history.slice();
   game.replaying = true;
+  setHover(-1);
+  var pieceEl = document.getElementById('turn-piece');
+  if(pieceEl){
+    pieceEl.style.display = 'inline-block';
+    pieceEl.innerHTML = '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M3 3v5h5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>';
+    pieceEl.style.color = 'var(--accent)';
+  }
   updateHUD();
   resetBoardVisual();
   var b = new Array(9).fill(null);
   var i = 0;
-  document.getElementById('turn-text').innerHTML = 'Replay<span class="sub">Watching</span>';
+  document.getElementById('turn-text').innerHTML = 'Watching<span class="sub">REPLAY</span>';
   function step(){
     if(i>=moves.length){
       game.replaying = false;
+      if(pieceEl) pieceEl.style.display = "block";
       updateHUD();
       setTimeout(function(){ showWinModal(game.winner, game.mode==='computer'); }, 500);
       return;
@@ -1755,6 +1770,7 @@ function updateHUD(){
   }
   updateQuickSoundBtn();
   var pieceEl = document.getElementById('turn-piece');
+  if(pieceEl && !game.replaying) pieceEl.style.display = 'block';
   var textEl = document.getElementById('turn-text');
   var hx = THEME_HEX[SAVE.settings.theme];
   if(game.current==='X'){

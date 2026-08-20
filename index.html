@@ -144,23 +144,22 @@ body{
    ================================================== */
 #game-screen{padding:0; justify-content:flex-start;}
 #hud{
-  width:100%; display:flex; align-items:center; justify-content:space-between;
-  gap:10px; padding:12px 14px; background:var(--panel-bg);
+  width:100%; display:grid; grid-template-columns: 1fr auto 1fr; align-items:center;
+  padding:10px 14px; background:var(--panel-bg);
   border-bottom:1px solid var(--border); z-index:5; backdrop-filter:blur(var(--blur));
-  flex-wrap:wrap;
 }
 #turn-indicator{
-  display:flex; align-items:center; gap:10px; font-family:var(--font-display);
-  font-weight:700; letter-spacing:.04em; min-width:150px;
+  display:flex; align-items:center; justify-content:center; gap:8px; font-family:var(--font-display);
+  font-weight:700; letter-spacing:.04em; white-space:nowrap;
 }
 #turn-piece{width:22px; height:22px; flex-shrink:0;}
 #turn-text{font-size:14px;}
 #turn-text .sub{display:block; font-size:10px; color:var(--text-dim); letter-spacing:.1em; text-transform:uppercase; font-weight:600;}
-#scoreboard{display:flex; align-items:center; gap:14px; font-family:var(--font-mono); font-size:13px;}
-.score-chip{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:34px;}
+#scoreboard{display:none;}
+.score-chip{display:none;}
 .score-chip .n{font-size:16px; font-weight:700;}
 .score-chip .l{font-size:9px; color:var(--text-dim); letter-spacing:.14em; text-transform:uppercase;}
-#hud-actions{display:flex; align-items:center; gap:6px;}
+#hud-actions{display:flex; align-items:center; justify-content:flex-end; gap:6px;}
 #canvas-container{flex:1; width:100%; position:relative; touch-action:none;}
 #three-canvas{width:100%; height:100%; display:block;}
 #status-live{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);}
@@ -219,12 +218,24 @@ body.theme-light .btn-primary, body.theme-glass .btn-primary{color:#fff;}
 /* ==================================================
    7. RESPONSIVE DESIGN
    ================================================== */
-@media (max-width:480px){
+@media (max-width:600px){
   .brand-title{font-size:24px;}
   .panel{padding:16px;}
-  #turn-text{font-size:12px;}
-  #scoreboard{gap:9px;}
-  .score-chip{min-width:28px;}
+  #hud{ padding: 8px 10px; }
+  .icon-btn{ width: 34px; height: 34px; }
+  .icon-btn svg{ width: 16px; height: 16px; }
+  #turn-piece{ width: 18px; height: 18px; }
+  #turn-indicator{ gap: 6px; }
+  #turn-text{ font-size: 12px; }
+  #turn-text .sub{ font-size: 9px; }
+}
+@media (max-width:400px){
+  #hud{ padding: 6px 8px; }
+  #turn-indicator{ gap: 4px; }
+  #turn-text{ font-size: 11px; }
+  .icon-btn{ width: 32px; height: 32px; }
+  #hud-actions{ gap: 3px; }
+  #turn-piece{ width: 16px; height: 16px; }
 }
 @media (max-height:560px){
   .brandmark{margin-bottom:2px;}
@@ -336,11 +347,16 @@ body.theme-light .btn-primary, body.theme-glass .btn-primary{color:#fff;}
     <div class="panel menu-btn-list hidden" id="difficulty-panel">
       <div class="eyebrow" style="margin-bottom:2px;">Difficulty</div>
       <div class="option-grid cols-3">
-        <button class="btn diff-btn" data-diff="easy">Easy</button>
+        <button class="btn diff-btn btn-primary" data-diff="easy">Easy</button>
         <button class="btn diff-btn" data-diff="medium">Medium</button>
         <button class="btn diff-btn" data-diff="impossible">Impossible</button>
       </div>
-      <button class="btn btn-primary" id="btn-start-ai" style="margin-top:6px;">Start</button>
+      <div class="eyebrow" style="margin-top:12px; margin-bottom:2px;">Play As</div>
+      <div class="option-grid cols-2">
+        <button class="btn side-btn btn-primary" data-side="X">X</button>
+        <button class="btn side-btn" data-side="O">O</button>
+      </div>
+      <button class="btn btn-primary" id="btn-start-ai" style="margin-top:12px;">Start</button>
     </div>
     <div class="panel menu-btn-list hidden" id="local-names-panel">
       <div class="eyebrow" style="margin-bottom:2px;">Player Names</div>
@@ -384,6 +400,7 @@ body.theme-light .btn-primary, body.theme-glass .btn-primary{color:#fff;}
         <div><div class="label">Reduced Motion</div><div class="desc">Calmer camera &amp; animations</div></div>
         <div class="switch" id="switch-motion"></div>
       </div>
+      <div style="margin-top: 16px; text-align: center; font-size: 11px; color: var(--text-dim); letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;"><div style="width: 60%; height: 1px; background: linear-gradient(90deg, transparent 0%, var(--border) 50%, transparent 100%); opacity: 0.6; margin: 0 auto 10px auto;"></div>Made by Mind</div>
     </div>
     <div class="back-row" style="justify-content: center;">
       <button class="btn" id="settings-back" style="width: auto; padding: 11px 36px;">Done</button>
@@ -410,11 +427,17 @@ body.theme-light .btn-primary, body.theme-glass .btn-primary{color:#fff;}
      ================================================== -->
 <div id="game-screen" class="screen hidden">
   <div id="hud">
+    <button class="icon-btn" id="btn-menu" aria-label="Return to main menu" title="Main Menu" style="justify-self: start;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+    </button>
     <div id="turn-indicator">
       <svg id="turn-piece" viewBox="0 0 24 24" fill="none"><path id="turn-piece-path" d="" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
-      <div id="turn-text">—<span class="sub" id="turn-sub">&nbsp;</span></div>
+      <div id="turn-text">-<span class="sub" id="turn-sub">&nbsp;</span></div>
     </div>
-    <div id="scoreboard">
+    <div id="scoreboard" style="display:none;">
       <div class="score-chip"><div class="n" id="score-x">0</div><div class="l" id="label-x">X</div></div>
       <div class="score-chip"><div class="n" id="score-d">0</div><div class="l">Draw</div></div>
       <div class="score-chip"><div class="n" id="score-o">0</div><div class="l" id="label-o">O</div></div>
@@ -423,17 +446,12 @@ body.theme-light .btn-primary, body.theme-glass .btn-primary{color:#fff;}
       <button class="icon-btn" id="btn-undo" aria-label="Undo last move" title="Undo">
         <svg viewBox="0 0 24 24"><path d="M9 14 L4 9 L9 4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9 H14 a6 6 0 0 1 0 12 H8" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
-      <button class="icon-btn" id="btn-restart" aria-label="Restart game" title="Restart">
-        <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 1 3 6.7" stroke-width="2" stroke-linecap="round"/><path d="M3 17v-5h5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
+      <button class="icon-btn" id="btn-restart" aria-label="Restart game" title="Restart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg></button>
       <button class="icon-btn" id="btn-sound-quick" aria-label="Toggle sound" title="Sound">
         <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z" stroke-width="2" stroke-linejoin="round"/></svg>
       </button>
       <button class="icon-btn" id="btn-fullscreen" aria-label="Toggle fullscreen" title="Fullscreen">
         <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <button class="btn btn-small" id="btn-menu" aria-label="Open menu" title="Menu" style="height: 40px; margin-left: 4px; padding: 0 16px;">
-        Menu
       </button>
     </div>
   </div>
@@ -1095,7 +1113,7 @@ function newGame(mode, difficulty){
   game.mode = mode;
   game.difficulty = difficulty || 'medium';
   game.board = new Array(9).fill(null);
-  game.current = 'X';
+  if(mode === 'computer'){ game.current = Math.random() < 0.5 ? HUMAN : AI_SYM; } else { game.current = 'X'; }
   game.gameOver = false;
   game.winner = null;
   game.winLine = null;
@@ -1107,6 +1125,12 @@ function newGame(mode, difficulty){
   updateHintBar();
   saveSnapshot();
   announce('New game started. ' + (mode==='local'?'Local multiplayer.':'Versus computer, '+difficulty+' difficulty.') + ' Player X starts.');
+  if (mode === 'computer' && game.current === AI_SYM) {
+    setTimeout(function() {
+      var move = getAIMove(game.board, game.difficulty);
+      if(move !== -1) makeMove(move);
+    }, 600);
+  }
 }
 
 function resumeGame(){
@@ -1275,20 +1299,36 @@ function showWinModal(winnerSym, isVsAI){
    21. UNDO
    ================================================== */
 function undo(){
-  if(game.history.length===0) return;
+  if(game.history.length === 0) return;
+  if(game.mode === 'computer' && !game.history.some(function(h){ return h.player === HUMAN; })) return;
+
   if(game.gameOver){
     game.gameOver = false;
     closeModal('win-modal');
   }
-  var steps = (game.mode==='computer' && game.history.length>=2 && game.history[game.history.length-1].player===AI_SYM) ? 2 : 1;
-  for(var i=0;i<steps;i++){
+
+  if(game.mode === 'computer'){
+    while(game.history.length > 0){
+      var last = game.history.pop();
+      if(!last) break;
+      game.board[last.index] = null;
+      var mesh = pieceMeshes[last.index];
+      if(mesh){ boardGroup.remove(mesh); disposeMesh(mesh); pieceMeshes[last.index] = null; }
+      if(last.player === HUMAN){
+        game.current = HUMAN;
+        break;
+      }
+    }
+  } else {
     var last = game.history.pop();
-    if(!last) break;
-    game.board[last.index] = null;
-    var mesh = pieceMeshes[last.index];
-    if(mesh){ boardGroup.remove(mesh); disposeMesh(mesh); pieceMeshes[last.index]=null; }
-    game.current = last.player;
+    if(last){
+      game.board[last.index] = null;
+      var mesh = pieceMeshes[last.index];
+      if(mesh){ boardGroup.remove(mesh); disposeMesh(mesh); pieceMeshes[last.index] = null; }
+      game.current = last.player;
+    }
   }
+
   AudioMgr.undo();
   vibrate(12);
   updateHUD();
@@ -1346,7 +1386,22 @@ function announceTurn(){
   announce(who);
   SpeechMgr.speak(who);
 }
+function updateQuickSoundBtn(){
+  var btn = document.getElementById('btn-sound-quick');
+  if(!btn) return;
+  var soundOn = SAVE.settings.sound;
+  if(soundOn){
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 5L6 9H2v6h4l5 4V5z" stroke-width="2" stroke-linejoin="round"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" stroke-width="2" stroke-linecap="round"/></svg>';
+    btn.style.opacity = '1';
+    btn.title = 'Sound: On';
+  } else {
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 5L6 9H2v6h4l5 4V5z" stroke-width="2" stroke-linejoin="round"/><line x1="22" y1="9" x2="16" y2="15" stroke-width="2" stroke-linecap="round"/><line x1="16" y1="9" x2="22" y2="15" stroke-width="2" stroke-linecap="round"/></svg>';
+    btn.style.opacity = '0.4';
+    btn.title = 'Sound: Off';
+  }
+}
 function updateHUD(){
+  updateQuickSoundBtn();
   var pieceEl = document.getElementById('turn-piece');
   var textEl = document.getElementById('turn-text');
   var hx = THEME_HEX[SAVE.settings.theme];
@@ -1359,7 +1414,12 @@ function updateHUD(){
   }
   var who = game.mode==='computer' ? (game.current===HUMAN?'Your':"Computer's") : (game.playerNames[game.current] + "'s");
   textEl.innerHTML = who + ' Turn';
-  document.getElementById('btn-undo').disabled = game.history.length===0;
+  if(game.mode === 'computer'){
+    document.getElementById('btn-undo').disabled = !game.history.some(function(h){ return h.player === HUMAN; });
+  } else {
+    document.getElementById('btn-undo').disabled = game.history.length === 0;
+  }
+  document.getElementById('btn-restart').disabled = game.history.length===0;
   
   updateScoreboardChips();
 }
@@ -1387,7 +1447,7 @@ function vibrate(pattern){
    ================================================== */
 function initSwitch(id, key){
   var el = document.getElementById(id);
-  function render(){ el.classList.toggle('on', !!SAVE.settings[key]); }
+  function render(){ el.classList.toggle('on', !!SAVE.settings[key]); if(key==='sound') updateQuickSoundBtn(); }
   render();
   el.addEventListener('click', function(){
     SAVE.settings[key] = !SAVE.settings[key];
@@ -1404,8 +1464,8 @@ function bindEvents(){
   document.getElementById('btn-settings').addEventListener('click', function(){ showScreen('settings-screen'); });
   document.getElementById('btn-stats').addEventListener('click', function(){ StatsMgr.render(); showScreen('stats-screen'); });
 
-  document.getElementById('mode-local').addEventListener('click', function(){ document.getElementById('opponent-section').style.display='none'; document.getElementById('local-names-panel').classList.remove('hidden'); });
-  document.getElementById('mode-computer').addEventListener('click', function(){ document.getElementById('opponent-section').style.display='none'; document.getElementById('difficulty-panel').classList.remove('hidden'); });
+  document.getElementById('mode-local').addEventListener('click', function(){ document.getElementById('opponent-section').style.display='none'; document.getElementById('local-names-panel').classList.remove('hidden'); document.getElementById('name-x').value=''; document.getElementById('name-o').value=''; });
+  document.getElementById('mode-computer').addEventListener('click', function(){ document.getElementById('opponent-section').style.display='none'; document.getElementById('difficulty-panel').classList.remove('hidden'); chosenDiff = 'easy'; chosenSide = 'X'; document.querySelectorAll('.diff-btn').forEach(function(x){ x.classList.toggle('btn-primary', x.dataset.diff === 'easy'); }); document.querySelectorAll('.side-btn').forEach(function(x){ x.classList.toggle('btn-primary', x.dataset.side === 'X'); }); })
   document.getElementById('mode-back').addEventListener('click', function(){ 
     if(!document.getElementById('difficulty-panel').classList.contains('hidden')){
       document.getElementById('difficulty-panel').classList.add('hidden');
@@ -1417,7 +1477,7 @@ function bindEvents(){
       showScreen('main-menu'); refreshContinueVisibility(); 
     }
   });
-  var chosenDiff = 'medium';
+  var chosenDiff = 'easy';
   document.querySelectorAll('.diff-btn').forEach(function(b){
     b.addEventListener('click', function(){
       document.querySelectorAll('.diff-btn').forEach(function(x){ x.classList.remove('btn-primary'); });
@@ -1425,7 +1485,15 @@ function bindEvents(){
       chosenDiff = b.dataset.diff;
     });
   });
-  document.getElementById('btn-start-ai').addEventListener('click', function(){ game.playerNames={X:'You', O:'Computer'}; newGame('computer', chosenDiff); });
+  var chosenSide = 'X';
+  document.querySelectorAll('.side-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('.side-btn').forEach(function(x){ x.classList.remove('btn-primary'); });
+      b.classList.add('btn-primary');
+      chosenSide = b.dataset.side;
+    });
+  });
+  document.getElementById('btn-start-ai').addEventListener('click', function(){ if(chosenSide === 'X') { HUMAN = 'X'; AI_SYM = 'O'; game.playerNames={X:'You', O:'Computer'}; } else { HUMAN = 'O'; AI_SYM = 'X'; game.playerNames={X:'Computer', O:'You'}; } newGame('computer', chosenDiff); });
   document.getElementById('btn-start-local').addEventListener('click', function(){ 
     var ix = document.getElementById('name-x'), io = document.getElementById('name-o');
     var nx = ix.value.trim(), no = io.value.trim();
@@ -1466,18 +1534,29 @@ function bindEvents(){
 
   initSwitch('switch-sound','sound');
   initSwitch('switch-voice','voice');
+  var isMobileDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (!isMobileDevice) {
+    var vibRow = document.getElementById('row-vibration');
+    if (vibRow) vibRow.style.display = 'none';
+  }
   initSwitch('switch-vibration','vibration');
   initSwitch('switch-motion','reducedMotion');
 
   document.getElementById('btn-undo').addEventListener('click', undo);
   document.getElementById('btn-restart').addEventListener('click', function(){
-    requestConfirm('Restart this game?', 'Current progress will be cleared.', function(){
+    if(game.history.length === 0) return;
+    if(game.gameOver){
       newGame(game.mode, game.difficulty);
-    });
+    } else {
+      requestConfirm('Restart this game?', 'Current progress will be cleared.', function(){
+        newGame(game.mode, game.difficulty);
+      });
+    }
   });
   document.getElementById('btn-sound-quick').addEventListener('click', function(){
     SAVE.settings.sound = !SAVE.settings.sound; persist();
     document.getElementById('switch-sound').classList.toggle('on', SAVE.settings.sound);
+    updateQuickSoundBtn();
     if(SAVE.settings.sound) AudioMgr.click();
   });
   document.getElementById('btn-fullscreen').addEventListener('click', function(){
@@ -1485,14 +1564,10 @@ function bindEvents(){
     else { document.exitFullscreen && document.exitFullscreen(); }
   });
   document.getElementById('btn-menu').addEventListener('click', function(){
-    if(game.inProgress && !game.gameOver){
-      requestConfirm('Return to menu?', 'Your current game progress will be lost.', function(){
-        game.inProgress=false; SAVE.snapshot=null; persist();
-        showScreen('main-menu'); refreshContinueVisibility();
-      });
-    } else {
+    requestConfirm('Leave game?', 'Are you sure you want to leave?', function(){
+      game.inProgress=false; SAVE.snapshot=null; persist();
       showScreen('main-menu'); refreshContinueVisibility();
-    }
+    });
   });
 
   document.getElementById('btn-play-again').addEventListener('click', function(){
@@ -1532,7 +1607,7 @@ function requestConfirm(title, sub, cb){
 }
 function refreshContinueVisibility(){
   var btn = document.getElementById('btn-continue');
-  btn.style.display = SAVE.snapshot ? 'flex' : 'none';
+  btn.style.display = 'none';
 }
 
 /* ==================================================

@@ -936,7 +936,17 @@ var shatteredPieces = [];
 var laserScanMesh = null;
 var activeRockets = [];
 var arcadeStampMesh = null;
-var pointerTarget = {x:0,y:0}, pointerCurrent = {x:0,y:0};
+/* drag-to-rotate state */
+var isDragging = false, dragLastX = 0, dragLastY = 0, dragDeltaTotal = 0;
+var boardRotY = 0, boardRotX = 0, boardVelY = 0, boardVelX = 0;
+/* zoom state */
+var zoomCurrent = 1.0, zoomTarget = 1.0;
+var pinchIds = [], pinchLastDist = 0;
+/* auto-spin idle state */
+var lastInteractTime = 0;        /* ms – updated on every user interaction   */
+var AUTO_SPIN_DELAY  = 3000;     /* ms of idle before spin starts             */
+var AUTO_SPIN_SPEED  = 0.28;     /* rad/s cruising speed                      */
+var autoSpinBlend    = 0;        /* 0 = off, 1 = full speed (smooth ramp)     */
 var resizeObserver;
 var perfLastCheck = 0, perfFrames = 0, lowPerfMode = false;
 var hoveredIndex = -1;
@@ -984,7 +994,17 @@ function initScene(){
 
   canvas.addEventListener('pointerdown', onPointerDown, {passive:true});
   canvas.addEventListener('pointermove', onPointerMove, {passive:true});
-  canvas.addEventListener('pointerleave', function(){ setHover(-1); }, {passive:true});
+  canvas.addEventListener('pointerup',   onPointerUp,   {passive:true});
+  canvas.addEventListener('pointerleave', function(e){ isDragging=false; pinchIds=[]; setHover(-1); }, {passive:true});
+  /* scroll-wheel zoom */
+  canvas.addEventListener('wheel', function(e){
+    e.preventDefault();
+    lastInteractTime = performance.now();   /* reset idle timer on scroll */
+    autoSpinBlend = 0;
+    var delta = e.deltaMode === 1 ? e.deltaY * 30 : (e.deltaMode === 2 ? e.deltaY * 300 : e.deltaY);
+    zoomTarget = Math.max(0.45, Math.min(2.5, zoomTarget + delta * 0.0008));
+  }, {passive:false});
+  lastInteractTime = performance.now();     /* start the idle clock */
 
   sceneReady = true;
   refreshSceneTheme();
@@ -1132,9 +1152,39 @@ function raycastCell(e){
   return hits.length ? hits[0].object.userData.index : -1;
 }
 function onPointerMove(e){
-  pointerTarget.x = (e.clientX/window.innerWidth)*2-1;
-  pointerTarget.y = (e.clientY/window.innerHeight)*2-1;
-  if(e.pointerType==='mouse'){
+  /* --- pinch-to-zoom: track two active pointers --- */
+  if(pinchIds.length === 2){
+    var touches = pinchIds.map(function(id){ return id === e.pointerId ? e : null; });
+    /* update stored position for this pointer */
+    for(var pi=0; pi<pinchIds.length; pi++){
+      if(pinchIds[pi] === e.pointerId) pinchIds['pos'+pi] = {x: e.clientX, y: e.clientY};
+    }
+    if(pinchIds['pos0'] && pinchIds['pos1']){
+      var dx = pinchIds['pos1'].x - pinchIds['pos0'].x;
+      var dy = pinchIds['pos1'].y - pinchIds['pos0'].y;
+      var dist = Math.sqrt(dx*dx + dy*dy);
+      if(pinchLastDist > 0){
+        var ratio = pinchLastDist / dist;          /* >1 = fingers closing = zoom in */
+        zoomTarget = Math.max(0.45, Math.min(2.5, zoomTarget * ratio));
+      }
+      pinchLastDist = dist;
+    }
+    return; /* don't rotate while pinching */
+  }
+
+  if(isDragging){
+    var dx = e.clientX - dragLastX;
+    var dy = e.clientY - dragLastY;
+    dragDeltaTotal += Math.abs(dx) + Math.abs(dy);
+    boardVelY = dx * 0.013;
+    boardVelX = dy * 0.009;
+    boardRotY += boardVelY;
+    boardRotX = Math.max(-0.48, Math.min(0.48, boardRotX + boardVelX));
+    dragLastX = e.clientX;
+    dragLastY = e.clientY;
+  }
+  /* only show hover highlight when NOT dragging */
+  if(e.pointerType==='mouse' && !isDragging){
     var idx = raycastCell(e);
     setHover(idx);
   }
@@ -1180,11 +1230,42 @@ function isHumanTurn(){
   return game.current === HUMAN;
 }
 function onPointerDown(e){
-  if(game.gameOver || !isHumanTurn()) return;
-  var idx = raycastCell(e);
-  if(idx<0 || game.board[idx]) return;
+  lastInteractTime = performance.now();  /* reset idle timer */
+  autoSpinBlend   = 0;                  /* kill auto-spin immediately */
+  /* --- pinch-to-zoom: register second finger --- */
+  if(pinchIds.length < 2){
+    var slot = pinchIds.length;
+    pinchIds.push(e.pointerId);
+    pinchIds['pos'+slot] = {x: e.clientX, y: e.clientY};
+    if(pinchIds.length === 2){
+      /* calculate initial distance */
+      var dx = pinchIds['pos1'].x - pinchIds['pos0'].x;
+      var dy = pinchIds['pos1'].y - pinchIds['pos0'].y;
+      pinchLastDist = Math.sqrt(dx*dx + dy*dy);
+      isDragging = false;  /* cancel single-finger drag */
+      return;
+    }
+  }
+  isDragging = true;
+  dragLastX = e.clientX;
+  dragLastY = e.clientY;
+  dragDeltaTotal = 0;
+  boardVelY = 0;
+  boardVelX = 0;
   AudioMgr.unlock();
-  makeMove(idx);
+}
+function onPointerUp(e){
+  /* remove from pinch tracking */
+  var pi = pinchIds.indexOf(e.pointerId);
+  if(pi !== -1){ pinchIds.splice(pi, 1); pinchLastDist = 0; }
+  if(!isDragging) return;
+  isDragging = false;
+  /* treat as a cell click only if the pointer barely moved (tap / click) */
+  if(dragDeltaTotal < 8 && !game.gameOver && isHumanTurn()){
+    var idx = raycastCell(e);
+    if(idx >= 0 && !game.board[idx]) makeMove(idx);
+  }
+  if(dragDeltaTotal >= 8) setHover(-1);
 }
 
 /* ==================================================
@@ -1339,23 +1420,53 @@ function loop(){
   }
 
   var reduced = SAVE.settings.reducedMotion;
-  pointerCurrent.x += (pointerTarget.x-pointerCurrent.x)*0.04;
-  pointerCurrent.y += (pointerTarget.y-pointerCurrent.y)*0.04;
+
+  /* --- auto-spin when idle --- */
+  var idleMs = now - lastInteractTime;
+  if(!isDragging && !reduced){
+    if(idleMs > AUTO_SPIN_DELAY){
+      /* ramp blend 0→1 over 2 seconds after delay expires */
+      autoSpinBlend = Math.min(1, autoSpinBlend + dt * 0.5);
+    } else {
+      autoSpinBlend = Math.max(0, autoSpinBlend - dt * 3); /* snap off fast */
+    }
+    /* blend auto-spin into the Y velocity */
+    var spinContrib = AUTO_SPIN_SPEED * autoSpinBlend * dt;
+    boardRotY += spinContrib;
+    /* also zero-out leftover inertia while spinning so it doesn't fight */
+    if(autoSpinBlend > 0.05){
+      boardVelY *= (1 - autoSpinBlend * 0.3);
+    }
+  } else if(isDragging){
+    autoSpinBlend = 0;   /* hard stop when user grabs the board */
+  }
+
+  /* --- drag-to-rotate: apply inertia when not dragging --- */
+  if(!isDragging){
+    boardVelY *= 0.88;  /* Y-axis friction */
+    boardVelX *= 0.88;  /* X-axis friction */
+    boardRotY += boardVelY;
+    boardRotX = Math.max(-0.48, Math.min(0.48, boardRotX + boardVelX));
+    /* gently re-centre vertical tilt when idle */
+    if(Math.abs(boardVelX) < 0.001) boardRotX += (0 - boardRotX) * 0.015;
+  }
+  if(boardGroup){
+    boardGroup.rotation.y = boardRotY;
+    boardGroup.rotation.x = boardRotX;
+  }
+
+  /* --- fixed camera with zoom --- */
+  zoomCurrent += (zoomTarget - zoomCurrent) * 0.1;   /* smooth lerp */
   if(game.victoryOrbit){
     game.victoryAngle = (game.victoryAngle || 0) + dt * 1.2;
-    var vR = 5.4;
+    var vR = 5.4 * zoomCurrent;
     camera.position.x = Math.sin(game.victoryAngle) * vR;
     camera.position.z = Math.cos(game.victoryAngle) * vR;
-    camera.position.y = 3.4 + Math.sin(game.victoryAngle * 0.5) * 0.5;
+    camera.position.y = (3.4 + Math.sin(game.victoryAngle * 0.5) * 0.5) * zoomCurrent;
     camera.lookAt(0, 0.2, 0);
   } else {
-    var wobble = reduced ? 0 : Math.sin(t*0.15)*0.12;
-    var radius = 7.6, height = 5.6;
-    var theta = wobble + pointerCurrent.x*0.35;
-    camera.position.x = Math.sin(theta)*radius*0.55;
-    camera.position.z = radius*0.6 + Math.cos(theta)*0.6;
-    camera.position.y = height - pointerCurrent.y*0.7;
-    camera.lookAt(0,0,0);
+    camera.position.set(0, 5.6 * zoomCurrent, 5.4 * zoomCurrent);
+    camera.lookAt(0, 0, 0);
   }
 
   accentLight.intensity = 1.2 + Math.sin(t*1.6)*0.25;

@@ -357,10 +357,13 @@ body.theme-dark .switch.on::after{background:#000000;}
     </div>
     <div class="panel menu-btn-list hidden" id="difficulty-panel">
       <div class="eyebrow" style="margin-bottom:2px;">Difficulty</div>
-      <div class="option-grid cols-3">
+      <div class="option-grid cols-3" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
         <button class="btn diff-btn btn-primary" data-diff="easy">Easy</button>
         <button class="btn diff-btn" data-diff="medium">Medium</button>
-        <button class="btn diff-btn" data-diff="impossible">Impossible</button>
+        <button class="btn diff-btn" data-diff="hard">Hard</button>
+      </div>
+      <div style="text-align:center; margin-top:8px;">
+        <button class="btn diff-btn" data-diff="impossible" style="width:70%; margin:0 auto; border-color:rgba(239,68,68,0.4);">Impossible 💀</button>
       </div>
       <div class="eyebrow" style="margin-top:12px; margin-bottom:2px;">Play As</div>
       <div class="option-grid cols-2">
@@ -532,9 +535,16 @@ var WIN_LINES = [
   [0,4,8],[2,4,6]
 ];
 var HUMAN = 'X', AI_SYM = 'O';
-var STORAGE_KEY = 'triad_ttt_save_v1';
+var STORAGE_KEY = 'og_tictactoe_save_v1';
 var CELL = 1.15;
 var defaultCustomTheme = {board:'#0e1116', line:'#00f0ff', x:'#00f0ff', o:'#ff2fd0', accent:'#00f0ff', accent2:'#ff2fd0', bg:'#050609'};
+
+function getThemeHex(name){
+  if(!name) return THEME_HEX.light;
+  if(name === 'custom') return (SAVE && SAVE.settings && SAVE.settings.customTheme) ? SAVE.settings.customTheme : defaultCustomTheme;
+  return THEME_HEX[name] || THEME_HEX.light;
+}
+
 var THEME_HEX = {
   light:  {board:'#ffffff', line:'#000000', x:'#000000', o:'#000000', accent:'#000000', accent2:'#2d3748', bg:'#f8fafc'},
   dark:   {board:'#000000', line:'#ffffff', x:'#ffffff', o:'#ffffff', accent:'#ffffff', accent2:'#e5e5e5', bg:'#000000'},
@@ -656,7 +666,7 @@ function buildThemeGrid(){
   var grid = document.getElementById('theme-grid');
   grid.innerHTML='';
   THEME_ORDER.forEach(function(t){
-    var hx = THEME_HEX[t];
+    var hx = getThemeHex(t);
     var el = document.createElement('div');
     el.className = 'theme-swatch';
     el.dataset.theme = t;
@@ -834,18 +844,79 @@ function bestMove(board){
   }
   return moves[Math.floor(Math.random()*moves.length)];
 }
-function getAIMove(board, difficulty){
-  var idxs = emptyIndices(board);
-  if(idxs.length===0) return -1;
-  var roll = Math.random();
-  if(difficulty==='easy'){
-    if(roll < 0.78) return idxs[Math.floor(Math.random()*idxs.length)];
-    return bestMove(board);
+function findWinningMove(board, sym){
+  for(var i=0; i<WIN_LINES.length; i++){
+    var l = WIN_LINES[i];
+    var count = 0, emptyIdx = -1;
+    for(var j=0; j<3; j++){
+      if(board[l[j]] === sym) count++;
+      else if(!board[l[j]]) emptyIdx = l[j];
+    }
+    if(count === 2 && emptyIdx !== -1) return emptyIdx;
   }
-  if(difficulty==='medium'){
-    if(roll < 0.32) return idxs[Math.floor(Math.random()*idxs.length)];
-    return bestMove(board);
+  return -1;
+}
+
+function getAIMove(board, diff){
+  var empties = emptyIndices(board);
+  if(empties.length===0) return -1;
+
+  if(diff==='easy'){
+    if(Math.random() < 0.20){
+      var winMvE = findWinningMove(board, AI_SYM);
+      if(winMvE !== -1) return winMvE;
+    }
+    return empties[Math.floor(Math.random()*empties.length)];
   }
+
+  if(diff==='medium'){
+    // 1. Take instant win if available (100%)
+    var winMvM = findWinningMove(board, AI_SYM);
+    if(winMvM !== -1) return winMvM;
+
+    // 2. Block human opponent 65% of the time
+    var blockMvM = findWinningMove(board, HUMAN);
+    if(blockMvM !== -1 && Math.random() < 0.65) return blockMvM;
+
+    // 3. 50% chance to claim center or random corner
+    if(Math.random() < 0.50){
+      if(!board[4]) return 4;
+      var corners = [0,2,6,8].filter(function(idx){ return !board[idx]; });
+      if(corners.length > 0) return corners[Math.floor(Math.random()*corners.length)];
+    }
+
+    // 4. Otherwise casual random move
+    return empties[Math.floor(Math.random()*empties.length)];
+  }
+
+  if(diff==='hard'){
+    // 1. Check if AI can win instantly
+    var winMvH = findWinningMove(board, AI_SYM);
+    if(winMvH !== -1) return winMvH;
+
+    // 2. Check if Human can win next turn and block them (100%)
+    var blockMvH = findWinningMove(board, HUMAN);
+    if(blockMvH !== -1) return blockMvH;
+
+    // 3. Take center tile if open
+    if(!board[4]) return 4;
+
+    // 4. 85% chance of taking optimal minimax move, 15% casual move
+    if(Math.random() > 0.15){
+      var bestSH = -Infinity, bestMH = -1;
+      for(var k=0; k<empties.length; k++){
+        var idxK = empties[k];
+        board[idxK] = AI_SYM;
+        var scoreK = minimax(board, 0, false, -Infinity, Infinity);
+        board[idxK] = null;
+        if(scoreK > bestSH){ bestSH = scoreK; bestMH = idxK; }
+      }
+      if(bestMH !== -1) return bestMH;
+    }
+    return empties[Math.floor(Math.random()*empties.length)];
+  }
+
+  // IMPOSSIBLE: 100% Perfect Unbeatable Minimax Algorithm
   return bestMove(board);
 }
 
@@ -983,7 +1054,7 @@ function buildBoard(){
 
 function refreshSceneTheme(){
   var name = SAVE.settings.theme;
-  var hx = THEME_HEX[name];
+  var hx = getThemeHex(name);
   boardGroup.children.forEach(function(child){
     if(child.userData.isBase) child.material.color.set(hx.board);
     if(child.userData.isLine) child.material.color.set(hx.line);
@@ -999,29 +1070,29 @@ function refreshSceneTheme(){
 }
 
 function colorPiece(mesh, sym){
-  var theme = SAVE.settings.theme;
-  var hx = THEME_HEX[theme];
-  var col = sym==='X' ? hx.x : hx.o;
+  var theme = SAVE.settings ? SAVE.settings.theme : 'light';
+  var hx = getThemeHex(theme);
+  var col = sym==='X' ? (hx.x || '#ffffff') : (hx.o || '#ffffff');
+  if(!mesh) return;
   mesh.traverse(function(o){
-    if(o.isMesh){
-      o.material.color.set(col);
+    if(o && o.isMesh && o.material){
+      if(o.material.color) o.material.color.set(col);
       if(theme === 'light'){
-        o.material.color.set(0x000000);
-        o.material.emissive.set(0x000000);
-        o.material.emissiveIntensity = 0;
+        if(o.material.color) o.material.color.set(0x000000);
+        if(o.material.emissive) o.material.emissive.set(0x000000);
+        if(o.material.emissiveIntensity !== undefined) o.material.emissiveIntensity = 0;
         o.material.roughness = 0.55;
         o.material.metalness = 0.0;
       } else if(theme === 'dark'){
-        o.material.color.set(0xffffff);
-        o.material.emissive.set(0xffffff);
-        o.material.emissiveIntensity = 0.5;
-        o.material.roughness = 0.2;
-        o.material.metalness = 0.6;
+        if(o.material.color) o.material.color.set(0xffffff);
+        if(o.material.emissive) o.material.emissive.set(0xffffff);
+        if(o.material.emissiveIntensity !== undefined) o.material.emissiveIntensity = 0.8;
+        o.material.roughness = 0.15;
+        o.material.metalness = 0.5;
       } else {
-        o.material.emissive.set(col);
-        o.material.emissiveIntensity = 0.15;
-        o.material.roughness = 0.55;
-        o.material.metalness = 0.1;
+        if(o.material.color) o.material.color.set(col);
+        if(o.material.emissive) o.material.emissive.set(col);
+        if(o.material.emissiveIntensity !== undefined) o.material.emissiveIntensity = 0.8;
       }
     }
   });
@@ -1479,7 +1550,7 @@ function triggerVictoryAuraAndBanner(winnerSym){
   if(!winnerSym) return;
   var isVsAI = (game.mode === 'computer');
   var winText = (isVsAI && winnerSym === AI_SYM) ? 'DEFEAT' : 'VICTORY!';
-  var hx = THEME_HEX[SAVE.settings.theme];
+  var hx = getThemeHex(SAVE.settings.theme);
   var col = winnerSym === 'X' ? (hx ? hx.x : '#00f0ff') : (hx ? hx.o : '#ff2a6d');
 
   var aura = document.getElementById('victory-aura');
@@ -1552,27 +1623,32 @@ function endGame(winnerSym, line){
   SAVE.snapshot = null;
   persist();
 
+  var hx = getThemeHex(SAVE.settings.theme);
+
   if(line){
     highlightLine(line);
-    var hx = THEME_HEX[SAVE.settings.theme];
     var color = winnerSym==='X' ? hx.x : hx.o;
-    line.forEach(function(idx){
-      var r=Math.floor(idx/3), c=idx%3;
-      spawnParticles(new THREE.Vector3((c-1)*CELL, 0.4, (r-1)*CELL), new THREE.Color(color), 26, false);
-    });
-    spawnParticles(new THREE.Vector3(0,1.6,0), new THREE.Color(hx.accent), 60, true);
+    if(window.THREE && typeof spawnParticles === 'function'){
+      line.forEach(function(idx){
+        var r=Math.floor(idx/3), c=idx%3;
+        spawnParticles(new THREE.Vector3((c-1)*CELL, 0.4, (r-1)*CELL), new THREE.Color(color || '#00f0ff'), 26, false);
+      });
+      spawnParticles(new THREE.Vector3(0,1.6,0), new THREE.Color(hx.accent || '#00f0ff'), 60, true);
+    }
   }
 
   var resultForStats = winnerSym || 'draw';
-  StatsMgr.record(game.mode, game.difficulty, resultForStats);
+  if(typeof StatsMgr !== 'undefined') StatsMgr.record(game.mode, game.difficulty, resultForStats);
 
   var isVsAI = (game.mode==='computer');
   var perspectiveWin = winnerSym && (!isVsAI || winnerSym===HUMAN);
   var perspectiveLose = winnerSym && isVsAI && winnerSym===AI_SYM;
 
-  if(perspectiveLose) AudioMgr.lose();
-  else if(winnerSym) AudioMgr.win();
-  else AudioMgr.draw();
+  if(typeof AudioMgr !== 'undefined'){
+    if(perspectiveLose) AudioMgr.lose();
+    else if(winnerSym) AudioMgr.win();
+    else AudioMgr.draw();
+  }
 
   if(winnerSym) vibrate([30,40,30,40,60]); else vibrate(40);
 
@@ -1580,12 +1656,12 @@ function endGame(winnerSym, line){
   updateScoreboardChips();
 
   setTimeout(function(){
-    showWinModal(winnerSym, isVsAI);
-  }, 850);
+    try { showWinModal(winnerSym, isVsAI); } catch(err){ console.error("Win modal err:", err); }
+  }, 350);
 }
 
 function highlightLine(line){
-  var hx = THEME_HEX[SAVE.settings.theme];
+  var hx = getThemeHex(SAVE.settings.theme);
   line.forEach(function(idx){
     var mesh = pieceMeshes[idx];
     if(!mesh) return;
@@ -1721,8 +1797,22 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(function(s){ s.classList.add('hidden'); });
   document.getElementById(id).classList.remove('hidden');
 }
-function openModal(id){ document.getElementById(id).classList.remove('hidden'); }
-function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
+function openModal(id){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.classList.remove('hidden');
+  el.style.display = 'flex';
+  el.style.opacity = '1';
+  el.style.pointerEvents = 'auto';
+}
+function closeModal(id){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.classList.add('hidden');
+  el.style.display = 'none';
+  el.style.opacity = '0';
+  el.style.pointerEvents = 'none';
+}
 function announce(text){
   document.getElementById('status-live').textContent = text;
 }
@@ -1772,7 +1862,7 @@ function updateHUD(){
   var pieceEl = document.getElementById('turn-piece');
   if(pieceEl && !game.replaying) pieceEl.style.display = 'block';
   var textEl = document.getElementById('turn-text');
-  var hx = THEME_HEX[SAVE.settings.theme];
+  var hx = getThemeHex(SAVE.settings.theme);
   if(game.current==='X'){
     pieceEl.innerHTML = '<path d="M4 4L20 20M20 4L4 20" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>';
     pieceEl.style.color = hx.x; 
@@ -1861,7 +1951,33 @@ function bindEvents(){
       chosenSide = b.dataset.side;
     });
   });
-  document.getElementById('btn-start-ai').addEventListener('click', function(){ if(chosenSide === 'X') { HUMAN = 'X'; AI_SYM = 'O'; game.playerNames={X:'You', O:'Computer'}; } else { HUMAN = 'O'; AI_SYM = 'X'; game.playerNames={X:'Computer', O:'You'}; } newGame('computer', chosenDiff); });
+  
+  function launchAiGame(){
+    if(chosenSide === 'X') { HUMAN = 'X'; AI_SYM = 'O'; game.playerNames={X:'You', O:'Computer'}; }
+    else { HUMAN = 'O'; AI_SYM = 'X'; game.playerNames={X:'Computer', O:'You'}; }
+    newGame('computer', chosenDiff);
+  }
+
+  document.getElementById('btn-start-ai').addEventListener('click', function(){
+    if(chosenDiff === 'impossible'){
+      openModal('impossible-warning-modal');
+    } else {
+      launchAiGame();
+    }
+  });
+
+  var btnConfirmImp = document.getElementById('btn-confirm-impossible');
+  if(btnConfirmImp) btnConfirmImp.addEventListener('click', function(){
+    closeModal('impossible-warning-modal');
+    launchAiGame();
+  });
+
+  var btnCancelImp = document.getElementById('btn-cancel-impossible');
+  if(btnCancelImp) btnCancelImp.addEventListener('click', function(){
+    closeModal('impossible-warning-modal');
+    chosenDiff = 'medium';
+    document.querySelectorAll('.diff-btn').forEach(function(x){ x.classList.toggle('btn-primary', x.dataset.diff === 'medium'); });
+  });
   document.getElementById('btn-start-local').addEventListener('click', function(){ 
     var ix = document.getElementById('name-x'), io = document.getElementById('name-o');
     var nx = ix.value.trim(), no = io.value.trim();
@@ -2061,6 +2177,24 @@ if(document.readyState==='loading'){
 
     <div class="modal-actions">
       <button class="btn btn-primary" id="btn-save-custom-modal">Done / Save</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- FUNNY IMPOSSIBLE COMPUTER WARNING MODAL -->
+<div id="impossible-warning-modal" class="modal-backdrop hidden">
+  <div class="modal fade-up" style="max-width:380px; text-align:center;">
+    <div class="modal-icon" style="background:rgba(239, 68, 68, 0.15); border-color:var(--danger); font-size:28px;">
+      🤖
+    </div>
+    <div style="font-family:var(--font-display); font-size:22px; font-weight:800; margin-bottom:8px; color:var(--text);">Are You Seriously Sure?!</div>
+    <div style="font-size:13px; color:var(--text-dim); margin-bottom:20px; line-height:1.5;">
+      Impossible Computer never makes mistakes! The best you can get is a draw. Are you sure you want to play? 💀
+    </div>
+    <div class="modal-actions" style="display:flex; flex-direction:column; gap:8px;">
+      <button class="btn btn-primary btn-danger" id="btn-confirm-impossible" style="width:100%;">Let Me Suffer! 🔥</button>
+      <button class="btn" id="btn-cancel-impossible" style="width:100%;">I'm Scared, Go Easy 🏃</button>
     </div>
   </div>
 </div>

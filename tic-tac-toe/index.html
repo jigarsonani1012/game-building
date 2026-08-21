@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>TIC-TAC-TOE</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-cyber">
+
+<div id="app">
+
+<!-- ==================================================
+     1. SPLASH SCREEN
+     ================================================== -->
+<div id="splash" class="screen">
+  <div class="brandmark" style="flex-direction: column; gap: 2px; text-align: center;">
+    <div class="brand-title">TIC-TAC-TOE</div>
+    <div class="brand-sub" style="margin-top: 0;">The Classic Game</div>
+  </div>
+  <div class="loader-track"><div class="loader-fill" id="loader-fill"></div></div>
+  <div class="loader-label" id="loader-label">Loading engine…</div>
+</div>
+
+<!-- ==================================================
+     2. MAIN MENU
+     ================================================== -->
+<div id="main-menu" class="screen hidden">
+  <div class="menu-stack">
+    <div class="brandmark" style="flex-direction: column; gap: 2px; text-align: center;">
+      <div class="brand-title">TIC-TAC-TOE</div>
+      <div class="brand-sub" style="margin-top: 0;">The Classic Game</div>
+    </div>
+    <div class="panel menu-btn-list" role="menu" aria-label="Main menu">
+      <button class="btn btn-primary" id="btn-new-game">New Game</button>
+      <button class="btn" id="btn-continue" style="display:none;">Continue</button>
+      <button class="btn" id="btn-settings">Settings</button>
+      <button class="btn" id="btn-stats">Statistics</button>
+      <button class="btn" id="btn-how-to-play">How to Play</button>
+    </div>
+  </div>
+</div>
+
+<!-- HOW TO PLAY SCREEN -->
+<div id="how-to-play-screen" class="screen hidden screen-scroll">
+  <div class="menu-stack" style="max-width: 420px;">
+    <div class="eyebrow">How to Play</div>
+    
+    <div class="panel htp-main-panel">
+      <!-- Section 1: Objective -->
+      <div class="htp-section">
+        <div class="htp-sec-header">
+          <svg viewBox="0 0 24 24" class="htp-sec-icon" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+          </svg>
+          <span class="htp-sec-title">The Goal</span>
+        </div>
+        <p class="htp-desc">Take turns placing marks. Align <strong>3 in a row</strong> horizontally, vertically, or diagonally before your opponent does.</p>
+        
+        <div class="htp-win-samples">
+          <div class="htp-win-pill">
+            <span class="htp-win-dots">● ● ●</span>
+            <span>Horizontal</span>
+          </div>
+          <div class="htp-win-pill">
+            <span class="htp-win-dots" style="line-height:1;">●<br>●<br>●</span>
+            <span>Vertical</span>
+          </div>
+          <div class="htp-win-pill">
+            <span class="htp-win-dots" style="line-height:1; letter-spacing:4px;">●··<br>·●·<br>··●</span>
+            <span>Diagonal</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="htp-divider"></div>
+
+      <!-- Section 2: 3D Board Controls -->
+      <div class="htp-section">
+        <div class="htp-sec-header">
+          <svg viewBox="0 0 24 24" class="htp-sec-icon" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+          </svg>
+          <span class="htp-sec-title">3D Board Controls</span>
+        </div>
+        
+        <div class="htp-gestures-grid">
+          <div class="htp-gesture-item">
+            <div class="htp-gesture-badge">Rotate</div>
+            <div class="htp-gesture-txt">Drag with 1 finger or mouse</div>
+          </div>
+          <div class="htp-gesture-item">
+            <div class="htp-gesture-badge">Zoom</div>
+            <div class="htp-gesture-txt">Pinch or scroll mouse wheel</div>
+          </div>
+          <div class="htp-gesture-item">
+            <div class="htp-gesture-badge">Reset View</div>
+            <div class="htp-gesture-txt">Double-tap anywhere on board</div>
+          </div>
+          <div class="htp-gesture-item">
+            <div class="htp-gesture-badge">Auto-Spin</div>
+            <div class="htp-gesture-txt">Glides smoothly after 3s idle</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="htp-divider"></div>
+
+      <!-- Section 3: Modes -->
+      <div class="htp-section">
+        <div class="htp-sec-header">
+          <svg viewBox="0 0 24 24" class="htp-sec-icon" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          <span class="htp-sec-title">Game Modes</span>
+        </div>
+        <div class="htp-modes-row">
+          <div class="htp-mode-pill">
+            <strong>Local 2P</strong>
+            <span>Pass &amp; play</span>
+          </div>
+          <div class="htp-mode-pill">
+            <strong>Vs Computer</strong>
+            <span>4 difficulties</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="back-row" style="justify-content: center; margin-top: 14px;">
+      <button class="btn btn-primary" id="htp-back" style="width: auto; padding: 11px 48px;">Got It!</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODE SELECT -->
+<div id="mode-screen" class="screen hidden">
+  <div class="menu-stack">
+    <div id="opponent-section" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+      <div class="eyebrow" style="margin-bottom:12px;">Choose opponent</div>
+      <div class="panel menu-btn-list">
+        <button class="btn" id="mode-local">
+          Local Multiplayer
+        </button>
+        <button class="btn" id="mode-computer">
+          Vs Computer
+        </button>
+      </div>
+    </div>
+    <div class="panel menu-btn-list hidden" id="difficulty-panel">
+      <div class="eyebrow" style="margin-bottom:2px;">Difficulty</div>
+      <div class="option-grid cols-3" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;">
+        <button class="btn diff-btn btn-primary" data-diff="easy">Easy</button>
+        <button class="btn diff-btn" data-diff="medium">Medium</button>
+        <button class="btn diff-btn" data-diff="hard">Hard</button>
+      </div>
+      <!-- Commented out impossible difficulty as requested
+      <div style="text-align:center; margin-top:8px;">
+        <button class="btn diff-btn" data-diff="impossible" style="width:70%; margin:0 auto; border-color:rgba(239,68,68,0.4);">Impossible 💀</button>
+      </div>
+      -->
+      <div class="eyebrow" style="margin-top:12px; margin-bottom:2px;">Play As</div>
+      <div class="option-grid cols-2">
+        <button class="btn side-btn btn-primary" data-side="X">X</button>
+        <button class="btn side-btn" data-side="O">O</button>
+      </div>
+      <button class="btn btn-primary" id="btn-start-ai" style="margin-top:12px;">Start</button>
+    </div>
+    <div class="panel menu-btn-list hidden" id="local-names-panel">
+      <div class="eyebrow" style="margin-bottom:6px;">Player Names</div>
+      <div style="display:flex; flex-direction:column; gap:10px; width:100%; margin-bottom:4px;">
+        <div class="floating-group">
+          <input type="text" id="name-x" class="name-input" placeholder=" " maxlength="10" autocomplete="off">
+          <label for="name-x" class="floating-label">Player X (Optional)</label>
+        </div>
+        <div class="floating-group">
+          <input type="text" id="name-o" class="name-input" placeholder=" " maxlength="10" autocomplete="off">
+          <label for="name-o" class="floating-label">Player O (Optional)</label>
+        </div>
+        <div id="name-error" style="color: var(--danger); font-size: 12px; font-weight: 600; text-align: center; margin-top: 2px; display: none;">Please enter 2 to 10 characters.</div>
+      </div>
+      <button class="btn btn-primary" id="btn-start-local" style="margin-top:6px;">Start</button>
+    </div>
+    <div class="back-row" style="justify-content: center;">
+      <button class="btn btn-ghost" id="mode-back" style="width: auto; padding: 11px 36px;">Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     3. SETTINGS
+     ================================================== -->
+<div id="settings-screen" class="screen hidden screen-scroll">
+  <div class="menu-stack">
+    <div class="eyebrow">Settings</div>
+    <div class="panel">
+      <div class="eyebrow" style="text-align:left;">Theme</div>
+      <div class="option-grid" id="theme-grid" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px;"></div>
+    <div id="custom-theme-edit-row" style="margin-top:10px;">
+      <button class="btn btn-small" id="btn-open-custom-modal" style="width:100%; display:flex; align-items:center; justify-content:center; gap:6px;">
+        <svg viewBox="0 0 24 24" style="width:16px; height:16px; stroke:currentColor; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round;"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg> <span>Customize Colors</span>
+      </button>
+    </div>
+    </div>
+    <div class="panel">
+      <div class="toggle-row" id="row-sound">
+        <div><div class="label">Sound Effects</div><div class="desc">Procedural clicks &amp; chimes</div></div>
+        <div class="switch" id="switch-sound"></div>
+      </div>
+      <div class="toggle-row" id="row-voice">
+        <div><div class="label">Voice Announcements</div><div class="desc">Speak turns &amp; results</div></div>
+        <div class="switch" id="switch-voice"></div>
+      </div>
+      <div class="toggle-row" id="row-vibration">
+        <div><div class="label">Vibration</div><div class="desc">Haptic feedback on mobile</div></div>
+        <div class="switch" id="switch-vibration"></div>
+      </div>
+      <div class="toggle-row" id="row-motion">
+        <div><div class="label">Reduced Motion</div><div class="desc">Calmer camera &amp; animations</div></div>
+        <div class="switch" id="switch-motion"></div>
+      </div>
+      <div style="margin-top: 16px; text-align: center; font-size: 11px; color: var(--text-dim); letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600;"><div style="width: 60%; height: 1px; background: linear-gradient(90deg, transparent 0%, var(--border) 50%, transparent 100%); opacity: 0.6; margin: 0 auto 10px auto;"></div>Made by Mind</div>
+    </div>
+    <div class="back-row" style="justify-content: center;">
+      <button class="btn" id="settings-back" style="width: auto; padding: 11px 36px;">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     4. STATISTICS
+     ================================================== -->
+<div id="stats-screen" class="screen hidden screen-scroll">
+  <div class="menu-stack">
+    <div class="eyebrow">Statistics</div>
+    <div class="panel" id="stats-panel"></div>
+    <div class="back-row" style="justify-content: center; gap: 16px;">
+      <button class="btn btn-danger" id="stats-reset" style="width: auto; padding: 11px 24px;">Reset Stats</button>
+      <button class="btn" id="stats-back" style="width: auto; padding: 11px 36px;">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     5. GAME HUD  +  6. THREE.JS CANVAS
+     ================================================== -->
+<div id="game-screen" class="screen hidden">
+  <div id="hud">
+    <button class="icon-btn" id="btn-menu" aria-label="Return to main menu" title="Main Menu" style="justify-self: start;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+    </button>
+    <div id="turn-indicator">
+      <svg id="turn-piece" viewBox="0 0 24 24" fill="none"><path id="turn-piece-path" d="" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+      <div id="turn-text">-<span class="sub" id="turn-sub">&nbsp;</span></div>
+    </div>
+    <div id="scoreboard" style="display:none;">
+      <div class="score-chip"><div class="n" id="score-x">0</div><div class="l" id="label-x">X</div></div>
+      <div class="score-chip"><div class="n" id="score-d">0</div><div class="l">Draw</div></div>
+      <div class="score-chip"><div class="n" id="score-o">0</div><div class="l" id="label-o">O</div></div>
+    </div>
+    <div id="hud-actions">
+      <button class="icon-btn" id="btn-undo" aria-label="Undo last move" title="Undo">
+        <svg viewBox="0 0 24 24"><path d="M9 14 L4 9 L9 4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 9 H14 a6 6 0 0 1 0 12 H8" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="icon-btn" id="btn-restart" aria-label="Restart game" title="Restart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg></button>
+      <button class="icon-btn" id="btn-sound-quick" aria-label="Toggle sound" title="Sound">
+        <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z" stroke-width="2" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="icon-btn" id="btn-fullscreen" aria-label="Toggle fullscreen" title="Fullscreen">
+        <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+  <div id="canvas-container">
+    <canvas id="three-canvas"></canvas>
+    <svg id="win-line-svg" style="position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:15; display:none;"><line id="win-line-path" x1="0" y1="0" x2="0" y2="0" stroke="#00f0ff" stroke-width="10" stroke-linecap="round" style="filter: drop-shadow(0 0 14px #00f0ff); transition: stroke-dashoffset 0.35s ease-out;" /></svg>
+    <div id="hint-bar">Tap a tile to place your mark</div>
+  </div>
+  <div id="status-live" role="status" aria-live="polite"></div>
+</div>
+
+<!-- ==================================================
+     7. DIALOGS
+     ================================================== -->
+<div id="win-modal" class="modal-backdrop hidden">
+  <div class="modal fade-up">
+    <div class="modal-icon" id="win-icon">
+      <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" fill="none" stroke="var(--success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div id="win-title">Player X Wins</div>
+    <div id="win-sub">A brilliant victory!</div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="btn-play-again">Play Again</button>
+      <button class="btn" id="btn-replay">Watch Replay</button>
+      <button class="btn btn-ghost" id="btn-win-menu">Main Menu</button>
+    </div>
+  </div>
+</div>
+
+<div id="confirm-modal" class="modal-backdrop hidden">
+  <div class="modal fade-up">
+    <div id="confirm-title" style="font-weight:800; font-size:18px; margin-bottom:8px;">Are you sure?</div>
+    <div id="confirm-sub" style="color:var(--text-dim); font-size:13px; margin-bottom:20px;">This action cannot be undone.</div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="confirm-yes">Confirm</button>
+      <button class="btn btn-ghost" id="confirm-no">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================================================
+     8. HIDDEN TEMPLATES (icon sprite defs)
+     ================================================== -->
+<svg style="display:none">
+  <symbol id="icon-x" viewBox="0 0 24 24"><path d="M6 6L18 18M18 6L6 18" stroke-width="3" stroke-linecap="round"/></symbol>
+  <symbol id="icon-o" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" stroke-width="3"/></symbol>
+</svg>
+
+</div><!-- /#app -->
+
+<!-- CUSTOM THEME CREATOR MODAL -->
+<div id="custom-theme-modal" class="modal-backdrop hidden">
+  <div class="modal fade-up" style="max-width:420px; width:90%; color:var(--text);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <div style="font-family:var(--font-display); font-weight:800; font-size:18px; color:var(--text); display:flex; align-items:center; gap:6px;">
+        <svg viewBox="0 0 24 24" style="width:18px; height:18px; stroke:currentColor; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round;"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+        <span>Custom Theme Studio</span>
+      </div>
+      <button class="icon-btn" id="btn-close-custom-modal" aria-label="Close" style="color:var(--text); border-color:var(--border);">
+        <svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div style="font-size:12px; color:var(--text-dim); margin-bottom:16px; text-align:left;">Customize your 3D board, grid lines, pieces, and background colors:</div>
+    
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px;">
+      <div style="background:var(--surface); padding:8px 12px; border-radius:var(--radius-s); border:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:12px; font-weight:700; color:var(--text);">3D Board</span>
+        <input type="color" id="picker-board" value="#0e1116" style="width:34px; height:28px; border:1px solid var(--border); border-radius:4px; cursor:pointer; background:none;">
+      </div>
+      <div style="background:var(--surface); padding:8px 12px; border-radius:var(--radius-s); border:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:12px; font-weight:700; color:var(--text);">Grid Lines (#)</span>
+        <input type="color" id="picker-line" value="#00f0ff" style="width:34px; height:28px; border:1px solid var(--border); border-radius:4px; cursor:pointer; background:none;">
+      </div>
+      <div style="background:var(--surface); padding:8px 12px; border-radius:var(--radius-s); border:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:12px; font-weight:700; color:var(--text);">Player X</span>
+        <input type="color" id="picker-x" value="#00f0ff" style="width:34px; height:28px; border:1px solid var(--border); border-radius:4px; cursor:pointer; background:none;">
+      </div>
+      <div style="background:var(--surface); padding:8px 12px; border-radius:var(--radius-s); border:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:12px; font-weight:700; color:var(--text);">Player O</span>
+        <input type="color" id="picker-o" value="#ff2fd0" style="width:34px; height:28px; border:1px solid var(--border); border-radius:4px; cursor:pointer; background:none;">
+      </div>
+      <div style="background:var(--surface); padding:8px 12px; border-radius:var(--radius-s); border:1px solid var(--border); grid-column:span 2; display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:12px; font-weight:700; color:var(--text);">Background Void</span>
+        <input type="color" id="picker-bg" value="#050609" style="width:34px; height:28px; border:1px solid var(--border); border-radius:4px; cursor:pointer; background:none;">
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="btn-save-custom-modal" style="width:100%;">Done / Save</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Commented out impossible warning popups as requested
+/* FUNNY IMPOSSIBLE COMPUTER WARNING MODAL */
+<div id="impossible-warning-modal" class="modal-backdrop hidden">
+  <div class="modal fade-up" style="max-width:380px; text-align:center;">
+    <div class="modal-icon" style="background:rgba(239, 68, 68, 0.15); border-color:var(--danger); font-size:28px;">
+      🤖
+    </div>
+    <div style="font-family:var(--font-display); font-size:22px; font-weight:800; margin-bottom:8px; color:var(--text);">Are You Seriously Sure?!</div>
+    <div style="font-size:13px; color:var(--text-dim); margin-bottom:20px; line-height:1.5;">
+      Impossible Computer never makes mistakes! The best you can get is a draw. Are you sure you want to play? 💀
+    </div>
+    <div class="modal-actions" style="display:flex; flex-direction:column; gap:8px;">
+      <button class="btn btn-primary btn-danger" id="btn-confirm-impossible" style="width:100%;">Let Me Suffer! 🔥</button>
+      <button class="btn" id="btn-cancel-impossible" style="width:100%;">I'm Scared, Go Easy 🏃</button>
+    </div>
+  </div>
+</div>
+
+/* SECOND FUNNY IMPOSSIBLE CONFIRMATION MODAL */
+<div id="impossible-second-warning-modal" class="modal-backdrop hidden">
+  <div class="modal fade-up" style="max-width:380px; text-align:center;">
+    <div class="modal-icon" style="background:rgba(239, 68, 68, 0.15); border-color:var(--danger); font-size:28px;">
+      💀
+    </div>
+    <div id="imp-second-title" style="font-family:var(--font-display); font-size:20px; font-weight:800; margin-bottom:20px; color:var(--text); line-height:1.4;">Are you SURE you want to play with X?!</div>
+    <div class="modal-actions" style="display:flex; flex-direction:column; gap:8px;">
+      <button class="btn btn-primary btn-danger" id="btn-confirm-impossible-final" style="width:100%;">Yes</button>
+      <button class="btn" id="btn-cancel-impossible-final" style="width:100%;">No</button>
+    </div>
+  </div>
+</div>
+-->
+
+  <!-- External Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <!-- Main Game Script -->
+  <script src="script.js"></script>
+</body>
+</html>

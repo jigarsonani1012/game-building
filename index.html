@@ -1440,8 +1440,15 @@ function loop(){
     winBeamMesh.material.emissiveIntensity = 0.6 + Math.sin(t * 8) * 0.4;
   }
   if(ambientParticles){
-    ambientParticles.rotation.y = t * 0.03;
-    ambientParticles.rotation.x = Math.sin(t * 0.02) * 0.03;
+    /* auto-drift + parallax with board drag */
+    ambientParticles.rotation.y = t * 0.03 + boardRotY * 0.06;
+    ambientParticles.rotation.x = Math.sin(t * 0.02) * 0.03 + boardRotX * 0.04;
+    /* 🌊 speed-reactive size: stars swell when board spins fast */
+    var spinSpeed   = Math.abs(boardVelY);
+    var targetSize  = 0.08 * (1 + Math.min(1.5, spinSpeed * 12));
+    var currentSize = ambientParticles.material.size || 0.08;
+    ambientParticles.material.size += (targetSize - currentSize) * 0.08;
+    ambientParticles.material.needsUpdate = true;
   }
   if(hoverGhostGroup && hoveredIndex >= 0){
     hoverGhostGroup.position.y = 0.18 + Math.sin(t * 5) * 0.03;

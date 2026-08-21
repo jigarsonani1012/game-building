@@ -947,6 +947,11 @@ var lastInteractTime = 0;        /* ms – updated on every user interaction   *
 var AUTO_SPIN_DELAY  = 3000;     /* ms of idle before spin starts             */
 var AUTO_SPIN_SPEED  = 0.28;     /* rad/s cruising speed                      */
 var autoSpinBlend    = 0;        /* 0 = off, 1 = full speed (smooth ramp)     */
+/* double-tap reset */
+var lastTapTime  = 0;            /* ms of last short tap                      */
+var DBL_TAP_MS   = 350;          /* max gap between two taps to count as dbl  */
+var viewReset    = false;        /* true while animating back to default view  */
+var viewResetTargetY = 0;        /* nearest clean Y angle to snap to          */
 var resizeObserver;
 var perfLastCheck = 0, perfFrames = 0, lowPerfMode = false;
 var hoveredIndex = -1;
@@ -1260,12 +1265,35 @@ function onPointerUp(e){
   if(pi !== -1){ pinchIds.splice(pi, 1); pinchLastDist = 0; }
   if(!isDragging) return;
   isDragging = false;
+
+  var isTap = dragDeltaTotal < 8;
+
+  /* --- double-tap detection: reset view --- */
+  if(isTap){
+    var tapNow = performance.now();
+    if(tapNow - lastTapTime < DBL_TAP_MS){
+      /* DOUBLE TAP — trigger smooth view reset */
+      viewReset = true;
+      /* snap Y to nearest clean full-rotation so it doesn't spin past */
+      viewResetTargetY = Math.round(boardRotY / (Math.PI * 2)) * Math.PI * 2;
+      boardVelY = 0;
+      boardVelX = 0;
+      autoSpinBlend = 0;
+      zoomTarget   = 1.0;
+      lastTapTime  = 0;          /* prevent triple-tap triggering again */
+      /* tiny visual pulse: briefly brighten accent light */
+      accentLight.intensity = 4;
+    } else {
+      lastTapTime = tapNow;
+    }
+  }
+
   /* treat as a cell click only if the pointer barely moved (tap / click) */
-  if(dragDeltaTotal < 8 && !game.gameOver && isHumanTurn()){
+  if(isTap && !game.gameOver && isHumanTurn()){
     var idx = raycastCell(e);
     if(idx >= 0 && !game.board[idx]) makeMove(idx);
   }
-  if(dragDeltaTotal >= 8) setHover(-1);
+  if(!isTap) setHover(-1);
 }
 
 /* ==================================================
@@ -1445,10 +1473,26 @@ function loop(){
   if(!isDragging){
     boardVelY *= 0.88;  /* Y-axis friction */
     boardVelX *= 0.88;  /* X-axis friction */
-    boardRotY += boardVelY;
-    boardRotX = Math.max(-0.48, Math.min(0.48, boardRotX + boardVelX));
-    /* gently re-centre vertical tilt when idle */
-    if(Math.abs(boardVelX) < 0.001) boardRotX += (0 - boardRotX) * 0.015;
+
+    /* --- smooth view-reset animation (double-tap) --- */
+    if(viewReset){
+      var lerpSpeed = 0.09;
+      var dY = viewResetTargetY - boardRotY;
+      var dX = 0             - boardRotX;
+      boardRotY += dY * lerpSpeed;
+      boardRotX += dX * lerpSpeed;
+      /* done when close enough */
+      if(Math.abs(dY) < 0.001 && Math.abs(dX) < 0.001){
+        boardRotY = viewResetTargetY;
+        boardRotX = 0;
+        viewReset = false;
+      }
+    } else {
+      boardRotY += boardVelY;
+      boardRotX = Math.max(-0.48, Math.min(0.48, boardRotX + boardVelX));
+      /* gently re-centre vertical tilt when idle */
+      if(Math.abs(boardVelX) < 0.001) boardRotX += (0 - boardRotX) * 0.015;
+    }
   }
   if(boardGroup){
     boardGroup.rotation.y = boardRotY;

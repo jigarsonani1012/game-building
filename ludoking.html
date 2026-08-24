@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ludo King 3D — Classic Board Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ==================================================
+   1. RESET & THEME VARIABLES
+   ================================================== */
+:root {
+  --font-main: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --dur-fast: 0.15s;
+  --dur-med: 0.3s;
+  --dur-slow: 0.5s;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --radius-s: 8px;
+  --radius-m: 14px;
+  --radius-l: 22px;
+  --radius-full: 9999px;
+
+  /* Classic Theme */
+  --bg: #090d14;
+  --panel-bg: rgba(18, 24, 38, 0.85);
+  --panel-solid: #121826;
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.09);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-active: rgba(255, 255, 255, 0.32);
+  --text: #f8fafc;
+  --text-dim: #8b9bb4;
+  --accent: #f59e0b;
+  --accent-glow: rgba(245, 158, 11, 0.4);
+
+  --red: #ef4444;
+  --green: #10b981;
+  --yellow: #f59e0b;
+  --blue: #3b82f6;
+}
+
+body.theme-cyber {
+  --bg: #04060d;
+  --panel-bg: rgba(8, 14, 28, 0.88);
+  --panel-solid: #080e1c;
+  --surface: rgba(0, 240, 255, 0.05);
+  --surface-hover: rgba(0, 240, 255, 0.12);
+  --border: rgba(0, 240, 255, 0.2);
+  --border-active: rgba(0, 240, 255, 0.6);
+  --text: #f0fdfa;
+  --text-dim: #5eead4;
+  --accent: #00f0ff;
+  --accent-glow: rgba(0, 240, 255, 0.45);
+  --red: #ff2a6d;
+  --green: #05ffa1;
+  --yellow: #ffe600;
+  --blue: #00f0ff;
+}
+
+body.theme-wood {
+  --bg: #180f08;
+  --panel-bg: rgba(35, 22, 13, 0.9);
+  --panel-solid: #23160d;
+  --surface: rgba(217, 155, 78, 0.06);
+  --surface-hover: rgba(217, 155, 78, 0.14);
+  --border: rgba(217, 155, 78, 0.25);
+  --border-active: rgba(217, 155, 78, 0.6);
+  --text: #fef3c7;
+  --text-dim: #d97706;
+  --accent: #f59e0b;
+  --accent-glow: rgba(245, 158, 11, 0.4);
+  --red: #dc2626;
+  --green: #16a34a;
+  --yellow: #d97706;
+  --blue: #2563eb;
+}
+
+body.theme-glass {
+  --bg: #070e1a;
+  --panel-bg: rgba(255, 255, 255, 0.08);
+  --panel-solid: #0d1a2d;
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-hover: rgba(255, 255, 255, 0.12);
+  --border: rgba(255, 255, 255, 0.2);
+  --border-active: rgba(255, 255, 255, 0.5);
+  --text: #ffffff;
+  --text-dim: #94a3b8;
+  --accent: #38bdf8;
+  --accent-glow: rgba(56, 189, 248, 0.4);
+}
+
+*, *::before, *::after {
+  margin: 0; padding: 0; box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: var(--font-main);
+  background: var(--bg);
+  color: var(--text);
+}
+
+#app {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+/* ==================================================
+   2. 3D CANVAS & BACKGROUND
+   ================================================== */
+#canvas-container {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  z-index: 1; touch-action: none;
+}
+#three-canvas {
+  width: 100%; height: 100%;
+  display: block;
+}
+
+/* ==================================================
+   3. SCREEN SYSTEM & MENUS
+   ================================================== */
+.screen {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px 16px;
+  background: transparent;
+  z-index: 10;
+  opacity: 1; transform: scale(1);
+  transition: opacity var(--dur-med) var(--ease), transform var(--dur-med) var(--ease);
+}
+.screen.hidden {
+  opacity: 0; transform: scale(1.02);
+  pointer-events: none;
+}
+.screen-scroll {
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+.menu-stack {
+  display: flex; flex-direction: column;
+  gap: 18px; align-items: center;
+  width: min(440px, 100%);
+  margin: auto 0;
+}
+
+#splash {
+  background: var(--bg);
+  z-index: 100;
+}
+.brandmark {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  margin-bottom: 6px;
+}
+.brand-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: var(--radius-full);
+  background: var(--surface); border: 1px solid var(--border);
+  font-size: 11px; font-weight: 800; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--accent);
+}
+.brand-title {
+  font-family: var(--font-display);
+  font-weight: 900; font-size: clamp(34px, 8vw, 48px);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 24px var(--accent-glow);
+}
+.brand-sub {
+  color: var(--text-dim); font-size: 13px;
+  letter-spacing: 0.2em; text-transform: uppercase; font-weight: 600;
+}
+
+.panel {
+  width: 100%;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-l);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  padding: 22px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+.eyebrow {
+  font-size: 11px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--text-dim);
+  text-align: center; margin-bottom: 12px; font-weight: 700;
+}
+
+/* ==================================================
+   4. BUTTONS & CHIPS
+   ================================================== */
+button {
+  font-family: inherit; cursor: pointer;
+  border: none; outline: none; background: none; color: inherit;
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 13px 20px;
+  border-radius: var(--radius-m);
+  font-family: var(--font-display); font-size: 15px; font-weight: 800;
+  letter-spacing: 0.04em;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text);
+  transition: all var(--dur-fast) var(--ease);
+}
+.btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-active);
+  transform: translateY(-1px);
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent) 0%, #d97706 100%);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #0d1117;
+  box-shadow: 0 6px 20px var(--accent-glow);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #fbbf24 0%, #b45309 100%);
+  box-shadow: 0 8px 24px var(--accent-glow);
+}
+.btn-ghost {
+  background: transparent; border-color: transparent; color: var(--text-dim);
+}
+.btn-ghost:hover {
+  background: var(--surface); color: var(--text);
+}
+.icon-btn {
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-m);
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); transition: all var(--dur-fast) ease;
+}
+.icon-btn:hover {
+  background: var(--surface-hover); border-color: var(--border-active);
+}
+.icon-btn svg { width: 18px; height: 18px; }
+
+.menu-btn-list { display: flex; flex-direction: column; gap: 10px; }
+.option-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.option-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.option-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+.choice-chip {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  padding: 12px 10px; border-radius: var(--radius-m);
+  background: var(--surface); border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.2s ease;
+  font-family: var(--font-display); font-weight: 800; font-size: 13px;
+}
+.choice-chip:hover {
+  background: var(--surface-hover); border-color: var(--border-active);
+}
+.choice-chip.active {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: var(--accent);
+  color: var(--text);
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+.choice-chip .chip-sub {
+  font-size: 10.5px; color: var(--text-dim); font-weight: 600;
+}
+
+/* ==================================================
+   5. GAME SCREEN & 3D HUD
+   ================================================== */
+#game-screen {
+  padding: 0; justify-content: space-between;
+  pointer-events: none;
+}
+#game-header {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--panel-bg); border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  z-index: 20; pointer-events: auto;
+}
+.hud-title-box {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-display); font-weight: 800; font-size: 14px;
+}
+.hud-actions { display: flex; align-items: center; gap: 6px; }
+
+/* 4 Corner Player Cards (Match Ludo King Layout) */
+.player-corner {
+  position: absolute;
+  display: flex; align-items: stretch;
+  border-radius: 6px;
+  background: #fdf2f8; /* Dice area background */
+  border: 2px solid #576574; /* Inactive border */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  z-index: 15; pointer-events: auto;
+  transition: all var(--dur-med) var(--ease);
+  overflow: visible; /* so arrow can show outside */
+}
+/* Mask inner content for border-radius */
+.player-corner > .avatar-area { border-radius: 4px 0 0 4px; }
+
+.player-corner.active {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  transform: translateX(-50%) scale(1.08);
+}
+
+.avatar-area {
+  background: #0984e3; /* overridden by JS */
+  padding: 8px 12px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.4s var(--ease);
+}
+.pin-icon { width: 24px; height: 24px; transition: fill 0.4s var(--ease); }
+
+/* 3D Dice Corner Roller */
+.dice-box {
+  width: 42px; height: 42px;
+  perspective: 400px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.dice-cube {
+  width: 34px; height: 34px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s var(--ease-bounce);
+}
+.dice-face {
+  position: absolute; width: 34px; height: 34px;
+  background: #ffffff; border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  display: grid; padding: 3px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.3);
+}
+.dice-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #0f172a;
+  align-self: center; justify-self: center;
+}
+.dice-face-1 { transform: rotateY(0deg) translateZ(17px); }
+.dice-face-2 { transform: rotateY(90deg) translateZ(17px); }
+.dice-face-3 { transform: rotateX(90deg) translateZ(17px); }
+.dice-face-4 { transform: rotateX(-90deg) translateZ(17px); }
+.dice-face-5 { transform: rotateY(-90deg) translateZ(17px); }
+.dice-face-6 { transform: rotateY(180deg) translateZ(17px); }
+
+.dice-rolling {
+  animation: diceRollAnim 0.6s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+@keyframes diceRollAnim {
+  0% { transform: rotateX(0deg) rotateY(0deg) scale(0.9); }
+  30% { transform: rotateX(360deg) rotateY(180deg) scale(1.25); }
+  70% { transform: rotateX(720deg) rotateY(540deg) scale(1.1); }
+  100% { transform: rotateX(1080deg) rotateY(720deg) scale(1); }
+}
+
+/* Toast Notification */
+#game-status-bar {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid var(--border);
+  padding: 10px 24px;
+  border-radius: 30px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  font-size: 14px; font-weight: 700;
+  color: #fff;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease);
+}
+#game-status-bar.show-toast { opacity: 1; }
+
+/* ==================================================
+   6. MODAL WINDOWS & WINNER PODIUM
+   ================================================== */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+  opacity: 1; transition: opacity var(--dur-med) var(--ease);
+  padding: 20px;
+  backdrop-filter: blur(8px);
+}
+.modal-backdrop.hidden { opacity: 0; pointer-events: none; }
+.modal-card {
+  width: min(420px, 100%);
+  background: var(--panel-solid);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-l);
+  padding: 26px; text-align: center;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  transform: scale(1);
+  transition: transform var(--dur-med) var(--ease-bounce);
+}
+.modal-backdrop.hidden .modal-card { transform: scale(0.92); }
+
+.modal-icon {
+  width: 64px; height: 64px; margin: 0 auto 16px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: rgba(245, 158, 11, 0.15);
+  border: 2px solid var(--accent);
+  color: var(--accent); font-size: 28px;
+}
+.modal-title { font-family: var(--font-display); font-size: 24px; font-weight: 900; margin-bottom: 6px; }
+.modal-sub { color: var(--text-dim); font-size: 13.5px; line-height: 1.5; margin-bottom: 20px; }
+
+.podium-list { display: flex; flex-direction: column; gap: 8px; margin: 14px 0 22px; }
+.podium-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; border-radius: var(--radius-m);
+  background: var(--surface); border: 1px solid var(--border);
+  font-weight: 800; font-size: 13.5px;
+}
+.podium-item.first {
+  border-color: var(--accent);
+  background: rgba(245, 158, 11, 0.15);
+}
+
+@media (max-width: 440px) {
+  .player-corner { padding: 4px 8px; gap: 6px; }
+  .corner-red { bottom: 56px; left: 10px; }
+  .corner-green { top: 56px; left: 10px; }
+  .corner-yellow { top: 56px; right: 10px; }
+  .corner-blue { bottom: 56px; right: 10px; }
+  .player-name { max-width: 50px; font-size: 11px; }
+}
+</style>
+</head>
+<body class="theme-classic">
+
+<div id="app">
+
+  <!-- ==================================================
+       1. GLOBAL 3D CANVAS (Three.js Scene)
+       ================================================== -->
+  <div id="canvas-container">
+    <canvas id="three-canvas"></canvas>
+  </div>
+
+  <!-- ==================================================
+       2. SPLASH SCREEN
+       ================================================== -->
+  <div id="splash" class="screen">
+    <div class="brandmark">
+      <div class="brand-badge">3D Web Edition</div>
+      <div class="brand-title">LUDO KING 3D</div>
+      <div class="brand-sub">The Royal 3D Experience</div>
+    </div>
+  </div>
+
+  <!-- ==================================================
+       3. MAIN MENU SCREEN
+       ================================================== -->
+  <div id="main-menu" class="screen hidden">
+    <div class="menu-stack">
+      <div class="brandmark">
+        <div class="brand-badge">Full 3D Engine</div>
+        <div class="brand-title">LUDO KING 3D</div>
+        <div class="brand-sub">Roll • Capture • Conquer</div>
+      </div>
+
+      <div class="panel menu-btn-list">
+        <button class="btn btn-primary" id="btn-menu-play">Play Game</button>
+        <button class="btn" id="btn-menu-rules">How to Play</button>
+        <button class="btn" id="btn-menu-settings">Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================
+       4. MODE SELECT SCREEN
+       ================================================== -->
+  <div id="mode-screen" class="screen hidden screen-scroll">
+    <div class="menu-stack">
+      <div class="eyebrow">Match Configuration</div>
+
+      <div class="panel" style="display:flex; flex-direction:column; gap:16px;">
+        <div>
+          <div class="eyebrow" style="text-align:left; margin-bottom:8px;">Opponent</div>
+          <div class="option-grid">
+            <div class="choice-chip active" id="chip-mode-pass">
+              <span>Pass &amp; Play</span>
+              <span class="chip-sub">Local Multiplayer</span>
+            </div>
+            <div class="choice-chip" id="chip-mode-ai">
+              <span>Vs Computer</span>
+              <span class="chip-sub">Smart Bots</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="eyebrow" style="text-align:left; margin-bottom:8px;">Player Count</div>
+          <div class="option-grid cols-3">
+            <div class="choice-chip active" id="chip-count-2">2 Players</div>
+            <div class="choice-chip" id="chip-count-3">3 Players</div>
+            <div class="choice-chip" id="chip-count-4">4 Players</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="eyebrow" style="text-align:left; margin-bottom:8px;">Rule Type</div>
+          <div class="option-grid">
+            <div class="choice-chip active" id="chip-rule-classic">
+              <span>Classic</span>
+              <span class="chip-sub">4 tokens home</span>
+            </div>
+            <div class="choice-chip" id="chip-rule-quick">
+              <span>Quick</span>
+              <span class="chip-sub">1st token wins</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="btn-start-game" style="margin-top:6px;">Start Match</button>
+      </div>
+
+      <button class="btn btn-ghost" id="btn-mode-back" style="width:auto; padding:8px 24px;">Back</button>
+    </div>
+  </div>
+
+  <!-- ==================================================
+       5. GAME HUD (Overlays 3D Canvas)
+       ================================================== -->
+  <div id="game-screen" class="screen hidden">
+    <!-- Header -->
+    <div id="game-header">
+      <button class="icon-btn" id="btn-game-menu" title="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </button>
+
+      <div class="hud-title-box">
+        <span id="hud-match-type">2P Classic</span>
+      </div>
+
+      <div class="hud-actions">
+        <button id="btn-game-pov" title="Toggle Auto-POV Camera" style="display:flex; align-items:center; gap:6px; background:var(--panel-bg); border:1px solid var(--border); color:var(--text); padding:4px 10px; border-radius:15px; font-size:11px; font-weight:700; cursor:pointer;">
+          <input type="checkbox" id="pov-checkbox" style="pointer-events:none; margin:0; cursor:pointer;" />
+          Auto POV
+        </button>
+        <button class="icon-btn" id="btn-game-sound" title="Sound">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        </button>
+        <button class="icon-btn" id="btn-game-restart" title="Restart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Central Dice Roller -->
+    <div class="player-corner active" id="central-dice-ui" style="bottom: 70px; left: 50%; transform: translateX(-50%); flex-direction: row; border-width: 3px;">
+      <div class="avatar-area" id="central-avatar-area">
+        <svg class="pin-icon" viewBox="0 0 24 24">
+          <g id="central-pin-path" fill="var(--red)" stroke="#fff" stroke-width="1.5" stroke-linejoin="round">
+            <circle cx="12" cy="6" r="3.5" />
+            <path d="M 10 9 C 9 14, 6 16, 6 20 C 6 21, 7 21.5, 12 21.5 C 17 21.5, 18 21, 18 20 C 18 16, 15 14, 14 9 Z" />
+            <line x1="9" y1="9" x2="15" y2="9" />
+          </g>
+        </svg>
+      </div>
+      <div class="dice-box" id="dice-box-central">
+        <div class="dice-cube" id="dice-cube-central"></div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="game-status-bar">
+      <span id="status-text"></span>
+    </div>
+  </div>
+
+  <!-- ==================================================
+       6. HOW TO PLAY SCREEN
+       ================================================== -->
+  <div id="rules-screen" class="screen hidden screen-scroll">
+    <div class="menu-stack" style="max-width:440px;">
+      <div class="eyebrow">Rules &amp; 3D Controls</div>
+      
+      <div class="panel" style="display:flex; flex-direction:column; gap:16px; text-align:left;">
+        <div>
+          <div style="font-weight:800; color:var(--accent); font-size:13.5px; margin-bottom:4px;">1. UNLOCKING &amp; BONUS ROLLS</div>
+          <p style="font-size:12.5px; color:var(--text-dim); line-height:1.5;">Roll a <strong>6</strong> to bring a 3D pawn out of the yard. Rolling a 6 or capturing an opponent awards a <strong>Bonus Roll</strong>.</p>
+        </div>
+
+        <div style="height:1px; background:var(--border);"></div>
+
+        <div>
+          <div style="font-weight:800; color:var(--accent); font-size:13.5px; margin-bottom:4px;">2. 3D ORBIT &amp; GESTURES</div>
+          <p style="font-size:12.5px; color:var(--text-dim); line-height:1.5;">• <strong>Drag</strong> anywhere to inspect the board in 3D.<br>• <strong>Scroll/Pinch</strong> to zoom in and out.<br>• <strong>Double-Tap</strong> anywhere to reset camera.</p>
+        </div>
+
+        <div style="height:1px; background:var(--border);"></div>
+
+        <div>
+          <div style="font-weight:800; color:var(--accent); font-size:13.5px; margin-bottom:4px;">3. SAFE STAR INLAYS (★)</div>
+          <p style="font-size:12.5px; color:var(--text-dim); line-height:1.5;">Pawns on golden <strong>★ Star inlays</strong> cannot be captured by opponents.</p>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="btn-rules-back" style="width:auto; padding:11px 42px;">Got It!</button>
+    </div>
+  </div>
+
+  <!-- ==================================================
+       7. SETTINGS SCREEN
+       ================================================== -->
+  <div id="settings-screen" class="screen hidden screen-scroll">
+    <div class="menu-stack">
+      <div class="eyebrow">Preferences</div>
+
+      <div class="panel" style="display:flex; flex-direction:column; gap:16px;">
+        <div>
+          <div class="eyebrow" style="text-align:left; margin-bottom:8px;">Theme</div>
+          <div class="option-grid cols-2">
+            <div class="choice-chip active" data-theme="theme-classic">👑 Classic</div>
+            <div class="choice-chip" data-theme="theme-cyber">🌃 Cyber Neon</div>
+            <div class="choice-chip" data-theme="theme-wood">🪵 Luxury Wood</div>
+            <div class="choice-chip" data-theme="theme-glass">💎 Glass &amp; Marble</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="eyebrow" style="text-align:left; margin-bottom:8px;">Sound &amp; Effects</div>
+          <div class="choice-chip active" id="toggle-sound-chip">🔊 Sound Effects: ON</div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="btn-settings-back" style="width:auto; padding:11px 42px;">Done</button>
+    </div>
+  </div>
+
+  <!-- ==================================================
+       8. WINNER PODIUM MODAL
+       ================================================== -->
+  <div id="win-modal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-icon">👑</div>
+      <div class="modal-title" id="win-title">Match Finished!</div>
+      <div class="modal-sub" id="win-sub">Congratulations on the victory!</div>
+
+      <div class="podium-list" id="podium-list"></div>
+
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button class="btn btn-primary" id="btn-win-play-again">Play Again</button>
+        <button class="btn btn-ghost" id="btn-win-menu">Main Menu</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- ====== TEST BUTTON — Capture Animation ====== -->
+<button id="btn-test-capture" onclick="testCaptureAnim()" style="
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(255,50,50,0.5);
+  transition: transform 0.15s, box-shadow 0.15s;
+" onmouseover="this.style.transform='translateX(-50%) scale(1.08)'"
+   onmouseout="this.style.transform='translateX(-50%) scale(1)'">
+  ⚔️ Test Capture Anim
+</button>
+
+
+<!-- Three.js + Confetti Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+<script>
+(function(){
+"use strict";
+
+/* ==================================================
+   1. SOUND ENGINE (Web Audio API)
+   ================================================== */
+var AudioEngine = (function(){
+  var ctx = null, enabled = true;
+  function init(){
+    if(!ctx && (window.AudioContext || window.webkitAudioContext)){
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  }
+  function playTone(freq, type, duration, gainVal){
+    if(!enabled) return;
+    init();
+    if(!ctx) return;
+    if(ctx.state === 'suspended') ctx.resume();
+
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(gainVal || 0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  }
+  return {
+    toggle: function(){ enabled = !enabled; return enabled; },
+    isEnabled: function(){ return enabled; },
+    diceRoll: function(){
+      for(var i=0; i<6; i++){
+        setTimeout(function(){ playTone(160 + Math.random()*240, 'triangle', 0.08, 0.1); }, i * 65);
+      }
+    },
+    step: function(stepIndex){
+      playTone(320 + (stepIndex % 8) * 35, 'sine', 0.12, 0.18);
+    },
+    capture: function(){
+      playTone(180, 'sawtooth', 0.25, 0.25);
+      setTimeout(function(){ playTone(110, 'sawtooth', 0.35, 0.2); }, 80);
+    },
+    enterHome: function(){
+      playTone(523.25, 'sine', 0.15, 0.2);
+      setTimeout(function(){ playTone(659.25, 'sine', 0.25, 0.25); }, 120);
+    },
+    win: function(){
+      var notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach(function(n, idx){
+        setTimeout(function(){ playTone(n, 'triangle', 0.4, 0.25); }, idx * 140);
+      });
+    }
+  };
+})();
+
+/* ==================================================
+   2. 3D TRACK COORDINATES & MATRIX
+   ================================================== */
+var BOARD_COORDS = [
+  {r:13, c:6}, {r:12, c:6}, {r:11, c:6}, {r:10, c:6}, {r:9, c:6},
+  {r:8, c:5}, {r:8, c:4}, {r:8, c:3}, {r:8, c:2}, {r:8, c:1}, {r:8, c:0},
+  {r:7, c:0},
+  {r:6, c:0}, {r:6, c:1}, {r:6, c:2}, {r:6, c:3}, {r:6, c:4}, {r:6, c:5},
+  {r:5, c:6}, {r:4, c:6}, {r:3, c:6}, {r:2, c:6}, {r:1, c:6}, {r:0, c:6},
+  {r:0, c:7},
+  {r:0, c:8}, {r:1, c:8}, {r:2, c:8}, {r:3, c:8}, {r:4, c:8}, {r:5, c:8},
+  {r:6, c:9}, {r:6, c:10}, {r:6, c:11}, {r:6, c:12}, {r:6, c:13}, {r:6, c:14},
+  {r:7, c:14},
+  {r:8, c:14}, {r:8, c:13}, {r:8, c:12}, {r:8, c:11}, {r:8, c:10}, {r:8, c:9},
+  {r:9, c:8}, {r:10, c:8}, {r:11, c:8}, {r:12, c:8}, {r:13, c:8}, {r:14, c:8},
+  {r:14, c:7}, {r:14, c:6}
+];
+
+var STAR_TILES = [0, 8, 13, 21, 26, 34, 39, 47];
+var START_OFFSETS = { red: 0, green: 13, yellow: 26, blue: 39 };
+
+var HOME_PATHS = {
+  red:    [{r:13,c:7}, {r:12,c:7}, {r:11,c:7}, {r:10,c:7}, {r:9,c:7}],
+  green:  [{r:7,c:1},  {r:7,c:2},  {r:7,c:3},  {r:7,c:4},  {r:7,c:5}],
+  yellow: [{r:1,c:7},  {r:2,c:7},  {r:3,c:7},  {r:4,c:7},  {r:5,c:7}],
+  blue:   [{r:7,c:13}, {r:7,c:12}, {r:7,c:11}, {r:7,c:10}, {r:7,c:9}]
+};
+
+var CENTER_COORDS = {
+  red:    {r:8, c:7},
+  green:  {r:7, c:6},
+  yellow: {r:6, c:7},
+  blue:   {r:7, c:8}
+};
+
+var YARD_COORDS = {
+  red:    [{r:11, c:2}, {r:11, c:3}, {r:12, c:2}, {r:12, c:3}],
+  green:  [{r:2, c:2},  {r:2, c:3},  {r:3, c:2},  {r:3, c:3}],
+  yellow: [{r:2, c:11}, {r:2, c:12}, {r:3, c:11}, {r:3, c:12}],
+  blue:   [{r:11, c:11},{r:11, c:12},{r:12, c:11},{r:12, c:12}]
+};
+
+var PLAYER_COLORS_HEX = {
+  red:    0xef4444,
+  green:  0x10b981,
+  yellow: 0xffcc00,
+  blue:   0x3b82f6
+};
+
+/* ==================================================
+   3. THREE.JS 3D WORLD SETUP
+   ================================================== */
+var scene, camera, renderer, boardGroup, tokenGroup, starParticles;
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2();
+
+/* Orbital Camera Controls */
+var isDragging = false, dragLastX = 0, dragLastY = 0;
+var boardRotY = 0, boardRotX = 0.45, boardVelY = 0, boardVelX = 0;
+var zoomCurrent = 1.0, zoomTarget = 1.0;
+var lastInteractTime = performance.now();
+var autoSpinBlend = 0;
+var AUTO_SPIN_DELAY = 3000;
+var AUTO_SPIN_SPEED = 0.08;
+var lastTapTime = 0;
+
+var tokenMeshes = { red:[], green:[], yellow:[], blue:[] };
+
+function gridToWorld(r, c){
+  /* 15x15 grid mapped into 3D world coordinates */
+  var cellSize = 0.62;
+  var x = (c - 7) * cellSize;
+  var z = (r - 7) * cellSize;
+  return { x: x, y: 0.18, z: z };
+}
+
+function init3D(){
+  var container = document.getElementById('canvas-container');
+  var canvas = document.getElementById('three-canvas');
+
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 100);
+
+  renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+
+  /* Lighting */
+  var ambLight = new THREE.AmbientLight(0xffffff, 0.45);
+  scene.add(ambLight);
+
+  var dirLight = new THREE.DirectionalLight(0xffeedd, 0.8);
+  dirLight.position.set(12, 22, 14);
+  dirLight.castShadow = true;
+  scene.add(dirLight);
+
+  var pointLight = new THREE.PointLight(0xf59e0b, 0.7, 20);
+  pointLight.position.set(0, 6, 0);
+  scene.add(pointLight);
+
+  /* Background Starfield Particles */
+  var starGeo = new THREE.BufferGeometry();
+  var starPos = new Float32Array(180 * 3);
+  for(var i=0; i<180*3; i+=3){
+    starPos[i] = (Math.random() - 0.5) * 36;
+    starPos[i+1] = (Math.random() - 0.5) * 22 + 4;
+    starPos[i+2] = (Math.random() - 0.5) * 36;
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+  var starMat = new THREE.PointsMaterial({ color: 0xf59e0b, size: 0.12, transparent: true, opacity: 0.55 });
+  starParticles = new THREE.Points(starGeo, starMat);
+  scene.add(starParticles);
+
+  /* Board Hierarchy */
+  boardGroup = new THREE.Group();
+  tokenGroup = new THREE.Group();
+  boardGroup.add(tokenGroup);
+  scene.add(boardGroup);
+
+  build3DBoard();
+  build3DPawns();
+
+  /* Listeners */
+  window.addEventListener('resize', onResize);
+  canvas.addEventListener('pointerdown', onPointerDown, {passive:true});
+  canvas.addEventListener('pointermove', onPointerMove, {passive:true});
+  canvas.addEventListener('pointerup', onPointerUp, {passive:true});
+  canvas.addEventListener('wheel', function(e){
+    e.preventDefault();
+    lastInteractTime = performance.now();
+    autoSpinBlend = 0;
+    zoomTarget = Math.max(0.55, Math.min(1.8, zoomTarget + e.deltaY * 0.001));
+  }, {passive:false});
+
+  animate();
+}
+
+function onResize(){
+  var container = document.getElementById('canvas-container');
+  if(!container || !renderer || !camera) return;
+  camera.aspect = container.clientWidth / container.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(container.clientWidth, container.clientHeight);
+}
+
+/* ==================================================
+   4. 3D BOARD & PAWN MESH CREATION
+   ================================================== */
+/* ==================================================
+   SHAPE HELPERS
+   ================================================== */
+function createStarShape(radius, innerRadius, points, thickness) {
+  var shape = new THREE.Shape();
+  var pi2 = Math.PI * 2;
+  for (var i = 0; i < points * 2; i++) {
+    var r = (i % 2 === 0) ? radius : innerRadius;
+    var a = (i / (points * 2)) * pi2 - Math.PI / 2;
+    if (i === 0) shape.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+    else shape.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+  }
+  if (thickness) {
+    var holePath = new THREE.Path();
+    var rOuter = radius - thickness;
+    var rInner = innerRadius - thickness;
+    for (var i = 0; i < points * 2; i++) {
+      var r = (i % 2 === 0) ? rOuter : rInner;
+      var a = (i / (points * 2)) * pi2 - Math.PI / 2;
+      if (i === 0) holePath.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+      else holePath.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+    }
+    shape.holes.push(holePath);
+  }
+  return shape;
+}
+
+function createArrowShape() {
+  var shape = new THREE.Shape();
+  var t = 0.015; // stem half-thickness
+  shape.moveTo(-t, -0.2);
+  shape.lineTo(t, -0.2);
+  shape.lineTo(t, 0.04);
+  shape.lineTo(0.12, -0.05);
+  shape.lineTo(0.14, -0.01);
+  shape.lineTo(0, 0.16); // Tip
+  shape.lineTo(-0.14, -0.01);
+  shape.lineTo(-0.12, -0.05);
+  shape.lineTo(-t, 0.04);
+  shape.lineTo(-t, -0.2);
+  return shape;
+}
+
+function build3DBoard(){
+  /* Base Pedestal */
+  var baseGeo = new THREE.BoxGeometry(10.2, 0.4, 10.2);
+  var baseMat = new THREE.MeshStandardMaterial({ color: 0x161d2a, roughness: 0.4, metalness: 0.2 });
+  var baseMesh = new THREE.Mesh(baseGeo, baseMat);
+  baseMesh.position.y = -0.2;
+  boardGroup.add(baseMesh);
+
+  /* 15x15 Tiles */
+  var cellSize = 0.62;
+  for(var r=0; r<15; r++){
+    for(var c=0; c<15; c++){
+      var pos = gridToWorld(r, c);
+      var tileColor = 0x232c3d;
+
+      /* Check Paths & Yards */
+      PLAYERS.forEach(function(p){
+        HOME_PATHS[p].forEach(function(hp){
+          if(hp.r === r && hp.c === c) tileColor = PLAYER_COLORS_HEX[p];
+        });
+      });
+
+      var isStartRed    = (r===13 && c===6);
+      var isStartGreen  = (r===6  && c===1);
+      var isStartYellow = (r===1  && c===8);
+      var isStartBlue   = (r===8  && c===13);
+
+      /* Arrows at the entrance of each home path */
+      var isArrowRed    = (r===14 && c===7);
+      var isArrowGreen  = (r===7  && c===0);
+      var isArrowYellow = (r===0  && c===7);
+      var isArrowBlue   = (r===7  && c===14);
+
+      var isOtherSafe   = (r===8&&c===2)||(r===2&&c===6)||(r===6&&c===12)||(r===12&&c===8);
+
+      /* Start cells (where pieces spawn) are colored */
+      if(isStartRed)    tileColor = PLAYER_COLORS_HEX.red;
+      if(isStartGreen)  tileColor = PLAYER_COLORS_HEX.green;
+      if(isStartYellow) tileColor = PLAYER_COLORS_HEX.yellow;
+      if(isStartBlue)   tileColor = PLAYER_COLORS_HEX.blue;
+
+      var tileGeo = new THREE.BoxGeometry(cellSize * 0.94, 0.08, cellSize * 0.94);
+      var tileMat = new THREE.MeshStandardMaterial({ color: tileColor, roughness: 0.35, metalness: 0.15 });
+      var tileMesh = new THREE.Mesh(tileGeo, tileMat);
+      tileMesh.position.set(pos.x, 0.04, pos.z);
+      boardGroup.add(tileMesh);
+
+      /* Extrusion settings for 3D inlays */
+      var extrudeSettings = { depth: 0.012, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.003, bevelThickness: 0.003 };
+
+      /* Add 3D Bordered Star for non-start safe tiles */
+      if(isOtherSafe){
+        var starGeo = new THREE.ExtrudeGeometry(createStarShape(0.16, 0.07, 5, 0.025), extrudeSettings);
+        var starMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4, metalness: 0.1 });
+        var starMesh = new THREE.Mesh(starGeo, starMat);
+        starMesh.rotation.x = -Math.PI / 2;
+        starMesh.position.set(pos.x, 0.08, pos.z);
+        boardGroup.add(starMesh);
+      }
+
+      /* Add 3D Colored Arrows at home entrances */
+      if(isArrowRed || isArrowGreen || isArrowYellow || isArrowBlue){
+        var arrowGeo = new THREE.ExtrudeGeometry(createArrowShape(), extrudeSettings);
+        var arrowColor, arrowRot;
+        if(isArrowRed)    { arrowColor = PLAYER_COLORS_HEX.red;    arrowRot = 0; }
+        if(isArrowGreen)  { arrowColor = PLAYER_COLORS_HEX.green;  arrowRot = -Math.PI/2; }
+        if(isArrowYellow) { arrowColor = PLAYER_COLORS_HEX.yellow; arrowRot = Math.PI; }
+        if(isArrowBlue)   { arrowColor = PLAYER_COLORS_HEX.blue;   arrowRot = Math.PI/2; }
+        
+        var arrowMat = new THREE.MeshStandardMaterial({ color: arrowColor, roughness: 0.3, metalness: 0.1 });
+        var arrowMesh = new THREE.Mesh(arrowGeo, arrowMat);
+        arrowMesh.rotation.x = -Math.PI / 2;
+        arrowMesh.rotation.z = arrowRot;
+        arrowMesh.position.set(pos.x, 0.08, pos.z);
+        boardGroup.add(arrowMesh);
+      }
+    }
+  }
+
+  /* 4 Raised Yards — Ludo King style with circular nests */
+  var yardSize = cellSize * 6;
+
+  var yardDefs = [
+    { color: PLAYER_COLORS_HEX.red,    x: -cellSize*4.5, z:  cellSize*4.5 },
+    { color: PLAYER_COLORS_HEX.green,  x: -cellSize*4.5, z: -cellSize*4.5 },
+    { color: PLAYER_COLORS_HEX.yellow, x:  cellSize*4.5, z: -cellSize*4.5 },
+    { color: PLAYER_COLORS_HEX.blue,   x:  cellSize*4.5, z:  cellSize*4.5 }
+  ];
+
+  yardDefs.forEach(function(yd){
+    /* ---- Base coloured slab ---- */
+    var yardGeo = new THREE.BoxGeometry(yardSize, 0.22, yardSize);
+    var yMat = new THREE.MeshStandardMaterial({ color: yd.color, roughness: 0.3, metalness: 0.2 });
+    var yMesh = new THREE.Mesh(yardGeo, yMat);
+    yMesh.position.set(yd.x, 0.11, yd.z);
+    boardGroup.add(yMesh);
+
+    /* ---- White inset frame on top of base ---- */
+    var framePad = cellSize * 0.55;
+    var frameInner = yardSize - framePad * 2;
+    var frameGeo = new THREE.BoxGeometry(frameInner, 0.04, frameInner);
+    var frameMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4, metalness: 0.0, opacity: 0.35, transparent: true });
+    var frameMesh = new THREE.Mesh(frameGeo, frameMat);
+    frameMesh.position.set(yd.x, 0.225, yd.z);
+    boardGroup.add(frameMesh);
+
+    /* ---- 4 circular nest pockets (2×2 grid) ---- */
+    var nestOffsets = [
+      { ox: -cellSize * 1.1, oz: -cellSize * 1.1 },
+      { ox:  cellSize * 1.1, oz: -cellSize * 1.1 },
+      { ox: -cellSize * 1.1, oz:  cellSize * 1.1 },
+      { ox:  cellSize * 1.1, oz:  cellSize * 1.1 }
+    ];
+
+    nestOffsets.forEach(function(no){
+      var nx = yd.x + no.ox;
+      var nz = yd.z + no.oz;
+      var ny = 0.23;
+
+      /* Outer white ring */
+      var ringGeo = new THREE.CylinderGeometry(cellSize * 0.68, cellSize * 0.68, 0.04, 48);
+      var ringMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3, metalness: 0.05 });
+      var ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      ringMesh.position.set(nx, ny, nz);
+      boardGroup.add(ringMesh);
+
+      /* Inner coloured disc */
+      var discGeo = new THREE.CylinderGeometry(cellSize * 0.52, cellSize * 0.52, 0.05, 48);
+      var discMat = new THREE.MeshStandardMaterial({ color: yd.color, roughness: 0.35, metalness: 0.1 });
+      var discMesh = new THREE.Mesh(discGeo, discMat);
+      discMesh.position.set(nx, ny + 0.01, nz);
+      boardGroup.add(discMesh);
+
+      /* Subtle inner shadow ring (dark) */
+      var shadowGeo = new THREE.TorusGeometry(cellSize * 0.52, 0.018, 12, 48);
+      var shadowMat = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.8, metalness: 0.0, opacity: 0.3, transparent: true });
+      var shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
+      shadowMesh.rotation.x = Math.PI / 2;
+      shadowMesh.position.set(nx, ny + 0.04, nz);
+      boardGroup.add(shadowMesh);
+    });
+  });
+
+  /* ---- Center — proper Ludo King 4-triangle star ---- */
+  var cHalf = cellSize * 1.5;   /* half-span of 3-cell area = 0.93 */
+  var cY    = 0.09;             /* sits just above the tiles        */
+
+  /* Dark base covers full 3×3 */
+  var cBaseGeo = new THREE.BoxGeometry(cHalf * 2, 0.055, cHalf * 2);
+  var cBaseMat = new THREE.MeshStandardMaterial({ color: 0x0d1520, roughness: 0.6, metalness: 0.05 });
+  var cBaseMesh = new THREE.Mesh(cBaseGeo, cBaseMat);
+  cBaseMesh.position.set(0, 0.058, 0);
+  boardGroup.add(cBaseMesh);
+
+  /*
+   * 4 right-triangle wedges sharing the centre tip (0,0).
+   * Each covers exactly one quadrant of the square so they tile with NO gaps.
+   * Vertices in XZ (Y=up):  tip → corner1 → corner2
+   *
+   *   (-H,-H)  (H,-H)   ← top edge    (negative Z = "up" on board)
+   *      \_____/
+   *      |\   /|
+   *      | \ / |
+   *      |  X  |        X = (0,0) centre
+   *      | / \ |
+   *      |/   \|
+   *      /‾‾‾‾‾\
+   *   (-H, H)  (H, H)   ← bottom edge (positive Z = "down" on board)
+   *
+   *  Yellow = top    (–Z side)
+   *  Blue   = right  (+X side)
+   *  Red    = bottom (+Z side)
+   *  Green  = left   (–X side)
+   */
+  var wedgeDefs = [
+    { hex: PLAYER_COLORS_HEX.yellow, x0:0,     z0:0,      x1:-cHalf, z1:-cHalf, x2: cHalf, z2:-cHalf }, /* top    */
+    { hex: PLAYER_COLORS_HEX.blue,   x0:0,     z0:0,      x1: cHalf, z1:-cHalf, x2: cHalf, z2: cHalf }, /* right  */
+    { hex: PLAYER_COLORS_HEX.red,    x0:0,     z0:0,      x1: cHalf, z1: cHalf, x2:-cHalf, z2: cHalf }, /* bottom */
+    { hex: PLAYER_COLORS_HEX.green,  x0:0,     z0:0,      x1:-cHalf, z1: cHalf, x2:-cHalf, z2:-cHalf }  /* left   */
+  ];
+
+  wedgeDefs.forEach(function(wd){
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
+      wd.x0, 0, wd.z0,
+      wd.x1, 0, wd.z1,
+      wd.x2, 0, wd.z2
+    ]), 3));
+    geo.setIndex([0, 1, 2]);
+    geo.computeVertexNormals();
+    var mat = new THREE.MeshStandardMaterial({
+      color: wd.hex, roughness: 0.28, metalness: 0.12,
+      emissive: wd.hex, emissiveIntensity: 0.12,
+      side: THREE.DoubleSide
+    });
+    var mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(0, cY, 0);
+    boardGroup.add(mesh);
+  });
+
+  /* White diagonal lines separating the 4 wedges */
+  var diagLen = Math.sqrt(2) * cHalf;
+  [Math.PI / 4, -Math.PI / 4].forEach(function(a){
+    var lGeo = new THREE.BoxGeometry(0.022, 0.018, diagLen);
+    var lMesh = new THREE.Mesh(lGeo,
+      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }));
+    lMesh.rotation.y = a;
+    lMesh.position.set(0, cY + 0.01, 0);
+    boardGroup.add(lMesh);
+  });
+
+  /* White outer border ring around the 3×3 area */
+  var bSize = cHalf * 2 + 0.04;
+  var borderEdges = new THREE.EdgesGeometry(new THREE.BoxGeometry(bSize, 0.01, bSize));
+  var borderLines = new THREE.LineSegments(borderEdges,
+    new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 1 }));
+  borderLines.position.set(0, cY + 0.02, 0);
+  boardGroup.add(borderLines);
+
+  /* Glowing gold hexagon at dead centre */
+  var cDiscGeo = new THREE.CylinderGeometry(cellSize * 0.20, cellSize * 0.20, 0.055, 6);
+  var cDiscMat = new THREE.MeshStandardMaterial({
+    color: 0xffd700, metalness: 0.95, roughness: 0.08,
+    emissive: 0xff8800, emissiveIntensity: 0.7
+  });
+  var cDisc = new THREE.Mesh(cDiscGeo, cDiscMat);
+  cDisc.position.set(0, cY + 0.03, 0);
+  boardGroup.add(cDisc);
+}
+
+/* =====================================================
+   Polished Ludo chess-pawn piece
+   ===================================================== */
+function createPawnMesh(colorHex, colorName, tokIdx){
+
+  /* Lathe profile — more control points for sharper neck */
+  var ctrl = [
+    new THREE.Vector2(0.000, 0.000),  // centre bottom
+    new THREE.Vector2(0.228, 0.000),  // base outer
+    new THREE.Vector2(0.236, 0.016),  // outward rim flare
+    new THREE.Vector2(0.226, 0.036),  // base top
+    new THREE.Vector2(0.208, 0.055),  // body lower start
+    new THREE.Vector2(0.190, 0.085),  // body lower
+    new THREE.Vector2(0.172, 0.118),  // body mid-lower
+    new THREE.Vector2(0.156, 0.155),  // body mid
+    new THREE.Vector2(0.142, 0.192),  // body mid-upper
+    new THREE.Vector2(0.130, 0.228),  // body upper
+    new THREE.Vector2(0.115, 0.258),  // narrowing to neck
+    new THREE.Vector2(0.088, 0.284),  // neck entry
+    new THREE.Vector2(0.068, 0.306),  // neck thin (min)
+    new THREE.Vector2(0.065, 0.326),  // neck straight
+    new THREE.Vector2(0.068, 0.342),  // neck exit
+    new THREE.Vector2(0.092, 0.356),  // head seat
+  ];
+
+  var curve    = new THREE.SplineCurve(ctrl);
+  var pts      = curve.getPoints(80);
+  var latheGeo = new THREE.LatheGeometry(pts, 64);
+
+  /* Sphere head — tangent to head-seat (r=0.092, y=0.356) */
+  var jR = 0.092, jY = 0.356, headR = 0.172;
+  var headY = jY + Math.sqrt(Math.max(0, headR*headR - jR*jR));
+  var headGeo = new THREE.SphereGeometry(headR, 48, 36);
+  headGeo.translate(0, headY, 0);
+
+  /* High-gloss plastic material */
+  var pawnMat = new THREE.MeshStandardMaterial({
+    color:             colorHex,
+    roughness:         0.06,
+    metalness:         0.05,
+    emissive:          colorHex,
+    emissiveIntensity: 0.18
+  });
+
+  /* Dark neck accent ring — gives clear head/body separation */
+  var neckRing = new THREE.Mesh(
+    new THREE.TorusGeometry(0.068, 0.010, 10, 48),
+    new THREE.MeshStandardMaterial({
+      color: 0x111111, roughness: 0.5, metalness: 0.2,
+      transparent: true, opacity: 0.55
+    })
+  );
+  neckRing.rotation.x = Math.PI / 2;
+  neckRing.position.y = 0.316;
+
+  /* Gold base rim torus — elegant finish at bottom edge */
+  var baseRim = new THREE.Mesh(
+    new THREE.TorusGeometry(0.226, 0.010, 10, 48),
+    new THREE.MeshStandardMaterial({
+      color: 0xffd700, roughness: 0.08, metalness: 0.95,
+      emissive: 0xaa5500, emissiveIntensity: 0.3
+    })
+  );
+  baseRim.rotation.x = Math.PI / 2;
+  baseRim.position.y = 0.016;
+
+  var group = new THREE.Group();
+  group.add(new THREE.Mesh(latheGeo, pawnMat));
+  group.add(new THREE.Mesh(headGeo,  pawnMat));
+  group.add(neckRing);
+  group.add(baseRim);
+
+  group.scale.setScalar(0.88);
+  group.userData = { color: colorName, tokIdx: tokIdx };
+  tokenGroup.add(group);
+  return group;
+}
+
+function build3DPawns(){
+  PLAYERS.forEach(function(p){
+    tokenMeshes[p] = [];
+    for(var i=0; i<4; i++){
+      var mesh = createPawnMesh(PLAYER_COLORS_HEX[p], p, i);
+      tokenMeshes[p].push(mesh);
+    }
+  });
+}
+
+function update3DPawnPositions(){
+
+  /* Build occupancy map for same-square stacking */
+  var occupancy = {};
+  PLAYERS.forEach(function(color){
+    gameState.tokens[color].forEach(function(tok, idx){
+      if(tok.step >= 0 && tok.step <= 56){
+        var key = "";
+        if (tok.step <= 50) key = "P" + ((START_OFFSETS[color] + tok.step) % 52);
+        else if (tok.step <= 55) key = "H" + color + tok.step;
+        else key = "C" + color;
+        if(!occupancy[key]) occupancy[key] = [];
+        occupancy[key].push({ color: color, idx: idx });
+      }
+    });
+  });
+
+  PLAYERS.forEach(function(color){
+    gameState.tokens[color].forEach(function(tok, idx){
+      var mesh = tokenMeshes[color][idx];
+      if(!mesh) return;
+
+      var isActivePlayer = true;
+      if(gameState.activePlayers && gameState.activePlayers.length > 0) {
+        isActivePlayer = gameState.activePlayers.indexOf(color) !== -1;
+      }
+      mesh.visible = isActivePlayer;
+      if(!isActivePlayer) return;
+
+      /* Don't fight the smooth animation — skip animating pieces */
+      if(_animatingMeshes[mesh.uuid]) {
+        /* Still update highlight pulse while moving */
+        var isMovable = (!gameState.gameOver && gameState.hasRolled && color === getCurrentPlayer() && isValidMove(color, idx, gameState.diceValue));
+        mesh.children.forEach(function(ch){ if(ch.material) ch.material.emissiveIntensity = isMovable ? 0.6 : 0.12; });
+        return;
+      }
+
+      var stackOx = 0, stackOz = 0;
+
+      var pawnScale = 1.0;
+      if(tok.step === -1){
+        var cs = 0.62;
+        var YARD_CENTERS = {
+          red:    { x: -cs*4.5, z:  cs*4.5 },
+          green:  { x: -cs*4.5, z: -cs*4.5 },
+          yellow: { x:  cs*4.5, z: -cs*4.5 },
+          blue:   { x:  cs*4.5, z:  cs*4.5 }
+        };
+        var NEST_OFFSETS = [
+          { ox: -cs*1.1, oz: -cs*1.1 },
+          { ox:  cs*1.1, oz: -cs*1.1 },
+          { ox: -cs*1.1, oz:  cs*1.1 },
+          { ox:  cs*1.1, oz:  cs*1.1 }
+        ];
+        var yc = YARD_CENTERS[color];
+        var no = NEST_OFFSETS[idx];
+        mesh.position.set(yc.x + no.ox, 0.24, yc.z + no.oz);
+
+      } else {
+        var coord;
+        if(tok.step >= 0 && tok.step <= 56){
+          var key = "";
+          if(tok.step <= 50){
+            var globalIdx = (START_OFFSETS[color] + tok.step) % 52;
+            coord = BOARD_COORDS[globalIdx];
+            key = "P" + globalIdx;
+          } else if(tok.step <= 55) {
+            coord = HOME_PATHS[color][tok.step - 51];
+            key = "H" + color + tok.step;
+          } else {
+            coord = CENTER_COORDS[color];
+            key = "C" + color;
+          }
+
+          /* Spread pieces sharing the same square in a small circle */
+          var grp = occupancy[key];
+          if(grp && grp.length > 1){
+            var pos = -1;
+            grp.forEach(function(g, gi){ if(g.color===color && g.idx===idx) pos=gi; });
+            if(pos !== -1){
+              var total  = grp.length;
+              var angle  = (pos / total) * Math.PI * 2;
+              var spread = total > 2 ? 0.12 : 0.16;
+              pawnScale = total > 2 ? 0.6 : 0.75;
+              stackOx = Math.cos(angle) * spread;
+              stackOz = Math.sin(angle) * spread;
+            }
+          }
+        }
+        var world = gridToWorld(coord.r, coord.c);
+        mesh.position.set(world.x + stackOx, 0.08, world.z + stackOz);
+      }
+      mesh.scale.set(pawnScale, pawnScale, pawnScale);
+
+      /* Highlight + pulse for movable pieces */
+      var isMovable = (!gameState.gameOver && gameState.hasRolled && color === getCurrentPlayer() && isValidMove(color, idx, gameState.diceValue));
+      mesh.children.forEach(function(ch){
+        if(ch.material) ch.material.emissiveIntensity = isMovable ? 0.6 : 0.05;
+      });
+      if(isMovable){
+        mesh.scale.setScalar(1.12 + Math.sin(performance.now() * 0.007) * 0.06);
+      } else {
+        mesh.scale.setScalar(1.0);
+      }
+    });
+  });
+}
+
+
+/* ==================================================
+   5. 3D RENDER LOOP & CAMERA CONTROLS
+   ================================================== */
+function onPointerDown(e){
+  lastInteractTime = performance.now();
+  autoSpinBlend = 0;
+  isDragging = true;
+  dragLastX = e.clientX;
+  dragLastY = e.clientY;
+  boardVelY = 0;
+  boardVelX = 0;
+}
+
+function onPointerMove(e){
+  if(isDragging){
+    var dx = e.clientX - dragLastX;
+    var dy = e.clientY - dragLastY;
+    boardVelY = dx * 0.012;
+    boardVelX = dy * 0.008;
+    boardRotY += boardVelY;
+    boardRotX = Math.max(0.2, Math.min(0.85, boardRotX + boardVelX));
+    dragLastX = e.clientX;
+    dragLastY = e.clientY;
+  }
+}
+
+function onPointerUp(e){
+  isDragging = false;
+  var tapNow = performance.now();
+  if(tapNow - lastTapTime < 300){
+    /* Double tap reset */
+    boardRotY = 0; boardRotX = 0.45; zoomTarget = 1.0;
+  }
+  lastTapTime = tapNow;
+
+  /* Raycasting click on 3D Pawns */
+  var rect = renderer.domElement.getBoundingClientRect();
+  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+
+  var allPawnMeshes = [];
+  PLAYERS.forEach(function(p){
+    tokenMeshes[p].forEach(function(g){ g.children.forEach(function(ch){ allPawnMeshes.push(ch); }); });
+  });
+
+  var intersects = raycaster.intersectObjects(allPawnMeshes, true);
+  if(intersects.length > 0){
+    var rootGroup = intersects[0].object.parent;
+    if(rootGroup && rootGroup.userData){
+      var col = rootGroup.userData.color;
+      var idx = rootGroup.userData.tokIdx;
+      if(gameState.hasRolled && col === getCurrentPlayer() && isValidMove(col, idx, gameState.diceValue)){
+        executeMove(col, idx);
+      }
+    }
+  }
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+
+  var now = performance.now();
+  var dt = 0.016;
+
+  /* Smooth Zoom Lerp */
+  zoomCurrent += (zoomTarget - zoomCurrent) * 0.1;
+
+  /* Auto Rotation & Friction */
+  autoSpinBlend = 0;
+  if(!isDragging){
+    boardVelY *= 0.88;
+    boardVelX *= 0.88;
+    boardRotY += boardVelY;
+    boardRotX = Math.max(0.2, Math.min(0.85, boardRotX + boardVelX));
+
+    if(gameState && gameState.autoPOV && gameState.activePlayers && gameState.activePlayers.length > 0){
+      var curPlayer = getCurrentPlayer();
+      var angles = { red: 0, green: -Math.PI/2, yellow: Math.PI, blue: Math.PI/2 };
+      var target = angles[curPlayer] || 0;
+      
+      var diff = target - boardRotY;
+      while(diff < -Math.PI) diff += Math.PI * 2;
+      while(diff > Math.PI) diff -= Math.PI * 2;
+      
+      boardRotY += diff * 0.05;
+    }
+  }
+
+  /* Camera Math */
+  var camDist = 16 * zoomCurrent;
+  var camY = Math.sin(boardRotX) * camDist;
+  var camZ = Math.cos(boardRotX) * camDist;
+
+  camera.position.x = Math.sin(boardRotY) * camZ;
+  camera.position.z = Math.cos(boardRotY) * camZ;
+  camera.position.y = camY;
+  camera.lookAt(0, 0, 0);
+
+  /* Background Star Drift */
+  if(starParticles){
+    starParticles.rotation.y = now * 0.0002 + boardRotY * 0.08;
+  }
+
+  update3DPawnPositions();
+  renderer.render(scene, camera);
+}
+
+/* ==================================================
+   6. LUDO GAME RULES & ENGINE
+   ================================================== */
+var PLAYERS = ['red', 'green', 'yellow', 'blue'];
+var gameState = {
+  mode: 'pass',
+  playerCount: 2,
+  ruleType: 'classic',
+  activePlayers: [],
+  currentTurnIdx: 0,
+  diceValue: 1,
+  hasRolled: false,
+  consecutiveSixes: 0,
+  isMoving: false,
+  winners: [],
+  gameOver: false,
+  tokens: {
+    red:    [{step:-1},{step:-1},{step:-1},{step:-1}],
+    green:  [{step:-1},{step:-1},{step:-1},{step:-1}],
+    yellow: [{step:-1},{step:-1},{step:-1},{step:-1}],
+    blue:   [{step:-1},{step:-1},{step:-1},{step:-1}]
+  }
+};
+
+function getCurrentPlayer(){ return gameState.activePlayers[gameState.currentTurnIdx]; }
+
+function createDiceFaces(cubeEl){
+  cubeEl.innerHTML = '';
+  var dotsMap = {
+    1: [4],
+    2: [0, 8],
+    3: [0, 4, 8],
+    4: [0, 2, 6, 8],
+    5: [0, 2, 4, 6, 8],
+    6: [0, 2, 3, 5, 6, 8]
+  };
+  for(var f=1; f<=6; f++){
+    var face = document.createElement('div');
+    face.className = 'dice-face dice-face-' + f;
+    face.style.gridTemplateColumns = 'repeat(3, 1fr)';
+    face.style.gridTemplateRows = 'repeat(3, 1fr)';
+
+    for(var d=0; d<9; d++){
+      var dotBox = document.createElement('div');
+      if(dotsMap[f].indexOf(d) !== -1){
+        var dot = document.createElement('div');
+        dot.className = 'dice-dot';
+        dotBox.appendChild(dot);
+      }
+      face.appendChild(dotBox);
+    }
+    cubeEl.appendChild(face);
+  }
+}
+
+function setDiceFace(cubeEl, val){
+  var rotMap = {
+    1: 'rotateY(0deg)',
+    2: 'rotateY(-90deg)',
+    3: 'rotateX(-90deg)',
+    4: 'rotateX(90deg)',
+    5: 'rotateY(90deg)',
+    6: 'rotateY(180deg)'
+  };
+  cubeEl.style.transform = rotMap[val] || 'rotateY(0deg)';
+}
+
+function generateSmartRoll(color) {
+  var locked = 0, active = 0;
+  gameState.tokens[color].forEach(function(tok){
+    if(tok.step === -1) locked++;
+    else if(tok.step >= 0 && tok.step <= 55) active++;
+  });
+  
+  var w = [16, 16, 16, 16, 16, 16]; // Base equal weights for 1 to 6
+  
+  /* Pity 6: If all pawns are locked, give a massive 45% chance to roll a 6 to keep the game moving */
+  if(locked === 4) {
+    w[5] = 45;
+  }
+  
+  /* Anti-Spam: If you already rolled two 6s, heavily restrict the chance of a 3rd 6 to avoid a frustrating instant forfeit */
+  if(gameState.consecutiveSixes === 2) {
+    w[5] = 2; // only a tiny chance for a third 6
+  }
+
+  var total = w.reduce(function(a,b){ return a+b; }, 0);
+  var rand = Math.random() * total;
+  var sum = 0;
+  for(var i=0; i<6; i++) {
+    sum += w[i];
+    if(rand <= sum) return i + 1;
+  }
+  return 6;
+}
+
+function rollDice(){
+  if(gameState.hasRolled || gameState.isMoving || gameState.gameOver || gameState.isRolling) return;
+
+  var cubeEl = document.getElementById('dice-cube-central');
+  if(!cubeEl || cubeEl.classList.contains('dice-rolling')) return;
+
+  gameState.isRolling = true; // Lock dice against rapid multi-clicks
+  AudioEngine.diceRoll();
+  cubeEl.classList.add('dice-rolling');
+
+  var val = generateSmartRoll(getCurrentPlayer());
+  gameState.diceValue = val;
+
+  setTimeout(function(){
+    cubeEl.classList.remove('dice-rolling');
+    setDiceFace(cubeEl, val);
+    
+    gameState.hasRolled = true;
+    gameState.isRolling = false; // Unlock
+
+    if(val === 6){
+      gameState.consecutiveSixes++;
+      if(gameState.consecutiveSixes >= 3){
+        updateStatus("Three 6s! Turn forfeited ⚠️");
+        gameState.consecutiveSixes = 0;
+        setTimeout(passTurn, 1000);
+        return;
+      }
+    } else {
+      gameState.consecutiveSixes = 0;
+    }
+
+    processTurnAfterRoll();
+  }, 600);
+}
+
+function isValidMove(color, tokIdx, roll){
+  var tok = gameState.tokens[color][tokIdx];
+  if(tok.step === -1) return roll === 6;
+  return (tok.step + roll <= 56);
+}
+
+function getValidMoveCount(color, roll){
+  var count = 0;
+  gameState.tokens[color].forEach(function(tok, idx){
+    if(isValidMove(color, idx, roll)) count++;
+  });
+  return count;
+}
+
+function getFirstValidTokenIndex(color, roll){
+  for(var i=0; i<4; i++){
+    if(isValidMove(color, i, roll)) return i;
+  }
+  return -1;
+}
+
+function processTurnAfterRoll(){
+  var player = getCurrentPlayer();
+  var validMoves = getValidMoveCount(player, gameState.diceValue);
+
+  if(validMoves === 0){
+    updateStatus("No valid moves for " + capitalize(player) + ".");
+    setTimeout(passTurn, 850);
+  } else if(validMoves === 1){
+    var singleIdx = getFirstValidTokenIndex(player, gameState.diceValue);
+    setTimeout(function(){ executeMove(player, singleIdx); }, 400);
+  } else {
+    if(gameState.mode === 'ai' && player !== 'red'){
+      setTimeout(function(){ executeAIMove(player, gameState.diceValue); }, 500);
+    } else {
+      updateStatus(capitalize(player) + " rolled a " + gameState.diceValue + "! Tap a glowing 3D pawn.");
+    }
+  }
+}
+
+/* ── helpers ── */
+var _animatingMeshes = {};
+
+/*
+ * walkPieceHome
+ * -------------
+ * Animates a captured piece walking backwards along the real board path
+ * from its current step all the way to its yard nest.
+ *
+ * vm          : THREE.Group (the piece mesh)
+ * color       : 'red' | 'green' | 'yellow' | 'blue'
+ * tokIdx      : 0-3 (which piece, determines nest position)
+ * currentStep : the step the piece is currently on
+ * onDone      : callback when animation finishes
+ */
+function walkPieceHome(vm, color, tokIdx, currentStep, onDone){
+  var cs = 0.62;
+  var YARD_CENTERS = {
+    red:    { x:-cs*4.5, z: cs*4.5 },
+    green:  { x:-cs*4.5, z:-cs*4.5 },
+    yellow: { x: cs*4.5, z:-cs*4.5 },
+    blue:   { x: cs*4.5, z: cs*4.5 }
+  };
+  var NEST_OFFSETS = [
+    {ox:-cs*1.1, oz:-cs*1.1}, {ox:cs*1.1, oz:-cs*1.1},
+    {ox:-cs*1.1, oz: cs*1.1}, {ox:cs*1.1, oz: cs*1.1}
+  ];
+
+  /* Build waypoints: current pos → each board cell backwards → yard nest */
+  var pts = [{ x: vm.position.x, y: vm.position.y, z: vm.position.z }];
+
+  for(var s = currentStep; s >= 0; s--){
+    var w = getWorldForStep(color, s);
+    pts.push({ x: w.x, y: w.y, z: w.z });
+  }
+
+  /* Final destination: exact yard nest */
+  var yc = YARD_CENTERS[color];
+  var no = NEST_OFFSETS[tokIdx];
+  pts.push({ x: yc.x + no.ox, y: 0.24, z: yc.z + no.oz });
+
+  /* Duration: 70ms per waypoint, capped at 2400ms */
+  var totalMs = Math.min(pts.length * 70, 2400);
+
+  /* Glow red to show it's captured */
+  vm.children.forEach(function(ch){
+    if(ch.material) ch.material.emissiveIntensity = 0.9;
+  });
+
+  /* Spin during walk */
+  var spinId = { active: true };
+  (function spin(){
+    if(!spinId.active) return;
+    vm.rotation.y += 0.12;
+    requestAnimationFrame(spin);
+  })();
+
+  animatePieceAlongPath(pts, vm, totalMs, 0.12, [], function(){
+    spinId.active = false;
+    vm.rotation.y = 0;
+    vm.children.forEach(function(ch){
+      if(ch.material) ch.material.emissiveIntensity = 0.05;
+    });
+    if(onDone) onDone();
+  });
+}
+
+function getWorldForStep(color, step){
+  if(step === -1){
+    var cs = 0.62;
+    var YC = { red:{x:-cs*4.5,z:cs*4.5}, green:{x:-cs*4.5,z:-cs*4.5},
+               yellow:{x:cs*4.5,z:-cs*4.5}, blue:{x:cs*4.5,z:cs*4.5} };
+    return { x: YC[color].x, y: 0.24, z: YC[color].z };
+  }
+  var coord;
+  if(step >= 0 && step <= 50){
+    var gi = (START_OFFSETS[color] + step) % 52;
+    coord = BOARD_COORDS[gi];
+  } else if(step >= 51 && step <= 55){
+    coord = HOME_PATHS[color][step - 51];
+  } else {
+    coord = CENTER_COORDS[color];
+  }
+  var w = gridToWorld(coord.r, coord.c);
+  return { x: w.x, y: 0.08, z: w.z };
+}
+
+/*
+ * animatePieceAlongPath
+ * ----------------------
+ * pts        : Array of {x,y,z} world positions (start → end)
+ * mesh       : THREE.Group to animate
+ * totalMs    : total animation duration in milliseconds
+ * arcH       : peak height added as a sin-arc along the path
+ * audioTicks : array of { atT: 0..1, fn: function } to call mid-animation
+ * onDone     : callback when finished
+ */
+function animatePieceAlongPath(pts, mesh, totalMs, arcH, audioTicks, onDone){
+  if(!mesh || pts.length < 2){ if(onDone) onDone(); return; }
+
+  /* Build CatmullRomCurve3 through all waypoints */
+  var v3pts = pts.map(function(p){ return new THREE.Vector3(p.x, p.y, p.z); });
+  var curve  = new THREE.CatmullRomCurve3(v3pts, false, 'catmullrom', 0.5);
+
+  var uid    = mesh.uuid;
+  _animatingMeshes[uid] = true;
+  var t0     = performance.now();
+  var fired  = new Array(audioTicks.length).fill(false);
+
+  function frame(now){
+    var raw = Math.min((now - t0) / totalMs, 1);
+
+    /* ease-in-out-sine */
+    var t = -(Math.cos(Math.PI * raw) - 1) / 2;
+
+    var pt = curve.getPoint(t);
+    mesh.position.x = pt.x;
+    mesh.position.z = pt.z;
+    /* add smooth arc: highest at midpoint */
+    mesh.position.y = pt.y + arcH * Math.sin(Math.PI * raw);
+
+    /* fire audio ticks at the right moments */
+    audioTicks.forEach(function(tk, i){
+      if(!fired[i] && raw >= tk.atT){ fired[i] = true; tk.fn(); }
+    });
+
+    if(raw < 1){
+      requestAnimationFrame(frame);
+    } else {
+      var last = pts[pts.length - 1];
+      mesh.position.set(last.x, last.y, last.z);
+      delete _animatingMeshes[uid];
+      if(onDone) onDone();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function executeMove(color, tokIdx){
+  if(gameState.isMoving) return;
+  gameState.isMoving = true;
+
+  var tok  = gameState.tokens[color][tokIdx];
+  var roll = gameState.diceValue;
+  var mesh = tokenMeshes[color][tokIdx];
+
+  /* ── Spawn on 6: smooth arc from yard-nest → start cell ── */
+  if(tok.step === -1 && roll === 6){
+    tok.step = 0;
+    AudioEngine.step(1);
+    if(mesh){
+      var startPos = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z };
+      var endPos   = getWorldForStep(color, 0);
+      animatePieceTo(mesh, endPos.x, endPos.y, endPos.z, 520, 0.9, function(){
+        gameState.isMoving = false;
+        postMoveCheck(color, tokIdx, true);
+      });
+    } else {
+      gameState.isMoving = false;
+      postMoveCheck(color, tokIdx, true);
+    }
+    return;
+  }
+
+  /* ── Normal move: hop cell-by-cell with smooth lerp ── */
+  var stepsLeft = roll;
+  var STEP_DUR  = 260;   /* ms per cell */
+  var HOP_H     = 0.20;
+
+  function doNextStep(){
+    if(stepsLeft <= 0){
+      gameState.isMoving = false;
+      postMoveCheck(color, tokIdx, false);
+      return;
+    }
+    tok.step++;
+    stepsLeft--;
+    AudioEngine.step(tok.step);
+    var dest = getWorldForStep(color, tok.step);
+    if(mesh){
+      var hop = (stepsLeft === 0) ? HOP_H * 2.0 : HOP_H;
+      animatePieceTo(mesh, dest.x, dest.y, dest.z, STEP_DUR, hop, doNextStep);
+    } else {
+      setTimeout(doNextStep, STEP_DUR);
+    }
+  }
+  doNextStep();
+}
+
+/* Simple per-cell lerp with hop arc */
+function animatePieceTo(mesh, tx, ty, tz, duration, hopH, onDone){
+  var sx = mesh.position.x, sy = mesh.position.y, sz = mesh.position.z;
+  var t0  = performance.now();
+  var uid = mesh.uuid;
+  _animatingMeshes[uid] = true;
+  function frame(now){
+    var t = Math.min((now - t0) / duration, 1);
+    var e = 1 - Math.pow(1 - t, 3);          /* ease-out cubic */
+    mesh.position.x = sx + (tx - sx) * e;
+    mesh.position.z = sz + (tz - sz) * e;
+    mesh.position.y = sy + (ty - sy) * e + hopH * Math.sin(Math.PI * t);
+    if(t < 1){ requestAnimationFrame(frame); }
+    else {
+      mesh.position.set(tx, ty, tz);
+      delete _animatingMeshes[uid];
+      if(onDone) onDone();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+
+function postMoveCheck(color, tokIdx, wasSpawn){
+  var tok = gameState.tokens[color][tokIdx];
+  var extraRoll = (gameState.diceValue === 6);
+
+  if(tok.step === 56){
+    AudioEngine.enterHome();
+    extraRoll = true;
+    updateStatus("Pawn reached HOME! 🎉 Bonus Roll!");
+  }
+
+  if(tok.step >= 0 && tok.step <= 50){
+    var myGlobalIdx = (START_OFFSETS[color] + tok.step) % 52;
+    var isSafe = (STAR_TILES.indexOf(myGlobalIdx) !== -1);
+
+    if(!isSafe){
+      gameState.activePlayers.forEach(function(oppColor){
+        if(oppColor !== color){
+          gameState.tokens[oppColor].forEach(function(oppTok, oppIdx){
+            if(oppTok.step >= 0 && oppTok.step <= 50){
+              var oppGlobalIdx = (START_OFFSETS[oppColor] + oppTok.step) % 52;
+              if(oppGlobalIdx === myGlobalIdx){
+                AudioEngine.capture();
+                extraRoll = true;
+                updateStatus("Captured " + capitalize(oppColor) + "! Bonus roll awarded ⚔️");
+
+                /* Walk captured piece back home along the board path */
+                (function(oColor, oIdx, oTok){
+                  var vm = tokenMeshes[oColor][oIdx];
+                  if(!vm){ oTok.step = -1; return; }
+                  walkPieceHome(vm, oColor, oIdx, oTok.step, function(){
+                    oTok.step = -1;
+                  });
+                })(oppColor, oppIdx, oppTok);
+              }
+            }
+          });
+        }
+      });
+    }
+  }
+
+  if(checkPlayerWin(color)){
+    if(gameState.winners.indexOf(color) === -1){
+      gameState.winners.push(color);
+      AudioEngine.win();
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+    }
+    if(gameState.ruleType === 'quick' || gameState.winners.length >= gameState.activePlayers.length - 1){
+      endMatch();
+      return;
+    }
+  }
+
+  if(extraRoll && !gameState.gameOver){
+    gameState.hasRolled = false;
+    updateStatus(capitalize(color) + " gets a Bonus Roll! 🎲");
+    if(gameState.mode === 'ai' && color !== 'red'){
+      setTimeout(rollDice, 600);
+    }
+  } else {
+    passTurn();
+  }
+}
+
+function checkPlayerWin(color){
+  var needed = gameState.ruleType === 'quick' ? 1 : 4;
+  var homeCount = 0;
+  gameState.tokens[color].forEach(function(t){ if(t.step === 56) homeCount++; });
+  return homeCount >= needed;
+}
+
+function passTurn(){
+  gameState.hasRolled = false;
+  gameState.isMoving = false;
+
+  do {
+    gameState.currentTurnIdx = (gameState.currentTurnIdx + 1) % gameState.activePlayers.length;
+  } while(gameState.winners.indexOf(getCurrentPlayer()) !== -1 && !gameState.gameOver);
+
+  updateTurnDisplay();
+
+  var nextPlayer = getCurrentPlayer();
+  if(gameState.mode === 'ai' && nextPlayer !== 'red' && !gameState.gameOver){
+    setTimeout(rollDice, 600);
+  }
+}
+
+/* Smart Tactical AI */
+function executeAIMove(color, roll){
+  var validTokens = [];
+  gameState.tokens[color].forEach(function(tok, idx){
+    if(isValidMove(color, idx, roll)) validTokens.push(idx);
+  });
+
+  if(validTokens.length === 0){ passTurn(); return; }
+
+  var bestIdx = validTokens[0], bestScore = -999;
+  validTokens.forEach(function(idx){
+    var tok = gameState.tokens[color][idx];
+    var score = 0;
+
+    /* Capture Priority */
+    if(tok.step >= 0 && tok.step + roll <= 50){
+      var targetGlobal = (START_OFFSETS[color] + tok.step + roll) % 52;
+      if(STAR_TILES.indexOf(targetGlobal) === -1){
+        gameState.activePlayers.forEach(function(oppColor){
+          if(oppColor !== color){
+            gameState.tokens[oppColor].forEach(function(oppTok){
+              if(oppTok.step >= 0 && oppTok.step <= 50){
+                var oppGlobal = (START_OFFSETS[oppColor] + oppTok.step) % 52;
+                if(oppGlobal === targetGlobal) score += 100;
+              }
+            });
+          }
+        });
+      }
+    }
+    if(tok.step + roll === 56) score += 60;
+    if(tok.step === -1 && roll === 6) score += 40;
+    if(tok.step >= 0) score += tok.step * 0.5;
+
+    if(score > bestScore){ bestScore = score; bestIdx = idx; }
+  });
+
+  executeMove(color, bestIdx);
+}
+
+/* ==================================================
+   7. UI MANAGER & NAVIGATION
+   ================================================== */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.add('hidden'); });
+  var target = document.getElementById(id);
+  if(target) target.classList.remove('hidden');
+}
+
+var _statusTimeout = null;
+function updateStatus(text){
+  var bar = document.getElementById('game-status-bar');
+  var msg = document.getElementById('status-text');
+  if(msg) msg.textContent = text;
+  if(bar) {
+    bar.classList.add('show-toast');
+    clearTimeout(_statusTimeout);
+    _statusTimeout = setTimeout(function(){
+      bar.classList.remove('show-toast');
+    }, 2500);
+  }
+}
+
+function capitalize(str){
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function updateTurnDisplay(){
+  var active = getCurrentPlayer();
+  
+  var centralUi = document.getElementById('central-dice-ui');
+  var avatarArea = document.getElementById('central-avatar-area');
+  var pinPath = document.getElementById('central-pin-path');
+  
+  if(centralUi && avatarArea && pinPath) {
+    centralUi.style.borderColor = 'var(--' + active + ')';
+    centralUi.style.boxShadow = '0 0 20px var(--' + active + ')';
+    avatarArea.style.background = '#0f172a';
+    pinPath.setAttribute('fill', 'var(--' + active + ')');
+  }
+}
+
+function startMatch(){
+  gameState.winners = [];
+  gameState.gameOver = false;
+  gameState.currentTurnIdx = 0;
+  gameState.hasRolled = false;
+  gameState.consecutiveSixes = 0;
+
+  if(gameState.playerCount === 2){
+    gameState.activePlayers = ['red', 'yellow'];
+  } else if(gameState.playerCount === 3){
+    gameState.activePlayers = ['red', 'green', 'yellow'];
+  } else {
+    gameState.activePlayers = ['red', 'green', 'yellow', 'blue'];
+  }
+
+  PLAYERS.forEach(function(p){
+    gameState.tokens[p] = [{step:-1},{step:-1},{step:-1},{step:-1}];
+  });
+
+  var centralCube = document.getElementById('dice-cube-central');
+  if(centralCube) { createDiceFaces(centralCube); setDiceFace(centralCube, 1); }
+
+  document.getElementById('hud-match-type').textContent = gameState.playerCount + 'P ' + (gameState.mode === 'ai' ? 'Vs Bot ' : '') + capitalize(gameState.ruleType);
+
+  showScreen('game-screen');
+  updateTurnDisplay();
+}
+
+function endMatch(){
+  gameState.gameOver = true;
+  var modal = document.getElementById('win-modal');
+  var podium = document.getElementById('podium-list');
+  podium.innerHTML = '';
+
+  gameState.winners.forEach(function(w, idx){
+    var row = document.createElement('div');
+    row.className = 'podium-item' + (idx === 0 ? ' first' : '');
+    row.innerHTML = '<span>#' + (idx+1) + ' ' + capitalize(w) + '</span><span>' + (idx===0 ? '🏆 1st Place' : (idx===1 ? '🥈 2nd Place' : '🥉 3rd Place')) + '</span>';
+    podium.appendChild(row);
+  });
+
+  modal.classList.remove('hidden');
+}
+
+/* ==================================================
+   8. EVENT WIRING & STARTUP
+   ================================================== */
+function bindEvents(){
+  document.getElementById('btn-menu-play').addEventListener('click', function(){ showScreen('mode-screen'); });
+  document.getElementById('btn-menu-rules').addEventListener('click', function(){ showScreen('rules-screen'); });
+  document.getElementById('btn-menu-settings').addEventListener('click', function(){ showScreen('settings-screen'); });
+
+  document.getElementById('btn-mode-back').addEventListener('click', function(){ showScreen('main-menu'); });
+  document.getElementById('btn-rules-back').addEventListener('click', function(){ showScreen('main-menu'); });
+  document.getElementById('btn-settings-back').addEventListener('click', function(){ showScreen('main-menu'); });
+
+  document.getElementById('btn-game-menu').addEventListener('click', function(){ showScreen('main-menu'); });
+  document.getElementById('btn-game-restart').addEventListener('click', startMatch);
+
+  document.getElementById('btn-win-play-again').addEventListener('click', function(){
+    document.getElementById('win-modal').classList.add('hidden');
+    startMatch();
+  });
+  document.getElementById('btn-win-menu').addEventListener('click', function(){
+    document.getElementById('win-modal').classList.add('hidden');
+    showScreen('main-menu');
+  });
+
+  document.getElementById('chip-mode-pass').addEventListener('click', function(){
+    gameState.mode = 'pass';
+    this.classList.add('active');
+    document.getElementById('chip-mode-ai').classList.remove('active');
+  });
+  document.getElementById('chip-mode-ai').addEventListener('click', function(){
+    gameState.mode = 'ai';
+    this.classList.add('active');
+    document.getElementById('chip-mode-pass').classList.remove('active');
+  });
+
+  [2, 3, 4].forEach(function(cnt){
+    document.getElementById('chip-count-' + cnt).addEventListener('click', function(){
+      gameState.playerCount = cnt;
+      [2, 3, 4].forEach(function(c){ document.getElementById('chip-count-' + c).classList.remove('active'); });
+      this.classList.add('active');
+    });
+  });
+
+  document.getElementById('chip-rule-classic').addEventListener('click', function(){
+    gameState.ruleType = 'classic';
+    this.classList.add('active');
+    document.getElementById('chip-rule-quick').classList.remove('active');
+  });
+  document.getElementById('chip-rule-quick').addEventListener('click', function(){
+    gameState.ruleType = 'quick';
+    this.classList.add('active');
+    document.getElementById('chip-rule-classic').classList.remove('active');
+  });
+
+  document.getElementById('btn-start-game').addEventListener('click', startMatch);
+
+  var centralBox = document.getElementById('dice-box-central');
+  if(centralBox){
+    centralBox.addEventListener('click', function(){
+      var current = getCurrentPlayer();
+      if(gameState.mode === 'ai' && current !== 'blue') return; // Prevent clicking on AI's turn
+      rollDice();
+    });
+  }
+
+  var povBtn = document.getElementById('btn-game-pov');
+  var povCheck = document.getElementById('pov-checkbox');
+  if(povBtn && povCheck) {
+    povBtn.addEventListener('click', function(){
+      gameState.autoPOV = !gameState.autoPOV;
+      povCheck.checked = !!gameState.autoPOV;
+    });
+    povCheck.checked = !!gameState.autoPOV;
+  }
+
+  var soundBtn = document.getElementById('btn-game-sound');
+  var soundChip = document.getElementById('toggle-sound-chip');
+  function toggleSound(){
+    var isEnabled = AudioEngine.toggle();
+    if(soundChip) soundChip.textContent = isEnabled ? '🔊 Sound Effects: ON' : '🔇 Sound Effects: OFF';
+    soundBtn.style.opacity = isEnabled ? '1' : '0.4';
+  }
+  if(soundBtn) soundBtn.addEventListener('click', toggleSound);
+  if(soundChip) soundChip.addEventListener('click', toggleSound);
+
+  document.querySelectorAll('[data-theme]').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      document.querySelectorAll('[data-theme]').forEach(function(c){ c.classList.remove('active'); });
+      this.classList.add('active');
+      document.body.className = this.dataset.theme;
+    });
+  });
+}
+
+window.addEventListener('DOMContentLoaded', function(){
+  init3D();
+  bindEvents();
+  setTimeout(function(){
+    showScreen('main-menu');
+  }, 700);
+});
+
+})();
+
+/* ====== GLOBAL: Test capture animation ====== */
+function testCaptureAnim(){
+  /* Find any piece that is on the board (step 0-50), or force one there */
+  var victim = null, victimColor = null, victimIdx = null;
+
+  var tryColors = ['blue','green','yellow','red'];
+  for(var ci = 0; ci < tryColors.length; ci++){
+    var c = tryColors[ci];
+    if(!gameState || !gameState.tokens || !gameState.tokens[c]) continue;
+    for(var ti = 0; ti < gameState.tokens[c].length; ti++){
+      var tok = gameState.tokens[c][ti];
+      if(tok.step >= 0 && tok.step <= 50){
+        victim = tok; victimColor = c; victimIdx = ti;
+        break;
+      }
+    }
+    if(victim) break;
+  }
+
+  /* If nobody is on board, force piece 0 of blue to step 5 */
+  if(!victim && gameState && gameState.tokens){
+    victimColor = 'blue'; victimIdx = 0;
+    gameState.tokens[victimColor][victimIdx].step = 5;
+    victim = gameState.tokens[victimColor][victimIdx];
+    update3DPawnPositions();
+  }
+
+  if(!victim){ alert('Start a game first!'); return; }
+
+  var mesh = tokenMeshes[victimColor][victimIdx];
+  if(!mesh) return;
+
+  walkPieceHome(mesh, victimColor, victimIdx, victim.step, function(){
+    victim.step = -1;
+    update3DPawnPositions();
+  });
+}
+</script>
+</body>
+</html>

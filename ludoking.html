@@ -1034,7 +1034,7 @@ body.theme-light .btn-ghost:hover {
       <div class="modal-title">Are you sure?</div>
       <div class="modal-sub">This action will end your current game.</div>
       <div style="display:flex; flex-direction:column; gap:8px;">
-        <button class="btn btn-primary" id="btn-confirm-quit">Yes, Quit Game</button>
+        <button class="btn btn-primary" id="btn-confirm-quit">Yes, Quit To menu</button>
         <button class="btn btn-ghost" id="btn-cancel-quit">Cancel</button>
       </div>
     </div>
@@ -1329,8 +1329,8 @@ function isLightTheme(){
 }
 
 function build3DBoard(){
-  /* Base Pedestal */
-  var baseGeo = new THREE.BoxGeometry(10.2, 0.4, 10.2);
+  /* Base Pedestal (exactly 15 * 0.62 = 9.3) */
+  var baseGeo = new THREE.BoxGeometry(9.3, 0.4, 9.3);
   var baseColor = isLightTheme() ? 0xdde3ed : 0x081018;
   var baseMat = new THREE.MeshStandardMaterial({ color: baseColor, roughness: 0.4, metalness: 0.2 });
   var baseMesh = new THREE.Mesh(baseGeo, baseMat);
@@ -2850,6 +2850,8 @@ function bindEvents(){
       gameState.is2DMode = !gameState.is2DMode;
       var btnText = document.getElementById('2d-btn-text');
       if(btnText) btnText.textContent = gameState.is2DMode ? 'Switch to 3D View' : 'Switch to 2D View';
+      var povBtn = document.getElementById('btn-game-pov');
+      if(povBtn) povBtn.style.display = gameState.is2DMode ? 'none' : 'flex';
       updateTurnDisplay();
     }
     startMatch();
@@ -3064,10 +3066,14 @@ function bindEvents(){
       } else {
         gameState.is2DMode = !gameState.is2DMode;
         btnText.textContent = gameState.is2DMode ? 'Switch to 3D View' : 'Switch to 2D View';
+        var povBtn = document.getElementById('btn-game-pov');
+        if(povBtn) povBtn.style.display = gameState.is2DMode ? 'none' : 'flex';
         updateTurnDisplay();
       }
     });
     btnText.textContent = gameState.is2DMode ? 'Switch to 3D View' : 'Switch to 2D View';
+    var povBtn = document.getElementById('btn-game-pov');
+    if(povBtn) povBtn.style.display = gameState.is2DMode ? 'none' : 'flex';
   }
 
   var povBtn = document.getElementById('btn-game-pov');

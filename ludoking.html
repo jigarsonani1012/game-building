@@ -40,13 +40,13 @@
 
   --red: #ef4444;
   --green: #10b981;
-  --yellow: #f59e0b;
+  --yellow: #ffcc00;
   --blue: #3b82f6;
 }
 
 body.theme-light {
   /* Light Theme (White) — matches Tic-Tac-Toe */
-  --bg: #f8fafc;
+  --bg: #e2e8f0;
   --panel-bg: rgba(255, 255, 255, 0.96);
   --panel-solid: #ffffff;
   --surface: #ffffff;
@@ -380,6 +380,25 @@ body.theme-light .btn-ghost:hover {
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
   transform: translateX(-50%) scale(1.08);
 }
+
+  .corner-dice-ui {
+    position: absolute;
+    display: flex; align-items: stretch;
+    border-radius: 6px;
+    background: #fdf2f8;
+    border: 2px solid #576574;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    z-index: 15; pointer-events: auto;
+    transition: all var(--dur-med) var(--ease);
+    overflow: hidden;
+    opacity: 0.5; /* Inactive by default */
+    transform: scale(0.9);
+  }
+  .corner-dice-ui.active {
+    opacity: 1;
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+  }
 
 .avatar-area {
   background: #0984e3; /* overridden by JS */
@@ -723,29 +742,53 @@ body.theme-light .btn-ghost:hover {
     <div id="canvas-container">
       <canvas id="three-canvas"></canvas>
     </div>
-    <!-- Header -->
-    <div id="game-header">
-      <button class="icon-btn" id="btn-game-menu" title="Menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      </button>
-
-      <div class="hud-title-box">
-        <span id="hud-match-type">2P Classic</span>
+      <!-- Header -->
+      <div id="game-header">
+        <div style="width: 38px;"></div> <!-- Placeholder to keep title centered -->
+  
+        <div class="hud-title-box">
+          <span id="hud-match-type">2P Classic</span>
+        </div>
+  
+        <div class="hud-actions" style="position: relative;">
+          <button class="icon-btn" id="btn-hamburger" title="Settings">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </button>
+          
+          <div id="hamburger-dropdown" class="hidden" style="position:absolute; top:45px; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:10px; padding:8px; display:flex; flex-direction:column; gap:4px; box-shadow:0 10px 30px rgba(0,0,0,0.8); z-index:100; min-width:220px;">
+            <button class="btn btn-ghost" id="btn-game-2d" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%; cursor:pointer;">
+              <span id="2d-icon-span">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
+              </span>
+              <span id="2d-btn-text" style="white-space: nowrap;">Switch to 2D View</span>
+            </button>
+            <button class="btn btn-ghost" id="btn-game-pov" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%; cursor:pointer;">
+              <span id="pov-icon-span">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+              </span>
+              <span id="pov-btn-text" style="white-space: nowrap;">Auto POV: OFF</span>
+            </button>
+            <button class="btn btn-ghost" id="btn-game-sound" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%;">
+              <span id="sound-icon-span">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+              </span>
+              <span id="sound-btn-text" style="white-space: nowrap;">Sound: ON</span>
+            </button>
+            <button class="btn btn-ghost" id="btn-game-restart" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%;">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              Restart
+            </button>
+            <button class="btn btn-ghost" id="btn-game-menu" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%;">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Home (Quit)
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div class="hud-actions">
-        <button id="btn-game-pov" title="Toggle Auto-POV Camera" style="display:flex; align-items:center; gap:6px; background:var(--panel-bg); border:1px solid var(--border); color:var(--text); padding:4px 10px; border-radius:15px; font-size:11px; font-weight:700; cursor:pointer;">
-          <input type="checkbox" id="pov-checkbox" style="pointer-events:none; margin:0; cursor:pointer;" />
-          Auto POV
-        </button>
-        <button class="icon-btn" id="btn-game-sound" title="Sound">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-        </button>
-        <button class="icon-btn" id="btn-game-restart" title="Restart">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-        </button>
-      </div>
-    </div>
 
     <!-- Central Dice Roller -->
     <div class="player-corner active" id="central-dice-ui" style="bottom: 70px; left: 50%; transform: translateX(-50%); flex-direction: row; border-width: 3px;">
@@ -763,6 +806,40 @@ body.theme-light .btn-ghost:hover {
       </div>
     </div>
 
+    <!-- 2D Mode Corner Dice UIs -->
+    <div class="corner-dice-ui" id="dice-ui-red" style="display:none; bottom:20px; left:calc(50% - 250px);">
+      <div class="avatar-area" style="background:#0f172a;">
+        <svg class="pin-icon" viewBox="0 0 24 24"><g fill="var(--red)" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="6" r="3.5" /><path d="M 10 9 C 9 14, 6 16, 6 20 C 6 21, 7 21.5, 12 21.5 C 17 21.5, 18 21, 18 20 C 18 16, 15 14, 14 9 Z" /></g></svg>
+      </div>
+      <div class="dice-box" id="dice-box-red" style="border-color:var(--red);">
+        <div class="dice-cube" id="dice-cube-red"></div>
+      </div>
+    </div>
+    <div class="corner-dice-ui" id="dice-ui-green" style="display:none; top:70px; left:calc(50% - 250px);">
+      <div class="avatar-area" style="background:#0f172a;">
+        <svg class="pin-icon" viewBox="0 0 24 24"><g fill="var(--green)" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="6" r="3.5" /><path d="M 10 9 C 9 14, 6 16, 6 20 C 6 21, 7 21.5, 12 21.5 C 17 21.5, 18 21, 18 20 C 18 16, 15 14, 14 9 Z" /></g></svg>
+      </div>
+      <div class="dice-box" id="dice-box-green" style="border-color:var(--green);">
+        <div class="dice-cube" id="dice-cube-green"></div>
+      </div>
+    </div>
+    <div class="corner-dice-ui" id="dice-ui-yellow" style="display:none; top:70px; right:calc(50% - 250px); flex-direction:row-reverse;">
+      <div class="avatar-area" style="background:#0f172a; border-radius:0 4px 4px 0;">
+        <svg class="pin-icon" viewBox="0 0 24 24"><g fill="var(--yellow)" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="6" r="3.5" /><path d="M 10 9 C 9 14, 6 16, 6 20 C 6 21, 7 21.5, 12 21.5 C 17 21.5, 18 21, 18 20 C 18 16, 15 14, 14 9 Z" /></g></svg>
+      </div>
+      <div class="dice-box" id="dice-box-yellow" style="border-color:var(--yellow);">
+        <div class="dice-cube" id="dice-cube-yellow"></div>
+      </div>
+    </div>
+    <div class="corner-dice-ui" id="dice-ui-blue" style="display:none; bottom:20px; right:calc(50% - 250px); flex-direction:row-reverse;">
+      <div class="avatar-area" style="background:#0f172a; border-radius:0 4px 4px 0;">
+        <svg class="pin-icon" viewBox="0 0 24 24"><g fill="var(--blue)" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="6" r="3.5" /><path d="M 10 9 C 9 14, 6 16, 6 20 C 6 21, 7 21.5, 12 21.5 C 17 21.5, 18 21, 18 20 C 18 16, 15 14, 14 9 Z" /></g></svg>
+      </div>
+      <div class="dice-box" id="dice-box-blue" style="border-color:var(--blue);">
+        <div class="dice-cube" id="dice-cube-blue"></div>
+      </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="game-status-bar">
       <span id="status-text"></span>
@@ -773,31 +850,135 @@ body.theme-light .btn-ghost:hover {
        6. HOW TO PLAY SCREEN
        ================================================== -->
   <div id="rules-screen" class="screen hidden screen-scroll">
-    <div class="menu-stack" style="max-width:440px;">
-      <div class="eyebrow">Rules &amp; 3D Controls</div>
+    <style>
+      .timeline-container { 
+        position: relative; 
+        padding-left: 32px; 
+        margin-top: 20px; 
+        margin-bottom: 20px;
+        width: 100%;
+        max-height: 60vh;
+        overflow-y: auto;
+        padding-right: 12px;
+      }
+      .timeline-container::-webkit-scrollbar { width: 4px; }
+      .timeline-container::-webkit-scrollbar-track { background: transparent; }
+      .timeline-container::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 4px; }
+
+      .timeline-line { 
+        position: absolute; 
+        left: 9px; 
+        top: 8px; 
+        bottom: 40px; 
+        width: 2px; 
+        background: linear-gradient(to bottom, var(--accent), transparent); 
+        opacity: 0.3;
+        z-index: 1;
+      }
+
+      .timeline-item { 
+        position: relative; 
+        padding-bottom: 32px;
+        z-index: 2;
+      }
+      .timeline-item:last-child { padding-bottom: 0; }
+
+      .timeline-dot { 
+        position: absolute; 
+        left: -28px; 
+        top: 2px; 
+        width: 12px; 
+        height: 12px; 
+        border-radius: 50%; 
+        background: var(--bg); 
+        border: 2px solid var(--accent); 
+        box-shadow: 0 0 12px var(--accent-glow); 
+        transition: transform 0.3s var(--ease-bounce), background 0.3s;
+      }
       
-      <div class="panel" style="display:flex; flex-direction:column; gap:16px; text-align:left;">
-        <div>
-          <div style="font-weight:800; color:var(--accent); font-size:13.5px; margin-bottom:4px;">1. UNLOCKING &amp; BONUS ROLLS</div>
-          <p style="font-size:12.5px; color:var(--text-dim); line-height:1.5;">Roll a <strong>6</strong> to bring a 3D pawn out of the yard. Rolling a 6 or capturing an opponent awards a <strong>Bonus Roll</strong>.</p>
+      .timeline-item:hover .timeline-dot {
+        transform: scale(1.4);
+        background: var(--accent);
+      }
+
+      .rule-content { 
+        text-align: left; 
+        transition: transform 0.2s var(--ease);
+      }
+      .timeline-item:hover .rule-content {
+        transform: translateX(6px);
+      }
+      
+      .rule-title { 
+        font-weight: 800; 
+        color: var(--accent); 
+        font-size: 15px; 
+        margin-bottom: 6px; 
+        letter-spacing: 0.5px; 
+        text-transform: uppercase; 
+        font-family: var(--font-display); 
+      }
+      .rule-desc { 
+        font-size: 14px; 
+        color: var(--text-dim); 
+        line-height: 1.6; 
+      }
+      .rule-desc strong { color: var(--text); font-weight: 700; }
+    </style>
+    <div class="menu-stack" style="max-width:520px; padding: 20px;">
+      <div class="eyebrow" style="font-size: 32px; color: var(--text); font-family: var(--font-display); letter-spacing: 2px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); margin-bottom: 4px;">How to Play</div>
+      <div class="eyebrow" style="margin-top: 0; margin-bottom: 12px; font-size: 13px; color: var(--text-dim); letter-spacing: 1px;">Official Rules &amp; Guide</div>
+      
+      <div class="timeline-container">
+        <div class="timeline-line"></div>
+        
+        <!-- Rule 1 -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="rule-content">
+            <div class="rule-title">Starting &amp; Moving</div>
+            <div class="rule-desc">Roll a <strong>6</strong> to move a pawn out of base. Move clockwise. Rolling a 6 gives an <strong>extra turn</strong>. (Three 6s in a row ends your turn).</div>
+          </div>
         </div>
 
-        <div style="height:1px; background:var(--border);"></div>
-
-        <div>
-          <div style="font-weight:800; color:var(--accent); font-size:13.5px; margin-bottom:4px;">2. 3D ORBIT &amp; GESTURES</div>
-          <p style="font-size:12.5px; color:var(--text-dim); line-height:1.5;">• <strong>Drag</strong> anywhere to inspect the board in 3D.<br>• <strong>Scroll/Pinch</strong> to zoom in and out.<br>• <strong>Double-Tap</strong> anywhere to reset camera.</p>
+        <!-- Rule 2 -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="rule-content">
+            <div class="rule-title">Capturing Opponents</div>
+            <div class="rule-desc">Land on an opponent's pawn to <strong>capture</strong> it, sending it back to base. Capturing awards you a <strong>Bonus Roll</strong>.</div>
+          </div>
         </div>
 
-        <div style="height:1px; background:var(--border);"></div>
+        <!-- Rule 3 -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="rule-content">
+            <div class="rule-title">Safe Zones</div>
+            <div class="rule-desc">Pawns on squares marked with a <strong>Star (★)</strong> are in a safe zone and cannot be captured by opponents.</div>
+          </div>
+        </div>
 
-        <div>
-          <div style="font-weight:800; color:var(--accent); font-size:13.5px; margin-bottom:4px;">3. SAFE STAR INLAYS (★)</div>
-          <p style="font-size:12.5px; color:var(--text-dim); line-height:1.5;">Pawns on golden <strong>★ Star inlays</strong> cannot be captured by opponents.</p>
+        <!-- Rule 4 -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="rule-content">
+            <div class="rule-title">Winning the Game</div>
+            <div class="rule-desc">Be the first to move all 4 pawns into the center <strong>Home triangle</strong>. You must roll the <strong>exact number</strong> to enter Home.</div>
+          </div>
+        </div>
+        
+        <!-- Rule 5 -->
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="rule-content">
+            <div class="rule-title">3D Controls</div>
+            <div class="rule-desc"><strong>Drag</strong> to orbit, <strong>Pinch/Scroll</strong> to zoom, and <strong>Double-Tap</strong> to reset the camera view.</div>
+          </div>
         </div>
       </div>
 
-      <button class="btn btn-primary" id="btn-rules-back" style="width:auto; padding:11px 42px;">Got It!</button>
+      <button class="btn btn-primary" id="btn-rules-back" style="width:100%; max-width: 240px; margin: 32px auto 0; padding:14px; font-size: 16px; border-radius: var(--radius-full); box-shadow: 0 4px 15px var(--accent-glow); font-weight: 700;">Got It, Let's Play!</button>
     </div>
   </div>
 
@@ -855,6 +1036,20 @@ body.theme-light .btn-ghost:hover {
       <div style="display:flex; flex-direction:column; gap:8px;">
         <button class="btn btn-primary" id="btn-confirm-quit">Yes, Quit Game</button>
         <button class="btn btn-ghost" id="btn-cancel-quit">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================================================
+       10. CONFIRM RESTART MODAL
+       ================================================== -->
+  <div id="restart-modal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-title" id="restart-modal-title">Restart Game?</div>
+      <div class="modal-sub" id="restart-modal-sub">Are you sure you want to completely restart the match?</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button class="btn btn-primary" id="btn-confirm-restart">Yes, Restart</button>
+        <button class="btn btn-ghost" id="btn-cancel-restart">Cancel</button>
       </div>
     </div>
   </div>
@@ -989,7 +1184,6 @@ var lastInteractTime = performance.now();
 var autoSpinBlend = 0;
 var AUTO_SPIN_DELAY = 3000;
 var AUTO_SPIN_SPEED = 0.08;
-var lastTapTime = 0;
 
 var tokenMeshes = { red:[], green:[], yellow:[], blue:[] };
 
@@ -1027,8 +1221,8 @@ function init3D(){
   dirLight.castShadow = true;
   scene.add(dirLight);
 
-  var pointLight = new THREE.PointLight(0xffffff, isLightTheme() ? 0.2 : 0.35, 20);
-  pointLight.position.set(0, 6, 0);
+  var pointLight = new THREE.PointLight(0xffffff, isLightTheme() ? 0.05 : 0.12, 20);
+  pointLight.position.set(0, 8, 0);
   scene.add(pointLight);
 
   /* Ambient Floating Particles (rich density covering full screen & zoom out) */
@@ -1330,8 +1524,8 @@ function build3DBoard(){
     geo.setIndex([0, 1, 2]);
     geo.computeVertexNormals();
     var mat = new THREE.MeshStandardMaterial({
-      color: wd.hex, roughness: 0.28, metalness: 0.12,
-      emissive: wd.hex, emissiveIntensity: 0.12,
+      color: wd.hex, roughness: 0.6, metalness: 0.1,
+      emissive: wd.hex, emissiveIntensity: 0.05,
       side: THREE.DoubleSide
     });
     var mesh = new THREE.Mesh(geo, mat);
@@ -1358,11 +1552,11 @@ function build3DBoard(){
   borderLines.position.set(0, cY + 0.02, 0);
   boardGroup.add(borderLines);
 
-  /* Glowing gold hexagon at dead centre */
+  /* Gold hexagon at dead centre */
   var cDiscGeo = new THREE.CylinderGeometry(cellSize * 0.20, cellSize * 0.20, 0.055, 6);
   var cDiscMat = new THREE.MeshStandardMaterial({
-    color: 0xffffff, metalness: 0.8, roughness: 0.2,
-    emissive: 0x4f8cff, emissiveIntensity: 0.3
+    color: 0xffd700, metalness: 0.6, roughness: 0.3,
+    emissive: 0xffaa00, emissiveIntensity: 0.1
   });
   var cDisc = new THREE.Mesh(cDiscGeo, cDiscMat);
   cDisc.position.set(0, cY + 0.03, 0);
@@ -1572,6 +1766,7 @@ function update3DPawnPositions(){
 function onPointerDown(e){
   lastInteractTime = performance.now();
   autoSpinBlend = 0;
+  if(gameState && gameState.is2DMode) return;
   isDragging = true;
   dragLastX = e.clientX;
   dragLastY = e.clientY;
@@ -1580,9 +1775,11 @@ function onPointerDown(e){
 }
 
 function onPointerMove(e){
-  if(isDragging){
-    var dx = e.clientX - dragLastX;
-    var dy = e.clientY - dragLastY;
+  if(!isDragging || (gameState && gameState.is2DMode)) return;
+  var dx = e.clientX - dragLastX;
+  var dy = e.clientY - dragLastY;
+  
+  if(Math.abs(dx) > 2 || Math.abs(dy) > 2){
     boardVelY = dx * 0.012;
     boardVelX = dy * 0.008;
     boardRotY += boardVelY;
@@ -1594,12 +1791,6 @@ function onPointerMove(e){
 
 function onPointerUp(e){
   isDragging = false;
-  var tapNow = performance.now();
-  if(tapNow - lastTapTime < 300){
-    /* Double tap reset */
-    boardRotY = 0; boardRotX = 0.45; zoomTarget = 1.0;
-  }
-  lastTapTime = tapNow;
 
   /* Raycasting click on 3D Pawns */
   var rect = renderer.domElement.getBoundingClientRect();
@@ -1640,18 +1831,41 @@ function animate(){
     boardVelY *= 0.88;
     boardVelX *= 0.88;
     boardRotY += boardVelY;
-    boardRotX = Math.max(0.2, Math.min(0.85, boardRotX + boardVelX));
-
-    if(gameState && gameState.autoPOV && gameState.activePlayers && gameState.activePlayers.length > 0){
-      var curPlayer = getCurrentPlayer();
-      var angles = { red: 0, green: -Math.PI/2, yellow: Math.PI, blue: Math.PI/2 };
-      var target = angles[curPlayer] || 0;
-      
-      var diff = target - boardRotY;
+    
+    if (gameState && gameState.is2DMode) {
+      boardRotX += (Math.PI / 2 - boardRotX) * 0.1;
+      var diff = 0 - boardRotY;
       while(diff < -Math.PI) diff += Math.PI * 2;
       while(diff > Math.PI) diff -= Math.PI * 2;
+      boardRotY += diff * 0.1;
       
-      boardRotY += diff * 0.05;
+      var asp = camera.aspect;
+      var h = window.innerHeight || 800;
+      var desiredBoardRatio = Math.max(0.4, (h - 210) / h); // 210px padded space to prevent overlap
+      var z = 10 / (13.25 * desiredBoardRatio);
+      zoomTarget = asp < 1 ? z / asp : z;
+
+      // Dynamically push the dice UIs exactly to the outer edges of the board
+      var boardPixelSize = 10 / (13.25 * zoomTarget) * h;
+      var halfBoard = boardPixelSize / 2;
+      document.getElementById('dice-ui-red').style.left = "calc(50% - " + halfBoard + "px)";
+      document.getElementById('dice-ui-green').style.left = "calc(50% - " + halfBoard + "px)";
+      document.getElementById('dice-ui-yellow').style.right = "calc(50% - " + halfBoard + "px)";
+      document.getElementById('dice-ui-blue').style.right = "calc(50% - " + halfBoard + "px)";
+    } else {
+      boardRotX = Math.max(0.2, Math.min(0.85, boardRotX + boardVelX));
+
+      if(gameState && gameState.autoPOV && gameState.activePlayers && gameState.activePlayers.length > 0){
+        var curPlayer = getCurrentPlayer();
+        var angles = { red: 0, green: -Math.PI/2, yellow: Math.PI, blue: Math.PI/2 };
+        var target = angles[curPlayer] || 0;
+        
+        var diff = target - boardRotY;
+        while(diff < -Math.PI) diff += Math.PI * 2;
+        while(diff > Math.PI) diff -= Math.PI * 2;
+        
+        boardRotY += diff * 0.05;
+      }
     }
   }
 
@@ -1660,10 +1874,17 @@ function animate(){
   var camY = Math.sin(boardRotX) * camDist;
   var camZ = Math.cos(boardRotX) * camDist;
 
+  var targetOffsetZ = 0;
+  if (gameState && gameState.is2DMode) {
+    var h = window.innerHeight || 800;
+    // Shift board visually downwards by 25px to center it perfectly
+    targetOffsetZ = -(25 / h) * (13.25 * zoomTarget); 
+  }
+
   camera.position.x = Math.sin(boardRotY) * camZ;
-  camera.position.z = Math.cos(boardRotY) * camZ;
+  camera.position.z = Math.cos(boardRotY) * camZ + targetOffsetZ;
   camera.position.y = camY;
-  camera.lookAt(0, 0, 0);
+  camera.lookAt(0, 0, targetOffsetZ);
 
   /* Background Particle Drift + Parallax + Sizing (calm ambient speed) */
   if(starParticles){
@@ -1690,13 +1911,15 @@ var gameState = {
   playerCount: 2,
   ruleType: 'classic',
   humanColor: 'red',
-  localSelectedColors: ['red', 'green'],
+  localSelectedColors: ['red', 'yellow'],
   activePlayers: [],
   currentTurnIdx: 0,
   diceValue: 1,
   hasRolled: false,
   consecutiveSixes: 0,
   isMoving: false,
+  is2DMode: false,
+  autoPOV: false,
   winners: [],
   gameOver: false,
   tokens: {
@@ -1747,26 +1970,132 @@ function setDiceFace(cubeEl, val){
     5: 'rotateY(90deg)',
     6: 'rotateY(180deg)'
   };
-  cubeEl.style.transform = rotMap[val] || 'rotateY(0deg)';
+  var transform = rotMap[val] || 'rotateY(0deg)';
+  cubeEl.style.transform = transform;
+
+  // Synchronize both views so toggling 2D/3D doesn't show a mismatched dice number
+  if (gameState && gameState.activePlayers && gameState.activePlayers.length > 0) {
+    var active = getCurrentPlayer();
+    var centralEl = document.getElementById('dice-cube-central');
+    var cornerEl = document.getElementById('dice-cube-' + active);
+    if (centralEl) centralEl.style.transform = transform;
+    if (cornerEl) cornerEl.style.transform = transform;
+  }
 }
 
 function generateSmartRoll(color) {
-  var locked = 0, active = 0;
+  var locked = 0, active = 0, home = 0;
+  var myActiveTokens = [];
+  
   gameState.tokens[color].forEach(function(tok){
     if(tok.step === -1) locked++;
-    else if(tok.step >= 0 && tok.step <= 55) active++;
+    else if(tok.step === 56) home++;
+    else { active++; myActiveTokens.push(tok); }
   });
   
-  var w = [16, 16, 16, 16, 16, 16]; // Base equal weights for 1 to 6
+  var w = [100, 100, 100, 100, 100, 100]; // Base weights for 1 to 6
   
-  /* Pity 6: If all pawns are locked, give a massive 45% chance to roll a 6 to keep the game moving */
+  /* 1. Pity 6: Keep the game moving if heavily locked */
   if(locked === 4) {
-    w[5] = 45;
+    w[5] += 150; 
+  } else if (locked === 3 && active === 1 && myActiveTokens[0].step < 10) {
+    w[5] += 50; 
   }
-  
-  /* Anti-Spam: If you already rolled two 6s, heavily restrict the chance of a 3rd 6 to avoid a frustrating instant forfeit */
-  if(gameState.consecutiveSixes === 2) {
-    w[5] = 2; // only a tiny chance for a third 6
+
+  /* 2. Kill Bias, Target the Leader, & Evasion Bias */
+  var maxOpponentHome = 0;
+  var leaderColor = null;
+  gameState.activePlayers.forEach(function(oppColor){
+    if(oppColor !== color) {
+      var oppHome = 0;
+      gameState.tokens[oppColor].forEach(function(t){ if(t.step === 56) oppHome++; });
+      if(oppHome > maxOpponentHome) {
+        maxOpponentHome = oppHome;
+        leaderColor = oppColor;
+      }
+    }
+  });
+
+  myActiveTokens.forEach(function(tok){
+    if(tok.step >= 0 && tok.step <= 50) {
+      var myGlobal = (START_OFFSETS[color] + tok.step) % 52;
+      
+      // Evasion Bias: Evaluate ONCE per token
+      gameState.activePlayers.forEach(function(oppColor){
+        if(oppColor !== color) {
+          gameState.tokens[oppColor].forEach(function(oppTok){
+            if(oppTok.step >= 0 && oppTok.step <= 50) {
+              var oppGlobal = (START_OFFSETS[oppColor] + oppTok.step) % 52;
+              var distBehind = (myGlobal - oppGlobal + 52) % 52;
+              if (distBehind >= 1 && distBehind <= 5) {
+                w[4] += 15; // Subtle boost to 5
+                w[5] += 25; // Subtle boost to 6
+              }
+            }
+          });
+        }
+      });
+
+      // Kill Bias: Check exact roll needed
+      for(var r = 1; r <= 6; r++) {
+        if (tok.step + r <= 50) { // Only evaluate kills if we remain on the common path
+          var targetGlobal = (myGlobal + r) % 52;
+          if(STAR_TILES.indexOf(targetGlobal) === -1) {
+            var hasOpponent = false;
+            var isLeader = false;
+            gameState.activePlayers.forEach(function(oppColor){
+              if(oppColor !== color) {
+                gameState.tokens[oppColor].forEach(function(oppTok){
+                  if(oppTok.step >= 0 && oppTok.step <= 50) {
+                    var oppGlobal = (START_OFFSETS[oppColor] + oppTok.step) % 52;
+                    if(oppGlobal === targetGlobal) {
+                      hasOpponent = true;
+                      if (oppColor === leaderColor) isLeader = true;
+                    }
+                  }
+                });
+              }
+            });
+            
+            if(hasOpponent) {
+              if (isLeader && home < maxOpponentHome) w[r - 1] += 40; 
+              else w[r - 1] += 25; 
+            }
+          }
+        }
+      }
+    }
+  });
+
+  /* 3. Finish Line Tease */
+  myActiveTokens.forEach(function(tok){
+    if(tok.step > 50 && tok.step < 56) {
+      var needed = 56 - tok.step; 
+      if(needed >= 1 && needed <= 6) w[needed - 1] += 30; 
+    }
+  });
+
+  /* 4. Rubberbanding */
+  if (maxOpponentHome - home >= 2) { // Only help if trailing significantly
+    w[4] += 15; 
+    w[5] += 20; 
+  } else if (home > maxOpponentHome && home >= 2) {
+    w[5] = Math.max(20, w[5] - 30); 
+  }
+
+  /* 5. Anti-Clumping */
+  if (gameState.rollHistory && gameState.rollHistory[color]) {
+    var history = gameState.rollHistory[color];
+    if (history.length >= 3) {
+      for(var v = 1; v <= 6; v++) {
+        var count = 0;
+        for(var hi = 0; hi < history.length; hi++) {
+          if (history[hi] === v) count++;
+        }
+        if (count >= 3) w[v - 1] = Math.max(10, w[v - 1] - 60);
+        if (count >= 4) w[v - 1] = 5; 
+      }
+    }
   }
 
   var total = w.reduce(function(a,b){ return a+b; }, 0);
@@ -1782,15 +2111,29 @@ function generateSmartRoll(color) {
 function rollDice(){
   if(gameState.hasRolled || gameState.isMoving || gameState.gameOver || gameState.isRolling) return;
 
-  var cubeEl = document.getElementById('dice-cube-central');
+  var restartBtn = document.getElementById('btn-game-restart');
+  if (restartBtn) {
+    restartBtn.disabled = false;
+    restartBtn.style.opacity = '1';
+    restartBtn.style.pointerEvents = 'auto';
+  }
+
+  var active = getCurrentPlayer();
+  var cubeId = (gameState && gameState.is2DMode) ? 'dice-cube-' + active : 'dice-cube-central';
+  var cubeEl = document.getElementById(cubeId);
+  
   if(!cubeEl || cubeEl.classList.contains('dice-rolling')) return;
 
   gameState.isRolling = true; // Lock dice against rapid multi-clicks
   AudioEngine.diceRoll();
   cubeEl.classList.add('dice-rolling');
 
-  var val = generateSmartRoll(getCurrentPlayer());
+  var val = generateSmartRoll(active);
   gameState.diceValue = val;
+  if(gameState.rollHistory && gameState.rollHistory[active]) {
+    gameState.rollHistory[active].push(val);
+    if(gameState.rollHistory[active].length > 6) gameState.rollHistory[active].shift();
+  }
 
   setTimeout(function(){
     cubeEl.classList.remove('dice-rolling');
@@ -2120,13 +2463,13 @@ function postMoveCheck(color, tokIdx, wasSpawn){
     }
   }
 
-  if(extraRoll && !gameState.gameOver){
+  if(extraRoll && !gameState.gameOver && !checkPlayerWin(color)){
     gameState.hasRolled = false;
     updateStatus(capitalize(color) + " gets a Bonus Roll! 🎲");
     if(gameState.mode === 'ai' && color !== gameState.humanColor){
       setTimeout(rollDice, 600);
     }
-  } else {
+  } else if(!gameState.gameOver) {
     passTurn();
   }
 }
@@ -2319,15 +2662,58 @@ function updateNameLabels() {
 function updateTurnDisplay(){
   var active = getCurrentPlayer();
   
+  // (Syncing removed to fix jumpy 3D dice behavior)
+
   var centralUi = document.getElementById('central-dice-ui');
   var avatarArea = document.getElementById('central-avatar-area');
   var pinPath = document.getElementById('central-pin-path');
   
-  if(centralUi && avatarArea && pinPath) {
-    centralUi.style.borderColor = 'var(--' + active + ')';
-    centralUi.style.boxShadow = '0 0 20px var(--' + active + ')';
-    avatarArea.style.background = '#0f172a';
-    pinPath.setAttribute('fill', 'var(--' + active + ')');
+  // Toggle visibility of central vs corner dice
+  if (gameState && gameState.is2DMode) {
+    if(centralUi) centralUi.style.display = 'none';
+    
+    // Manage corner dice
+    ['red', 'green', 'yellow', 'blue'].forEach(function(color) {
+      var ui = document.getElementById('dice-ui-' + color);
+      if (ui) {
+        // Only show if the player is active in the game
+        if (gameState.activePlayers.indexOf(color) !== -1) {
+          ui.style.display = 'flex';
+          if (color === active) {
+            ui.classList.add('active');
+            ui.style.opacity = '1';
+          } else {
+            ui.classList.remove('active');
+            ui.style.opacity = '0.5';
+          }
+        } else {
+          ui.style.display = 'none';
+        }
+      }
+    });
+  } else {
+    if(centralUi) {
+      centralUi.style.display = 'flex';
+      centralUi.style.borderColor = 'var(--' + active + ')';
+      centralUi.style.boxShadow = '0 0 20px var(--' + active + ')';
+      if(avatarArea) avatarArea.style.background = '#0f172a';
+      if(pinPath) pinPath.setAttribute('fill', 'var(--' + active + ')');
+    }
+    ['red', 'green', 'yellow', 'blue'].forEach(function(color) {
+      var ui = document.getElementById('dice-ui-' + color);
+      if (ui) ui.style.display = 'none';
+    });
+  }
+
+  var hudType = document.getElementById('hud-match-type');
+  if(hudType && gameState.playerNames && gameState.playerNames[active]) {
+    var pName = gameState.playerNames[active];
+    if(pName.toLowerCase() === 'you') {
+      hudType.textContent = "Your Turn";
+    } else {
+      hudType.textContent = pName + "'s Turn";
+    }
+    hudType.style.color = 'var(--' + active + ')';
   }
 }
 
@@ -2337,6 +2723,14 @@ function startMatch(){
   gameState.currentTurnIdx = 0;
   gameState.hasRolled = false;
   gameState.consecutiveSixes = 0;
+  gameState.rollHistory = { red: [], green: [], yellow: [], blue: [] };
+
+  var restartBtn = document.getElementById('btn-game-restart');
+  if (restartBtn) {
+    restartBtn.disabled = true;
+    restartBtn.style.opacity = '0.3';
+    restartBtn.style.pointerEvents = 'none';
+  }
 
   if (!gameState.humanColor) gameState.humanColor = 'red';
   
@@ -2348,7 +2742,7 @@ function startMatch(){
 
   gameState.playerNames = {};
   gameState.activePlayers.forEach(function(color, idx){
-    var name = "Player " + (idx + 1);
+    var name = capitalize(color);
     if (gameState.mode === 'pass') {
       var val = document.getElementById('name-' + color).value.trim();
       if (val) name = val;
@@ -2364,6 +2758,11 @@ function startMatch(){
 
   var centralCube = document.getElementById('dice-cube-central');
   if(centralCube) { createDiceFaces(centralCube); setDiceFace(centralCube, 1); }
+
+  ['red', 'green', 'yellow', 'blue'].forEach(function(color) {
+    var cube = document.getElementById('dice-cube-' + color);
+    if(cube) { createDiceFaces(cube); setDiceFace(cube, 1); }
+  });
 
   document.getElementById('hud-match-type').textContent = gameState.playerCount + 'P ' + (gameState.mode === 'ai' ? 'Vs Bot ' : '') + capitalize(gameState.ruleType);
 
@@ -2398,7 +2797,10 @@ function endMatch(){
    8. EVENT WIRING & STARTUP
    ================================================== */
 function bindEvents(){
-  // The btn-menu-play listener is now added in DOMContentLoaded to ensure state reset.
+  document.getElementById('btn-hamburger').addEventListener('click', function(){
+    document.getElementById('hamburger-dropdown').classList.toggle('hidden');
+  });
+
   document.getElementById('btn-menu-rules').addEventListener('click', function(){ showScreen('rules-screen'); });
   document.getElementById('btn-menu-settings').addEventListener('click', function(){ showScreen('settings-screen'); });
 
@@ -2416,6 +2818,7 @@ function bindEvents(){
   document.getElementById('btn-settings-back').addEventListener('click', function(){ showScreen('main-menu'); });
 
   document.getElementById('btn-game-menu').addEventListener('click', function(){
+    document.getElementById('hamburger-dropdown').classList.add('hidden');
     if(!gameState.gameOver) {
       document.getElementById('confirm-modal').classList.remove('hidden');
     } else {
@@ -2429,7 +2832,31 @@ function bindEvents(){
   document.getElementById('btn-cancel-quit').addEventListener('click', function(){
     document.getElementById('confirm-modal').classList.add('hidden');
   });
-  document.getElementById('btn-game-restart').addEventListener('click', startMatch);
+
+  document.getElementById('btn-game-restart').addEventListener('click', function(){
+    document.getElementById('hamburger-dropdown').classList.add('hidden');
+    var t = document.getElementById('restart-modal-title');
+    if(t) t.textContent = 'Restart Game?';
+    var s = document.getElementById('restart-modal-sub');
+    if(s) s.textContent = 'Are you sure you want to completely restart the match?';
+    var b = document.getElementById('btn-confirm-restart');
+    if(b) b.textContent = 'Yes, Restart';
+    document.getElementById('restart-modal').classList.remove('hidden');
+  });
+  document.getElementById('btn-confirm-restart').addEventListener('click', function(){
+    document.getElementById('restart-modal').classList.add('hidden');
+    if (window.pendingModeSwitch) {
+      window.pendingModeSwitch = false;
+      gameState.is2DMode = !gameState.is2DMode;
+      var btnText = document.getElementById('2d-btn-text');
+      if(btnText) btnText.textContent = gameState.is2DMode ? 'Switch to 3D View' : 'Switch to 2D View';
+      updateTurnDisplay();
+    }
+    startMatch();
+  });
+  document.getElementById('btn-cancel-restart').addEventListener('click', function(){
+    document.getElementById('restart-modal').classList.add('hidden');
+  });
 
   document.getElementById('btn-win-play-again').addEventListener('click', function(){
     document.getElementById('win-modal').classList.add('hidden');
@@ -2446,6 +2873,12 @@ function bindEvents(){
     document.getElementById('config-panel').classList.remove('hidden');
     document.getElementById('local-names-panel').classList.remove('hidden');
     document.getElementById('color-select-panel').classList.add('hidden');
+    
+    ['red', 'green', 'yellow', 'blue'].forEach(function(c){
+      var inp = document.getElementById('name-' + c);
+      if(inp) inp.value = '';
+    });
+
     updateNameLabels();
   });
   document.getElementById('chip-mode-ai').addEventListener('click', function(){
@@ -2597,27 +3030,83 @@ function bindEvents(){
   if(centralBox){
     centralBox.addEventListener('click', function(){
       var current = getCurrentPlayer();
-      if(gameState.mode === 'ai' && current !== gameState.humanColor) return; // Prevent clicking on AI's turn
-      rollDice();
+      if(gameState.mode === 'ai' && current !== gameState.humanColor) return;
+      if (!gameState.is2DMode) rollDice();
     });
+  }
+  
+  // Bind corner dice
+  ['red', 'green', 'yellow', 'blue'].forEach(function(color) {
+    var box = document.getElementById('dice-box-' + color);
+    if (box) {
+      box.addEventListener('click', function(){
+        var current = getCurrentPlayer();
+        if(gameState.mode === 'ai' && current !== gameState.humanColor) return;
+        if (gameState.is2DMode && current === color) rollDice();
+      });
+    }
+  });
+
+  var btn2D = document.getElementById('btn-game-2d');
+  var btnText = document.getElementById('2d-btn-text');
+  if(btn2D && btnText) {
+    btn2D.addEventListener('click', function(){
+      if (!document.getElementById('btn-game-restart').disabled && !gameState.gameOver) {
+        document.getElementById('hamburger-dropdown').classList.add('hidden');
+        window.pendingModeSwitch = true;
+        var t = document.getElementById('restart-modal-title');
+        if(t) t.textContent = 'Switch Interface?';
+        var s = document.getElementById('restart-modal-sub');
+        if(s) s.textContent = 'Switching interfaces will restart the current game. Are you sure?';
+        var b = document.getElementById('btn-confirm-restart');
+        if(b) b.textContent = 'Yes, Switch';
+        document.getElementById('restart-modal').classList.remove('hidden');
+      } else {
+        gameState.is2DMode = !gameState.is2DMode;
+        btnText.textContent = gameState.is2DMode ? 'Switch to 3D View' : 'Switch to 2D View';
+        updateTurnDisplay();
+      }
+    });
+    btnText.textContent = gameState.is2DMode ? 'Switch to 3D View' : 'Switch to 2D View';
   }
 
   var povBtn = document.getElementById('btn-game-pov');
-  var povCheck = document.getElementById('pov-checkbox');
-  if(povBtn && povCheck) {
+  var povIconSpan = document.getElementById('pov-icon-span');
+  var povTextSpan = document.getElementById('pov-btn-text');
+  if(povBtn && povIconSpan && povTextSpan) {
+    function updatePOVUI() {
+      povBtn.style.opacity = gameState.autoPOV ? '1' : '0.6';
+      povTextSpan.textContent = gameState.autoPOV ? 'Auto POV: ON' : 'Auto POV: OFF';
+      povIconSpan.innerHTML = gameState.autoPOV 
+        ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+        : '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>';
+    }
     povBtn.addEventListener('click', function(){
       gameState.autoPOV = !gameState.autoPOV;
-      povCheck.checked = !!gameState.autoPOV;
+      updatePOVUI();
     });
-    povCheck.checked = !!gameState.autoPOV;
+    updatePOVUI();
   }
 
   var soundBtn = document.getElementById('btn-game-sound');
   var soundChip = document.getElementById('toggle-sound-chip');
   function toggleSound(){
     var isEnabled = AudioEngine.toggle();
-    if(soundChip) soundChip.textContent = isEnabled ? '🔊 Sound Effects: ON' : '🔇 Sound Effects: OFF';
-    soundBtn.style.opacity = isEnabled ? '1' : '0.4';
+    if(soundChip) soundChip.textContent = isEnabled ? '🔊 Sound Effects: ON' : '🔈 Sound Effects: OFF';
+    
+    var sIcon = document.getElementById('sound-icon-span');
+    var sText = document.getElementById('sound-btn-text');
+    if (sIcon) {
+      if (isEnabled) {
+        sIcon.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
+      } else {
+        sIcon.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+      }
+    }
+    if (sText) {
+      sText.textContent = isEnabled ? 'Sound: ON' : 'Sound: OFF';
+    }
+    soundBtn.style.opacity = isEnabled ? '1' : '0.6';
   }
   if(soundBtn) soundBtn.addEventListener('click', toggleSound);
   if(soundChip) soundChip.addEventListener('click', toggleSound);
@@ -2636,7 +3125,7 @@ function bindEvents(){
       /* Update 3D scene bg and ambient particles to match theme */
       var isLight = isLightTheme();
       if(scene){
-        scene.background = isLight ? new THREE.Color(0xf8fafc) : null;
+        scene.background = isLight ? new THREE.Color(0xe2e8f0) : null;
       }
       /* Update rim border color */
       var bBase = boardGroup.getObjectByName("boardBase");

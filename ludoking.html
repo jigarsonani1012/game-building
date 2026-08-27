@@ -258,10 +258,25 @@ body.theme-light .btn-ghost:hover {
   background: var(--surface-hover); border-color: var(--border-active);
 }
 .choice-chip.active {
-  background: var(--surface-hover);
-  border-color: var(--text);
-  color: var(--text);
-  box-shadow: 0 0 12px var(--accent-glow);
+  transform: translateY(-2px);
+}
+body.theme-light .choice-chip.active {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #334155 100%) !important;
+  border-color: #0f172a !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.40) !important;
+}
+body.theme-light .choice-chip.active .chip-sub {
+  color: #cbd5e1 !important;
+}
+body.theme-dark .choice-chip.active {
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 60%, #cbd5e1 100%) !important;
+  border-color: #ffffff !important;
+  color: #0f172a !important;
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.35) !important;
+}
+body.theme-dark .choice-chip.active .chip-sub {
+  color: #475569 !important;
 }
 .choice-chip .chip-sub {
   font-size: 10.5px; color: var(--text-dim); font-weight: 600;
@@ -510,60 +525,92 @@ body.theme-light .toggle-switch.active .toggle-knob {
 #game-header {
   width: 100%; display: flex; align-items: center; justify-content: space-between;
   padding: 10px 16px;
-  background: var(--panel-bg); border-bottom: 1px solid var(--border);
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  color: var(--text);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   z-index: 20; pointer-events: auto;
 }
 .hud-title-box {
   display: flex; align-items: center; gap: 8px;
   font-family: var(--font-display); font-weight: 800; font-size: 14px;
+  color: var(--text);
 }
 .hud-actions { display: flex; align-items: center; gap: 6px; }
 
+#hamburger-dropdown {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  color: var(--text);
+}
+#hamburger-dropdown .btn-ghost {
+  color: var(--text);
+  font-weight: 700;
+}
+#hamburger-dropdown .btn-ghost:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+body.theme-light #hamburger-dropdown .btn-ghost {
+  color: #0f172a !important;
+}
+body.theme-light #hamburger-dropdown .btn-ghost:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+body.theme-dark #hamburger-dropdown .btn-ghost {
+  color: #ffffff !important;
+}
+body.theme-dark #hamburger-dropdown .btn-ghost:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
 /* 4 Corner Player Cards (Match Ludo King Layout) */
-.player-corner {
+.player-corner,
+.corner-dice-ui {
   position: absolute;
   display: flex; align-items: stretch;
   border-radius: 6px;
-  background: #fdf2f8; /* Dice area background */
-  border: 2px solid #576574; /* Inactive border */
+  background: #0f172a; /* Sleek Black in Dark Mode */
+  border: 2px solid #334155;
   box-shadow: 0 4px 10px rgba(0,0,0,0.5);
   z-index: 15; pointer-events: auto;
   transition: all var(--dur-med) var(--ease);
-  overflow: visible; /* so arrow can show outside */
-}
-/* Mask inner content for border-radius */
-.player-corner > .avatar-area { border-radius: 4px 0 0 4px; }
-
-.player-corner.active {
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-  transform: translateX(-50%) scale(1.08);
+  overflow: visible;
 }
 
-  .corner-dice-ui {
-    position: absolute;
-    display: flex; align-items: stretch;
-    border-radius: 6px;
-    background: #fdf2f8;
-    border: 2px solid #576574;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    z-index: 15; pointer-events: auto;
-    transition: all var(--dur-med) var(--ease);
-    overflow: hidden;
-    opacity: 0.5; /* Inactive by default */
-    transform: scale(0.9);
-  }
-  .corner-dice-ui.active {
-    opacity: 1;
-    transform: scale(1.1);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
-  }
+body.theme-light .player-corner,
+body.theme-light .corner-dice-ui {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+.player-corner.active,
+.corner-dice-ui.active {
+  transform: scale(1.08);
+}
+
+.player-corner > .avatar-area,
+.corner-dice-ui > .avatar-area {
+  border-radius: 4px 0 0 4px;
+}
+
+.corner-dice-ui[style*="row-reverse"] > .avatar-area {
+  border-radius: 0 4px 4px 0;
+}
 
 .avatar-area {
-  background: #0984e3; /* overridden by JS */
+  background: #0f172a;
   padding: 8px 12px;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.4s var(--ease);
+}
+body.theme-light .avatar-area {
+  background: #ffffff;
+}
+body.theme-dark .avatar-area {
+  background: #0f172a;
 }
 .pin-icon { width: 24px; height: 24px; transition: fill 0.4s var(--ease); }
 
@@ -580,18 +627,45 @@ body.theme-light .toggle-switch.active .toggle-knob {
   transform-style: preserve-3d;
   transition: transform 0.6s var(--ease-bounce);
 }
+
+/* Black Dice Faces in Dark Mode */
 .dice-face {
   position: absolute; width: 34px; height: 34px;
-  background: #ffffff; border-radius: 6px;
-  border: 1px solid #cbd5e1;
-  display: grid; padding: 3px;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.3);
+  background: #0f172a; border-radius: 6px;
+  border: 1px solid #334155;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  padding: 4px;
+  box-sizing: border-box;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.6);
 }
+
+.dice-dot-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
 .dice-dot {
   width: 5px; height: 5px;
   border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 4px rgba(255,255,255,0.8);
+  flex-shrink: 0;
+}
+
+body.theme-light .dice-face {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.2);
+}
+
+body.theme-light .dice-dot {
   background: #0f172a;
-  align-self: center; justify-self: center;
+  box-shadow: none;
 }
 .dice-face-1 { transform: rotateY(0deg) translateZ(17px); }
 .dice-face-2 { transform: rotateY(90deg) translateZ(17px); }
@@ -1110,7 +1184,7 @@ body.theme-light .toggle-switch.active .toggle-knob {
 
     <!-- 2D Mode Corner Dice UIs -->
     <div class="corner-dice-ui" id="dice-ui-red" style="display:none; bottom:20px; left:calc(50% - 250px);">
-      <div class="avatar-area" style="background:#0f172a;">
+      <div class="avatar-area">
         <svg class="pin-icon" viewBox="0 0 24 24"><g fill="var(--red)" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="6" r="3.5" /><path d="M 10 9 C 9 14, 6 16, 6 20 C 6 21, 7 21.5, 12 21.5 C 17 21.5, 18 21, 18 20 C 18 16, 15 14, 14 9 Z" /></g></svg>
       </div>
       <div class="dice-box" id="dice-box-red" style="border-color:var(--red);">
@@ -1118,7 +1192,7 @@ body.theme-light .toggle-switch.active .toggle-knob {
       </div>
     </div>
     <div class="corner-dice-ui" id="dice-ui-green" style="display:none; top:70px; left:calc(50% - 250px);">
-      <div class="avatar-area" style="background:#0f172a;">
+      <div class="avatar-area">
         <svg class="pin-icon" viewBox="0 0 24 24"><g fill="var(--green)" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="6" r="3.5" /><path d="M 10 9 C 9 14, 6 16, 6 20 C 6 21, 7 21.5, 12 21.5 C 17 21.5, 18 21, 18 20 C 18 16, 15 14, 14 9 Z" /></g></svg>
       </div>
       <div class="dice-box" id="dice-box-green" style="border-color:var(--green);">
@@ -1126,7 +1200,7 @@ body.theme-light .toggle-switch.active .toggle-knob {
       </div>
     </div>
     <div class="corner-dice-ui" id="dice-ui-yellow" style="display:none; top:70px; right:calc(50% - 250px); flex-direction:row-reverse;">
-      <div class="avatar-area" style="background:#0f172a; border-radius:0 4px 4px 0;">
+      <div class="avatar-area" style="border-radius:0 4px 4px 0;">
         <svg class="pin-icon" viewBox="0 0 24 24"><g fill="var(--yellow)" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="6" r="3.5" /><path d="M 10 9 C 9 14, 6 16, 6 20 C 6 21, 7 21.5, 12 21.5 C 17 21.5, 18 21, 18 20 C 18 16, 15 14, 14 9 Z" /></g></svg>
       </div>
       <div class="dice-box" id="dice-box-yellow" style="border-color:var(--yellow);">
@@ -1134,7 +1208,7 @@ body.theme-light .toggle-switch.active .toggle-knob {
       </div>
     </div>
     <div class="corner-dice-ui" id="dice-ui-blue" style="display:none; bottom:20px; right:calc(50% - 250px); flex-direction:row-reverse;">
-      <div class="avatar-area" style="background:#0f172a; border-radius:0 4px 4px 0;">
+      <div class="avatar-area" style="border-radius:0 4px 4px 0;">
         <svg class="pin-icon" viewBox="0 0 24 24"><g fill="var(--blue)" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="6" r="3.5" /><path d="M 10 9 C 9 14, 6 16, 6 20 C 6 21, 7 21.5, 12 21.5 C 17 21.5, 18 21, 18 20 C 18 16, 15 14, 14 9 Z" /></g></svg>
       </div>
       <div class="dice-box" id="dice-box-blue" style="border-color:var(--blue);">
@@ -1721,33 +1795,48 @@ function gridToWorld(r, c){
   return { x: x, y: 0.18, z: z };
 }
 
+function getStarThemeProperties(){
+  if (isLightTheme()) {
+    return { color: 0x64748b, opacity: 0.45, size: 0.22, bg: 0xf1f5f9 };
+  } else {
+    return { color: 0xffffff, opacity: 0.80, size: 0.32, bg: 0x000000 };
+  }
+}
+
 function init3D(){
   var container = document.getElementById('canvas-container');
   var canvas = document.getElementById('three-canvas');
 
+  var starTheme = getStarThemeProperties();
   scene = new THREE.Scene();
-  /* Set scene background color based on theme so board looks right */
-  if(isLightTheme()){
-    scene.background = new THREE.Color(0xf8fafc);
-  }
+  scene.background = new THREE.Color(starTheme.bg);
   camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 100);
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
   renderer.setSize(container.clientWidth, container.clientHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-  /* Lighting — clean neutral light (no orange tint) */
-  var ambIntensity = isLightTheme() ? 0.65 : 0.45;
-  var ambLight = new THREE.AmbientLight(0xffffff, ambIntensity);
+  /* Lighting — crisp high-contrast 3D shadows */
+  var ambLight = new THREE.AmbientLight(0xffffff, 0.35);
   scene.add(ambLight);
 
-  var dirLight = new THREE.DirectionalLight(0xffffff, isLightTheme() ? 0.48 : 0.60);
+  var dirLight = new THREE.DirectionalLight(0xffffff, 0.75);
   dirLight.position.set(12, 22, 14);
   dirLight.castShadow = true;
+  dirLight.shadow.mapSize.width = 2048;
+  dirLight.shadow.mapSize.height = 2048;
+  dirLight.shadow.camera.near = 0.5;
+  dirLight.shadow.camera.far = 50;
+  dirLight.shadow.camera.left = -12;
+  dirLight.shadow.camera.right = 12;
+  dirLight.shadow.camera.top = 12;
+  dirLight.shadow.camera.bottom = -12;
+  dirLight.shadow.bias = -0.0005;
   scene.add(dirLight);
 
-  var pointLight = new THREE.PointLight(0xffffff, isLightTheme() ? 0.05 : 0.12, 20);
+  var pointLight = new THREE.PointLight(0xffffff, 0.12, 20);
   pointLight.position.set(0, 8, 0);
   scene.add(pointLight);
 
@@ -1761,12 +1850,11 @@ function init3D(){
     starPos[i+2] = (Math.random() - 0.5) * 180;
   }
   starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-  var isLight = isLightTheme();
   var starMat = new THREE.PointsMaterial({
-    color: isLight ? 0x94a3b8 : 0xffffff,
-    size: isLight ? 0.22 : 0.35,
+    color: starTheme.color,
+    size: starTheme.size,
     transparent: true,
-    opacity: isLight ? 0.40 : 0.80
+    opacity: starTheme.opacity
   });
   starParticles = new THREE.Points(starGeo, starMat);
   starParticles.visible = true;
@@ -1890,10 +1978,32 @@ function build3DBoard(){
       if(isStartBlue)   tileColor = PLAYER_COLORS_HEX.blue;
 
       var tileGeo = new THREE.BoxGeometry(cellSize * 0.94, 0.08, cellSize * 0.94);
-      var tileMat = new THREE.MeshStandardMaterial({ color: tileColor, roughness: 0.35, metalness: 0.15 });
+      var isWhiteTile = (tileColor === 0xffffff);
+      var tileMat = new THREE.MeshStandardMaterial({
+        color: tileColor,
+        roughness: isWhiteTile ? 0.15 : 0.35,
+        metalness: isWhiteTile ? 0.0 : 0.15,
+        emissive: isWhiteTile ? 0xffffff : 0x000000,
+        emissiveIntensity: isWhiteTile ? 0.08 : 0
+      });
       var tileMesh = new THREE.Mesh(tileGeo, tileMat);
       tileMesh.position.set(pos.x, 0.04, pos.z);
+      tileMesh.castShadow = true;
+      tileMesh.receiveShadow = true;
       boardGroup.add(tileMesh);
+
+      /* Soft Fading Contact Shadow under each 3D tile (no sharp wireframe lines) */
+      var shadowPlaneGeo = new THREE.PlaneGeometry(cellSize * 1.07, cellSize * 1.07);
+      var shadowPlaneMat = new THREE.MeshBasicMaterial({
+        color: 0x000000,
+        opacity: isLightTheme() ? 0.22 : 0.35,
+        transparent: true,
+        depthWrite: false
+      });
+      var shadowPlaneMesh = new THREE.Mesh(shadowPlaneGeo, shadowPlaneMat);
+      shadowPlaneMesh.rotation.x = -Math.PI / 2;
+      shadowPlaneMesh.position.set(pos.x, 0.005, pos.z);
+      boardGroup.add(shadowPlaneMesh);
 
       /* Extrusion settings for 3D inlays */
       var extrudeSettings = { depth: 0.012, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.003, bevelThickness: 0.003 };
@@ -1946,23 +2056,26 @@ function build3DBoard(){
     yMesh.position.set(yd.x, 0.08, yd.z);
     boardGroup.add(yMesh);
 
-    /* 2. Sleek White Inset Panel sitting flush on top of yard base */
+    /* 2. Inset Panel (White in Light Mode, Dark Onyx #121a28 in Dark Mode) */
+    var isLight = isLightTheme();
     var framePad = cellSize * 0.48;
     var frameInner = yardSize - framePad * 2;
     var whiteGeo = new THREE.BoxGeometry(frameInner, 0.012, frameInner);
     var whiteMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.3,
-      metalness: 0.05
+      color: isLight ? 0xffffff : 0x121a28,
+      roughness: isLight ? 0.20 : 0.3,
+      metalness: isLight ? 0.0 : 0.05,
+      emissive: isLight ? 0xffffff : 0x000000,
+      emissiveIntensity: isLight ? 0.03 : 0
     });
     var whiteMesh = new THREE.Mesh(whiteGeo, whiteMat);
     whiteMesh.position.set(yd.x, 0.166, yd.z);
     boardGroup.add(whiteMesh);
 
-    /* 3. Subtle dark border outline for the white inset panel */
+    /* 3. Border outline for the inset panel */
     var trayEdges = new THREE.EdgesGeometry(new THREE.BoxGeometry(frameInner, 0.01, frameInner));
     var borderLine = new THREE.LineSegments(trayEdges,
-      new THREE.LineBasicMaterial({ color: 0x94a3b8, opacity: 0.6, transparent: true }));
+      new THREE.LineBasicMaterial({ color: isLight ? 0x94a3b8 : 0x475569, opacity: 0.6, transparent: true }));
     borderLine.position.set(yd.x, 0.172, yd.z);
     boardGroup.add(borderLine);
 
@@ -1978,9 +2091,15 @@ function build3DBoard(){
       var nx = yd.x + no.ox;
       var nz = yd.z + no.oz;
 
-      /* Outer White Ring */
+      /* Outer Nest Ring (White in Light Mode, Dark Charcoal #1e293b in Dark Mode) */
       var ringGeo = new THREE.CylinderGeometry(cellSize * 0.68, cellSize * 0.68, 0.02, 48);
-      var ringMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.25, metalness: 0.05 });
+      var ringMat = new THREE.MeshStandardMaterial({
+        color: isLight ? 0xffffff : 0x1e293b,
+        roughness: isLight ? 0.20 : 0.25,
+        metalness: isLight ? 0.0 : 0.05,
+        emissive: isLight ? 0xffffff : 0x000000,
+        emissiveIntensity: isLight ? 0.03 : 0
+      });
       var ringMesh = new THREE.Mesh(ringGeo, ringMat);
       ringMesh.position.set(nx, 0.176, nz);
       boardGroup.add(ringMesh);
@@ -1992,12 +2111,17 @@ function build3DBoard(){
       discMesh.position.set(nx, 0.182, nz);
       boardGroup.add(discMesh);
 
-      /* Inner Socket Shadow Ring */
-      var shadowGeo = new THREE.TorusGeometry(cellSize * 0.52, 0.012, 12, 48);
-      var shadowMat = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.8, opacity: 0.25, transparent: true });
+      /* Inner Socket Shadow Ring — soft 3D recessed socket depth */
+      var shadowGeo = new THREE.TorusGeometry(cellSize * 0.52, 0.008, 12, 48);
+      var shadowMat = new THREE.MeshStandardMaterial({
+        color: isLight ? 0x64748b : 0x000000,
+        roughness: 0.9,
+        opacity: isLight ? 0.12 : 0.25,
+        transparent: true
+      });
       var shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
       shadowMesh.rotation.x = Math.PI / 2;
-      shadowMesh.position.set(nx, 0.194, nz);
+      shadowMesh.position.set(nx, 0.190, nz);
       boardGroup.add(shadowMesh);
     });
   });
@@ -2008,7 +2132,7 @@ function build3DBoard(){
 
   /* Dark/Light base covers full 3×3 */
   var cBaseGeo = new THREE.BoxGeometry(cHalf * 2, 0.055, cHalf * 2);
-  var cBaseColor = isLightTheme() ? 0xffffff : 0x121a28;
+  var cBaseColor = isLightTheme() ? 0xffffff : 0x0f172a;
   var cBaseMat = new THREE.MeshStandardMaterial({ color: cBaseColor, roughness: 0.6, metalness: 0.05 });
   var cBaseMesh = new THREE.Mesh(cBaseGeo, cBaseMat);
   cBaseMesh.position.set(0, 0.058, 0);
@@ -2060,12 +2184,13 @@ function build3DBoard(){
     boardGroup.add(mesh);
   });
 
-  /* White diagonal lines separating the 4 wedges */
+  /* Diagonal lines separating the 4 wedges */
   var diagLen = Math.sqrt(2) * cHalf;
+  var sepColor = isLightTheme() ? 0xffffff : 0x334155;
   [Math.PI / 4, -Math.PI / 4].forEach(function(a){
     var lGeo = new THREE.BoxGeometry(0.022, 0.018, diagLen);
     var lMesh = new THREE.Mesh(lGeo,
-      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 }));
+      new THREE.MeshStandardMaterial({ color: sepColor, roughness: 0.3 }));
     lMesh.rotation.y = a;
     lMesh.position.set(0, cY + 0.01, 0);
     boardGroup.add(lMesh);
@@ -2075,15 +2200,19 @@ function build3DBoard(){
   var bSize = cHalf * 2 + 0.04;
   var borderEdges = new THREE.EdgesGeometry(new THREE.BoxGeometry(bSize, 0.01, bSize));
   var borderLines = new THREE.LineSegments(borderEdges,
-    new THREE.LineBasicMaterial({ color: isLightTheme() ? 0x94a3b8 : 0xffffff, linewidth: 1 }));
+    new THREE.LineBasicMaterial({ color: isLightTheme() ? 0xffffff : 0x334155, linewidth: 1 }));
   borderLines.position.set(0, cY + 0.02, 0);
   boardGroup.add(borderLines);
 
-  /* Gold hexagon at dead centre */
+  /* Hexagon disc at dead centre */
   var cDiscGeo = new THREE.CylinderGeometry(cellSize * 0.20, cellSize * 0.20, 0.055, 6);
+  var isLightDisc = isLightTheme();
   var cDiscMat = new THREE.MeshStandardMaterial({
-    color: 0xffd700, metalness: 0.6, roughness: 0.3,
-    emissive: 0xffaa00, emissiveIntensity: 0.1
+    color: isLightDisc ? 0xffffff : 0x0f172a,
+    metalness: 0.0,
+    roughness: isLightDisc ? 0.15 : 0.95,
+    emissive: isLightDisc ? 0xffffff : 0x000000,
+    emissiveIntensity: isLightDisc ? 0.08 : 0
   });
   var cDisc = new THREE.Mesh(cDiscGeo, cDiscMat);
   cDisc.position.set(0, cY + 0.03, 0);
@@ -2472,11 +2601,10 @@ function createDiceFaces(cubeEl){
   for(var f=1; f<=6; f++){
     var face = document.createElement('div');
     face.className = 'dice-face dice-face-' + f;
-    face.style.gridTemplateColumns = 'repeat(3, 1fr)';
-    face.style.gridTemplateRows = 'repeat(3, 1fr)';
 
     for(var d=0; d<9; d++){
       var dotBox = document.createElement('div');
+      dotBox.className = 'dice-dot-cell';
       if(dotsMap[f].indexOf(d) !== -1){
         var dot = document.createElement('div');
         dot.className = 'dice-dot';
@@ -3220,7 +3348,12 @@ function updateNameLabels() {
 function updateTurnDisplay(){
   var active = getCurrentPlayer();
   
-  // (Syncing removed to fix jumpy 3D dice behavior)
+  var colorGlowMap = {
+    red: '0 0 22px rgba(239, 68, 68, 0.95), 0 0 45px rgba(239, 68, 68, 0.45)',
+    green: '0 0 22px rgba(16, 185, 129, 0.95), 0 0 45px rgba(16, 185, 129, 0.45)',
+    yellow: '0 0 22px rgba(245, 158, 11, 0.95), 0 0 45px rgba(245, 158, 11, 0.45)',
+    blue: '0 0 22px rgba(59, 130, 246, 0.95), 0 0 45px rgba(59, 130, 246, 0.45)'
+  };
 
   var centralUi = document.getElementById('central-dice-ui');
   var avatarArea = document.getElementById('central-avatar-area');
@@ -3234,15 +3367,20 @@ function updateTurnDisplay(){
     ['red', 'green', 'yellow', 'blue'].forEach(function(color) {
       var ui = document.getElementById('dice-ui-' + color);
       if (ui) {
-        // Only show if the player is active in the game
         if (gameState.activePlayers.indexOf(color) !== -1) {
           ui.style.display = 'flex';
+          var av = ui.querySelector('.avatar-area');
+          if (av) av.style.background = isLightTheme() ? '#ffffff' : '#0f172a';
           if (color === active) {
             ui.classList.add('active');
             ui.style.opacity = '1';
+            ui.style.borderColor = 'var(--' + color + ')';
+            ui.style.boxShadow = colorGlowMap[color] || '0 0 20px var(--' + color + ')';
           } else {
             ui.classList.remove('active');
             ui.style.opacity = '0.5';
+            ui.style.borderColor = isLightTheme() ? '#cbd5e1' : '#334155';
+            ui.style.boxShadow = '0 4px 10px rgba(0,0,0,0.5)';
           }
         } else {
           ui.style.display = 'none';
@@ -3253,8 +3391,8 @@ function updateTurnDisplay(){
     if(centralUi) {
       centralUi.style.display = 'flex';
       centralUi.style.borderColor = 'var(--' + active + ')';
-      centralUi.style.boxShadow = '0 0 20px var(--' + active + ')';
-      if(avatarArea) avatarArea.style.background = '#0f172a';
+      centralUi.style.boxShadow = colorGlowMap[active] || '0 0 20px var(--' + active + ')';
+      if(avatarArea) avatarArea.style.background = isLightTheme() ? '#ffffff' : '#0f172a';
       if(pinPath) pinPath.setAttribute('fill', 'var(--' + active + ')');
     }
     ['red', 'green', 'yellow', 'blue'].forEach(function(color) {
@@ -4087,16 +4225,16 @@ function bindEvents(){
         boardGroup.add(tokenGroup);
         build3DBoard();
       }
-      /* Update 3D scene bg and ambient particles to match theme */
-      var isLight = isLightTheme();
+      /* 3D scene background and particle colors match index.html theme definitions */
+      var starProps = getStarThemeProperties();
       if(scene){
-        scene.background = isLight ? new THREE.Color(0xf1f5f9) : null;
+        scene.background = new THREE.Color(starProps.bg);
       }
 
       if(starParticles && starParticles.material){
-        starParticles.material.color.setHex(isLight ? 0x94a3b8 : 0xffffff);
-        starParticles.material.opacity = isLight ? 0.40 : 0.80;
-        starParticles.material.size = isLight ? 0.22 : 0.35;
+        starParticles.material.color.setHex(starProps.color);
+        starParticles.material.opacity = starProps.opacity;
+        starParticles.material.size = starProps.size;
         starParticles.visible = true;
         starParticles.material.needsUpdate = true;
       }

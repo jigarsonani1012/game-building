@@ -45,8 +45,8 @@
 }
 
 body.theme-light {
-  /* Light Theme (White) — matches Tic-Tac-Toe */
-  --bg: #e2e8f0;
+  /* Light Theme */
+  --bg: #f1f5f9;
   --panel-bg: rgba(255, 255, 255, 0.96);
   --panel-solid: #ffffff;
   --surface: #ffffff;
@@ -135,28 +135,24 @@ html, body {
 .brandmark {
   display: flex; flex-direction: column;
   align-items: center; gap: 4px;
-  margin-bottom: 6px;
-}
-.brand-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 4px 12px; border-radius: var(--radius-full);
-  background: var(--surface); border: 1px solid var(--border);
-  font-size: 11px; font-weight: 800; letter-spacing: 0.16em;
-  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 8px;
 }
 .brand-title {
   font-family: var(--font-display);
-  font-weight: 900; font-size: clamp(34px, 8vw, 48px);
-  letter-spacing: 0.08em; text-transform: uppercase;
+  font-weight: 900; font-size: clamp(44px, 10vw, 60px);
+  letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--text);
-  text-shadow: 0 0 24px var(--accent-glow);
+  text-shadow: 0 4px 20px var(--accent-glow), 0 2px 4px rgba(0, 0, 0, 0.4);
+  transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 body.theme-light .brand-title {
-  text-shadow: none;
+  color: #000000;
+  text-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
 }
+
 .brand-sub {
   color: var(--text-dim); font-size: 13px;
-  letter-spacing: 0.2em; text-transform: uppercase; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700;
 }
 
 .panel {
@@ -269,6 +265,169 @@ body.theme-light .btn-ghost:hover {
 }
 .choice-chip .chip-sub {
   font-size: 10.5px; color: var(--text-dim); font-weight: 600;
+}
+
+/* ==================================================
+   4b. PREFERENCES & SETTINGS UI
+   ================================================== */
+.settings-header {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  margin-bottom: 4px; text-align: center;
+}
+.settings-icon-badge {
+  width: 44px; height: 44px; border-radius: 14px;
+  background: var(--surface); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text); box-shadow: 0 6px 18px var(--accent-glow);
+  margin-bottom: 4px;
+}
+.settings-icon-badge svg { width: 20px; height: 20px; }
+.settings-title {
+  font-family: var(--font-display); font-size: 20px; font-weight: 900;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--text);
+  text-shadow: 0 0 16px var(--accent-glow);
+}
+body.theme-light .settings-title { text-shadow: none; }
+.settings-subtitle {
+  font-size: 11.5px; color: var(--text-dim); font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Theme Cards Grid */
+.theme-card-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+.theme-card {
+  position: relative; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 3px;
+  padding: 10px 10px; border-radius: var(--radius-m);
+  background: var(--surface); border: 1.5px solid var(--border);
+  cursor: pointer; transition: all 0.22s var(--ease);
+  user-select: none;
+}
+.theme-card:hover {
+  background: var(--surface-hover); border-color: var(--border-active);
+  transform: translateY(-1px);
+}
+.theme-card.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--text);
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+body.theme-light .theme-card.active {
+  background: #ffffff; border-color: #000000;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+.theme-card .theme-icon {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text); transition: transform 0.2s ease;
+}
+.theme-card .theme-icon svg { width: 15px; height: 15px; }
+body.theme-light .theme-card .theme-icon {
+  background: #f1f5f9; border-color: #cbd5e1;
+}
+.theme-card:hover .theme-icon { transform: scale(1.06); }
+.theme-card .theme-name {
+  font-family: var(--font-display); font-weight: 800; font-size: 13px;
+  color: var(--text); letter-spacing: 0.02em;
+}
+.theme-card .theme-sub {
+  font-size: 10.5px; color: var(--text-dim); font-weight: 600;
+}
+.theme-card .active-badge {
+  position: absolute; top: 6px; right: 6px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--text); color: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: scale(0.5);
+  transition: all 0.22s var(--ease-bounce);
+}
+.theme-card .active-badge svg { width: 10px; height: 10px; }
+.theme-card.active .active-badge {
+  opacity: 1; transform: scale(1);
+}
+
+/* Settings Row Card */
+.setting-row-card {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; border-radius: var(--radius-m);
+  background: var(--surface); border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.2s var(--ease);
+  user-select: none;
+}
+.setting-row-card:hover {
+  background: var(--surface-hover); border-color: var(--border-active);
+}
+.setting-row-info {
+  display: flex; align-items: center; gap: 12px;
+}
+.setting-row-icon {
+  width: 32px; height: 32px; border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text); flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+.setting-row-icon svg { width: 17px; height: 17px; }
+body.theme-light .setting-row-icon {
+  background: #f1f5f9; border-color: #cbd5e1;
+}
+.setting-row-card:hover .setting-row-icon { transform: scale(1.05); }
+.setting-row-text {
+  display: flex; flex-direction: column; gap: 1px; text-align: left;
+}
+.setting-row-title {
+  font-family: var(--font-display); font-weight: 800; font-size: 13.5px;
+  color: var(--text); letter-spacing: 0.02em;
+}
+.setting-row-sub {
+  font-size: 11px; color: var(--text-dim); font-weight: 500;
+}
+
+/* Modern Toggle Switch */
+.toggle-control-group {
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+.toggle-status-text {
+  font-family: var(--font-display); font-size: 12px; font-weight: 800;
+  letter-spacing: 0.05em; color: var(--text-dim); min-width: 30px;
+  text-align: right; text-transform: uppercase;
+}
+.toggle-switch {
+  position: relative; width: 46px; height: 26px; border-radius: 13px;
+  background: rgba(255, 255, 255, 0.15); border: 1px solid var(--border);
+  transition: all 0.25s var(--ease); flex-shrink: 0;
+}
+body.theme-light .toggle-switch {
+  background: #cbd5e1; border-color: #94a3b8;
+}
+.toggle-switch.active {
+  background: var(--text); border-color: var(--text);
+}
+body.theme-dark .toggle-switch.active {
+  background: #ffffff; border-color: #ffffff;
+}
+body.theme-light .toggle-switch.active {
+  background: #000000; border-color: #000000;
+}
+.toggle-knob {
+  position: absolute; top: 2px; left: 2px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--bg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+body.theme-light .toggle-knob {
+  background: #ffffff;
+}
+.toggle-switch.active .toggle-knob {
+  transform: translateX(20px);
+  background: var(--bg);
+}
+body.theme-light .toggle-switch.active .toggle-knob {
+  background: #ffffff;
 }
 
 /* Floating Input Labels */
@@ -514,8 +673,145 @@ body.theme-light .btn-ghost:hover {
   font-weight: 800; font-size: 13.5px;
 }
 .podium-item.first {
-  border-color: var(--accent);
-  background: rgba(245, 158, 11, 0.15);
+  border-color: #fbbf24;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(245, 158, 11, 0.08));
+  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.25);
+  font-size: 15px; color: #fbbf24;
+}
+.podium-item.second {
+  border-color: #94a3b8;
+  background: linear-gradient(135deg, rgba(148, 163, 184, 0.18), rgba(100, 116, 139, 0.05));
+  color: #cbd5e1;
+}
+.podium-item.third {
+  border-color: #d97706;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.18), rgba(180, 83, 9, 0.05));
+  color: #f59e0b;
+}
+
+/* ==================================================
+   6b. EPIC VICTORY CELEBRATION & PODIUM STYLING
+   ================================================== */
+#victory-flash-overlay {
+  position: fixed; inset: 0;
+  background: radial-gradient(circle at center, rgba(251, 191, 36, 0.35) 0%, rgba(245, 158, 11, 0.15) 50%, transparent 80%);
+  pointer-events: none; z-index: 90; opacity: 0;
+  transition: opacity 0.4s var(--ease);
+}
+#victory-flash-overlay.active {
+  animation: victoryFlashPulse 1.8s ease-out forwards;
+}
+@keyframes victoryFlashPulse {
+  0% { opacity: 0; transform: scale(0.95); }
+  25% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.05); }
+}
+
+.modal-card {
+  position: relative; overflow: hidden;
+  width: 90%; max-width: 440px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-l);
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: var(--shadow-l);
+  max-height: 90vh; overflow-y: auto;
+}
+
+.victory-sunburst {
+  position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(251, 191, 36, 0.12) 0deg 15deg,
+    transparent 15deg 30deg,
+    rgba(251, 191, 36, 0.12) 30deg 45deg,
+    transparent 45deg 60deg,
+    rgba(251, 191, 36, 0.12) 60deg 75deg,
+    transparent 75deg 90deg,
+    rgba(251, 191, 36, 0.12) 90deg 105deg,
+    transparent 105deg 120deg,
+    rgba(251, 191, 36, 0.12) 120deg 135deg,
+    transparent 135deg 150deg,
+    rgba(251, 191, 36, 0.12) 150deg 165deg,
+    transparent 165deg 180deg,
+    rgba(251, 191, 36, 0.12) 180deg 195deg,
+    transparent 195deg 210deg,
+    rgba(251, 191, 36, 0.12) 210deg 225deg,
+    transparent 225deg 240deg,
+    rgba(251, 191, 36, 0.12) 240deg 255deg,
+    transparent 255deg 270deg,
+    rgba(251, 191, 36, 0.12) 270deg 285deg,
+    transparent 285deg 300deg,
+    rgba(251, 191, 36, 0.12) 300deg 315deg,
+    transparent 315deg 330deg,
+    rgba(251, 191, 36, 0.12) 330deg 345deg,
+    transparent 345deg 360deg
+  );
+  animation: sunburstRotate 20s linear infinite;
+  pointer-events: none; z-index: 0; opacity: 0.85;
+}
+@keyframes sunburstRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.modal-card > * { position: relative; z-index: 1; }
+
+
+
+.modal-icon {
+  width: 76px; height: 76px; margin: 0 auto 18px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at center, rgba(251, 191, 36, 0.3) 0%, rgba(245, 158, 11, 0.08) 70%, transparent 100%);
+  border: 2px solid #F59E0B;
+  box-shadow: 0 0 32px rgba(245, 158, 11, 0.5), inset 0 0 20px rgba(251, 191, 36, 0.3), 0 8px 24px rgba(0, 0, 0, 0.5);
+  animation: trophyFloat 2.4s ease-in-out infinite alternate;
+}
+@keyframes trophyFloat {
+  0% { transform: translateY(0) scale(1); box-shadow: 0 0 25px rgba(245, 158, 11, 0.4), inset 0 0 15px rgba(251, 191, 36, 0.2); }
+  100% { transform: translateY(-5px) scale(1.06); box-shadow: 0 0 45px rgba(245, 158, 11, 0.8), inset 0 0 25px rgba(251, 191, 36, 0.4); }
+}
+
+.podium-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-radius: var(--radius-m);
+  background: var(--surface); border: 1px solid var(--border);
+  font-weight: 800; font-size: 14px;
+  transition: all 0.3s var(--ease);
+  animation: podiumSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.podium-item:nth-child(1) { animation-delay: 0.1s; }
+.podium-item:nth-child(2) { animation-delay: 0.2s; }
+.podium-item:nth-child(3) { animation-delay: 0.3s; }
+.podium-item:nth-child(4) { animation-delay: 0.4s; }
+
+.podium-item.first {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(245, 158, 11, 0.1));
+  border: 1.5px solid #fbbf24;
+  color: #fbbf24;
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35), inset 0 0 12px rgba(251, 191, 36, 0.15);
+  font-size: 15px; font-weight: 900;
+}
+.podium-item.second {
+  background: linear-gradient(135deg, rgba(226, 232, 240, 0.18), rgba(148, 163, 184, 0.08));
+  border: 1.5px solid #cbd5e1;
+  color: #f1f5f9;
+  box-shadow: 0 4px 14px rgba(148, 163, 184, 0.25);
+  font-size: 14px; font-weight: 800;
+}
+.podium-item.third {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.14), rgba(180, 83, 9, 0.06));
+  border: 1.5px solid #d97706;
+  color: #fcd34d;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.2);
+  font-size: 14px; font-weight: 800;
+}
+
+@keyframes podiumSlideIn {
+  0% { opacity: 0; transform: translateY(16px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @media (max-width: 440px) {
@@ -538,8 +834,7 @@ body.theme-light .btn-ghost:hover {
        ================================================== -->
   <div id="splash" class="screen">
     <div class="brandmark">
-      <div class="brand-badge">3D Web Edition</div>
-      <div class="brand-title">LUDO KING 3D</div>
+      <div class="brand-title">LUDO KING</div>
       <div class="brand-sub">The Royal 3D Experience</div>
     </div>
   </div>
@@ -550,8 +845,7 @@ body.theme-light .btn-ghost:hover {
   <div id="main-menu" class="screen hidden">
     <div class="menu-stack">
       <div class="brandmark">
-        <div class="brand-badge">Full 3D Engine</div>
-        <div class="brand-title">LUDO KING 3D</div>
+        <div class="brand-title">LUDO KING</div>
         <div class="brand-sub">Roll • Capture • Conquer</div>
       </div>
 
@@ -559,6 +853,7 @@ body.theme-light .btn-ghost:hover {
         <button class="btn btn-primary" id="btn-menu-play">Play Game</button>
         <button class="btn" id="btn-menu-rules">How to Play</button>
         <button class="btn" id="btn-menu-settings">Settings</button>
+        <button class="btn" id="btn-menu-stats">Statistics</button>
       </div>
     </div>
   </div>
@@ -744,7 +1039,10 @@ body.theme-light .btn-ghost:hover {
     </div>
       <!-- Header -->
       <div id="game-header">
-        <div style="width: 38px;"></div> <!-- Placeholder to keep title centered -->
+        <div style="display:flex; align-items:center; gap:6px;">
+          <button class="btn btn-primary" id="btn-end-match-now" style="display:none; padding:6px 12px; font-size:12px; font-weight:800; border-radius: var(--radius-full); box-shadow: 0 4px 14px var(--accent-glow);">🏁 End Match</button>
+          <button class="btn btn-primary" id="btn-open-dev-tools" style="padding:5px 12px; font-size:11.5px; font-weight:800; border-radius: var(--radius-full); background:#8b5cf6; color:#ffffff; border:none; cursor:pointer;" title="Open Developer Test Suite">🧪 Dev Tools</button>
+        </div>
   
         <div class="hud-title-box">
           <span id="hud-match-type">2P Classic</span>
@@ -759,6 +1057,10 @@ body.theme-light .btn-ghost:hover {
           </button>
           
           <div id="hamburger-dropdown" class="hidden" style="position:absolute; top:45px; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:10px; padding:8px; display:flex; flex-direction:column; gap:4px; box-shadow:0 10px 30px rgba(0,0,0,0.8); z-index:100; min-width:220px;">
+            <button class="btn btn-ghost" id="btn-menu-end-now" style="display:none; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%; cursor:pointer; color:#ef4444; font-weight:800;">
+              <span>🏁</span>
+              <span style="white-space: nowrap;">End Match Now</span>
+            </button>
             <button class="btn btn-ghost" id="btn-game-2d" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%; cursor:pointer;">
               <span id="2d-icon-span">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
@@ -983,28 +1285,173 @@ body.theme-light .btn-ghost:hover {
   </div>
 
   <!-- ==================================================
-       7. SETTINGS SCREEN
+       7. SETTINGS SCREEN (PREFERENCES)
        ================================================== -->
   <div id="settings-screen" class="screen hidden screen-scroll">
-    <div class="menu-stack">
-      <div class="eyebrow">Preferences</div>
+    <div class="menu-stack" style="gap: 20px;">
+      
+      <!-- Settings Header -->
+      <div class="settings-header">
+        <div class="settings-icon-badge">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </div>
+        <div class="settings-title">Preferences</div>
+        <div class="settings-subtitle">Customize theme &amp; sound effects</div>
+      </div>
 
-      <div class="panel" style="display:flex; flex-direction:column; gap:16px;">
+      <div class="panel" style="display:flex; flex-direction:column; gap:20px;">
+        <!-- Theme Section -->
         <div>
-          <div class="eyebrow" style="text-align:left; margin-bottom:8px;">Theme</div>
-          <div class="option-grid cols-2">
-            <div class="choice-chip active" data-theme="theme-dark">⬛ Black</div>
-            <div class="choice-chip" data-theme="theme-light">⬜ White</div>
+          <div class="eyebrow" style="text-align:left; margin-bottom:10px;">Theme</div>
+          <div class="theme-card-grid">
+            
+            <div class="theme-card active" data-theme="theme-dark">
+              <div class="active-badge">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <div class="theme-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+              </div>
+              <div class="theme-name">Black</div>
+              <div class="theme-sub">Dark Theme</div>
+            </div>
+
+            <div class="theme-card" data-theme="theme-light">
+              <div class="active-badge">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <div class="theme-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+              </div>
+              <div class="theme-name">White</div>
+              <div class="theme-sub">Light Theme</div>
+            </div>
+
           </div>
         </div>
 
-        <div>
-          <div class="eyebrow" style="text-align:left; margin-bottom:8px;">Sound &amp; Effects</div>
-          <div class="choice-chip active" id="toggle-sound-chip">🔊 Sound Effects: ON</div>
+        <!-- Sound Section -->
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="eyebrow" style="text-align:left; margin-bottom:2px;">Sound &amp; Effects</div>
+          
+          <div class="setting-row-card" id="toggle-sound-chip" role="button" aria-label="Toggle Sound Effects">
+            <div class="setting-row-info">
+              <div class="setting-row-icon" id="settings-sound-icon">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+              </div>
+              <div class="setting-row-text">
+                <div class="setting-row-title">Sound Effects</div>
+                <div class="setting-row-sub">Dice rolls, tokens & win chimes</div>
+              </div>
+            </div>
+            <div class="toggle-control-group">
+              <div class="toggle-status-text" id="settings-sound-status">ON</div>
+              <div class="toggle-switch active" id="settings-sound-switch">
+                <div class="toggle-knob"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <button class="btn btn-primary" id="btn-settings-back" style="width:auto; padding:11px 42px;">Done</button>
+      <button class="btn btn-primary" id="btn-settings-back" style="width:100%; max-width:220px; padding:12px 32px; font-size: 15px;">Done</button>
+    </div>
+  </div>
+
+  <!-- ==================================================
+       7b. BOT STATISTICS SCREEN (Vs Computer Records)
+       ================================================== -->
+  <div id="stats-screen" class="screen hidden screen-scroll">
+    <div class="menu-stack" style="max-width:420px;">
+      <div class="settings-header">
+        <div class="settings-icon-badge">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+        </div>
+        <div class="settings-title">Statistics</div>
+        <div class="settings-subtitle">Vs Computer match &amp; career statistics</div>
+      </div>
+
+      <div class="panel" style="display:flex; flex-direction:column; gap:14px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <div style="background:var(--surface); padding:14px; border-radius:var(--radius-m); text-align:center;">
+            <div style="font-size:22px; font-weight:900; color:var(--text);" id="stat-matches">0</div>
+            <div style="font-size:10.5px; color:var(--text-dim); text-transform:uppercase; font-weight:700; letter-spacing:0.05em; margin-top:2px;">Matches Played</div>
+          </div>
+          <div style="background:var(--surface); padding:14px; border-radius:var(--radius-m); text-align:center;">
+            <div style="font-size:22px; font-weight:900; color:#10b981;" id="stat-winrate">0%</div>
+            <div style="font-size:10.5px; color:var(--text-dim); text-transform:uppercase; font-weight:700; letter-spacing:0.05em; margin-top:2px;">Win Rate</div>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--surface); border-radius:var(--radius-m);">
+            <span style="font-size:13px; font-weight:700;">🏆 Matches Won</span>
+            <span style="font-size:14px; font-weight:900; color:#3b82f6;" id="stat-bot-wins">0</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--surface); border-radius:var(--radius-m);">
+            <span style="font-size:13px; font-weight:700;">⚔️ Total Captures</span>
+            <span style="font-size:14px; font-weight:900; color:#ef4444;" id="stat-bot-captures">0</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--surface); border-radius:var(--radius-m);">
+            <span style="font-size:13px; font-weight:700;">🏠 Pawns Reached Home</span>
+            <span style="font-size:14px; font-weight:900; color:#f59e0b;" id="stat-bot-home">0</span>
+          </div>
+        </div>
+
+        <button class="btn btn-ghost" id="btn-reset-stats" style="color:#ef4444; font-size:12px; font-weight:700; padding:8px; width:100%;">Reset Statistics</button>
+      </div>
+
+      <button class="btn btn-primary" id="btn-stats-back" style="width:100%; max-width:220px; margin:0 auto; padding:12px 32px; font-size:15px;">Back to Menu</button>
+    </div>
+  </div>
+
+  <!-- ==================================================
+       7b. HUMAN PLAYER FINISHED MODAL (Vs Computer)
+       ================================================== -->
+  <div id="human-finished-modal" class="modal-backdrop hidden">
+    <div class="modal-card" style="max-width:380px;">
+      <div class="modal-icon" id="human-finish-modal-icon">
+        <svg viewBox="0 0 48 48" width="46" height="46" fill="none">
+          <defs>
+            <linearGradient id="trophyGold1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFFBEB"/>
+              <stop offset="30%" stop-color="#FBBF24"/>
+              <stop offset="70%" stop-color="#F59E0B"/>
+              <stop offset="100%" stop-color="#92400E"/>
+            </linearGradient>
+            <linearGradient id="pedestalGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#374151"/>
+              <stop offset="100%" stop-color="#111827"/>
+            </linearGradient>
+            <linearGradient id="starGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFFFFF"/>
+              <stop offset="100%" stop-color="#FEF08A"/>
+            </linearGradient>
+          </defs>
+          <rect x="14" y="38" width="20" height="5" rx="1.5" fill="url(#pedestalGrad1)" stroke="#FBBF24" stroke-width="1.2"/>
+          <rect x="18" y="34" width="12" height="4" fill="url(#trophyGold1)"/>
+          <path d="M21 28H27V34H21V28Z" fill="url(#trophyGold1)"/>
+          <path d="M12 12C7 12 7 22 14 24" stroke="url(#trophyGold1)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M36 12C41 12 41 22 34 24" stroke="url(#trophyGold1)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M12 8H36V18C36 24.6274 30.6274 30 24 30C17.3726 30 12 24.6274 12 18V8Z" fill="url(#trophyGold1)" stroke="#FFFBEB" stroke-width="1"/>
+          <ellipse cx="24" cy="8" rx="12" ry="2.5" fill="#FFE066" stroke="#FFF" stroke-width="0.8"/>
+          <polygon points="24,14 25.5,18 29.5,18.2 26.5,20.8 27.5,24.8 24,22.5 20.5,24.8 21.5,20.8 18.5,18.2 22.5,18" fill="url(#starGrad1)"/>
+        </svg>
+      </div>
+      <div class="modal-title" id="human-finish-modal-title">You Finished 1st Place!</div>
+      <div class="modal-sub" id="human-finish-modal-sub">All 4 of your pawns have reached home! Would you like to end the game now and see final results, or watch the computer finish?</div>
+
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:16px;">
+        <button class="btn btn-primary" id="btn-human-finish-end" style="width:100%; padding:13px; font-size:15px;">End Match &amp; View Results 🏆</button>
+        <button class="btn btn-ghost" id="btn-human-finish-watch" style="width:100%; padding:11px;">Watch Computer Finish 🍿</button>
+      </div>
     </div>
   </div>
 
@@ -1013,7 +1460,34 @@ body.theme-light .btn-ghost:hover {
        ================================================== -->
   <div id="win-modal" class="modal-backdrop hidden">
     <div class="modal-card">
-      <div class="modal-icon">👑</div>
+      <div class="modal-icon" id="win-modal-icon">
+        <svg viewBox="0 0 48 48" width="46" height="46" fill="none">
+          <defs>
+            <linearGradient id="trophyGold2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFFBEB"/>
+              <stop offset="30%" stop-color="#FBBF24"/>
+              <stop offset="70%" stop-color="#F59E0B"/>
+              <stop offset="100%" stop-color="#92400E"/>
+            </linearGradient>
+            <linearGradient id="pedestalGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#374151"/>
+              <stop offset="100%" stop-color="#111827"/>
+            </linearGradient>
+            <linearGradient id="starGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFFFFF"/>
+              <stop offset="100%" stop-color="#FEF08A"/>
+            </linearGradient>
+          </defs>
+          <rect x="14" y="38" width="20" height="5" rx="1.5" fill="url(#pedestalGrad2)" stroke="#FBBF24" stroke-width="1.2"/>
+          <rect x="18" y="34" width="12" height="4" fill="url(#trophyGold2)"/>
+          <path d="M21 28H27V34H21V28Z" fill="url(#trophyGold2)"/>
+          <path d="M12 12C7 12 7 22 14 24" stroke="url(#trophyGold2)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M36 12C41 12 41 22 34 24" stroke="url(#trophyGold2)" stroke-width="3" stroke-linecap="round"/>
+          <path d="M12 8H36V18C36 24.6274 30.6274 30 24 30C17.3726 30 12 24.6274 12 18V8Z" fill="url(#trophyGold2)" stroke="#FFFBEB" stroke-width="1"/>
+          <ellipse cx="24" cy="8" rx="12" ry="2.5" fill="#FFE066" stroke="#FFF" stroke-width="0.8"/>
+          <polygon points="24,14 25.5,18 29.5,18.2 26.5,20.8 27.5,24.8 24,22.5 20.5,24.8 21.5,20.8 18.5,18.2 22.5,18" fill="url(#starGrad2)"/>
+        </svg>
+      </div>
       <div class="modal-title" id="win-title">Match Finished!</div>
       <div class="modal-sub" id="win-sub">Congratulations on the victory!</div>
 
@@ -1051,6 +1525,25 @@ body.theme-light .btn-ghost:hover {
         <button class="btn btn-primary" id="btn-confirm-restart">Yes, Restart</button>
         <button class="btn btn-ghost" id="btn-cancel-restart">Cancel</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ==================================================
+       11. DEV TEST TOOLS MODAL
+       ================================================== -->
+  <div id="dev-test-modal" class="modal-backdrop hidden">
+    <div class="modal-card" style="max-width:380px;">
+      <div class="modal-title" style="font-size:20px; font-weight:800; margin-bottom:4px;">🧪 Dev Test Tools</div>
+      <div class="modal-sub" style="font-size:12px; margin-bottom:16px;">Test game features and modals separately</div>
+
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button class="btn btn-primary" id="btn-test-action-1st" style="padding:11px; font-size:13px; background:#10b981; color:#ffffff; border:none;">🥇 Test 1st Place Choice Prompt</button>
+        <button class="btn btn-primary" id="btn-test-action-2nd" style="padding:11px; font-size:13px; background:#3b82f6; color:#ffffff; border:none;">🥈 Test 2nd Place Choice Prompt</button>
+        <button class="btn btn-primary" id="btn-test-action-podium" style="padding:11px; font-size:13px; background:#f59e0b; color:#ffffff; border:none;">🏆 Test Final Match Podium Screen</button>
+        <button class="btn btn-primary" id="btn-test-action-confetti" style="padding:11px; font-size:13px; background:#8b5cf6; color:#ffffff; border:none;">🎉 Test Victory Celebration</button>
+      </div>
+
+      <button class="btn btn-ghost" id="btn-close-dev-test" style="width:100%; margin-top:16px; padding:10px;">Close Dev Tools</button>
     </div>
   </div>
 
@@ -1095,6 +1588,39 @@ var AudioEngine = (function(){
   return {
     toggle: function(){ enabled = !enabled; return enabled; },
     isEnabled: function(){ return enabled; },
+    win: function(){
+      this.playVictoryFanfare();
+    },
+    playVictoryFanfare: function(){
+      if(!enabled) return;
+      init();
+      if(!ctx) return;
+      if(ctx.state === 'suspended') ctx.resume();
+
+      var notes = [
+        { f: 523.25, t: 0.0, d: 0.25 }, // C5
+        { f: 659.25, t: 0.15, d: 0.25 }, // E5
+        { f: 783.99, t: 0.30, d: 0.25 }, // G5
+        { f: 1046.50, t: 0.45, d: 0.45 }, // C6
+        { f: 1318.51, t: 0.65, d: 0.60 }, // E6
+        { f: 1567.98, t: 0.85, d: 0.90 }  // G6 Triumphant Chime!
+      ];
+
+      notes.forEach(function(n){
+        setTimeout(function(){
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(n.f, ctx.currentTime);
+          gain.gain.setValueAtTime(0.25, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + n.d);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + n.d);
+        }, n.t * 1000);
+      });
+    },
     diceRoll: function(){
       for(var i=0; i<6; i++){
         setTimeout(function(){ playTone(160 + Math.random()*240, 'triangle', 0.08, 0.1); }, i * 65);
@@ -1237,10 +1763,10 @@ function init3D(){
   starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
   var isLight = isLightTheme();
   var starMat = new THREE.PointsMaterial({
-    color: isLight ? 0x9ca3af : 0xffffff,
-    size: isLight ? 0.25 : 0.30,
+    color: isLight ? 0x94a3b8 : 0xffffff,
+    size: isLight ? 0.22 : 0.35,
     transparent: true,
-    opacity: isLight ? 0.40 : 0.65
+    opacity: isLight ? 0.40 : 0.80
   });
   starParticles = new THREE.Points(starGeo, starMat);
   starParticles.visible = true;
@@ -1329,15 +1855,6 @@ function isLightTheme(){
 }
 
 function build3DBoard(){
-  /* Base Pedestal (exactly 15 * 0.62 = 9.3) */
-  var baseGeo = new THREE.BoxGeometry(9.3, 0.4, 9.3);
-  var baseColor = isLightTheme() ? 0xdde3ed : 0x081018;
-  var baseMat = new THREE.MeshStandardMaterial({ color: baseColor, roughness: 0.4, metalness: 0.2 });
-  var baseMesh = new THREE.Mesh(baseGeo, baseMat);
-  baseMesh.name = "boardBase";
-  baseMesh.position.y = -0.2;
-  boardGroup.add(baseMesh);
-
   /* 15x15 Tiles */
   var cellSize = 0.62;
   var defaultTileColor = isLightTheme() ? 0xffffff : 0x121a28;
@@ -1422,23 +1939,34 @@ function build3DBoard(){
   ];
 
   yardDefs.forEach(function(yd){
-    /* ---- Base coloured slab ---- */
-    var yardGeo = new THREE.BoxGeometry(yardSize, 0.22, yardSize);
-    var yMat = new THREE.MeshStandardMaterial({ color: yd.color, roughness: 0.3, metalness: 0.2 });
+    /* 1. Base 3D coloured slab for the Yard */
+    var yardGeo = new THREE.BoxGeometry(yardSize, 0.16, yardSize);
+    var yMat = new THREE.MeshStandardMaterial({ color: yd.color, roughness: 0.35, metalness: 0.15 });
     var yMesh = new THREE.Mesh(yardGeo, yMat);
-    yMesh.position.set(yd.x, 0.11, yd.z);
+    yMesh.position.set(yd.x, 0.08, yd.z);
     boardGroup.add(yMesh);
 
-    /* ---- White inset frame on top of base ---- */
-    var framePad = cellSize * 0.55;
+    /* 2. Sleek White Inset Panel sitting flush on top of yard base */
+    var framePad = cellSize * 0.48;
     var frameInner = yardSize - framePad * 2;
-    var frameGeo = new THREE.BoxGeometry(frameInner, 0.04, frameInner);
-    var frameMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4, metalness: 0.0, opacity: 0.35, transparent: true });
-    var frameMesh = new THREE.Mesh(frameGeo, frameMat);
-    frameMesh.position.set(yd.x, 0.225, yd.z);
-    boardGroup.add(frameMesh);
+    var whiteGeo = new THREE.BoxGeometry(frameInner, 0.012, frameInner);
+    var whiteMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      roughness: 0.3,
+      metalness: 0.05
+    });
+    var whiteMesh = new THREE.Mesh(whiteGeo, whiteMat);
+    whiteMesh.position.set(yd.x, 0.166, yd.z);
+    boardGroup.add(whiteMesh);
 
-    /* ---- 4 circular nest pockets (2×2 grid) ---- */
+    /* 3. Subtle dark border outline for the white inset panel */
+    var trayEdges = new THREE.EdgesGeometry(new THREE.BoxGeometry(frameInner, 0.01, frameInner));
+    var borderLine = new THREE.LineSegments(trayEdges,
+      new THREE.LineBasicMaterial({ color: 0x94a3b8, opacity: 0.6, transparent: true }));
+    borderLine.position.set(yd.x, 0.172, yd.z);
+    boardGroup.add(borderLine);
+
+    /* 4. Four circular nest pockets (2×2 grid) */
     var nestOffsets = [
       { ox: -cellSize * 1.1, oz: -cellSize * 1.1 },
       { ox:  cellSize * 1.1, oz: -cellSize * 1.1 },
@@ -1449,28 +1977,27 @@ function build3DBoard(){
     nestOffsets.forEach(function(no){
       var nx = yd.x + no.ox;
       var nz = yd.z + no.oz;
-      var ny = 0.23;
 
-      /* Outer white ring */
-      var ringGeo = new THREE.CylinderGeometry(cellSize * 0.68, cellSize * 0.68, 0.04, 48);
-      var ringMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3, metalness: 0.05 });
+      /* Outer White Ring */
+      var ringGeo = new THREE.CylinderGeometry(cellSize * 0.68, cellSize * 0.68, 0.02, 48);
+      var ringMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.25, metalness: 0.05 });
       var ringMesh = new THREE.Mesh(ringGeo, ringMat);
-      ringMesh.position.set(nx, ny, nz);
+      ringMesh.position.set(nx, 0.176, nz);
       boardGroup.add(ringMesh);
 
-      /* Inner coloured disc */
-      var discGeo = new THREE.CylinderGeometry(cellSize * 0.52, cellSize * 0.52, 0.05, 48);
-      var discMat = new THREE.MeshStandardMaterial({ color: yd.color, roughness: 0.35, metalness: 0.1 });
+      /* Inner Colored Nest Disc */
+      var discGeo = new THREE.CylinderGeometry(cellSize * 0.52, cellSize * 0.52, 0.025, 48);
+      var discMat = new THREE.MeshStandardMaterial({ color: yd.color, roughness: 0.35, metalness: 0.15 });
       var discMesh = new THREE.Mesh(discGeo, discMat);
-      discMesh.position.set(nx, ny + 0.01, nz);
+      discMesh.position.set(nx, 0.182, nz);
       boardGroup.add(discMesh);
 
-      /* Subtle inner shadow ring (dark) */
-      var shadowGeo = new THREE.TorusGeometry(cellSize * 0.52, 0.018, 12, 48);
-      var shadowMat = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.8, metalness: 0.0, opacity: 0.3, transparent: true });
+      /* Inner Socket Shadow Ring */
+      var shadowGeo = new THREE.TorusGeometry(cellSize * 0.52, 0.012, 12, 48);
+      var shadowMat = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.8, opacity: 0.25, transparent: true });
       var shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
       shadowMesh.rotation.x = Math.PI / 2;
-      shadowMesh.position.set(nx, ny + 0.04, nz);
+      shadowMesh.position.set(nx, 0.194, nz);
       boardGroup.add(shadowMesh);
     });
   });
@@ -1481,7 +2008,7 @@ function build3DBoard(){
 
   /* Dark/Light base covers full 3×3 */
   var cBaseGeo = new THREE.BoxGeometry(cHalf * 2, 0.055, cHalf * 2);
-  var cBaseColor = isLightTheme() ? 0xdde3ed : 0x081018;
+  var cBaseColor = isLightTheme() ? 0xffffff : 0x121a28;
   var cBaseMat = new THREE.MeshStandardMaterial({ color: cBaseColor, roughness: 0.6, metalness: 0.05 });
   var cBaseMesh = new THREE.Mesh(cBaseGeo, cBaseMat);
   cBaseMesh.position.set(0, 0.058, 0);
@@ -2143,6 +2670,9 @@ function rollDice(){
     gameState.isRolling = false; // Unlock
 
     if(val === 6){
+      if(gameState.mode === 'ai' && active !== gameState.humanColor){
+        recordBotStat('botSixes', 1);
+      }
       gameState.consecutiveSixes++;
       if(gameState.consecutiveSixes >= 3){
         updateStatus("Three 6s! Turn forfeited ⚠️");
@@ -2418,6 +2948,9 @@ function postMoveCheck(color, tokIdx, wasSpawn){
     AudioEngine.enterHome();
     extraRoll = true;
     updateStatus("Pawn reached HOME! 🎉 Bonus Roll!");
+    if(gameState.mode === 'ai' && color !== gameState.humanColor){
+      recordBotStat('botPawnsHome', 1);
+    }
   }
 
   if(tok.step >= 0 && tok.step <= 50){
@@ -2434,6 +2967,9 @@ function postMoveCheck(color, tokIdx, wasSpawn){
                 AudioEngine.capture();
                 extraRoll = true;
                 updateStatus("Captured " + capitalize(oppColor) + "! Bonus roll awarded ⚔️");
+                if(gameState.mode === 'ai' && color !== gameState.humanColor){
+                  recordBotStat('botCaptures', 1);
+                }
 
                 /* Walk captured piece back home along the board path */
                 (function(oColor, oIdx, oTok){
@@ -2454,9 +2990,31 @@ function postMoveCheck(color, tokIdx, wasSpawn){
   if(checkPlayerWin(color)){
     if(gameState.winners.indexOf(color) === -1){
       gameState.winners.push(color);
-      AudioEngine.win();
-      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+      triggerGrandVictoryCelebration(color);
     }
+    
+    // If playing Vs Computer and the human player has finished all pawns
+    if(gameState.mode === 'ai' && color === gameState.humanColor){
+      var rankIdx = gameState.winners.indexOf(gameState.humanColor);
+      var rankNum = rankIdx + 1;
+      var rankSuffix = (rankNum === 1 ? '1st' : (rankNum === 2 ? '2nd' : (rankNum === 3 ? '3rd' : rankNum + 'th')));
+      var rankEmoji = (rankNum === 1 ? '👑' : (rankNum === 2 ? '🥈' : '🥉'));
+
+      var mTitle = document.getElementById('human-finish-modal-title');
+      var mSub = document.getElementById('human-finish-modal-sub');
+
+      if(mTitle) mTitle.textContent = 'You Finished ' + rankSuffix + ' Place! ' + rankEmoji;
+      if(mSub) mSub.textContent = 'All 4 of your pawns have reached home (' + rankSuffix + ' Place)! Would you like to end the game now and see final results, or watch the computer finish?';
+
+      var endBtn = document.getElementById('btn-end-match-now');
+      var menuEndBtn = document.getElementById('btn-menu-end-now');
+      if(endBtn) endBtn.style.display = 'inline-flex';
+      if(menuEndBtn) menuEndBtn.style.display = 'flex';
+      
+      var promptModal = document.getElementById('human-finished-modal');
+      if(promptModal) promptModal.classList.remove('hidden');
+    }
+
     if(gameState.ruleType === 'quick' || gameState.winners.length >= gameState.activePlayers.length - 1){
       endMatch();
       return;
@@ -2718,12 +3276,20 @@ function updateTurnDisplay(){
 }
 
 function startMatch(){
+  stopVictoryBoardSpotlight();
   gameState.winners = [];
   gameState.gameOver = false;
   gameState.currentTurnIdx = 0;
   gameState.hasRolled = false;
   gameState.consecutiveSixes = 0;
   gameState.rollHistory = { red: [], green: [], yellow: [], blue: [] };
+
+  var endBtn = document.getElementById('btn-end-match-now');
+  var menuEndBtn = document.getElementById('btn-menu-end-now');
+  if(endBtn) endBtn.style.display = 'none';
+  if(menuEndBtn) menuEndBtn.style.display = 'none';
+  var promptModal = document.getElementById('human-finished-modal');
+  if(promptModal) promptModal.classList.add('hidden');
 
   var restartBtn = document.getElementById('btn-game-restart');
   if (restartBtn) {
@@ -2779,18 +3345,239 @@ function startMatch(){
 
 function endMatch(){
   gameState.gameOver = true;
+  stopVictoryBoardSpotlight();
+
+  var endBtn = document.getElementById('btn-end-match-now');
+  var menuEndBtn = document.getElementById('btn-menu-end-now');
+  if(endBtn) endBtn.style.display = 'none';
+  if(menuEndBtn) menuEndBtn.style.display = 'none';
+  var promptModal = document.getElementById('human-finished-modal');
+  if(promptModal) promptModal.classList.add('hidden');
+
   var modal = document.getElementById('win-modal');
+  var card = modal ? modal.querySelector('.modal-card') : null;
+  if(card && !card.querySelector('.victory-sunburst')){
+    var sb = document.createElement('div');
+    sb.className = 'victory-sunburst';
+    card.insertBefore(sb, card.firstChild);
+  }
+
   var podium = document.getElementById('podium-list');
   podium.innerHTML = '';
 
-  gameState.winners.forEach(function(w, idx){
+  // Collect winners + remaining active players ordered by pawn progress
+  var remaining = gameState.activePlayers.filter(function(p){
+    return gameState.winners.indexOf(p) === -1;
+  });
+
+  remaining.sort(function(a, b){
+    var sumA = gameState.tokens[a].reduce(function(acc, t){ return acc + (t.step === -1 ? 0 : t.step); }, 0);
+    var sumB = gameState.tokens[b].reduce(function(acc, t){ return acc + (t.step === -1 ? 0 : t.step); }, 0);
+    return sumB - sumA;
+  });
+
+  var finalOrder = gameState.winners.concat(remaining);
+
+  finalOrder.forEach(function(w, idx){
+    if (idx >= 3) return; // Only show Top 3 Podium Winners (1st, 2nd, 3rd)
     var row = document.createElement('div');
-    row.className = 'podium-item' + (idx === 0 ? ' first' : '');
-    row.innerHTML = '<span>#' + (idx+1) + ' ' + capitalize(w) + '</span><span>' + (idx===0 ? '🏆 1st Place' : (idx===1 ? '🥈 2nd Place' : '🥉 3rd Place')) + '</span>';
+    var rankClass = (idx === 0 ? ' first' : (idx === 1 ? ' second' : ' third'));
+    row.className = 'podium-item' + rankClass;
+    var rankLabel = (idx === 0 ? '🏆 1st Place' : (idx === 1 ? '🥈 2nd Place' : '🥉 3rd Place'));
+    var pName = (gameState.playerNames && gameState.playerNames[w]) ? gameState.playerNames[w] : capitalize(w);
+    row.innerHTML = '<span>#' + (idx+1) + ' ' + pName + '</span><span>' + rankLabel + '</span>';
     podium.appendChild(row);
   });
 
+  /* Record Bot Match Completion Stat if in Vs Computer mode */
+  if(gameState.mode === 'ai'){
+    var s = getBotStats();
+    s.matchesPlayed = (s.matchesPlayed || 0) + 1;
+    var champ = finalOrder[0];
+    if(champ && champ !== gameState.humanColor){
+      s.botWins = (s.botWins || 0) + 1;
+    } else {
+      s.humanWins = (s.humanWins || 0) + 1;
+    }
+    saveBotStats(s);
+  }
+
   modal.classList.remove('hidden');
+}
+
+/* ==================================================
+   BOT CAREER STATS SYSTEM (Vs Computer Data Only)
+   ================================================== */
+function getBotStats(){
+  try {
+    var raw = localStorage.getItem('ludoking_ai_stats');
+    if(raw) return JSON.parse(raw);
+  } catch(e){}
+  return { matchesPlayed: 0, humanWins: 0, botWins: 0, botCaptures: 0, botPawnsHome: 0, botSixes: 0 };
+}
+
+function saveBotStats(stats){
+  try {
+    localStorage.setItem('ludoking_ai_stats', JSON.stringify(stats));
+  } catch(e){}
+}
+
+function recordBotStat(key, amount){
+  if(gameState.mode !== 'ai') return;
+  var s = getBotStats();
+  s[key] = (s[key] || 0) + (amount || 1);
+  saveBotStats(s);
+}
+
+function updateBotStatsDisplay(){
+  var s = getBotStats();
+  var totalRecorded = (s.matchesPlayed || 0) + (s.botCaptures || 0) + (s.botPawnsHome || 0);
+
+  var matchesEl = document.getElementById('stat-matches');
+  if(matchesEl) matchesEl.textContent = s.matchesPlayed || 0;
+  
+  var winrateEl = document.getElementById('stat-winrate');
+  if(winrateEl){
+    var rate = s.matchesPlayed > 0 ? Math.round((s.botWins / s.matchesPlayed) * 100) : 0;
+    winrateEl.textContent = rate + '%';
+  }
+  
+  var winsEl = document.getElementById('stat-bot-wins');
+  if(winsEl) winsEl.textContent = s.botWins || 0;
+  
+  var capsEl = document.getElementById('stat-bot-captures');
+  if(capsEl) capsEl.textContent = s.botCaptures || 0;
+  
+  var homeEl = document.getElementById('stat-bot-home');
+  if(homeEl) homeEl.textContent = s.botPawnsHome || 0;
+  
+  var sixesEl = document.getElementById('stat-bot-sixes');
+  if(sixesEl) sixesEl.textContent = s.botSixes || 0;
+
+  var resetBtn = document.getElementById('btn-reset-stats');
+  if(resetBtn){
+    if(totalRecorded === 0){
+      resetBtn.style.opacity = '0.4';
+      resetBtn.style.pointerEvents = 'none';
+      resetBtn.textContent = 'No Statistics to Reset';
+    } else {
+      resetBtn.style.opacity = '1';
+      resetBtn.style.pointerEvents = 'auto';
+      resetBtn.textContent = 'Reset Statistics';
+    }
+  }
+}
+
+/* ==================================================
+   GRAND VICTORY CELEBRATION ENGINE
+   ================================================== */
+var _victoryDanceActive = false;
+
+function triggerGrandVictoryCelebration(winnerColor){
+  /* 1. Audio Fanfare */
+  if(AudioEngine && AudioEngine.playVictoryFanfare){
+    AudioEngine.playVictoryFanfare();
+  } else if(AudioEngine) {
+    AudioEngine.win();
+  }
+
+  /* 2. Multi-Wave Fireworks & Confetti Stream */
+  if(typeof confetti === 'function'){
+    var themeColors = {
+      red:    ['#ef4444', '#fbbf24', '#ffffff', '#dc2626', '#ffd700'],
+      green:  ['#10b981', '#fbbf24', '#ffffff', '#059669', '#ffd700'],
+      yellow: ['#fbbf24', '#f59e0b', '#ffffff', '#d97706', '#ffe066'],
+      blue:   ['#3b82f6', '#fbbf24', '#ffffff', '#2563eb', '#ffd700']
+    };
+    var colors = themeColors[winnerColor] || themeColors.yellow;
+
+    /* Wave 1: Immediate Left & Right Side Cannons */
+    confetti({
+      particleCount: 90, angle: 60, spread: 75, origin: { x: 0, y: 0.75 }, colors: colors
+    });
+    confetti({
+      particleCount: 90, angle: 120, spread: 75, origin: { x: 1, y: 0.75 }, colors: colors
+    });
+
+    /* Wave 2 (+300ms): Center Star Burst */
+    setTimeout(function(){
+      confetti({
+        particleCount: 130, spread: 100, origin: { y: 0.45 },
+        shapes: ['star', 'circle'], colors: colors, scalar: 1.2
+      });
+    }, 300);
+
+    /* Wave 3 (+600ms): High Altitude Skyburst */
+    setTimeout(function(){
+      confetti({
+        particleCount: 100, angle: 90, spread: 120, startVelocity: 60,
+        origin: { x: 0.5, y: 0.8 }, colors: colors
+      });
+    }, 600);
+
+    /* Wave 4 (+900ms to +2600ms): Continuous Golden Rain Shower */
+    var end = Date.now() + 2400;
+    var interval = setInterval(function() {
+      if (Date.now() > end) {
+        return clearInterval(interval);
+      }
+      confetti({
+        startVelocity: 35, spread: 360, ticks: 60, zIndex: 120,
+        particleCount: 25, origin: { x: Math.random(), y: Math.random() * 0.4 },
+        colors: colors
+      });
+    }, 200);
+  }
+
+  /* 3. 3D Pawn Victory Dance */
+  animate3DVictoryDance(winnerColor);
+}
+
+function animate3DVictoryDance(color){
+  if(!tokenMeshes || !tokenMeshes[color]) return;
+  _victoryDanceActive = true;
+  var startTime = performance.now();
+
+  /* Animate winning pawns jumping and spinning on center home */
+  function danceFrame(now){
+    if(!_victoryDanceActive || now - startTime > 8000) {
+      stopVictoryBoardSpotlight();
+      return;
+    }
+    var elapsed = (now - startTime) / 1000;
+    tokenMeshes[color].forEach(function(mesh, i){
+      if(mesh){
+        var bounce = Math.abs(Math.sin(elapsed * 6 + i * 0.8)) * 0.45;
+        mesh.position.y = 0.08 + bounce;
+        mesh.rotation.y += 0.08;
+      }
+    });
+    requestAnimationFrame(danceFrame);
+  }
+  requestAnimationFrame(danceFrame);
+}
+
+function stopVictoryBoardSpotlight(){
+  _victoryDanceActive = false;
+  if(scene){
+    var spot = scene.getObjectByName("victorySpotlight");
+    if(spot){
+      if(spot.target) scene.remove(spot.target);
+      scene.remove(spot);
+    }
+  }
+  if(typeof PLAYERS !== 'undefined' && typeof tokenMeshes !== 'undefined'){
+    PLAYERS.forEach(function(p){
+      if(tokenMeshes[p]){
+        tokenMeshes[p].forEach(function(m){
+          if(m && typeof _animatingMeshes !== 'undefined' && !_animatingMeshes[m.uuid]) {
+            m.position.y = 0.08;
+            m.rotation.y = 0;
+          }
+        });
+      }
+    });
+  }
 }
 
 /* ==================================================
@@ -2803,6 +3590,41 @@ function bindEvents(){
 
   document.getElementById('btn-menu-rules').addEventListener('click', function(){ showScreen('rules-screen'); });
   document.getElementById('btn-menu-settings').addEventListener('click', function(){ showScreen('settings-screen'); });
+  
+  var btnMenuStats = document.getElementById('btn-menu-stats');
+  if(btnMenuStats){
+    btnMenuStats.addEventListener('click', function(){
+      updateBotStatsDisplay();
+      showScreen('stats-screen');
+    });
+  }
+  var btnStatsBack = document.getElementById('btn-stats-back');
+  if(btnStatsBack){
+    btnStatsBack.addEventListener('click', function(){
+      showScreen('main-menu');
+    });
+  }
+  var btnResetStats = document.getElementById('btn-reset-stats');
+  if(btnResetStats){
+    btnResetStats.addEventListener('click', function(){
+      var s = getBotStats();
+      var totalRecorded = (s.matchesPlayed || 0) + (s.botCaptures || 0) + (s.botPawnsHome || 0);
+      if(totalRecorded === 0){
+        updateStatus("No statistics recorded yet to reset!");
+        return;
+      }
+      var t = document.getElementById('restart-modal-title');
+      if(t) t.textContent = 'Reset Statistics?';
+      var sub = document.getElementById('restart-modal-sub');
+      if(sub) sub.textContent = 'Are you sure you want to permanently clear all career statistics?';
+      var confirmBtn = document.getElementById('btn-confirm-restart');
+      if(confirmBtn){
+        confirmBtn.textContent = 'Yes, Clear Data';
+        window.pendingStatsReset = true;
+      }
+      document.getElementById('restart-modal').classList.remove('hidden');
+    });
+  }
 
   document.getElementById('btn-mode-back').addEventListener('click', function(){
     var configPanel = document.getElementById('config-panel');
@@ -2833,32 +3655,137 @@ function bindEvents(){
     document.getElementById('confirm-modal').classList.add('hidden');
   });
 
-  document.getElementById('btn-game-restart').addEventListener('click', function(){
-    document.getElementById('hamburger-dropdown').classList.add('hidden');
-    var t = document.getElementById('restart-modal-title');
-    if(t) t.textContent = 'Restart Game?';
-    var s = document.getElementById('restart-modal-sub');
-    if(s) s.textContent = 'Are you sure you want to completely restart the match?';
-    var b = document.getElementById('btn-confirm-restart');
-    if(b) b.textContent = 'Yes, Restart';
-    document.getElementById('restart-modal').classList.remove('hidden');
-  });
-  document.getElementById('btn-confirm-restart').addEventListener('click', function(){
-    document.getElementById('restart-modal').classList.add('hidden');
-    if (window.pendingModeSwitch) {
-      window.pendingModeSwitch = false;
-      gameState.is2DMode = !gameState.is2DMode;
-      var btnText = document.getElementById('2d-btn-text');
-      if(btnText) btnText.textContent = gameState.is2DMode ? 'Switch to 3D View' : 'Switch to 2D View';
-      var povBtn = document.getElementById('btn-game-pov');
-      if(povBtn) povBtn.style.display = gameState.is2DMode ? 'none' : 'flex';
-      updateTurnDisplay();
-    }
-    startMatch();
-  });
-  document.getElementById('btn-cancel-restart').addEventListener('click', function(){
-    document.getElementById('restart-modal').classList.add('hidden');
-  });
+  var gameRestartBtn = document.getElementById('btn-game-restart');
+  if(gameRestartBtn){
+    gameRestartBtn.addEventListener('click', function(){
+      document.getElementById('hamburger-dropdown').classList.add('hidden');
+      var t = document.getElementById('restart-modal-title');
+      if(t) t.textContent = 'Restart Game?';
+      var s = document.getElementById('restart-modal-sub');
+      if(s) s.textContent = 'Are you sure you want to completely restart the match?';
+      var b = document.getElementById('btn-confirm-restart');
+      if(b) b.textContent = 'Yes, Restart';
+      document.getElementById('restart-modal').classList.remove('hidden');
+    });
+  }
+
+  var confirmRestartBtn = document.getElementById('btn-confirm-restart');
+  if(confirmRestartBtn){
+    confirmRestartBtn.addEventListener('click', function(){
+      document.getElementById('restart-modal').classList.add('hidden');
+      if (window.pendingStatsReset) {
+        window.pendingStatsReset = false;
+        saveBotStats({ matchesPlayed: 0, humanWins: 0, botWins: 0, botCaptures: 0, botPawnsHome: 0, botSixes: 0 });
+        updateBotStatsDisplay();
+        updateStatus("Statistics reset successfully.");
+        return;
+      }
+      if (window.pendingModeSwitch) {
+        window.pendingModeSwitch = false;
+        gameState.is2DMode = !gameState.is2DMode;
+        var btnText = document.getElementById('2d-btn-text');
+        if(btnText) btnText.textContent = gameState.is2DMode ? 'Switch to 3D View' : 'Switch to 2D View';
+        var povBtn = document.getElementById('btn-game-pov');
+        if(povBtn) povBtn.style.display = gameState.is2DMode ? 'none' : 'flex';
+        updateTurnDisplay();
+      }
+      startMatch();
+    });
+  }
+
+  var cancelRestartBtn = document.getElementById('btn-cancel-restart');
+  if(cancelRestartBtn){
+    cancelRestartBtn.addEventListener('click', function(){
+      document.getElementById('restart-modal').classList.add('hidden');
+    });
+  }
+
+  var openDevBtn = document.getElementById('btn-open-dev-tools');
+  if(openDevBtn){
+    openDevBtn.addEventListener('click', function(){
+      document.getElementById('dev-test-modal').classList.remove('hidden');
+    });
+  }
+  var closeDevBtn = document.getElementById('btn-close-dev-test');
+  if(closeDevBtn){
+    closeDevBtn.addEventListener('click', function(){
+      document.getElementById('dev-test-modal').classList.add('hidden');
+    });
+  }
+
+  var test1stAction = document.getElementById('btn-test-action-1st');
+  if(test1stAction){
+    test1stAction.addEventListener('click', function(){
+      document.getElementById('dev-test-modal').classList.add('hidden');
+      var titleEl = document.getElementById('human-finish-modal-title');
+      if(titleEl) titleEl.textContent = 'You Finished 1st Place!';
+      triggerGrandVictoryCelebration('red');
+      document.getElementById('human-finished-modal').classList.remove('hidden');
+    });
+  }
+
+  var test2ndAction = document.getElementById('btn-test-action-2nd');
+  if(test2ndAction){
+    test2ndAction.addEventListener('click', function(){
+      document.getElementById('dev-test-modal').classList.add('hidden');
+      var titleEl = document.getElementById('human-finish-modal-title');
+      if(titleEl) titleEl.textContent = 'You Finished 2nd Place!';
+      triggerGrandVictoryCelebration('red');
+      document.getElementById('human-finished-modal').classList.remove('hidden');
+    });
+  }
+
+  var testPodiumAction = document.getElementById('btn-test-action-podium');
+  if(testPodiumAction){
+    testPodiumAction.addEventListener('click', function(){
+      document.getElementById('dev-test-modal').classList.add('hidden');
+      endMatch();
+    });
+  }
+
+  var testConfettiAction = document.getElementById('btn-test-action-confetti');
+  if(testConfettiAction){
+    testConfettiAction.addEventListener('click', function(){
+      triggerGrandVictoryCelebration('red');
+    });
+  }
+
+  var finishEndBtn = document.getElementById('btn-human-finish-end');
+  if(finishEndBtn){
+    finishEndBtn.addEventListener('click', function(){
+      stopVictoryBoardSpotlight();
+      document.getElementById('human-finished-modal').classList.add('hidden');
+      endMatch();
+    });
+  }
+
+  var finishWatchBtn = document.getElementById('btn-human-finish-watch');
+  if(finishWatchBtn){
+    finishWatchBtn.addEventListener('click', function(){
+      stopVictoryBoardSpotlight();
+      document.getElementById('human-finished-modal').classList.add('hidden');
+      updateStatus("Watching AI finish... Tap 'End Match' anytime.");
+    });
+  }
+
+  var endNowBtn = document.getElementById('btn-end-match-now');
+  if(endNowBtn){
+    endNowBtn.addEventListener('click', function(){
+      stopVictoryBoardSpotlight();
+      document.getElementById('human-finished-modal').classList.add('hidden');
+      endMatch();
+    });
+  }
+
+  var menuEndNowBtn = document.getElementById('btn-menu-end-now');
+  if(menuEndNowBtn){
+    menuEndNowBtn.addEventListener('click', function(){
+      stopVictoryBoardSpotlight();
+      document.getElementById('hamburger-dropdown').classList.add('hidden');
+      document.getElementById('human-finished-modal').classList.add('hidden');
+      endMatch();
+    });
+  }
 
   document.getElementById('btn-win-play-again').addEventListener('click', function(){
     document.getElementById('win-modal').classList.add('hidden');
@@ -3079,40 +4006,72 @@ function bindEvents(){
   var povBtn = document.getElementById('btn-game-pov');
   var povIconSpan = document.getElementById('pov-icon-span');
   var povTextSpan = document.getElementById('pov-btn-text');
-  if(povBtn && povIconSpan && povTextSpan) {
-    function updatePOVUI() {
-      povBtn.style.opacity = gameState.autoPOV ? '1' : '0.6';
-      povTextSpan.textContent = gameState.autoPOV ? 'Auto POV: ON' : 'Auto POV: OFF';
+  var povChip = document.getElementById('toggle-pov-chip');
+  
+  function updatePOVUI() {
+    if(povBtn) povBtn.style.opacity = gameState.autoPOV ? '1' : '0.6';
+    if(povTextSpan) povTextSpan.textContent = gameState.autoPOV ? 'Auto POV: ON' : 'Auto POV: OFF';
+    if(povIconSpan) {
       povIconSpan.innerHTML = gameState.autoPOV 
         ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
         : '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>';
     }
+    if (povChip) {
+      var toggleSwitch = povChip.querySelector('.toggle-switch');
+      var statusText = povChip.querySelector('.toggle-status-text');
+      if (toggleSwitch) {
+        if (gameState.autoPOV) toggleSwitch.classList.add('active'); else toggleSwitch.classList.remove('active');
+      }
+      if (statusText) statusText.textContent = gameState.autoPOV ? 'ON' : 'OFF';
+    }
+  }
+  if(povBtn) {
     povBtn.addEventListener('click', function(){
       gameState.autoPOV = !gameState.autoPOV;
       updatePOVUI();
     });
-    updatePOVUI();
   }
+  if(povChip) {
+    povChip.addEventListener('click', function(){
+      gameState.autoPOV = !gameState.autoPOV;
+      updatePOVUI();
+    });
+  }
+  updatePOVUI();
 
   var soundBtn = document.getElementById('btn-game-sound');
   var soundChip = document.getElementById('toggle-sound-chip');
   function toggleSound(){
     var isEnabled = AudioEngine.toggle();
-    if(soundChip) soundChip.textContent = isEnabled ? '🔊 Sound Effects: ON' : '🔈 Sound Effects: OFF';
     
-    var sIcon = document.getElementById('sound-icon-span');
-    var sText = document.getElementById('sound-btn-text');
+    // Update Preferences Settings UI
+    var sSwitch = document.getElementById('settings-sound-switch');
+    var sStatus = document.getElementById('settings-sound-status');
+    var sIcon = document.getElementById('settings-sound-icon');
+    if (sSwitch) {
+      if (isEnabled) sSwitch.classList.add('active'); else sSwitch.classList.remove('active');
+    }
+    if (sStatus) {
+      sStatus.textContent = isEnabled ? 'ON' : 'OFF';
+    }
     if (sIcon) {
-      if (isEnabled) {
-        sIcon.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
-      } else {
-        sIcon.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
-      }
+      sIcon.innerHTML = isEnabled 
+        ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>'
+        : '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
     }
-    if (sText) {
-      sText.textContent = isEnabled ? 'Sound: ON' : 'Sound: OFF';
+
+    // Update HUD Sound Button
+    var hudIcon = document.getElementById('sound-icon-span');
+    var hudText = document.getElementById('sound-btn-text');
+    if (hudIcon) {
+      hudIcon.innerHTML = isEnabled 
+        ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>'
+        : '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
     }
-    soundBtn.style.opacity = isEnabled ? '1' : '0.6';
+    if (hudText) {
+      hudText.textContent = isEnabled ? 'Sound: ON' : 'Sound: OFF';
+    }
+    if (soundBtn) soundBtn.style.opacity = isEnabled ? '1' : '0.6';
   }
   if(soundBtn) soundBtn.addEventListener('click', toggleSound);
   if(soundChip) soundChip.addEventListener('click', toggleSound);
@@ -3131,17 +4090,13 @@ function bindEvents(){
       /* Update 3D scene bg and ambient particles to match theme */
       var isLight = isLightTheme();
       if(scene){
-        scene.background = isLight ? new THREE.Color(0xe2e8f0) : null;
+        scene.background = isLight ? new THREE.Color(0xf1f5f9) : null;
       }
-      /* Update rim border color */
-      var bBase = boardGroup.getObjectByName("boardBase");
-      if (bBase) {
-        bBase.material.color.setHex(isLight ? 0xdde3ed : 0x081018);
-      }
+
       if(starParticles && starParticles.material){
-        starParticles.material.color.set(isLight ? 0x9ca3af : 0xffffff);
-        starParticles.material.opacity = isLight ? 0.40 : 0.65;
-        starParticles.material.size = isLight ? 0.25 : 0.30;
+        starParticles.material.color.setHex(isLight ? 0x94a3b8 : 0xffffff);
+        starParticles.material.opacity = isLight ? 0.40 : 0.80;
+        starParticles.material.size = isLight ? 0.22 : 0.35;
         starParticles.visible = true;
         starParticles.material.needsUpdate = true;
       }

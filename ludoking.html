@@ -40,7 +40,7 @@
 
   --red: #ef4444;
   --green: #10b981;
-  --yellow: #ffcc00;
+  --yellow: #eab308;
   --blue: #3b82f6;
 }
 
@@ -53,11 +53,16 @@ body.theme-light {
   --surface-hover: #f1f5f9;
   --border: #cbd5e1;
   --border-active: #94a3b8;
-  --text: #000000;
-  --text-dim: #64748b;
-  --accent: #000000;
-  --accent2: #2d3748;
+  --text: #0f172a;
+  --text-dim: #475569;
+  --accent: #0f172a;
+  --accent2: #1e293b;
   --accent-glow: rgba(0, 0, 0, 0.15);
+
+  --red: #dc2626;
+  --green: #059669;
+  --yellow: #eab308;
+  --blue: #2563eb;
 }
 
 *, *::before, *::after {
@@ -83,10 +88,12 @@ html, body {
    2. 3D CANVAS & BACKGROUND
    ================================================== */
 #canvas-container {
-  position: absolute; inset: 0;
+  position: relative;
   width: 100%; height: 100%;
+  flex: 1;
   z-index: 1; touch-action: none;
   pointer-events: none;
+  overflow: hidden;
 }
 /* Only enable canvas interaction when the game is actually playing */
 #game-screen:not(.hidden) #canvas-container {
@@ -107,14 +114,16 @@ html, body {
   padding: 24px 16px;
   background: var(--bg);
   z-index: 10;
-  opacity: 1; transform: scale(1);
-  transition: opacity var(--dur-med) var(--ease), transform var(--dur-med) var(--ease);
+  opacity: 1;
+  transition: opacity var(--dur-med) var(--ease);
+  -webkit-font-smoothing: antialiased;
 }
 .screen.hidden {
-  opacity: 0; transform: scale(1.02);
-  pointer-events: none;
+  opacity: 0;
+  pointer-events: none !important;
+  display: none !important;
 }
-.hidden:not(.screen):not(.modal-backdrop) {
+.hidden {
   display: none !important;
 }
 .screen-scroll {
@@ -160,9 +169,9 @@ body.theme-light .brand-title {
   background: var(--panel-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-l);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   padding: 22px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  -webkit-font-smoothing: antialiased;
 }
 body.theme-light .panel {
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
@@ -518,17 +527,20 @@ body.theme-light .toggle-switch.active .toggle-knob {
    5. GAME SCREEN & 3D HUD
    ================================================== */
 #game-screen {
-  padding: 0; justify-content: space-between;
+  padding: 0; justify-content: flex-start;
   pointer-events: none;
-  background: transparent;
+  background: var(--bg);
+  flex-direction: column;
 }
 #game-header {
-  width: 100%; display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 16px;
+  width: 100%; height: 50px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
   background: var(--bg); border-bottom: 1px solid var(--border);
   color: var(--text);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   z-index: 20; pointer-events: auto;
+  box-sizing: border-box;
 }
 .hud-title-box {
   display: flex; align-items: center; gap: 8px;
@@ -566,29 +578,60 @@ body.theme-dark #hamburger-dropdown .btn-ghost:hover {
   color: #ffffff !important;
 }
 
-/* 4 Corner Player Cards (Match Ludo King Layout) */
+.board-corner-panel {
+  position: absolute;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 15;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+.board-corner-panel .corner-dice-ui {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  right: auto !important;
+  pointer-events: auto;
+}
+
+#board-corner-panel-top .corner-dice-ui {
+  border-bottom: none !important;
+  border-radius: 6px 6px 0 0 !important;
+  box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
+}
+
+#board-corner-panel-bottom .corner-dice-ui {
+  border-top: none !important;
+  border-radius: 0 0 6px 6px !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* 4 Corner Player Cards (Match Ludo King Board Slab Material) */
 .player-corner,
 .corner-dice-ui {
   position: absolute;
   display: flex; align-items: stretch;
   border-radius: 6px;
-  background: #0f172a; /* Sleek Black in Dark Mode */
+  background: #0f172a !important; /* Solid Onyx Board Material */
   border: 2px solid #334155;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
   z-index: 15; pointer-events: auto;
-  transition: all var(--dur-med) var(--ease);
+  transition: opacity var(--dur-med) var(--ease), border-color var(--dur-med) var(--ease), box-shadow var(--dur-med) var(--ease);
   overflow: visible;
+  opacity: 1;
 }
 
 body.theme-light .player-corner,
 body.theme-light .corner-dice-ui {
-  background: #ffffff;
+  background: #ffffff !important;
   border-color: #cbd5e1;
 }
 
 .player-corner.active,
 .corner-dice-ui.active {
-  transform: scale(1.08);
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.5);
 }
 
 .player-corner > .avatar-area,
@@ -616,13 +659,14 @@ body.theme-dark .avatar-area {
 
 /* 3D Dice Corner Roller */
 .dice-box {
-  width: 42px; height: 42px;
+  width: 44px; height: 44px;
   perspective: 400px;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
 }
 .dice-cube {
-  width: 34px; height: 34px;
+  width: 36px; height: 36px;
   position: relative;
   transform-style: preserve-3d;
   transition: transform 0.6s var(--ease-bounce);
@@ -630,49 +674,45 @@ body.theme-dark .avatar-area {
 
 /* Black Dice Faces in Dark Mode */
 .dice-face {
-  position: absolute; width: 34px; height: 34px;
+  position: absolute; width: 36px; height: 36px;
   background: #0f172a; border-radius: 6px;
   border: 1px solid #334155;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  padding: 4px;
+  padding: 2px;
   box-sizing: border-box;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.6);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
 }
 
-.dice-dot-cell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
+.dice-face-svg {
+  width: 100%; height: 100%;
+  display: block; overflow: visible;
 }
 
-.dice-dot {
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 0 4px rgba(255,255,255,0.8);
-  flex-shrink: 0;
+.dice-pip {
+  fill: #ffffff;
+  filter: drop-shadow(0px 0px 1px rgba(255,255,255,0.7));
 }
 
 body.theme-light .dice-face {
   background: #ffffff;
   border-color: #cbd5e1;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.2);
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
 }
 
-body.theme-light .dice-dot {
-  background: #0f172a;
-  box-shadow: none;
+body.theme-light .dice-pip {
+  fill: #0f172a;
+  filter: drop-shadow(0px 0px 1px rgba(15,23,42,0.3));
 }
-.dice-face-1 { transform: rotateY(0deg) translateZ(17px); }
-.dice-face-2 { transform: rotateY(90deg) translateZ(17px); }
-.dice-face-3 { transform: rotateX(90deg) translateZ(17px); }
-.dice-face-4 { transform: rotateX(-90deg) translateZ(17px); }
-.dice-face-5 { transform: rotateY(-90deg) translateZ(17px); }
-.dice-face-6 { transform: rotateY(180deg) translateZ(17px); }
+
+.dice-face-1 { transform: rotateY(0deg) translateZ(17.8px); }
+.dice-face-2 { transform: rotateY(90deg) translateZ(17.8px); }
+.dice-face-3 { transform: rotateX(90deg) translateZ(17.8px); }
+.dice-face-4 { transform: rotateX(-90deg) translateZ(17.8px); }
+.dice-face-5 { transform: rotateY(-90deg) translateZ(17.8px); }
+.dice-face-6 { transform: rotateY(180deg) translateZ(17.8px); }
 
 .dice-rolling {
   animation: diceRollAnim 0.6s cubic-bezier(0.2, 0.8, 0.4, 1);
@@ -684,25 +724,44 @@ body.theme-light .dice-dot {
   100% { transform: rotateX(1080deg) rotateY(720deg) scale(1); }
 }
 
-/* Toast Notification */
+/* Toast Notification Popup */
 #game-status-bar {
   position: absolute;
-  top: 80px;
+  top: 62px;
   left: 50%;
-  transform: translateX(-50%);
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid var(--border);
-  padding: 10px 24px;
-  border-radius: 30px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-  font-size: 14px; font-weight: 700;
-  color: #fff;
+  transform: translateX(-50%) translateY(-8px);
+  background: rgba(15, 23, 42, 0.92);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  padding: 7px 18px;
+  border-radius: 9999px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 255, 255, 0.1);
+  font-family: var(--font-display);
+  font-size: clamp(11px, 2.6vw, 13.5px);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #ffffff;
   z-index: 9999;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s var(--ease);
+  max-width: min(86vw, 330px);
+  text-align: center;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease-bounce);
+  white-space: normal;
+  line-height: 1.35;
+  box-sizing: border-box;
 }
-#game-status-bar.show-toast { opacity: 1; }
+body.theme-light #game-status-bar {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: #cbd5e1;
+  color: #0f172a;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+#game-status-bar.show-toast {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
 
 /* ==================================================
    6. MODAL WINDOWS & WINNER PODIUM
@@ -716,7 +775,11 @@ body.theme-light .dice-dot {
   padding: 20px;
   backdrop-filter: blur(8px);
 }
-.modal-backdrop.hidden { opacity: 0; pointer-events: none; }
+.modal-backdrop.hidden {
+  opacity: 0;
+  pointer-events: none !important;
+  display: none !important;
+}
 .modal-card {
   width: min(420px, 100%);
   background: var(--panel-solid);
@@ -740,28 +803,6 @@ body.theme-light .dice-dot {
 .modal-sub { color: var(--text-dim); font-size: 13.5px; line-height: 1.5; margin-bottom: 20px; }
 
 .podium-list { display: flex; flex-direction: column; gap: 8px; margin: 14px 0 22px; }
-.podium-item {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 10px 14px; border-radius: var(--radius-m);
-  background: var(--surface); border: 1px solid var(--border);
-  font-weight: 800; font-size: 13.5px;
-}
-.podium-item.first {
-  border-color: #fbbf24;
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(245, 158, 11, 0.08));
-  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.25);
-  font-size: 15px; color: #fbbf24;
-}
-.podium-item.second {
-  border-color: #94a3b8;
-  background: linear-gradient(135deg, rgba(148, 163, 184, 0.18), rgba(100, 116, 139, 0.05));
-  color: #cbd5e1;
-}
-.podium-item.third {
-  border-color: #d97706;
-  background: linear-gradient(135deg, rgba(217, 119, 6, 0.18), rgba(180, 83, 9, 0.05));
-  color: #f59e0b;
-}
 
 /* ==================================================
    6b. EPIC VICTORY CELEBRATION & PODIUM STYLING
@@ -861,25 +902,52 @@ body.theme-light .dice-dot {
 .podium-item:nth-child(3) { animation-delay: 0.3s; }
 .podium-item:nth-child(4) { animation-delay: 0.4s; }
 
+/* Dark Theme Podium Styling */
+body.theme-dark .podium-item.first,
 .podium-item.first {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(245, 158, 11, 0.1));
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.12));
   border: 1.5px solid #fbbf24;
-  color: #fbbf24;
+  color: #ffe066;
   box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35), inset 0 0 12px rgba(251, 191, 36, 0.15);
   font-size: 15px; font-weight: 900;
 }
+body.theme-dark .podium-item.second,
 .podium-item.second {
-  background: linear-gradient(135deg, rgba(226, 232, 240, 0.18), rgba(148, 163, 184, 0.08));
+  background: linear-gradient(135deg, rgba(226, 232, 240, 0.2), rgba(148, 163, 184, 0.1));
   border: 1.5px solid #cbd5e1;
-  color: #f1f5f9;
+  color: #ffffff;
   box-shadow: 0 4px 14px rgba(148, 163, 184, 0.25);
   font-size: 14px; font-weight: 800;
 }
+body.theme-dark .podium-item.third,
 .podium-item.third {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.14), rgba(180, 83, 9, 0.06));
-  border: 1.5px solid #d97706;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(180, 83, 9, 0.08));
+  border: 1.5px solid #f59e0b;
   color: #fcd34d;
-  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.2);
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
+  font-size: 14px; font-weight: 800;
+}
+
+/* Light Theme Podium Styling — Maximum Legibility & Rich Aesthetics */
+body.theme-light .podium-item.first {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 60%, #fde68a 100%);
+  border: 1.5px solid #d97706;
+  color: #78350f;
+  box-shadow: 0 4px 16px rgba(217, 119, 6, 0.22);
+  font-size: 15px; font-weight: 900;
+}
+body.theme-light .podium-item.second {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 60%, #e2e8f0 100%);
+  border: 1.5px solid #64748b;
+  color: #0f172a;
+  box-shadow: 0 4px 16px rgba(100, 116, 139, 0.18);
+  font-size: 14px; font-weight: 800;
+}
+body.theme-light .podium-item.third {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 60%, #fed7aa 100%);
+  border: 1.5px solid #ea580c;
+  color: #7c2d12;
+  box-shadow: 0 4px 16px rgba(234, 88, 12, 0.2);
   font-size: 14px; font-weight: 800;
 }
 
@@ -1105,65 +1173,64 @@ body.theme-light .dice-dot {
        5. GAME HUD (Overlays 3D Canvas)
        ================================================== -->
   <div id="game-screen" class="screen hidden">
-    <!-- ==================================================
-         1. GLOBAL 3D CANVAS (Three.js Scene)
-         ================================================== -->
+    <!-- Header (Top Row) -->
+    <div id="game-header">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <button class="btn btn-primary" id="btn-end-match-now" style="display:none; padding:6px 12px; font-size:12px; font-weight:800; border-radius: var(--radius-full); box-shadow: 0 4px 14px var(--accent-glow);">🏁 End Match</button>
+        <button class="btn btn-primary" id="btn-open-dev-tools" style="padding:5px 12px; font-size:11.5px; font-weight:800; border-radius: var(--radius-full); background:#8b5cf6; color:#ffffff; border:none; cursor:pointer;" title="Open Developer Test Suite">🧪 Dev Tools</button>
+      </div>
+
+      <div class="hud-title-box">
+        <span id="hud-match-type">2P Classic</span>
+      </div>
+
+      <div class="hud-actions" style="position: relative;">
+        <button class="icon-btn" id="btn-hamburger" title="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+        
+        <div id="hamburger-dropdown" class="hidden" style="position:absolute; top:45px; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:10px; padding:8px; display:flex; flex-direction:column; gap:4px; box-shadow:0 10px 30px rgba(0,0,0,0.8); z-index:100; min-width:220px;">
+          <button class="btn btn-ghost" id="btn-menu-end-now" style="display:none; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%; cursor:pointer; color:#ef4444; font-weight:800;">
+            <span>🏁</span>
+            <span style="white-space: nowrap;">End Match Now</span>
+          </button>
+          <button class="btn btn-ghost" id="btn-game-2d" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%; cursor:pointer;">
+            <span id="2d-icon-span">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
+            </span>
+            <span id="2d-btn-text" style="white-space: nowrap;">Switch to 2D View</span>
+          </button>
+          <button class="btn btn-ghost" id="btn-game-pov" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%; cursor:pointer;">
+            <span id="pov-icon-span">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+            </span>
+            <span id="pov-btn-text" style="white-space: nowrap;">Auto POV: OFF</span>
+          </button>
+          <button class="btn btn-ghost" id="btn-game-sound" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%;">
+            <span id="sound-icon-span">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+            </span>
+            <span id="sound-btn-text" style="white-space: nowrap;">Sound: ON</span>
+          </button>
+          <button class="btn btn-ghost" id="btn-game-restart" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            Restart
+          </button>
+          <button class="btn btn-ghost" id="btn-game-menu" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Home (Quit)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3D Canvas Area (Flex 1 Below Header) -->
     <div id="canvas-container">
       <canvas id="three-canvas"></canvas>
     </div>
-      <!-- Header -->
-      <div id="game-header">
-        <div style="display:flex; align-items:center; gap:6px;">
-          <button class="btn btn-primary" id="btn-end-match-now" style="display:none; padding:6px 12px; font-size:12px; font-weight:800; border-radius: var(--radius-full); box-shadow: 0 4px 14px var(--accent-glow);">🏁 End Match</button>
-          <button class="btn btn-primary" id="btn-open-dev-tools" style="padding:5px 12px; font-size:11.5px; font-weight:800; border-radius: var(--radius-full); background:#8b5cf6; color:#ffffff; border:none; cursor:pointer;" title="Open Developer Test Suite">🧪 Dev Tools</button>
-        </div>
-  
-        <div class="hud-title-box">
-          <span id="hud-match-type">2P Classic</span>
-        </div>
-  
-        <div class="hud-actions" style="position: relative;">
-          <button class="icon-btn" id="btn-hamburger" title="Settings">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-            </svg>
-          </button>
-          
-          <div id="hamburger-dropdown" class="hidden" style="position:absolute; top:45px; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:10px; padding:8px; display:flex; flex-direction:column; gap:4px; box-shadow:0 10px 30px rgba(0,0,0,0.8); z-index:100; min-width:220px;">
-            <button class="btn btn-ghost" id="btn-menu-end-now" style="display:none; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%; cursor:pointer; color:#ef4444; font-weight:800;">
-              <span>🏁</span>
-              <span style="white-space: nowrap;">End Match Now</span>
-            </button>
-            <button class="btn btn-ghost" id="btn-game-2d" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%; cursor:pointer;">
-              <span id="2d-icon-span">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
-              </span>
-              <span id="2d-btn-text" style="white-space: nowrap;">Switch to 2D View</span>
-            </button>
-            <button class="btn btn-ghost" id="btn-game-pov" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%; cursor:pointer;">
-              <span id="pov-icon-span">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
-              </span>
-              <span id="pov-btn-text" style="white-space: nowrap;">Auto POV: OFF</span>
-            </button>
-            <button class="btn btn-ghost" id="btn-game-sound" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%;">
-              <span id="sound-icon-span">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-              </span>
-              <span id="sound-btn-text" style="white-space: nowrap;">Sound: ON</span>
-            </button>
-            <button class="btn btn-ghost" id="btn-game-restart" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%;">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-              Restart
-            </button>
-            <button class="btn btn-ghost" id="btn-game-menu" style="display:flex; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%;">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-              Home (Quit)
-            </button>
-          </div>
-        </div>
-      </div>
 
 
     <!-- Central Dice Roller -->
@@ -1182,8 +1249,11 @@ body.theme-light .dice-dot {
       </div>
     </div>
 
-    <!-- 2D Mode Corner Dice UIs -->
-    <div class="corner-dice-ui" id="dice-ui-red" style="display:none; bottom:20px; left:calc(50% - 250px);">
+    <!-- 2D Mode Corner Dice UIs Panels -->
+    <div id="board-corner-panel-top" class="board-corner-panel" style="display:none;"></div>
+    <div id="board-corner-panel-bottom" class="board-corner-panel" style="display:none;"></div>
+
+    <div class="corner-dice-ui" id="dice-ui-red" style="display:none;">
       <div class="avatar-area">
         <svg class="pin-icon" viewBox="0 0 24 24"><g fill="var(--red)" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="6" r="3.5" /><path d="M 10 9 C 9 14, 6 16, 6 20 C 6 21, 7 21.5, 12 21.5 C 17 21.5, 18 21, 18 20 C 18 16, 15 14, 14 9 Z" /></g></svg>
       </div>
@@ -1191,7 +1261,7 @@ body.theme-light .dice-dot {
         <div class="dice-cube" id="dice-cube-red"></div>
       </div>
     </div>
-    <div class="corner-dice-ui" id="dice-ui-green" style="display:none; top:70px; left:calc(50% - 250px);">
+    <div class="corner-dice-ui" id="dice-ui-green" style="display:none;">
       <div class="avatar-area">
         <svg class="pin-icon" viewBox="0 0 24 24"><g fill="var(--green)" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="6" r="3.5" /><path d="M 10 9 C 9 14, 6 16, 6 20 C 6 21, 7 21.5, 12 21.5 C 17 21.5, 18 21, 18 20 C 18 16, 15 14, 14 9 Z" /></g></svg>
       </div>
@@ -1199,16 +1269,16 @@ body.theme-light .dice-dot {
         <div class="dice-cube" id="dice-cube-green"></div>
       </div>
     </div>
-    <div class="corner-dice-ui" id="dice-ui-yellow" style="display:none; top:70px; right:calc(50% - 250px); flex-direction:row-reverse;">
-      <div class="avatar-area" style="border-radius:0 4px 4px 0;">
+    <div class="corner-dice-ui" id="dice-ui-yellow" style="display:none;">
+      <div class="avatar-area">
         <svg class="pin-icon" viewBox="0 0 24 24"><g fill="var(--yellow)" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="6" r="3.5" /><path d="M 10 9 C 9 14, 6 16, 6 20 C 6 21, 7 21.5, 12 21.5 C 17 21.5, 18 21, 18 20 C 18 16, 15 14, 14 9 Z" /></g></svg>
       </div>
       <div class="dice-box" id="dice-box-yellow" style="border-color:var(--yellow);">
         <div class="dice-cube" id="dice-cube-yellow"></div>
       </div>
     </div>
-    <div class="corner-dice-ui" id="dice-ui-blue" style="display:none; bottom:20px; right:calc(50% - 250px); flex-direction:row-reverse;">
-      <div class="avatar-area" style="border-radius:0 4px 4px 0;">
+    <div class="corner-dice-ui" id="dice-ui-blue" style="display:none;">
+      <div class="avatar-area">
         <svg class="pin-icon" viewBox="0 0 24 24"><g fill="var(--blue)" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="6" r="3.5" /><path d="M 10 9 C 9 14, 6 16, 6 20 C 6 21, 7 21.5, 12 21.5 C 17 21.5, 18 21, 18 20 C 18 16, 15 14, 14 9 Z" /></g></svg>
       </div>
       <div class="dice-box" id="dice-box-blue" style="border-color:var(--blue);">
@@ -1632,8 +1702,12 @@ body.theme-light .dice-dot {
 "use strict";
 
 /* ==================================================
-   1. SOUND ENGINE (Web Audio API)
-   ================================================== */
+ * LUDO KING 3D — HTML5 / WebGL Edition
+ * Built with Three.js (3D Graphics) & Vanilla JavaScript
+ * Contrast & Accessibility Refinements (Aug 29, 2026)
+ * Vector SVG 3D Dice Engine & Corner Artifact Fix (Aug 30, 2026)
+ * Standalone Header Bar & Dynamic 3D Corner Card Tracking (Aug 31, 2026)
+ * ================================================== */
 var AudioEngine = (function(){
   var ctx = null, enabled = true;
   function init(){
@@ -1765,7 +1839,7 @@ var YARD_COORDS = {
 var PLAYER_COLORS_HEX = {
   red:    0xef4444,
   green:  0x10b981,
-  yellow: 0xffcc00,
+  yellow: 0xeab308,
   blue:   0x3b82f6
 };
 
@@ -1814,7 +1888,7 @@ function init3D(){
 
   renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
   renderer.setSize(container.clientWidth, container.clientHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -1825,8 +1899,8 @@ function init3D(){
   var dirLight = new THREE.DirectionalLight(0xffffff, 0.75);
   dirLight.position.set(12, 22, 14);
   dirLight.castShadow = true;
-  dirLight.shadow.mapSize.width = 2048;
-  dirLight.shadow.mapSize.height = 2048;
+  dirLight.shadow.mapSize.width = 1024;
+  dirLight.shadow.mapSize.height = 1024;
   dirLight.shadow.camera.near = 0.5;
   dirLight.shadow.camera.far = 50;
   dirLight.shadow.camera.left = -12;
@@ -1876,6 +1950,7 @@ function init3D(){
   canvas.addEventListener('pointerup', onPointerUp, {passive:true});
   canvas.addEventListener('wheel', function(e){
     e.preventDefault();
+    if (gameState && gameState.is2DMode) return;
     lastInteractTime = performance.now();
     autoSpinBlend = 0;
     zoomTarget = Math.max(0.55, Math.min(1.8, zoomTarget + e.deltaY * 0.001));
@@ -1946,6 +2021,18 @@ function build3DBoard(){
   /* 15x15 Tiles */
   var cellSize = 0.62;
   var defaultTileColor = isLightTheme() ? 0xffffff : 0x121a28;
+
+  /* Shared geometries and materials for performance */
+  var sharedTileGeo = new THREE.BoxGeometry(cellSize * 0.94, 0.08, cellSize * 0.94);
+  var sharedShadowPlaneGeo = new THREE.PlaneGeometry(cellSize * 1.07, cellSize * 1.07);
+  var sharedShadowPlaneMat = new THREE.MeshBasicMaterial({
+    color: 0x000000,
+    opacity: isLightTheme() ? 0.22 : 0.35,
+    transparent: true,
+    depthWrite: false
+  });
+  var tileMatCache = {};
+
   for(var r=0; r<15; r++){
     for(var c=0; c<15; c++){
       var pos = gridToWorld(r, c);
@@ -1977,30 +2064,23 @@ function build3DBoard(){
       if(isStartYellow) tileColor = PLAYER_COLORS_HEX.yellow;
       if(isStartBlue)   tileColor = PLAYER_COLORS_HEX.blue;
 
-      var tileGeo = new THREE.BoxGeometry(cellSize * 0.94, 0.08, cellSize * 0.94);
-      var isWhiteTile = (tileColor === 0xffffff);
-      var tileMat = new THREE.MeshStandardMaterial({
-        color: tileColor,
-        roughness: isWhiteTile ? 0.15 : 0.35,
-        metalness: isWhiteTile ? 0.0 : 0.15,
-        emissive: isWhiteTile ? 0xffffff : 0x000000,
-        emissiveIntensity: isWhiteTile ? 0.08 : 0
-      });
-      var tileMesh = new THREE.Mesh(tileGeo, tileMat);
+      if (!tileMatCache[tileColor]) {
+        var isWhiteTile = (tileColor === 0xffffff);
+        tileMatCache[tileColor] = new THREE.MeshStandardMaterial({
+          color: tileColor,
+          roughness: isWhiteTile ? 0.15 : 0.35,
+          metalness: isWhiteTile ? 0.0 : 0.15,
+          emissive: isWhiteTile ? 0xffffff : 0x000000,
+          emissiveIntensity: isWhiteTile ? 0.08 : 0
+        });
+      }
+      var tileMesh = new THREE.Mesh(sharedTileGeo, tileMatCache[tileColor]);
       tileMesh.position.set(pos.x, 0.04, pos.z);
-      tileMesh.castShadow = true;
       tileMesh.receiveShadow = true;
       boardGroup.add(tileMesh);
 
-      /* Soft Fading Contact Shadow under each 3D tile (no sharp wireframe lines) */
-      var shadowPlaneGeo = new THREE.PlaneGeometry(cellSize * 1.07, cellSize * 1.07);
-      var shadowPlaneMat = new THREE.MeshBasicMaterial({
-        color: 0x000000,
-        opacity: isLightTheme() ? 0.22 : 0.35,
-        transparent: true,
-        depthWrite: false
-      });
-      var shadowPlaneMesh = new THREE.Mesh(shadowPlaneGeo, shadowPlaneMat);
+      /* Soft Fading Contact Shadow under each 3D tile */
+      var shadowPlaneMesh = new THREE.Mesh(sharedShadowPlaneGeo, sharedShadowPlaneMat);
       shadowPlaneMesh.rotation.x = -Math.PI / 2;
       shadowPlaneMesh.position.set(pos.x, 0.005, pos.z);
       boardGroup.add(shadowPlaneMesh);
@@ -2038,14 +2118,14 @@ function build3DBoard(){
     }
   }
 
-  /* 4 Raised Yards — Ludo King style with circular nests */
-  var yardSize = cellSize * 6;
+  /* 4 Raised 3D Yards */
+  var yardSize = cellSize * 6; // 3.72 units wide
 
   var yardDefs = [
-    { color: PLAYER_COLORS_HEX.red,    x: -cellSize*4.5, z:  cellSize*4.5 },
-    { color: PLAYER_COLORS_HEX.green,  x: -cellSize*4.5, z: -cellSize*4.5 },
-    { color: PLAYER_COLORS_HEX.yellow, x:  cellSize*4.5, z: -cellSize*4.5 },
-    { color: PLAYER_COLORS_HEX.blue,   x:  cellSize*4.5, z:  cellSize*4.5 }
+    { color: PLAYER_COLORS_HEX.red,    x: -cellSize * 4.5, z:  cellSize * 4.5 },
+    { color: PLAYER_COLORS_HEX.green,  x: -cellSize * 4.5, z: -cellSize * 4.5 },
+    { color: PLAYER_COLORS_HEX.yellow, x:  cellSize * 4.5, z: -cellSize * 4.5 },
+    { color: PLAYER_COLORS_HEX.blue,   x:  cellSize * 4.5, z:  cellSize * 4.5 }
   ];
 
   yardDefs.forEach(function(yd){
@@ -2054,6 +2134,7 @@ function build3DBoard(){
     var yMat = new THREE.MeshStandardMaterial({ color: yd.color, roughness: 0.35, metalness: 0.15 });
     var yMesh = new THREE.Mesh(yardGeo, yMat);
     yMesh.position.set(yd.x, 0.08, yd.z);
+    yMesh.receiveShadow = true;
     boardGroup.add(yMesh);
 
     /* 2. Inset Panel (White in Light Mode, Dark Onyx #121a28 in Dark Mode) */
@@ -2472,6 +2553,84 @@ function onPointerUp(e){
   }
 }
 
+var _lastHalfBoard = -1;
+
+function getScreenCoords(localX, localY, localZ) {
+  if (!camera || !boardGroup) return { x: 0, y: 0 };
+  var p = new THREE.Vector3(localX, localY, localZ);
+  boardGroup.updateMatrixWorld(true);
+  p.applyMatrix4(boardGroup.matrixWorld);
+  p.project(camera);
+  var container = document.getElementById('canvas-container');
+  var w = (container && container.clientWidth) || window.innerWidth;
+  var h = (container && container.clientHeight) || (window.innerHeight - 50);
+  return {
+    x: (p.x + 1) * w / 2,
+    y: (-p.y + 1) * h / 2 + 50
+  };
+}
+
+function positionCornerDiceUIs(){
+  if (!camera || !gameState || !boardGroup) return;
+
+  var cs = 0.62;
+  var cornerX = cs * 7.5; // 4.65 (outer edge of 3D board slab)
+  var cornerZ = cs * 7.5; // 4.65 (outer edge of 3D board slab)
+
+  // Local 3D outer corner coordinates for each colored yard slab
+  var yardCorners = {
+    red:    { x: -cornerX, y: 0.17, z:  cornerZ },
+    green:  { x: -cornerX, y: 0.17, z: -cornerZ },
+    yellow: { x:  cornerX, y: 0.17, z: -cornerZ },
+    blue:   { x:  cornerX, y: 0.17, z:  cornerZ }
+  };
+
+  var container = document.getElementById('canvas-container');
+  var w = (container && container.clientWidth) || window.innerWidth;
+  var h = (container && container.clientHeight) || (window.innerHeight - 50);
+  var minDim = Math.min(w, h);
+  var cardScale = Math.max(0.45, Math.min(0.88, minDim / 750));
+
+  boardGroup.updateMatrixWorld(true);
+
+  PLAYERS.forEach(function(pColor){
+    var el = document.getElementById('dice-ui-' + pColor);
+    if (!el) return;
+
+    var loc = yardCorners[pColor];
+    var worldVec = new THREE.Vector3(loc.x, loc.y, loc.z);
+    worldVec.applyMatrix4(boardGroup.matrixWorld);
+    worldVec.project(camera);
+
+    var px = (worldVec.x * 0.5 + 0.5) * w;
+    var py = (-worldVec.y * 0.5 + 0.5) * h + 50;
+
+    // Anchor cards flush on outer board slab corners
+    var isLeft = px < w / 2;
+    var isTop  = py < (h / 2 + 50);
+
+    var transX = isLeft ? '0%' : '-100%';
+    var transY = isTop  ? '-100%' : '0%';
+    var originX = isLeft ? 'left' : 'right';
+    var originY = isTop  ? 'bottom' : 'top';
+
+    el.style.position = 'absolute';
+    el.style.top = py + 'px';
+    el.style.left = px + 'px';
+    el.style.width = 'auto';
+    el.style.right = 'auto';
+    el.style.bottom = 'auto';
+    el.style.transformOrigin = originX + ' ' + originY;
+    el.style.transform = 'translate(' + transX + ', ' + transY + ') scale(' + cardScale + ')';
+    el.style.flexDirection = isLeft ? 'row' : 'row-reverse';
+
+    var av = el.querySelector('.avatar-area');
+    if (av) {
+      av.style.borderRadius = isLeft ? '4px 0 0 4px' : '0 4px 4px 0';
+    }
+  });
+}
+
 function animate(){
   requestAnimationFrame(animate);
 
@@ -2490,24 +2649,30 @@ function animate(){
     
     if (gameState && gameState.is2DMode) {
       boardRotX += (Math.PI / 2 - boardRotX) * 0.1;
-      var diff = 0 - boardRotY;
+      var angles2D = { red: 0, green: -Math.PI/2, yellow: Math.PI, blue: Math.PI/2 };
+      var target2D = angles2D[(gameState && gameState.humanColor) || 'red'] || 0;
+      var diff = target2D - boardRotY;
       while(diff < -Math.PI) diff += Math.PI * 2;
       while(diff > Math.PI) diff -= Math.PI * 2;
       boardRotY += diff * 0.1;
       
+      var container = document.getElementById('canvas-container');
+      var w = (container && container.clientWidth) || window.innerWidth;
+      var h = (container && container.clientHeight) || (window.innerHeight - 50);
       var asp = camera.aspect;
-      var h = window.innerHeight || 800;
-      var desiredBoardRatio = Math.max(0.4, (h - 210) / h); // 210px padded space to prevent overlap
-      var z = 10 / (13.25 * desiredBoardRatio);
-      zoomTarget = asp < 1 ? z / asp : z;
+      
+      // Height fitting calculation (100% untouched)
+      var vertReserve = Math.max(12, Math.min(48, h * 0.08));
+      var boardHeightFit = Math.max(0.35, (h - vertReserve) / h);
+      
+      // Mobile-specific width reserve ONLY (0px side margin for mobile w < 600px)
+      var horizReserve = w < 600 ? 0 : 16;
+      var boardWidthFit = Math.max(0.35, (w - horizReserve) / w);
+      var fitRatio = Math.min(boardHeightFit, boardWidthFit);
 
-      // Dynamically push the dice UIs exactly to the outer edges of the board
-      var boardPixelSize = 10 / (13.25 * zoomTarget) * h;
-      var halfBoard = boardPixelSize / 2;
-      document.getElementById('dice-ui-red').style.left = "calc(50% - " + halfBoard + "px)";
-      document.getElementById('dice-ui-green').style.left = "calc(50% - " + halfBoard + "px)";
-      document.getElementById('dice-ui-yellow').style.right = "calc(50% - " + halfBoard + "px)";
-      document.getElementById('dice-ui-blue').style.right = "calc(50% - " + halfBoard + "px)";
+      var z = 10.0 / (12.2772 * fitRatio);
+      // Mobile portrait width zoom ONLY: asp < 1 zooms 6% closer to cut side space
+      zoomTarget = asp < 1 ? z / (asp * 1.06) : z;
     } else {
       boardRotX = Math.max(0.2, Math.min(0.85, boardRotX + boardVelX));
 
@@ -2525,33 +2690,29 @@ function animate(){
     }
   }
 
+  // Update 3D projected card UI positions on every frame in both 2D and 3D mode
+  positionCornerDiceUIs();
+
   /* Camera Math */
   var camDist = 16 * zoomCurrent;
   var camY = Math.sin(boardRotX) * camDist;
   var camZ = Math.cos(boardRotX) * camDist;
 
+  // Zero camera offset needed because canvas container itself is positioned below top header menu
   var targetOffsetZ = 0;
-  if (gameState && gameState.is2DMode) {
-    var h = window.innerHeight || 800;
-    // Shift board visually downwards by 25px to center it perfectly
-    targetOffsetZ = -(25 / h) * (13.25 * zoomTarget); 
-  }
 
   camera.position.x = Math.sin(boardRotY) * camZ;
   camera.position.z = Math.cos(boardRotY) * camZ + targetOffsetZ;
   camera.position.y = camY;
   camera.lookAt(0, 0, targetOffsetZ);
 
-  /* Background Particle Drift + Parallax + Sizing (calm ambient speed) */
+  /* Background Particle Drift + Parallax */
   if(starParticles){
     starParticles.rotation.y = now * 0.000015 + boardRotY * 0.03;
     starParticles.rotation.x = Math.sin(now * 0.00001) * 0.02 + boardRotX * 0.02;
     var spinSpeed = Math.abs(boardVelY);
-    var baseSize = isLightTheme() ? 0.25 : 0.30;
-    var targetSize = baseSize * (1 + Math.min(1.2, spinSpeed * 8));
-    var currentSize = starParticles.material.size || baseSize;
-    starParticles.material.size += (targetSize - currentSize) * 0.05;
-    starParticles.material.needsUpdate = true;
+    var targetScale = 1 + Math.min(0.5, spinSpeed * 5);
+    starParticles.scale.setScalar(targetScale);
   }
 
   update3DPawnPositions();
@@ -2590,28 +2751,34 @@ function getCurrentPlayer(){ return gameState.activePlayers[gameState.currentTur
 
 function createDiceFaces(cubeEl){
   cubeEl.innerHTML = '';
-  var dotsMap = {
-    1: [4],
-    2: [0, 8],
-    3: [0, 4, 8],
-    4: [0, 2, 6, 8],
-    5: [0, 2, 4, 6, 8],
-    6: [0, 2, 3, 5, 6, 8]
+  var dotPositions = {
+    1: [{cx:50, cy:50}],
+    2: [{cx:26, cy:26}, {cx:74, cy:74}],
+    3: [{cx:26, cy:26}, {cx:50, cy:50}, {cx:74, cy:74}],
+    4: [{cx:26, cy:26}, {cx:74, cy:26}, {cx:26, cy:74}, {cx:74, cy:74}],
+    5: [{cx:26, cy:26}, {cx:74, cy:26}, {cx:50, cy:50}, {cx:26, cy:74}, {cx:74, cy:74}],
+    6: [{cx:26, cy:24}, {cx:74, cy:24}, {cx:26, cy:50}, {cx:74, cy:50}, {cx:26, cy:76}, {cx:74, cy:76}]
   };
+
   for(var f=1; f<=6; f++){
     var face = document.createElement('div');
     face.className = 'dice-face dice-face-' + f;
 
-    for(var d=0; d<9; d++){
-      var dotBox = document.createElement('div');
-      dotBox.className = 'dice-dot-cell';
-      if(dotsMap[f].indexOf(d) !== -1){
-        var dot = document.createElement('div');
-        dot.className = 'dice-dot';
-        dotBox.appendChild(dot);
-      }
-      face.appendChild(dotBox);
-    }
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 100 100');
+    svg.setAttribute('class', 'dice-face-svg');
+
+    var dots = dotPositions[f];
+    dots.forEach(function(pt){
+      var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', pt.cx);
+      circle.setAttribute('cy', pt.cy);
+      circle.setAttribute('r', '10');
+      circle.setAttribute('class', 'dice-pip');
+      svg.appendChild(circle);
+    });
+
+    face.appendChild(svg);
     cubeEl.appendChild(face);
   }
 }
@@ -2799,7 +2966,7 @@ function rollDice(){
 
     if(val === 6){
       if(gameState.mode === 'ai' && active !== gameState.humanColor){
-        recordBotStat('botSixes', 1);
+        recordComputerStat('computerSixes', 1);
       }
       gameState.consecutiveSixes++;
       if(gameState.consecutiveSixes >= 3){
@@ -3077,7 +3244,7 @@ function postMoveCheck(color, tokIdx, wasSpawn){
     extraRoll = true;
     updateStatus("Pawn reached HOME! 🎉 Bonus Roll!");
     if(gameState.mode === 'ai' && color !== gameState.humanColor){
-      recordBotStat('botPawnsHome', 1);
+      recordComputerStat('computerPawnsHome', 1);
     }
   }
 
@@ -3096,7 +3263,7 @@ function postMoveCheck(color, tokIdx, wasSpawn){
                 extraRoll = true;
                 updateStatus("Captured " + capitalize(oppColor) + "! Bonus roll awarded ⚔️");
                 if(gameState.mode === 'ai' && color !== gameState.humanColor){
-                  recordBotStat('botCaptures', 1);
+                  recordComputerStat('computerCaptures', 1);
                 }
 
                 /* Walk captured piece back home along the board path */
@@ -3362,6 +3529,7 @@ function updateTurnDisplay(){
   // Toggle visibility of central vs corner dice
   if (gameState && gameState.is2DMode) {
     if(centralUi) centralUi.style.display = 'none';
+    positionCornerDiceUIs();
     
     // Manage corner dice
     ['red', 'green', 'yellow', 'blue'].forEach(function(color) {
@@ -3378,7 +3546,7 @@ function updateTurnDisplay(){
             ui.style.boxShadow = colorGlowMap[color] || '0 0 20px var(--' + color + ')';
           } else {
             ui.classList.remove('active');
-            ui.style.opacity = '0.5';
+            ui.style.opacity = '1';
             ui.style.borderColor = isLightTheme() ? '#cbd5e1' : '#334155';
             ui.style.boxShadow = '0 4px 10px rgba(0,0,0,0.5)';
           }
@@ -3440,6 +3608,20 @@ function startMatch(){
   
   gameState.activePlayers = getActiveColors();
 
+  /* Ensure human player's chosen color gets the FIRST turn of the match */
+  var humanIdx = gameState.activePlayers.indexOf(gameState.humanColor);
+  if (humanIdx !== -1) {
+    gameState.currentTurnIdx = humanIdx;
+  } else {
+    gameState.currentTurnIdx = 0;
+  }
+
+  /* Orient board POV to face the human player's chosen color at bottom-left */
+  var startAngles = { red: 0, green: -Math.PI/2, yellow: Math.PI, blue: Math.PI/2 };
+  boardRotY = startAngles[gameState.humanColor] || 0;
+  boardRotX = gameState.is2DMode ? (Math.PI / 2) : 0.55;
+  _lastHalfBoard = -1;
+
   PLAYERS.forEach(function(p){
     gameState.tokens[p] = [{step:-1},{step:-1},{step:-1},{step:-1}];
   });
@@ -3454,7 +3636,7 @@ function startMatch(){
       if (color === gameState.humanColor) {
         name = "You";
       } else {
-        name = "Bot " + capitalize(color);
+        name = "Computer " + capitalize(color);
       }
     }
     gameState.playerNames[color] = name;
@@ -3468,7 +3650,7 @@ function startMatch(){
     if(cube) { createDiceFaces(cube); setDiceFace(cube, 1); }
   });
 
-  document.getElementById('hud-match-type').textContent = gameState.playerCount + 'P ' + (gameState.mode === 'ai' ? 'Vs Bot ' : '') + capitalize(gameState.ruleType);
+  document.getElementById('hud-match-type').textContent = gameState.playerCount + 'P ' + (gameState.mode === 'ai' ? 'Vs Computer ' : '') + capitalize(gameState.ruleType);
 
   showScreen('game-screen');
   /* Init or resize the 3D engine now that canvas is visible */
@@ -3527,80 +3709,92 @@ function endMatch(){
     podium.appendChild(row);
   });
 
-  /* Record Bot Match Completion Stat if in Vs Computer mode */
+  /* Record Computer Match Completion Stat if in Vs Computer mode */
   if(gameState.mode === 'ai'){
-    var s = getBotStats();
+    var s = getComputerStats();
     s.matchesPlayed = (s.matchesPlayed || 0) + 1;
     var champ = finalOrder[0];
     if(champ && champ !== gameState.humanColor){
-      s.botWins = (s.botWins || 0) + 1;
+      s.computerWins = (s.computerWins || 0) + 1;
     } else {
       s.humanWins = (s.humanWins || 0) + 1;
     }
-    saveBotStats(s);
+    saveComputerStats(s);
   }
 
   modal.classList.remove('hidden');
 }
 
 /* ==================================================
-   BOT CAREER STATS SYSTEM (Vs Computer Data Only)
+   COMPUTER CAREER STATS SYSTEM (Vs Computer Data Only)
    ================================================== */
-function getBotStats(){
+function getComputerStats(){
   try {
     var raw = localStorage.getItem('ludoking_ai_stats');
-    if(raw) return JSON.parse(raw);
+    if(raw) {
+      var p = JSON.parse(raw);
+      return {
+        matchesPlayed: p.matchesPlayed || 0,
+        humanWins: p.humanWins || 0,
+        computerWins: p.computerWins || p.botWins || 0,
+        computerCaptures: p.computerCaptures || p.botCaptures || 0,
+        computerPawnsHome: p.computerPawnsHome || p.botPawnsHome || 0,
+        computerSixes: p.computerSixes || p.botSixes || 0
+      };
+    }
   } catch(e){}
-  return { matchesPlayed: 0, humanWins: 0, botWins: 0, botCaptures: 0, botPawnsHome: 0, botSixes: 0 };
+  return { matchesPlayed: 0, humanWins: 0, computerWins: 0, computerCaptures: 0, computerPawnsHome: 0, computerSixes: 0 };
 }
 
-function saveBotStats(stats){
+function saveComputerStats(stats){
   try {
     localStorage.setItem('ludoking_ai_stats', JSON.stringify(stats));
   } catch(e){}
 }
 
-function recordBotStat(key, amount){
+function recordComputerStat(key, amount){
   if(gameState.mode !== 'ai') return;
-  var s = getBotStats();
+  var s = getComputerStats();
   s[key] = (s[key] || 0) + (amount || 1);
-  saveBotStats(s);
+  saveComputerStats(s);
 }
 
-function updateBotStatsDisplay(){
-  var s = getBotStats();
-  var totalRecorded = (s.matchesPlayed || 0) + (s.botCaptures || 0) + (s.botPawnsHome || 0);
+function updateComputerStatsDisplay(){
+  var s = getComputerStats();
+  var totalRecorded = (s.matchesPlayed || 0) + (s.computerCaptures || 0) + (s.computerPawnsHome || 0);
 
   var matchesEl = document.getElementById('stat-matches');
   if(matchesEl) matchesEl.textContent = s.matchesPlayed || 0;
   
   var winrateEl = document.getElementById('stat-winrate');
   if(winrateEl){
-    var rate = s.matchesPlayed > 0 ? Math.round((s.botWins / s.matchesPlayed) * 100) : 0;
+    var rate = s.matchesPlayed > 0 ? Math.round((s.computerWins / s.matchesPlayed) * 100) : 0;
     winrateEl.textContent = rate + '%';
   }
   
   var winsEl = document.getElementById('stat-bot-wins');
-  if(winsEl) winsEl.textContent = s.botWins || 0;
+  if(winsEl) winsEl.textContent = s.computerWins || 0;
   
   var capsEl = document.getElementById('stat-bot-captures');
-  if(capsEl) capsEl.textContent = s.botCaptures || 0;
+  if(capsEl) capsEl.textContent = s.computerCaptures || 0;
   
   var homeEl = document.getElementById('stat-bot-home');
-  if(homeEl) homeEl.textContent = s.botPawnsHome || 0;
+  if(homeEl) homeEl.textContent = s.computerPawnsHome || 0;
   
   var sixesEl = document.getElementById('stat-bot-sixes');
-  if(sixesEl) sixesEl.textContent = s.botSixes || 0;
+  if(sixesEl) sixesEl.textContent = s.computerSixes || 0;
 
   var resetBtn = document.getElementById('btn-reset-stats');
   if(resetBtn){
     if(totalRecorded === 0){
+      resetBtn.disabled = true;
       resetBtn.style.opacity = '0.4';
       resetBtn.style.pointerEvents = 'none';
       resetBtn.textContent = 'No Statistics to Reset';
     } else {
+      resetBtn.disabled = false;
       resetBtn.style.opacity = '1';
-      resetBtn.style.pointerEvents = 'auto';
+      resetBtn.style.pointerEvents = '';
       resetBtn.textContent = 'Reset Statistics';
     }
   }
@@ -3722,8 +3916,19 @@ function stopVictoryBoardSpotlight(){
    8. EVENT WIRING & STARTUP
    ================================================== */
 function bindEvents(){
-  document.getElementById('btn-hamburger').addEventListener('click', function(){
+  document.getElementById('btn-hamburger').addEventListener('click', function(e){
+    e.stopPropagation();
     document.getElementById('hamburger-dropdown').classList.toggle('hidden');
+  });
+
+  window.addEventListener('click', function(e){
+    var drop = document.getElementById('hamburger-dropdown');
+    var btn = document.getElementById('btn-hamburger');
+    if(drop && !drop.classList.contains('hidden')){
+      if(!drop.contains(e.target) && !btn.contains(e.target)){
+        drop.classList.add('hidden');
+      }
+    }
   });
 
   document.getElementById('btn-menu-rules').addEventListener('click', function(){ showScreen('rules-screen'); });
@@ -3732,7 +3937,7 @@ function bindEvents(){
   var btnMenuStats = document.getElementById('btn-menu-stats');
   if(btnMenuStats){
     btnMenuStats.addEventListener('click', function(){
-      updateBotStatsDisplay();
+      updateComputerStatsDisplay();
       showScreen('stats-screen');
     });
   }
@@ -3745,8 +3950,8 @@ function bindEvents(){
   var btnResetStats = document.getElementById('btn-reset-stats');
   if(btnResetStats){
     btnResetStats.addEventListener('click', function(){
-      var s = getBotStats();
-      var totalRecorded = (s.matchesPlayed || 0) + (s.botCaptures || 0) + (s.botPawnsHome || 0);
+      var s = getComputerStats();
+      var totalRecorded = (s.matchesPlayed || 0) + (s.computerCaptures || 0) + (s.computerPawnsHome || 0);
       if(totalRecorded === 0){
         updateStatus("No statistics recorded yet to reset!");
         return;
@@ -3813,8 +4018,8 @@ function bindEvents(){
       document.getElementById('restart-modal').classList.add('hidden');
       if (window.pendingStatsReset) {
         window.pendingStatsReset = false;
-        saveBotStats({ matchesPlayed: 0, humanWins: 0, botWins: 0, botCaptures: 0, botPawnsHome: 0, botSixes: 0 });
-        updateBotStatsDisplay();
+        saveComputerStats({ matchesPlayed: 0, humanWins: 0, computerWins: 0, computerCaptures: 0, computerPawnsHome: 0, computerSixes: 0 });
+        updateComputerStatsDisplay();
         updateStatus("Statistics reset successfully.");
         return;
       }
@@ -3902,7 +4107,7 @@ function bindEvents(){
     finishWatchBtn.addEventListener('click', function(){
       stopVictoryBoardSpotlight();
       document.getElementById('human-finished-modal').classList.add('hidden');
-      updateStatus("Watching AI finish... Tap 'End Match' anytime.");
+      updateStatus("Watching Computer finish... Tap 'End Match' anytime.");
     });
   }
 
@@ -4221,6 +4426,15 @@ function bindEvents(){
       document.body.className = this.dataset.theme;
       /* Rebuild board so tile colors match the new theme */
       if(boardGroup){
+        boardGroup.traverse(function(obj){
+          if(obj !== boardGroup && obj !== tokenGroup && obj.parent !== tokenGroup){
+            if(obj.geometry) obj.geometry.dispose();
+            if(obj.material){
+              if(Array.isArray(obj.material)) obj.material.forEach(function(m){ m.dispose(); });
+              else obj.material.dispose();
+            }
+          }
+        });
         while(boardGroup.children.length > 0) boardGroup.remove(boardGroup.children[0]);
         boardGroup.add(tokenGroup);
         build3DBoard();

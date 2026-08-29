@@ -64,6 +64,9 @@ body.theme-light {
   --yellow: #eab308;
   --blue: #2563eb;
 }
+body.theme-light .podium-item.first { background: rgba(217, 119, 6, 0.18); border-color: #d97706; color: #78350f; }
+body.theme-light .podium-item.second { background: rgba(148, 163, 184, 0.22); border-color: #64748b; color: #0f172a; }
+body.theme-light .podium-item.third { background: rgba(180, 83, 9, 0.18); border-color: #b45309; color: #7c2d12; }
 
 *, *::before, *::after {
   margin: 0; padding: 0; box-sizing: border-box;
@@ -88,12 +91,10 @@ html, body {
    2. 3D CANVAS & BACKGROUND
    ================================================== */
 #canvas-container {
-  position: relative;
+  position: absolute; inset: 0;
   width: 100%; height: 100%;
-  flex: 1;
   z-index: 1; touch-action: none;
   pointer-events: none;
-  overflow: hidden;
 }
 /* Only enable canvas interaction when the game is actually playing */
 #game-screen:not(.hidden) #canvas-container {

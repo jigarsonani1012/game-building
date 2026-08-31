@@ -3171,67 +3171,63 @@ function animatePieceAlongPath(pts, mesh, totalMs, arcH, audioTicks, onDone){
 }
 
 /* ==================================================
-   STYLE 2: 3D GLOWING STEP FOOTPRINT MARKERS ENGINE
+   STYLE 3: HOLOGRAPHIC NEON LASER TRAIL RIBBON ENGINE
    ================================================== */
-var _sharedFootprintPlateGeo = null;
-var _sharedFootprintRingGeo = null;
+var _activeLaserMesh = null;
+var _activeLaserMat = null;
+var _activeLaserGeo = null;
 
-function spawn3DFootprint(x, z, colorHex, isFinal) {
+function update3DLaserTrail(pts, colorHex, isFinal) {
   if (!boardGroup) return;
 
-  if (!_sharedFootprintPlateGeo) {
-    _sharedFootprintPlateGeo = new THREE.PlaneGeometry(0.38, 0.38);
-    _sharedFootprintRingGeo = new THREE.RingGeometry(0.12, 0.18, 16);
+  if (_activeLaserMesh) {
+    boardGroup.remove(_activeLaserMesh);
+    if (_activeLaserGeo) _activeLaserGeo.dispose();
+    if (_activeLaserMat) _activeLaserMat.dispose();
+    _activeLaserMesh = null;
   }
 
-  var group = new THREE.Group();
-  group.position.set(x, 0.048, z);
-  group.rotation.x = -Math.PI / 2;
+  if (!pts || pts.length < 2) return;
 
-  /* Semi-transparent Glowing Base Plate */
-  var plateMat = new THREE.MeshBasicMaterial({
+  var vecPts = pts.map(function(p) { return new THREE.Vector3(p.x, 0.052, p.z); });
+  _activeLaserGeo = new THREE.BufferGeometry().setFromPoints(vecPts);
+
+  _activeLaserMat = new THREE.LineBasicMaterial({
     color: colorHex,
+    linewidth: 4,
     transparent: true,
-    opacity: isFinal ? 0.85 : 0.60,
-    side: THREE.DoubleSide,
-    depthWrite: false
+    opacity: 0.95
   });
-  var plateMesh = new THREE.Mesh(_sharedFootprintPlateGeo, plateMat);
-  group.add(plateMesh);
 
-  /* Neon Ring Center Marker */
-  var ringMat = new THREE.MeshBasicMaterial({
-    color: 0xffffff,
-    transparent: true,
-    opacity: isFinal ? 0.95 : 0.75,
-    side: THREE.DoubleSide,
-    depthWrite: false
-  });
-  var ringMesh = new THREE.Mesh(_sharedFootprintRingGeo, ringMat);
-  ringMesh.position.z = 0.001;
-  group.add(ringMesh);
+  _activeLaserMesh = new THREE.Line(_activeLaserGeo, _activeLaserMat);
+  boardGroup.add(_activeLaserMesh);
 
-  boardGroup.add(group);
+  if (isFinal) {
+    var lMesh = _activeLaserMesh;
+    var lMat = _activeLaserMat;
+    var lGeo = _activeLaserGeo;
+    _activeLaserMesh = null;
+    _activeLaserMat = null;
+    _activeLaserGeo = null;
 
-  var duration = isFinal ? 1600 : 1100; // Leaves a trail behind the pawn
-  var t0 = performance.now();
+    var t0 = performance.now();
+    var duration = 800;
 
-  function animateFootprint(now) {
-    var progress = Math.min((now - t0) / duration, 1.0);
-    var alpha = (1.0 - progress);
+    function fadeLaser(now) {
+      var progress = Math.min((now - t0) / duration, 1.0);
+      var alpha = (1.0 - progress);
+      lMat.opacity = 0.95 * alpha;
 
-    plateMat.opacity = (isFinal ? 0.85 : 0.60) * alpha;
-    ringMat.opacity = (isFinal ? 0.95 : 0.75) * alpha;
-
-    if (progress < 1.0) {
-      requestAnimationFrame(animateFootprint);
-    } else {
-      boardGroup.remove(group);
-      plateMat.dispose();
-      ringMat.dispose();
+      if (progress < 1.0) {
+        requestAnimationFrame(fadeLaser);
+      } else {
+        boardGroup.remove(lMesh);
+        lGeo.dispose();
+        lMat.dispose();
+      }
     }
+    requestAnimationFrame(fadeLaser);
   }
-  requestAnimationFrame(animateFootprint);
 }
 
 function executeMove(color, tokIdx){
@@ -3242,6 +3238,13 @@ function executeMove(color, tokIdx){
   var roll = gameState.diceValue;
   var mesh = tokenMeshes[color][tokIdx];
 
+  var startStep = tok.step;
+  var pathPointsWalked = [];
+
+  if (startStep >= 0) {
+    pathPointsWalked.push(getWorldForStep(color, startStep));
+  }
+
   /* ── Spawn on 6: smooth arc from yard-nest → start cell ── */
   if(tok.step === -1 && roll === 6){
     tok.step = 0;
@@ -3249,7 +3252,9 @@ function executeMove(color, tokIdx){
     if(mesh){
       var startPos = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z };
       var endPos   = getWorldForStep(color, 0);
-      spawn3DFootprint(endPos.x, endPos.z, PLAYER_COLORS_HEX[color] || 0xffffff, true);
+      pathPointsWalked.push(startPos);
+      pathPointsWalked.push(endPos);
+      update3DLaserTrail(pathPointsWalked, PLAYER_COLORS_HEX[color] || 0xffffff, true);
       animatePieceTo(mesh, endPos.x, endPos.y, endPos.z, 520, 0.9, function(){
         gameState.isMoving = false;
         postMoveCheck(color, tokIdx, true);
@@ -3277,7 +3282,10 @@ function executeMove(color, tokIdx){
     AudioEngine.step(tok.step);
     var dest = getWorldForStep(color, tok.step);
     var isFinal = (stepsLeft === 0);
-    spawn3DFootprint(dest.x, dest.z, PLAYER_COLORS_HEX[color] || 0xffffff, isFinal);
+
+    pathPointsWalked.push(dest);
+    update3DLaserTrail(pathPointsWalked, PLAYER_COLORS_HEX[color] || 0xffffff, isFinal);
+
     if(mesh){
       var hop = isFinal ? HOP_H * 2.0 : HOP_H;
       animatePieceTo(mesh, dest.x, dest.y, dest.z, STEP_DUR, hop, doNextStep);

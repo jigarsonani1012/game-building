@@ -2074,6 +2074,7 @@ function build3DBoard(){
       tileMesh.position.set(pos.x, 0.04, pos.z);
       tileMesh.receiveShadow = true;
       boardGroup.add(tileMesh);
+      _tileMeshMap[r + '_' + c] = tileMesh;
 
       /* Soft Fading Contact Shadow under each 3D tile */
       var shadowPlaneMesh = new THREE.Mesh(sharedShadowPlaneGeo, sharedShadowPlaneMat);
@@ -3168,113 +3169,68 @@ function animatePieceAlongPath(pts, mesh, totalMs, arcH, audioTicks, onDone){
 }
 
 /* ==================================================
-   DYNAMIC 3D STEP RIPPLE & LANDING SHOCKWAVE TRAIL ENGINE
+   STYLE 1: 3D BOARD TILE SPRING-BOUNCE & FLOOR GLOW ENGINE
    ================================================== */
-var _sharedRippleRingGeo = null;
-var _sharedRippleCircleGeo = null;
+var _tileMeshMap = {};
 
-/* ==================================================
-   STATE-OF-THE-ART 3D MOTION SPARKS & LIGHT PILLAR ENGINE
-   ================================================== */
-var _sharedBeamGeo = null;
-var _sharedSparkGeo = null;
-
-function spawn3DLandingBeam(x, z, colorHex, isFinal) {
-  if (!boardGroup) return;
-
-  if (!_sharedBeamGeo) {
-    _sharedBeamGeo = new THREE.CylinderGeometry(0.18, 0.35, 1.4, 16, 1, true);
-    _sharedSparkGeo = new THREE.SphereGeometry(0.04, 8, 8);
+function getStepCoord(color, step){
+  if(step >= 0 && step <= 50){
+    var gi = (START_OFFSETS[color] + step) % 52;
+    return BOARD_COORDS[gi];
+  } else if(step >= 51 && step <= 55){
+    return HOME_PATHS[color][step - 51];
+  } else if(step === 56){
+    return CENTER_COORDS[color];
   }
-
-  var beamMat = new THREE.MeshBasicMaterial({
-    color: colorHex,
-    transparent: true,
-    opacity: isFinal ? 0.90 : 0.65,
-    side: THREE.DoubleSide,
-    depthWrite: false
-  });
-
-  var beamMesh = new THREE.Mesh(_sharedBeamGeo, beamMat);
-  beamMesh.position.set(x, 0.7, z);
-  if (isFinal) beamMesh.scale.set(1.5, 1.8, 1.5);
-  boardGroup.add(beamMesh);
-
-  /* Create 3D Radial Spark Particles for final landings */
-  var sparks = [];
-  var sparkCount = isFinal ? 12 : 6;
-  var sparkGroup = new THREE.Group();
-  sparkGroup.position.set(x, 0.15, z);
-
-  for (var i = 0; i < sparkCount; i++) {
-    var sMat = new THREE.MeshBasicMaterial({ color: colorHex, transparent: true, opacity: 0.9 });
-    var sMesh = new THREE.Mesh(_sharedSparkGeo, sMat);
-    var angle = (i / sparkCount) * Math.PI * 2;
-    var speed = 0.02 + Math.random() * 0.025;
-    sparks.push({ mesh: sMesh, mat: sMat, vx: Math.cos(angle) * speed, vy: 0.02 + Math.random() * 0.03, vz: Math.sin(angle) * speed });
-    sparkGroup.add(sMesh);
-  }
-  boardGroup.add(sparkGroup);
-
-  var duration = isFinal ? 500 : 320;
-  var t0 = performance.now();
-
-  function animateBeam(now) {
-    var progress = Math.min((now - t0) / duration, 1.0);
-    var alpha = (1.0 - progress);
-
-    /* Light pillar rises & fades */
-    beamMesh.position.y = 0.7 + progress * 0.5;
-    beamMesh.scale.x = (isFinal ? 1.5 : 1.0) * (1 + progress * 0.6);
-    beamMesh.scale.z = (isFinal ? 1.5 : 1.0) * (1 + progress * 0.6);
-    beamMat.opacity = (isFinal ? 0.90 : 0.65) * alpha;
-
-    /* Radial spark physics */
-    sparks.forEach(function(sp) {
-      sp.mesh.position.x += sp.vx;
-      sp.mesh.position.y += sp.vy;
-      sp.mesh.position.z += sp.vz;
-      sp.mat.opacity = 0.9 * alpha;
-    });
-
-    if (progress < 1.0) {
-      requestAnimationFrame(animateBeam);
-    } else {
-      boardGroup.remove(beamMesh);
-      boardGroup.remove(sparkGroup);
-      beamMat.dispose();
-      sparks.forEach(function(sp) { sp.mat.dispose(); });
-    }
-  }
-  requestAnimationFrame(animateBeam);
+  return null;
 }
 
-function spawn3DMotionTrailSpark(x, y, z, colorHex) {
-  if (!boardGroup) return;
-  if (!_sharedSparkGeo) _sharedSparkGeo = new THREE.SphereGeometry(0.035, 6, 6);
+function trigger3DTileBounce(coord, colorHex, isFinal) {
+  if (!coord) return;
+  var key = coord.r + '_' + coord.c;
+  var tileMesh = _tileMeshMap[key];
+  if (!tileMesh) return;
 
-  var mat = new THREE.MeshBasicMaterial({ color: colorHex, transparent: true, opacity: 0.85, depthWrite: false });
-  var mesh = new THREE.Mesh(_sharedSparkGeo, mat);
-  mesh.position.set(x + (Math.random() - 0.5) * 0.08, y, z + (Math.random() - 0.5) * 0.08);
-  boardGroup.add(mesh);
+  /* Clone material if shared so only this tile glows */
+  if (!tileMesh.userData.isClonedMat) {
+    tileMesh.material = tileMesh.material.clone();
+    tileMesh.userData.isClonedMat = true;
+  }
 
+  var mat = tileMesh.material;
+  var origEmissive = mat.emissive.getHex();
+  var origEmissiveInt = mat.emissiveIntensity;
+
+  /* Set glowing emissive color matching the player's color */
+  mat.emissive.setHex(colorHex);
+  mat.emissiveIntensity = isFinal ? 0.90 : 0.60;
+
+  /* Physical 3D Button Bounce Down & Up */
+  var origY = 0.04;
+  var dipY = isFinal ? 0.022 : 0.015; // Depresses down like a real 3D button
   var t0 = performance.now();
-  var duration = 280;
+  var duration = isFinal ? 400 : 260;
 
-  function animSpark(now) {
+  function animTile(now) {
     var progress = Math.min((now - t0) / duration, 1.0);
-    mesh.position.y -= 0.003;
-    mat.opacity = 0.85 * (1 - progress);
-    mesh.scale.setScalar(1 - progress * 0.5);
+    
+    /* Sine wave bounce: dip down in first half, spring back up in second half */
+    var sinBounce = Math.sin(Math.PI * progress);
+    tileMesh.position.y = origY - dipY * sinBounce;
+
+    /* Smoothly fade emissive glow back to normal */
+    var alpha = (1.0 - progress);
+    mat.emissiveIntensity = origEmissiveInt + (isFinal ? 0.90 : 0.60) * alpha;
 
     if (progress < 1.0) {
-      requestAnimationFrame(animSpark);
+      requestAnimationFrame(animTile);
     } else {
-      boardGroup.remove(mesh);
-      mat.dispose();
+      tileMesh.position.y = origY;
+      mat.emissive.setHex(origEmissive);
+      mat.emissiveIntensity = origEmissiveInt;
     }
   }
-  requestAnimationFrame(animSpark);
+  requestAnimationFrame(animTile);
 }
 
 function executeMove(color, tokIdx){
@@ -3292,7 +3248,7 @@ function executeMove(color, tokIdx){
     if(mesh){
       var startPos = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z };
       var endPos   = getWorldForStep(color, 0);
-      spawn3DLandingBeam(endPos.x, endPos.z, PLAYER_COLORS_HEX[color] || 0xffffff, true);
+      trigger3DTileBounce(getStepCoord(color, 0), PLAYER_COLORS_HEX[color] || 0xffffff, true);
       animatePieceTo(mesh, endPos.x, endPos.y, endPos.z, 520, 0.9, function(){
         gameState.isMoving = false;
         postMoveCheck(color, tokIdx, true);
@@ -3320,7 +3276,7 @@ function executeMove(color, tokIdx){
     AudioEngine.step(tok.step);
     var dest = getWorldForStep(color, tok.step);
     var isFinal = (stepsLeft === 0);
-    spawn3DLandingBeam(dest.x, dest.z, PLAYER_COLORS_HEX[color] || 0xffffff, isFinal);
+    trigger3DTileBounce(getStepCoord(color, tok.step), PLAYER_COLORS_HEX[color] || 0xffffff, isFinal);
     if(mesh){
       var hop = isFinal ? HOP_H * 2.0 : HOP_H;
       animatePieceTo(mesh, dest.x, dest.y, dest.z, STEP_DUR, hop, doNextStep);
@@ -3331,15 +3287,12 @@ function executeMove(color, tokIdx){
   doNextStep();
 }
 
-/* 3D Piece Lerp with Squash & Stretch + Motion Trail Sparks */
+/* 3D Piece Hop Arc Lerp */
 function animatePieceTo(mesh, tx, ty, tz, duration, hopH, onDone){
   var sx = mesh.position.x, sy = mesh.position.y, sz = mesh.position.z;
   var t0  = performance.now();
   var uid = mesh.uuid;
   _animatingMeshes[uid] = true;
-
-  var colorHex = (mesh.userData && PLAYER_COLORS_HEX[mesh.userData.color]) || 0xffffff;
-  var lastSparkTime = 0;
 
   function frame(now){
     var t = Math.min((now - t0) / duration, 1);
@@ -3352,27 +3305,15 @@ function animatePieceTo(mesh, tx, ty, tz, duration, hopH, onDone){
 
     mesh.position.set(cx, cy, cz);
 
-    /* Squash & Stretch 3D Physics */
-    var stretch = sinArc * 0.35;
-    mesh.scale.set(1.0 - stretch * 0.3, 1.0 + stretch * 0.5, 1.0 - stretch * 0.3);
-
-    /* Spawn mid-air glowing motion sparks */
-    if (sinArc > 0.15 && now - lastSparkTime > 45) {
-      lastSparkTime = now;
-      spawn3DMotionTrailSpark(cx, cy - 0.04, cz, colorHex);
-    }
+    /* Subtle Squash & Stretch 3D Physics */
+    var stretch = sinArc * 0.20;
+    mesh.scale.set(1.0 - stretch * 0.2, 1.0 + stretch * 0.35, 1.0 - stretch * 0.2);
 
     if(t < 1){
       requestAnimationFrame(frame);
     } else {
       mesh.position.set(tx, ty, tz);
-      
-      /* Touchdown Impact Squash & Bounce */
-      mesh.scale.set(1.22, 0.78, 1.22);
-      setTimeout(function(){
-        mesh.scale.set(1.0, 1.0, 1.0);
-      }, 70);
-
+      mesh.scale.set(1.0, 1.0, 1.0);
       delete _animatingMeshes[uid];
       if(onDone) onDone();
     }

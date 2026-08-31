@@ -3076,7 +3076,17 @@ function walkPieceHome(vm, color, tokIdx, currentStep, onDone){
     requestAnimationFrame(spin);
   })();
 
-  animatePieceAlongPath(pts, vm, totalMs, 0.12, [], function(){
+  /* Audio ticks + crimson step trail during capture retreat */
+  var audioTicks = pts.map(function(pt, idx){
+    return {
+      atT: idx / Math.max(1, pts.length - 1),
+      fn: function(){
+        spawnStepRipple(pt.x, pt.z, 0xef4444, idx === pts.length - 1);
+      }
+    };
+  });
+
+  animatePieceAlongPath(pts, vm, totalMs, 0.12, audioTicks, function(){
     spinId.active = false;
     vm.rotation.y = 0;
     vm.children.forEach(function(ch){
@@ -3157,6 +3167,73 @@ function animatePieceAlongPath(pts, mesh, totalMs, arcH, audioTicks, onDone){
   requestAnimationFrame(frame);
 }
 
+/* ==================================================
+   DYNAMIC 3D STEP RIPPLE & LANDING SHOCKWAVE TRAIL ENGINE
+   ================================================== */
+var _sharedRippleRingGeo = null;
+var _sharedRippleCircleGeo = null;
+
+function spawnStepRipple(x, z, colorHex, isFinalLanding) {
+  if (!boardGroup) return;
+
+  if (!_sharedRippleRingGeo) {
+    _sharedRippleRingGeo = new THREE.RingGeometry(0.10, 0.26, 24);
+    _sharedRippleCircleGeo = new THREE.CircleGeometry(0.14, 20);
+  }
+
+  var group = new THREE.Group();
+  group.position.set(x, 0.055, z);
+  group.rotation.x = -Math.PI / 2;
+
+  /* Outer Glowing Pulse Ring */
+  var ringMat = new THREE.MeshBasicMaterial({
+    color: colorHex,
+    transparent: true,
+    opacity: isFinalLanding ? 0.95 : 0.75,
+    side: THREE.DoubleSide,
+    depthWrite: false
+  });
+  var ringMesh = new THREE.Mesh(_sharedRippleRingGeo, ringMat);
+  group.add(ringMesh);
+
+  /* Inner Soft Energy Core Glow */
+  var coreMat = new THREE.MeshBasicMaterial({
+    color: colorHex,
+    transparent: true,
+    opacity: isFinalLanding ? 0.65 : 0.40,
+    side: THREE.DoubleSide,
+    depthWrite: false
+  });
+  var coreMesh = new THREE.Mesh(_sharedRippleCircleGeo, coreMat);
+  group.add(coreMesh);
+
+  boardGroup.add(group);
+
+  var duration = isFinalLanding ? 520 : 360;
+  var maxScale = isFinalLanding ? 2.4 : 1.6;
+  var t0 = performance.now();
+
+  function animateRipple(now) {
+    var progress = Math.min((now - t0) / duration, 1.0);
+    /* Ease-out quad expansion */
+    var scale = 0.7 + (maxScale - 0.7) * (1 - Math.pow(1 - progress, 2));
+    group.scale.set(scale, scale, 1);
+
+    var alpha = (1.0 - progress);
+    ringMat.opacity = (isFinalLanding ? 0.95 : 0.75) * alpha;
+    coreMat.opacity = (isFinalLanding ? 0.65 : 0.40) * alpha;
+
+    if (progress < 1.0) {
+      requestAnimationFrame(animateRipple);
+    } else {
+      boardGroup.remove(group);
+      ringMat.dispose();
+      coreMat.dispose();
+    }
+  }
+  requestAnimationFrame(animateRipple);
+}
+
 function executeMove(color, tokIdx){
   if(gameState.isMoving) return;
   gameState.isMoving = true;
@@ -3172,6 +3249,7 @@ function executeMove(color, tokIdx){
     if(mesh){
       var startPos = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z };
       var endPos   = getWorldForStep(color, 0);
+      spawnStepRipple(endPos.x, endPos.z, PLAYER_COLORS_HEX[color] || 0xffffff, true);
       animatePieceTo(mesh, endPos.x, endPos.y, endPos.z, 520, 0.9, function(){
         gameState.isMoving = false;
         postMoveCheck(color, tokIdx, true);
@@ -3198,8 +3276,10 @@ function executeMove(color, tokIdx){
     stepsLeft--;
     AudioEngine.step(tok.step);
     var dest = getWorldForStep(color, tok.step);
+    var isFinal = (stepsLeft === 0);
+    spawnStepRipple(dest.x, dest.z, PLAYER_COLORS_HEX[color] || 0xffffff, isFinal);
     if(mesh){
-      var hop = (stepsLeft === 0) ? HOP_H * 2.0 : HOP_H;
+      var hop = isFinal ? HOP_H * 2.0 : HOP_H;
       animatePieceTo(mesh, dest.x, dest.y, dest.z, STEP_DUR, hop, doNextStep);
     } else {
       setTimeout(doNextStep, STEP_DUR);

@@ -6,7 +6,7 @@
 <title>Ludo King 3D — Classic Board Game</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Ludo King 3D Engine — Standalone Header Bar & Dynamic 3D Corner Card Tracking (Aug 31, 2026) -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ==================================================
    1. RESET & THEME VARIABLES
@@ -64,9 +64,6 @@ body.theme-light {
   --yellow: #eab308;
   --blue: #2563eb;
 }
-body.theme-light .podium-item.first { background: rgba(217, 119, 6, 0.18); border-color: #d97706; color: #78350f; }
-body.theme-light .podium-item.second { background: rgba(148, 163, 184, 0.22); border-color: #64748b; color: #0f172a; }
-body.theme-light .podium-item.third { background: rgba(180, 83, 9, 0.18); border-color: #b45309; color: #7c2d12; }
 
 *, *::before, *::after {
   margin: 0; padding: 0; box-sizing: border-box;
@@ -91,10 +88,12 @@ html, body {
    2. 3D CANVAS & BACKGROUND
    ================================================== */
 #canvas-container {
-  position: absolute; inset: 0;
+  position: relative;
   width: 100%; height: 100%;
+  flex: 1;
   z-index: 1; touch-action: none;
   pointer-events: none;
+  overflow: hidden;
 }
 /* Only enable canvas interaction when the game is actually playing */
 #game-screen:not(.hidden) #canvas-container {
@@ -660,37 +659,54 @@ body.theme-dark .avatar-area {
 
 /* 3D Dice Corner Roller */
 .dice-box {
-  width: 36px; height: 36px;
-  position: relative;
+  width: 44px; height: 44px;
   perspective: 400px;
+  cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  border-radius: 8px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
 }
 .dice-cube {
   width: 36px; height: 36px;
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.6s var(--ease-bounce);
 }
+
+/* Black Dice Faces in Dark Mode */
 .dice-face {
-  position: absolute; inset: 0;
-  width: 36px; height: 36px;
-  background: #0f172a; border-radius: 8px;
-  border: 1.5px solid #334155;
+  position: absolute; width: 36px; height: 36px;
+  background: #0f172a; border-radius: 6px;
+  border: 1px solid #334155;
+  padding: 2px;
   box-sizing: border-box;
-  overflow: hidden;
-  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
   display: flex; align-items: center; justify-content: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
 }
-.dice-face svg {
-  width: 100%; height: 100%; display: block;
+
+.dice-face-svg {
+  width: 100%; height: 100%;
+  display: block; overflow: visible;
 }
+
+.dice-pip {
+  fill: #ffffff;
+  filter: drop-shadow(0px 0px 1px rgba(255,255,255,0.7));
+}
+
 body.theme-light .dice-face {
   background: #ffffff;
   border-color: #cbd5e1;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
 }
+
+body.theme-light .dice-pip {
+  fill: #0f172a;
+  filter: drop-shadow(0px 0px 1px rgba(15,23,42,0.3));
+}
+
 .dice-face-1 { transform: rotateY(0deg) translateZ(17.8px); }
 .dice-face-2 { transform: rotateY(90deg) translateZ(17.8px); }
 .dice-face-3 { transform: rotateX(90deg) translateZ(17.8px); }
@@ -1686,12 +1702,8 @@ body.theme-light .podium-item.third {
 "use strict";
 
 /* ==================================================
- * LUDO KING 3D — HTML5 / WebGL Edition
- * Built with Three.js (3D Graphics) & Vanilla JavaScript
- * Contrast & Accessibility Refinements (Aug 29, 2026)
- * Vector SVG 3D Dice Engine & Corner Artifact Fix (Aug 30, 2026)
- * Standalone Header Bar & Dynamic 3D Corner Card Tracking (Aug 31, 2026)
- * ================================================== */
+   1. SOUND ENGINE (Web Audio API)
+   ================================================== */
 var AudioEngine = (function(){
   var ctx = null, enabled = true;
   function init(){

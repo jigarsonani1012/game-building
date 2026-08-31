@@ -3171,53 +3171,66 @@ function animatePieceAlongPath(pts, mesh, totalMs, arcH, audioTicks, onDone){
 }
 
 /* ==================================================
-   STYLE 4: 3D RADIAL SONAR ENERGY PULSE WAVE ENGINE
+   FINAL SELECTION — STYLE 1: PHYSICAL 3D TILE BUTTON BOUNCE & FLOOR GLOW
    ================================================== */
-var _sharedSonarRingGeo = null;
+function getStepCoord(color, step){
+  if(step >= 0 && step <= 50){
+    var gi = (START_OFFSETS[color] + step) % 52;
+    return BOARD_COORDS[gi];
+  } else if(step >= 51 && step <= 55){
+    return HOME_PATHS[color][step - 51];
+  } else if(step === 56){
+    return CENTER_COORDS[color];
+  }
+  return null;
+}
 
-function spawn3DSonarPulse(x, z, colorHex, isFinal) {
-  if (!boardGroup) return;
+function trigger3DTileBounce(coord, colorHex, isFinal) {
+  if (!coord) return;
+  var key = coord.r + '_' + coord.c;
+  var tileMesh = _tileMeshMap[key];
+  if (!tileMesh) return;
 
-  if (!_sharedSonarRingGeo) {
-    _sharedSonarRingGeo = new THREE.RingGeometry(0.12, 0.28, 32);
+  /* Clone material if shared so only this tile glows */
+  if (!tileMesh.userData.isClonedMat) {
+    tileMesh.material = tileMesh.material.clone();
+    tileMesh.userData.isClonedMat = true;
   }
 
-  var group = new THREE.Group();
-  group.position.set(x, 0.052, z);
-  group.rotation.x = -Math.PI / 2;
+  var mat = tileMesh.material;
+  var origEmissive = mat.emissive.getHex();
+  var origEmissiveInt = mat.emissiveIntensity;
 
-  var ringMat = new THREE.MeshBasicMaterial({
-    color: colorHex,
-    transparent: true,
-    opacity: isFinal ? 0.95 : 0.75,
-    side: THREE.DoubleSide,
-    depthWrite: false
-  });
-  var ringMesh = new THREE.Mesh(_sharedSonarRingGeo, ringMat);
-  group.add(ringMesh);
+  /* Set glowing emissive color matching the player's color */
+  mat.emissive.setHex(colorHex);
+  mat.emissiveIntensity = isFinal ? 0.90 : 0.60;
 
-  boardGroup.add(group);
-
-  var duration = isFinal ? 550 : 380;
-  var maxScale = isFinal ? 2.6 : 1.8;
+  /* Physical 3D Button Bounce Down & Up */
+  var origY = 0.04;
+  var dipY = isFinal ? 0.022 : 0.015; // Depresses down like a real 3D button
   var t0 = performance.now();
+  var duration = isFinal ? 400 : 260;
 
-  function animateSonar(now) {
+  function animTile(now) {
     var progress = Math.min((now - t0) / duration, 1.0);
-    var scale = 0.6 + (maxScale - 0.6) * (1 - Math.pow(1 - progress, 2.5));
-    group.scale.set(scale, scale, 1);
+    
+    /* Sine wave bounce: dip down in first half, spring back up in second half */
+    var sinBounce = Math.sin(Math.PI * progress);
+    tileMesh.position.y = origY - dipY * sinBounce;
 
-    var alpha = Math.sin((1.0 - progress) * Math.PI / 2);
-    ringMat.opacity = (isFinal ? 0.95 : 0.75) * alpha;
+    /* Smoothly fade emissive glow back to normal */
+    var alpha = (1.0 - progress);
+    mat.emissiveIntensity = origEmissiveInt + (isFinal ? 0.90 : 0.60) * alpha;
 
     if (progress < 1.0) {
-      requestAnimationFrame(animateSonar);
+      requestAnimationFrame(animTile);
     } else {
-      boardGroup.remove(group);
-      ringMat.dispose();
+      tileMesh.position.y = origY;
+      mat.emissive.setHex(origEmissive);
+      mat.emissiveIntensity = origEmissiveInt;
     }
   }
-  requestAnimationFrame(animateSonar);
+  requestAnimationFrame(animTile);
 }
 
 function executeMove(color, tokIdx){
@@ -3235,7 +3248,7 @@ function executeMove(color, tokIdx){
     if(mesh){
       var startPos = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z };
       var endPos   = getWorldForStep(color, 0);
-      spawn3DSonarPulse(endPos.x, endPos.z, PLAYER_COLORS_HEX[color] || 0xffffff, true);
+      trigger3DTileBounce(getStepCoord(color, 0), PLAYER_COLORS_HEX[color] || 0xffffff, true);
       animatePieceTo(mesh, endPos.x, endPos.y, endPos.z, 520, 0.9, function(){
         gameState.isMoving = false;
         postMoveCheck(color, tokIdx, true);
@@ -3264,7 +3277,7 @@ function executeMove(color, tokIdx){
     var dest = getWorldForStep(color, tok.step);
     var isFinal = (stepsLeft === 0);
 
-    spawn3DSonarPulse(dest.x, dest.z, PLAYER_COLORS_HEX[color] || 0xffffff, isFinal);
+    trigger3DTileBounce(getStepCoord(color, tok.step), PLAYER_COLORS_HEX[color] || 0xffffff, isFinal);
 
     if(mesh){
       var hop = isFinal ? HOP_H * 2.0 : HOP_H;

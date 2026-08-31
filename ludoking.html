@@ -3169,68 +3169,67 @@ function animatePieceAlongPath(pts, mesh, totalMs, arcH, audioTicks, onDone){
 }
 
 /* ==================================================
-   STYLE 1: 3D BOARD TILE SPRING-BOUNCE & FLOOR GLOW ENGINE
+   STYLE 2: 3D GLOWING STEP FOOTPRINT MARKERS ENGINE
    ================================================== */
-var _tileMeshMap = {};
+var _sharedFootprintPlateGeo = null;
+var _sharedFootprintRingGeo = null;
 
-function getStepCoord(color, step){
-  if(step >= 0 && step <= 50){
-    var gi = (START_OFFSETS[color] + step) % 52;
-    return BOARD_COORDS[gi];
-  } else if(step >= 51 && step <= 55){
-    return HOME_PATHS[color][step - 51];
-  } else if(step === 56){
-    return CENTER_COORDS[color];
-  }
-  return null;
-}
+function spawn3DFootprint(x, z, colorHex, isFinal) {
+  if (!boardGroup) return;
 
-function trigger3DTileBounce(coord, colorHex, isFinal) {
-  if (!coord) return;
-  var key = coord.r + '_' + coord.c;
-  var tileMesh = _tileMeshMap[key];
-  if (!tileMesh) return;
-
-  /* Clone material if shared so only this tile glows */
-  if (!tileMesh.userData.isClonedMat) {
-    tileMesh.material = tileMesh.material.clone();
-    tileMesh.userData.isClonedMat = true;
+  if (!_sharedFootprintPlateGeo) {
+    _sharedFootprintPlateGeo = new THREE.PlaneGeometry(0.38, 0.38);
+    _sharedFootprintRingGeo = new THREE.RingGeometry(0.12, 0.18, 16);
   }
 
-  var mat = tileMesh.material;
-  var origEmissive = mat.emissive.getHex();
-  var origEmissiveInt = mat.emissiveIntensity;
+  var group = new THREE.Group();
+  group.position.set(x, 0.048, z);
+  group.rotation.x = -Math.PI / 2;
 
-  /* Set glowing emissive color matching the player's color */
-  mat.emissive.setHex(colorHex);
-  mat.emissiveIntensity = isFinal ? 0.90 : 0.60;
+  /* Semi-transparent Glowing Base Plate */
+  var plateMat = new THREE.MeshBasicMaterial({
+    color: colorHex,
+    transparent: true,
+    opacity: isFinal ? 0.85 : 0.60,
+    side: THREE.DoubleSide,
+    depthWrite: false
+  });
+  var plateMesh = new THREE.Mesh(_sharedFootprintPlateGeo, plateMat);
+  group.add(plateMesh);
 
-  /* Physical 3D Button Bounce Down & Up */
-  var origY = 0.04;
-  var dipY = isFinal ? 0.022 : 0.015; // Depresses down like a real 3D button
+  /* Neon Ring Center Marker */
+  var ringMat = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: isFinal ? 0.95 : 0.75,
+    side: THREE.DoubleSide,
+    depthWrite: false
+  });
+  var ringMesh = new THREE.Mesh(_sharedFootprintRingGeo, ringMat);
+  ringMesh.position.z = 0.001;
+  group.add(ringMesh);
+
+  boardGroup.add(group);
+
+  var duration = isFinal ? 1600 : 1100; // Leaves a trail behind the pawn
   var t0 = performance.now();
-  var duration = isFinal ? 400 : 260;
 
-  function animTile(now) {
+  function animateFootprint(now) {
     var progress = Math.min((now - t0) / duration, 1.0);
-    
-    /* Sine wave bounce: dip down in first half, spring back up in second half */
-    var sinBounce = Math.sin(Math.PI * progress);
-    tileMesh.position.y = origY - dipY * sinBounce;
-
-    /* Smoothly fade emissive glow back to normal */
     var alpha = (1.0 - progress);
-    mat.emissiveIntensity = origEmissiveInt + (isFinal ? 0.90 : 0.60) * alpha;
+
+    plateMat.opacity = (isFinal ? 0.85 : 0.60) * alpha;
+    ringMat.opacity = (isFinal ? 0.95 : 0.75) * alpha;
 
     if (progress < 1.0) {
-      requestAnimationFrame(animTile);
+      requestAnimationFrame(animateFootprint);
     } else {
-      tileMesh.position.y = origY;
-      mat.emissive.setHex(origEmissive);
-      mat.emissiveIntensity = origEmissiveInt;
+      boardGroup.remove(group);
+      plateMat.dispose();
+      ringMat.dispose();
     }
   }
-  requestAnimationFrame(animTile);
+  requestAnimationFrame(animateFootprint);
 }
 
 function executeMove(color, tokIdx){
@@ -3248,7 +3247,7 @@ function executeMove(color, tokIdx){
     if(mesh){
       var startPos = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z };
       var endPos   = getWorldForStep(color, 0);
-      trigger3DTileBounce(getStepCoord(color, 0), PLAYER_COLORS_HEX[color] || 0xffffff, true);
+      spawn3DFootprint(endPos.x, endPos.z, PLAYER_COLORS_HEX[color] || 0xffffff, true);
       animatePieceTo(mesh, endPos.x, endPos.y, endPos.z, 520, 0.9, function(){
         gameState.isMoving = false;
         postMoveCheck(color, tokIdx, true);
@@ -3276,7 +3275,7 @@ function executeMove(color, tokIdx){
     AudioEngine.step(tok.step);
     var dest = getWorldForStep(color, tok.step);
     var isFinal = (stepsLeft === 0);
-    trigger3DTileBounce(getStepCoord(color, tok.step), PLAYER_COLORS_HEX[color] || 0xffffff, isFinal);
+    spawn3DFootprint(dest.x, dest.z, PLAYER_COLORS_HEX[color] || 0xffffff, isFinal);
     if(mesh){
       var hop = isFinal ? HOP_H * 2.0 : HOP_H;
       animatePieceTo(mesh, dest.x, dest.y, dest.z, STEP_DUR, hop, doNextStep);

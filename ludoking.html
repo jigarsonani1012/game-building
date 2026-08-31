@@ -3171,63 +3171,53 @@ function animatePieceAlongPath(pts, mesh, totalMs, arcH, audioTicks, onDone){
 }
 
 /* ==================================================
-   STYLE 3: HOLOGRAPHIC NEON LASER TRAIL RIBBON ENGINE
+   STYLE 4: 3D RADIAL SONAR ENERGY PULSE WAVE ENGINE
    ================================================== */
-var _activeLaserMesh = null;
-var _activeLaserMat = null;
-var _activeLaserGeo = null;
+var _sharedSonarRingGeo = null;
 
-function update3DLaserTrail(pts, colorHex, isFinal) {
+function spawn3DSonarPulse(x, z, colorHex, isFinal) {
   if (!boardGroup) return;
 
-  if (_activeLaserMesh) {
-    boardGroup.remove(_activeLaserMesh);
-    if (_activeLaserGeo) _activeLaserGeo.dispose();
-    if (_activeLaserMat) _activeLaserMat.dispose();
-    _activeLaserMesh = null;
+  if (!_sharedSonarRingGeo) {
+    _sharedSonarRingGeo = new THREE.RingGeometry(0.12, 0.28, 32);
   }
 
-  if (!pts || pts.length < 2) return;
+  var group = new THREE.Group();
+  group.position.set(x, 0.052, z);
+  group.rotation.x = -Math.PI / 2;
 
-  var vecPts = pts.map(function(p) { return new THREE.Vector3(p.x, 0.052, p.z); });
-  _activeLaserGeo = new THREE.BufferGeometry().setFromPoints(vecPts);
-
-  _activeLaserMat = new THREE.LineBasicMaterial({
+  var ringMat = new THREE.MeshBasicMaterial({
     color: colorHex,
-    linewidth: 4,
     transparent: true,
-    opacity: 0.95
+    opacity: isFinal ? 0.95 : 0.75,
+    side: THREE.DoubleSide,
+    depthWrite: false
   });
+  var ringMesh = new THREE.Mesh(_sharedSonarRingGeo, ringMat);
+  group.add(ringMesh);
 
-  _activeLaserMesh = new THREE.Line(_activeLaserGeo, _activeLaserMat);
-  boardGroup.add(_activeLaserMesh);
+  boardGroup.add(group);
 
-  if (isFinal) {
-    var lMesh = _activeLaserMesh;
-    var lMat = _activeLaserMat;
-    var lGeo = _activeLaserGeo;
-    _activeLaserMesh = null;
-    _activeLaserMat = null;
-    _activeLaserGeo = null;
+  var duration = isFinal ? 550 : 380;
+  var maxScale = isFinal ? 2.6 : 1.8;
+  var t0 = performance.now();
 
-    var t0 = performance.now();
-    var duration = 800;
+  function animateSonar(now) {
+    var progress = Math.min((now - t0) / duration, 1.0);
+    var scale = 0.6 + (maxScale - 0.6) * (1 - Math.pow(1 - progress, 2.5));
+    group.scale.set(scale, scale, 1);
 
-    function fadeLaser(now) {
-      var progress = Math.min((now - t0) / duration, 1.0);
-      var alpha = (1.0 - progress);
-      lMat.opacity = 0.95 * alpha;
+    var alpha = Math.sin((1.0 - progress) * Math.PI / 2);
+    ringMat.opacity = (isFinal ? 0.95 : 0.75) * alpha;
 
-      if (progress < 1.0) {
-        requestAnimationFrame(fadeLaser);
-      } else {
-        boardGroup.remove(lMesh);
-        lGeo.dispose();
-        lMat.dispose();
-      }
+    if (progress < 1.0) {
+      requestAnimationFrame(animateSonar);
+    } else {
+      boardGroup.remove(group);
+      ringMat.dispose();
     }
-    requestAnimationFrame(fadeLaser);
   }
+  requestAnimationFrame(animateSonar);
 }
 
 function executeMove(color, tokIdx){
@@ -3238,13 +3228,6 @@ function executeMove(color, tokIdx){
   var roll = gameState.diceValue;
   var mesh = tokenMeshes[color][tokIdx];
 
-  var startStep = tok.step;
-  var pathPointsWalked = [];
-
-  if (startStep >= 0) {
-    pathPointsWalked.push(getWorldForStep(color, startStep));
-  }
-
   /* ── Spawn on 6: smooth arc from yard-nest → start cell ── */
   if(tok.step === -1 && roll === 6){
     tok.step = 0;
@@ -3252,9 +3235,7 @@ function executeMove(color, tokIdx){
     if(mesh){
       var startPos = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z };
       var endPos   = getWorldForStep(color, 0);
-      pathPointsWalked.push(startPos);
-      pathPointsWalked.push(endPos);
-      update3DLaserTrail(pathPointsWalked, PLAYER_COLORS_HEX[color] || 0xffffff, true);
+      spawn3DSonarPulse(endPos.x, endPos.z, PLAYER_COLORS_HEX[color] || 0xffffff, true);
       animatePieceTo(mesh, endPos.x, endPos.y, endPos.z, 520, 0.9, function(){
         gameState.isMoving = false;
         postMoveCheck(color, tokIdx, true);
@@ -3283,8 +3264,7 @@ function executeMove(color, tokIdx){
     var dest = getWorldForStep(color, tok.step);
     var isFinal = (stepsLeft === 0);
 
-    pathPointsWalked.push(dest);
-    update3DLaserTrail(pathPointsWalked, PLAYER_COLORS_HEX[color] || 0xffffff, isFinal);
+    spawn3DSonarPulse(dest.x, dest.z, PLAYER_COLORS_HEX[color] || 0xffffff, isFinal);
 
     if(mesh){
       var hop = isFinal ? HOP_H * 2.0 : HOP_H;

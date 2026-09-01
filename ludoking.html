@@ -598,16 +598,35 @@ body.theme-light .hdr-tools-capsule {
 /* 🏁 End Match Button (3D Emerald Green Arcade Button) */
 .hdr-tools-capsule button#btn-end-match-now,
 .hdr-btn-end {
-  background: linear-gradient(180deg, #10b981 0%, #059669 100%) !important;
+  background: linear-gradient(180deg, #10b981 0%, #047857 100%) !important;
   color: #ffffff !important;
   border: 1.5px solid #34d399 !important;
-  border-bottom: 3.5px solid #047857 !important;
+  border-bottom: 3.5px solid #065f46 !important;
   box-shadow: 0 3px 8px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
 }
 .hdr-tools-capsule button#btn-end-match-now:hover,
 .hdr-btn-end:hover {
   box-shadow: 0 5px 12px rgba(16, 185, 129, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+/* 🤖 Auto-Play Button (3D Emerald/Amber Arcade Button) */
+.hdr-tools-capsule button#btn-autoplay-toggle,
+.hdr-btn-autoplay {
+  background: linear-gradient(180deg, #10b981 0%, #047857 100%) !important;
+  color: #ffffff !important;
+  border: 1.5px solid #34d399 !important;
+  border-bottom: 3.5px solid #065f46 !important;
+  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+.hdr-tools-capsule button#btn-autoplay-toggle:hover,
+.hdr-btn-autoplay:hover {
+  box-shadow: 0 5px 12px rgba(16, 185, 129, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+.hdr-btn-autoplay.active {
+  background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%) !important;
+  border: 1.5px solid #fbbf24 !important;
+  border-bottom: 3.5px solid #78350f !important;
 }
 .hud-title-box {
   display: flex; align-items: center; gap: 8px;
@@ -1281,6 +1300,10 @@ body.theme-light .hdr-btn-speed {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
           <span id="speed-label">1x Speed</span>
         </button>
+        <button class="hdr-btn hdr-btn-autoplay" id="btn-autoplay-toggle" title="Toggle Auto-Play (Hands-Free All Players)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
+          <span id="autoplay-label">Auto-Play OFF</span>
+        </button>
         <button class="hdr-btn hdr-btn-dev" id="btn-open-dev-tools" title="Open Developer Test Suite">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31L4.75 20.5a2 2 0 0 0 1.7 3h11.1a2 2 0 0 0 1.7-3L14 9.31V2"></path><path d="M8.5 2h7"></path><path d="M14 9.3a6.5 6.5 0 0 0-4 0"></path></svg>
           <span>Dev Tools</span>
@@ -1758,6 +1781,8 @@ body.theme-light .hdr-btn-speed {
           <button class="btn btn-primary" id="btn-test-stack-7" style="padding:10px 2px; font-size:12px; background:#06b6d4; color:#ffffff; border:none; font-weight:700;">♟️ 7 Pieces</button>
         </div>
         <button class="btn btn-primary" id="btn-test-stack-cycle" style="padding:11px; font-size:13px; background:linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4); color:#ffffff; border:none; font-weight:700;">🔄 Cycle 5 ➔ 6 ➔ 7 Stack Views</button>
+        <div style="margin-top:6px; border-top:1px solid rgba(255,255,255,0.15); padding-top:10px; font-size:12px; font-weight:800; color:var(--text); letter-spacing:0.5px;">🤖 HANDS-FREE AUTOMATION</div>
+        <button class="btn btn-primary" id="btn-test-autoplay-modal" style="padding:11px; font-size:13px; background:linear-gradient(135deg, #10b981, #059669); color:#ffffff; border:none; font-weight:700;">🤖 Toggle Auto-Play (Hands-Free All Turns)</button>
       </div>
       <button class="btn btn-ghost" id="btn-close-dev-test" style="width:100%; margin-top:16px; padding:10px;">Close Dev Tools</button>
     </div>
@@ -2943,6 +2968,10 @@ function generateSmartRoll(color) {
   }
   return 6;
 }
+function getSpeedDelay(baseMs){
+  var mult = window.gameSpeedMultiplier || 1;
+  return Math.max(15, Math.round(baseMs / mult));
+}
 function rollDice(){
   if(gameState.hasRolled || gameState.isMoving || gameState.gameOver || gameState.isRolling) return;
   var active = getCurrentPlayer();
@@ -2981,14 +3010,14 @@ function rollDice(){
       if(gameState.consecutiveSixes >= 3){
         updateStatus("Three 6s! Turn forfeited ⚠️");
         gameState.consecutiveSixes = 0;
-        setTimeout(passTurn, 1000);
+        setTimeout(passTurn, getSpeedDelay(1000));
         return;
       }
     } else {
       gameState.consecutiveSixes = 0;
     }
     processTurnAfterRoll();
-  }, 600);
+  }, getSpeedDelay(600));
 }
 function isValidMove(color, tokIdx, roll){
   var tok = gameState.tokens[color][tokIdx];
@@ -3011,15 +3040,16 @@ function getFirstValidTokenIndex(color, roll){
 function processTurnAfterRoll(){
   var player = getCurrentPlayer();
   var validMoves = getValidMoveCount(player, gameState.diceValue);
+  var isAI = (gameState.mode === 'ai' && player !== gameState.humanColor) || gameState.autoPlayAll;
   if(validMoves === 0){
     updateStatus("No valid moves for " + capitalize(player) + ".");
-    setTimeout(passTurn, 850);
+    setTimeout(passTurn, getSpeedDelay(850));
   } else if(validMoves === 1){
     var singleIdx = getFirstValidTokenIndex(player, gameState.diceValue);
-    setTimeout(function(){ executeMove(player, singleIdx); }, 400);
+    setTimeout(function(){ executeMove(player, singleIdx); }, getSpeedDelay(400));
   } else {
-    if(gameState.mode === 'ai' && player !== 'red'){
-      setTimeout(function(){ executeAIMove(player, gameState.diceValue); }, 500);
+    if(isAI){
+      setTimeout(function(){ executeAIMove(player, gameState.diceValue); }, getSpeedDelay(500));
     } else {
       updateStatus(capitalize(player) + " rolled a " + gameState.diceValue + "! Tap a glowing 3D pawn.");
     }
@@ -3233,7 +3263,7 @@ function executeMove(color, tokIdx){
   }
   /* ── Normal move: hop cell-by-cell with smooth lerp ── */
   var stepsLeft = roll;
-  var STEP_DUR  = 260;   /* ms per cell */
+  var currentStepDur = Math.max(15, Math.round(260 / (window.gameSpeedMultiplier || 1))); /* dynamic ms per cell */
   var HOP_H     = 0.20;
   function doNextStep(){
     if(stepsLeft <= 0){
@@ -3249,9 +3279,9 @@ function executeMove(color, tokIdx){
     trigger3DTileBounce(getStepCoord(color, tok.step), PLAYER_COLORS_HEX[color] || 0xffffff, isFinal);
     if(mesh){
       var hop = isFinal ? HOP_H * 2.0 : HOP_H;
-      animatePieceTo(mesh, dest.x, dest.y, dest.z, STEP_DUR, hop, doNextStep);
+      animatePieceTo(mesh, dest.x, dest.y, dest.z, currentStepDur, hop, doNextStep);
     } else {
-      setTimeout(doNextStep, STEP_DUR);
+      setTimeout(doNextStep, currentStepDur);
     }
   }
   doNextStep();
@@ -3335,7 +3365,7 @@ function postMoveCheck(color, tokIdx, wasSpawn){
     }
     updateStatus("🏆 " + capitalize(color) + " HAS COMPLETED ALL PAWNS!");
     // If playing Vs Computer and the human player has finished all pawns
-    if(gameState.mode === 'ai' && color === gameState.humanColor){
+    if(gameState.mode === 'ai' && color === gameState.humanColor && !gameState.autoPlayAll){
       var rankIdx = gameState.winners.indexOf(gameState.humanColor);
       var rankNum = rankIdx + 1;
       var rankSuffix = (rankNum === 1 ? '1st' : (rankNum === 2 ? '2nd' : (rankNum === 3 ? '3rd' : rankNum + 'th')));
@@ -3362,8 +3392,9 @@ function postMoveCheck(color, tokIdx, wasSpawn){
   if(extraRoll && !gameState.gameOver){
     gameState.hasRolled = false;
     updateStatus(capitalize(color) + " gets a Bonus Roll! 🎲");
-    if(gameState.mode === 'ai' && color !== gameState.humanColor){
-      setTimeout(rollDice, 600);
+    var isAI = (gameState.mode === 'ai' && color !== gameState.humanColor) || gameState.autoPlayAll;
+    if(isAI){
+      setTimeout(rollDice, getSpeedDelay(600));
     }
   } else if(!gameState.gameOver) {
     passTurn();
@@ -3383,8 +3414,9 @@ function passTurn(){
   } while(gameState.winners.indexOf(getCurrentPlayer()) !== -1 && !gameState.gameOver);
   updateTurnDisplay();
   var nextPlayer = getCurrentPlayer();
-  if(gameState.mode === 'ai' && nextPlayer !== gameState.humanColor && !gameState.gameOver){
-    setTimeout(rollDice, 600);
+  var isAI = (gameState.mode === 'ai' && nextPlayer !== gameState.humanColor) || gameState.autoPlayAll;
+  if(isAI && !gameState.gameOver){
+    setTimeout(rollDice, getSpeedDelay(600));
   }
 }
 /* Smart Tactical AI */
@@ -4245,32 +4277,107 @@ function bindEvents(){
       stackCycleCount = (stackCycleCount === 5) ? 6 : (stackCycleCount === 6 ? 7 : 5);
     });
   }
+  function toggleAutoPlay(forceState){
+    if(typeof forceState === 'boolean'){
+      gameState.autoPlayAll = forceState;
+    } else {
+      gameState.autoPlayAll = !gameState.autoPlayAll;
+    }
+    var state = gameState.autoPlayAll;
+    var modalBtn = document.getElementById('btn-test-autoplay-modal');
+    var hdrBtn = document.getElementById('btn-autoplay-toggle');
+    var label = document.getElementById('autoplay-label');
+
+    if(modalBtn){
+      modalBtn.textContent = state ? '🤖 Auto-Play: ON (Hands-Free Active)' : '🤖 Toggle Auto-Play (Hands-Free All Turns)';
+      modalBtn.style.background = state ? 'linear-gradient(135deg, #f59e0b, #b45309)' : 'linear-gradient(135deg, #10b981, #059669)';
+    }
+    if(hdrBtn){
+      if(state) hdrBtn.classList.add('active');
+      else hdrBtn.classList.remove('active');
+    }
+    if(label){
+      label.textContent = state ? 'Auto-Play ON' : 'Auto-Play OFF';
+    }
+    updateStatus(state ? "🤖 Hands-Free Auto-Play ENABLED! AI plays all turns automatically." : "👤 Auto-Play DISABLED. Manual player control restored.");
+
+    if(state && !gameState.gameOver && !gameState.isMoving){
+      var player = getCurrentPlayer();
+      if(!gameState.hasRolled){
+        setTimeout(rollDice, getSpeedDelay(300));
+      } else {
+        processTurnAfterRoll();
+      }
+    }
+  }
+
+  var btnAutoPlayHdr = document.getElementById('btn-autoplay-toggle');
+  if(btnAutoPlayHdr){
+    btnAutoPlayHdr.addEventListener('click', function(){ toggleAutoPlay(); });
+  }
+  var btnAutoPlayModal = document.getElementById('btn-test-autoplay-modal');
+  if(btnAutoPlayModal){
+    btnAutoPlayModal.addEventListener('click', function(){
+      document.getElementById('dev-test-modal').classList.add('hidden');
+      toggleAutoPlay();
+    });
+  }
+
   var speedBtn = document.getElementById('btn-speed-toggle');
   var speedLabel = document.getElementById('speed-label');
   if(speedBtn){
     speedBtn.addEventListener('click', function(){
-      if(!window.gameSpeedMultiplier || window.gameSpeedMultiplier === 1){
-        window.gameSpeedMultiplier = 2;
-        if(speedLabel) speedLabel.textContent = '2x Speed';
-        speedBtn.style.setProperty('background', 'linear-gradient(180deg, #f59e0b 0%, #b45309 100%)', 'important');
-        speedBtn.style.setProperty('color', '#ffffff', 'important');
-        speedBtn.style.setProperty('border-color', '#fbbf24', 'important');
-        speedBtn.style.setProperty('border-bottom', '3.5px solid #78350f', 'important');
-      } else if(window.gameSpeedMultiplier === 2){
-        window.gameSpeedMultiplier = 3;
-        if(speedLabel) speedLabel.textContent = '3x Speed';
-        speedBtn.style.setProperty('background', 'linear-gradient(180deg, #ef4444 0%, #b91c1c 100%)', 'important');
-        speedBtn.style.setProperty('color', '#ffffff', 'important');
-        speedBtn.style.setProperty('border-color', '#fca5a5', 'important');
-        speedBtn.style.setProperty('border-bottom', '3.5px solid #7f1d1d', 'important');
+      var currentSpeed = window.gameSpeedMultiplier || 1;
+      var nextSpeed = 1;
+      var labelText = '1x Speed';
+      var bgStyle = 'linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%)';
+      var borderCol = '#60a5fa';
+      var borderBtm = '3.5px solid #1e40af';
+
+      if(currentSpeed === 1){
+        nextSpeed = 2;
+        labelText = '2x Speed';
+        bgStyle = 'linear-gradient(180deg, #f59e0b 0%, #b45309 100%)';
+        borderCol = '#fbbf24';
+        borderBtm = '3.5px solid #78350f';
+      } else if(currentSpeed === 2){
+        nextSpeed = 3;
+        labelText = '3x Speed';
+        bgStyle = 'linear-gradient(180deg, #ef4444 0%, #b91c1c 100%)';
+        borderCol = '#fca5a5';
+        borderBtm = '3.5px solid #7f1d1d';
+      } else if(currentSpeed === 3){
+        nextSpeed = 5;
+        labelText = '5x Speed ⚡';
+        bgStyle = 'linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%)';
+        borderCol = '#c084fc';
+        borderBtm = '3.5px solid #4c1d95';
+      } else if(currentSpeed === 5){
+        nextSpeed = 10;
+        labelText = '10x Speed 🚀';
+        bgStyle = 'linear-gradient(180deg, #ec4899 0%, #be185d 100%)';
+        borderCol = '#f472b6';
+        borderBtm = '3.5px solid #831843';
+      } else if(currentSpeed === 10){
+        nextSpeed = 20;
+        labelText = '20x MAX ⚡';
+        bgStyle = 'linear-gradient(180deg, #06b6d4 0%, #0e7490 100%)';
+        borderCol = '#67e8f9';
+        borderBtm = '3.5px solid #155e75';
       } else {
-        window.gameSpeedMultiplier = 1;
-        if(speedLabel) speedLabel.textContent = '1x Speed';
-        speedBtn.style.setProperty('background', 'linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%)', 'important');
-        speedBtn.style.setProperty('color', '#ffffff', 'important');
-        speedBtn.style.setProperty('border-color', '#60a5fa', 'important');
-        speedBtn.style.setProperty('border-bottom', '3.5px solid #1e40af', 'important');
+        nextSpeed = 1;
+        labelText = '1x Speed';
+        bgStyle = 'linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%)';
+        borderCol = '#60a5fa';
+        borderBtm = '3.5px solid #1e40af';
       }
+
+      window.gameSpeedMultiplier = nextSpeed;
+      if(speedLabel) speedLabel.textContent = labelText;
+      speedBtn.style.setProperty('background', bgStyle, 'important');
+      speedBtn.style.setProperty('color', '#ffffff', 'important');
+      speedBtn.style.setProperty('border-color', borderCol, 'important');
+      speedBtn.style.setProperty('border-bottom', borderBtm, 'important');
       updateStatus("Game Speed set to " + window.gameSpeedMultiplier + "x ⚡");
     });
   }

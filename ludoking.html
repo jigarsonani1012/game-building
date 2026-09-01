@@ -23,7 +23,6 @@
   --radius-m: 14px;
   --radius-l: 22px;
   --radius-full: 9999px;
-
   /* Dark Theme (Black) */
   --bg: #000000;
   --panel-bg: rgba(0, 0, 0, 0.85);
@@ -37,13 +36,11 @@
   --accent: #ffffff;
   --accent2: #e5e5e5;
   --accent-glow: rgba(255, 255, 255, 0.3);
-
   --red: #ef4444;
   --green: #10b981;
   --yellow: #eab308;
   --blue: #3b82f6;
 }
-
 body.theme-light {
   /* Light Theme */
   --bg: #f1f5f9;
@@ -58,32 +55,27 @@ body.theme-light {
   --accent: #0f172a;
   --accent2: #1e293b;
   --accent-glow: rgba(0, 0, 0, 0.15);
-
   --red: #dc2626;
   --green: #059669;
   --yellow: #eab308;
   --blue: #2563eb;
 }
-
 *, *::before, *::after {
   margin: 0; padding: 0; box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
-
 html, body {
   width: 100%; height: 100%; overflow: hidden;
   font-family: var(--font-main);
   background: var(--bg);
   color: var(--text);
 }
-
 #app {
   position: fixed; inset: 0;
   display: flex; flex-direction: column;
   overflow: hidden;
 }
-
 /* ==================================================
    2. 3D CANVAS & BACKGROUND
    ================================================== */
@@ -103,7 +95,6 @@ html, body {
   width: 100%; height: 100%;
   display: block;
 }
-
 /* ==================================================
    3. SCREEN SYSTEM & MENUS
    ================================================== */
@@ -136,7 +127,6 @@ html, body {
   width: min(440px, 100%);
   margin: auto 0;
 }
-
 #splash {
   background: var(--bg);
   z-index: 100;
@@ -158,12 +148,10 @@ body.theme-light .brand-title {
   color: #000000;
   text-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
 }
-
 .brand-sub {
   color: var(--text-dim); font-size: 13px;
   letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700;
 }
-
 .panel {
   width: 100%;
   background: var(--panel-bg);
@@ -181,7 +169,6 @@ body.theme-light .panel {
   text-transform: uppercase; color: var(--text-dim);
   text-align: center; margin-bottom: 12px; font-weight: 700;
 }
-
 /* ==================================================
    4. BUTTONS & CHIPS
    ================================================== */
@@ -250,12 +237,10 @@ body.theme-light .btn-ghost:hover {
   background: var(--surface-hover); border-color: var(--border-active);
 }
 .icon-btn svg { width: 18px; height: 18px; }
-
 .menu-btn-list { display: flex; flex-direction: column; gap: 10px; }
 .option-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .option-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
 .option-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
-
 .choice-chip {
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   padding: 12px 10px; border-radius: var(--radius-m);
@@ -290,7 +275,6 @@ body.theme-dark .choice-chip.active .chip-sub {
 .choice-chip .chip-sub {
   font-size: 10.5px; color: var(--text-dim); font-weight: 600;
 }
-
 /* ==================================================
    4b. PREFERENCES & SETTINGS UI
    ================================================== */
@@ -316,7 +300,6 @@ body.theme-light .settings-title { text-shadow: none; }
   font-size: 11.5px; color: var(--text-dim); font-weight: 600;
   letter-spacing: 0.02em;
 }
-
 /* Theme Cards Grid */
 .theme-card-grid {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
@@ -372,7 +355,6 @@ body.theme-light .theme-card .theme-icon {
 .theme-card.active .active-badge {
   opacity: 1; transform: scale(1);
 }
-
 /* Settings Row Card */
 .setting-row-card {
   display: flex; align-items: center; justify-content: space-between;
@@ -409,7 +391,6 @@ body.theme-light .setting-row-icon {
 .setting-row-sub {
   font-size: 11px; color: var(--text-dim); font-weight: 500;
 }
-
 /* Modern Toggle Switch */
 .toggle-control-group {
   display: flex; align-items: center; gap: 10px; flex-shrink: 0;
@@ -453,7 +434,6 @@ body.theme-light .toggle-knob {
 body.theme-light .toggle-switch.active .toggle-knob {
   background: #ffffff;
 }
-
 /* Floating Input Labels */
 .floating-group {
   position: relative;
@@ -483,7 +463,6 @@ body.theme-light .toggle-switch.active .toggle-knob {
 .name-input:not(:focus):not(:placeholder-shown) ~ .floating-label {
   color: var(--text-dim);
 }
-
 /* Color Checkbox Names */
 .color-toggle-group {
   display: flex; align-items: center; gap: 12px;
@@ -510,19 +489,15 @@ body.theme-light .toggle-switch.active .toggle-knob {
 }
 .color-checkbox.checked { background: var(--green); border-color: transparent; }
 .color-checkbox.checked svg { opacity: 1; transform: scale(1); }
-
 .pawn-icon {
   width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; cursor: pointer;
 }
 .pawn-icon svg { width: 22px; height: 22px; }
-
 .color-toggle-group[data-color="red"] .name-input:focus { border-color: var(--red); }
 .color-toggle-group[data-color="green"] .name-input:focus { border-color: var(--green); }
 .color-toggle-group[data-color="yellow"] .name-input:focus { border-color: var(--yellow); }
 .color-toggle-group[data-color="blue"] .name-input:focus { border-color: var(--blue); }
-
-
 /* ==================================================
    5. GAME SCREEN & 3D HUD
    ================================================== */
@@ -542,13 +517,104 @@ body.theme-light .toggle-switch.active .toggle-knob {
   z-index: 20; pointer-events: auto;
   box-sizing: border-box;
 }
+/* Real Mobile Game Header Tools Capsule */
+.hdr-tools-capsule {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+body.theme-light .hdr-tools-capsule {
+  background: rgba(241, 245, 249, 0.95);
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+/* 3D Game Buttons */
+.hdr-tools-capsule button.hdr-btn,
+.hdr-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  height: 30px !important;
+  padding: 0 12px !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  font-family: var(--font-display) !important;
+  letter-spacing: 0.5px !important;
+  border-radius: 8px !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  text-transform: uppercase !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+}
+.hdr-tools-capsule button.hdr-btn:hover,
+.hdr-btn:hover {
+  transform: translateY(-1.5px) !important;
+}
+.hdr-tools-capsule button.hdr-btn:active,
+.hdr-btn:active {
+  transform: translateY(1.5px) !important;
+  border-bottom-width: 1px !important;
+}
+/* ⚡ Speed Button (3D Blue Arcade Button) */
+.hdr-tools-capsule button#btn-speed-toggle,
+.hdr-btn-speed {
+  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+  border: 1.5px solid #60a5fa !important;
+  border-bottom: 3.5px solid #1e40af !important;
+  box-shadow: 0 3px 8px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+.hdr-tools-capsule button#btn-speed-toggle:hover,
+.hdr-btn-speed:hover {
+  box-shadow: 0 5px 12px rgba(59, 130, 246, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+/* 🧪 Dev Tools Button (3D Royal Violet Arcade Button) */
+.hdr-tools-capsule button#btn-open-dev-tools,
+.hdr-btn-dev {
+  background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%) !important;
+  color: #ffffff !important;
+  border: 1.5px solid #a78bfa !important;
+  border-bottom: 3.5px solid #4c1d95 !important;
+  box-shadow: 0 3px 8px rgba(139, 92, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+.hdr-tools-capsule button#btn-open-dev-tools:hover,
+.hdr-btn-dev:hover {
+  box-shadow: 0 5px 12px rgba(139, 92, 246, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+/* 🏁 End Match Button (3D Emerald Green Arcade Button) */
+.hdr-tools-capsule button#btn-end-match-now,
+.hdr-btn-end {
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%) !important;
+  color: #ffffff !important;
+  border: 1.5px solid #34d399 !important;
+  border-bottom: 3.5px solid #047857 !important;
+  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+.hdr-tools-capsule button#btn-end-match-now:hover,
+.hdr-btn-end:hover {
+  box-shadow: 0 5px 12px rgba(16, 185, 129, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
 .hud-title-box {
   display: flex; align-items: center; gap: 8px;
   font-family: var(--font-display); font-weight: 800; font-size: 14px;
   color: var(--text);
 }
 .hud-actions { display: flex; align-items: center; gap: 6px; }
-
 #hamburger-dropdown {
   background: var(--panel-bg);
   border: 1px solid var(--border);
@@ -577,7 +643,6 @@ body.theme-dark #hamburger-dropdown .btn-ghost:hover {
   background: #1e293b !important;
   color: #ffffff !important;
 }
-
 .board-corner-panel {
   position: absolute;
   display: flex;
@@ -595,19 +660,16 @@ body.theme-dark #hamburger-dropdown .btn-ghost:hover {
   right: auto !important;
   pointer-events: auto;
 }
-
 #board-corner-panel-top .corner-dice-ui {
   border-bottom: none !important;
   border-radius: 6px 6px 0 0 !important;
   box-shadow: 0 -4px 10px rgba(0,0,0,0.3);
 }
-
 #board-corner-panel-bottom .corner-dice-ui {
   border-top: none !important;
   border-radius: 0 0 6px 6px !important;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
-
 /* 4 Corner Player Cards (Match Ludo King Board Slab Material) */
 .player-corner,
 .corner-dice-ui {
@@ -622,27 +684,22 @@ body.theme-dark #hamburger-dropdown .btn-ghost:hover {
   overflow: visible;
   opacity: 1;
 }
-
 body.theme-light .player-corner,
 body.theme-light .corner-dice-ui {
   background: #ffffff !important;
   border-color: #cbd5e1;
 }
-
 .player-corner.active,
 .corner-dice-ui.active {
   box-shadow: 0 0 16px rgba(59, 130, 246, 0.5);
 }
-
 .player-corner > .avatar-area,
 .corner-dice-ui > .avatar-area {
   border-radius: 4px 0 0 4px;
 }
-
 .corner-dice-ui[style*="row-reverse"] > .avatar-area {
   border-radius: 0 4px 4px 0;
 }
-
 .avatar-area {
   background: #0f172a;
   padding: 8px 12px;
@@ -656,7 +713,6 @@ body.theme-dark .avatar-area {
   background: #0f172a;
 }
 .pin-icon { width: 24px; height: 24px; transition: fill 0.4s var(--ease); }
-
 /* 3D Dice Corner Roller */
 .dice-box {
   width: 44px; height: 44px;
@@ -671,7 +727,6 @@ body.theme-dark .avatar-area {
   transform-style: preserve-3d;
   transition: transform 0.6s var(--ease-bounce);
 }
-
 /* Black Dice Faces in Dark Mode */
 .dice-face {
   position: absolute; width: 36px; height: 36px;
@@ -685,35 +740,29 @@ body.theme-dark .avatar-area {
   -webkit-backface-visibility: hidden;
   overflow: hidden;
 }
-
 .dice-face-svg {
   width: 100%; height: 100%;
   display: block; overflow: visible;
 }
-
 .dice-pip {
   fill: #ffffff;
   filter: drop-shadow(0px 0px 1px rgba(255,255,255,0.7));
 }
-
 body.theme-light .dice-face {
   background: #ffffff;
   border-color: #cbd5e1;
   box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
 }
-
 body.theme-light .dice-pip {
   fill: #0f172a;
   filter: drop-shadow(0px 0px 1px rgba(15,23,42,0.3));
 }
-
 .dice-face-1 { transform: rotateY(0deg) translateZ(17.8px); }
 .dice-face-2 { transform: rotateY(90deg) translateZ(17.8px); }
 .dice-face-3 { transform: rotateX(90deg) translateZ(17.8px); }
 .dice-face-4 { transform: rotateX(-90deg) translateZ(17.8px); }
 .dice-face-5 { transform: rotateY(-90deg) translateZ(17.8px); }
 .dice-face-6 { transform: rotateY(180deg) translateZ(17.8px); }
-
 .dice-rolling {
   animation: diceRollAnim 0.6s cubic-bezier(0.2, 0.8, 0.4, 1);
 }
@@ -723,7 +772,6 @@ body.theme-light .dice-pip {
   70% { transform: rotateX(720deg) rotateY(540deg) scale(1.1); }
   100% { transform: rotateX(1080deg) rotateY(720deg) scale(1); }
 }
-
 /* Toast Notification Popup */
 #game-status-bar {
   position: absolute;
@@ -762,7 +810,6 @@ body.theme-light #game-status-bar {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
-
 /* ==================================================
    6. MODAL WINDOWS & WINNER PODIUM
    ================================================== */
@@ -791,7 +838,6 @@ body.theme-light #game-status-bar {
   transition: transform var(--dur-med) var(--ease-bounce);
 }
 .modal-backdrop.hidden .modal-card { transform: scale(0.92); }
-
 .modal-icon {
   width: 64px; height: 64px; margin: 0 auto 16px;
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -801,9 +847,7 @@ body.theme-light #game-status-bar {
 }
 .modal-title { font-family: var(--font-display); font-size: 24px; font-weight: 900; margin-bottom: 6px; }
 .modal-sub { color: var(--text-dim); font-size: 13.5px; line-height: 1.5; margin-bottom: 20px; }
-
 .podium-list { display: flex; flex-direction: column; gap: 8px; margin: 14px 0 22px; }
-
 /* ==================================================
    6b. EPIC VICTORY CELEBRATION & PODIUM STYLING
    ================================================== */
@@ -821,7 +865,6 @@ body.theme-light #game-status-bar {
   25% { opacity: 1; transform: scale(1); }
   100% { opacity: 0; transform: scale(1.05); }
 }
-
 .modal-card {
   position: relative; overflow: hidden;
   width: 90%; max-width: 440px;
@@ -834,7 +877,6 @@ body.theme-light #game-status-bar {
   box-shadow: var(--shadow-l);
   max-height: 90vh; overflow-y: auto;
 }
-
 .victory-sunburst {
   position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
   background: conic-gradient(
@@ -871,11 +913,7 @@ body.theme-light #game-status-bar {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-
 .modal-card > * { position: relative; z-index: 1; }
-
-
-
 .modal-icon {
   width: 76px; height: 76px; margin: 0 auto 18px;
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -888,7 +926,6 @@ body.theme-light #game-status-bar {
   0% { transform: translateY(0) scale(1); box-shadow: 0 0 25px rgba(245, 158, 11, 0.4), inset 0 0 15px rgba(251, 191, 36, 0.2); }
   100% { transform: translateY(-5px) scale(1.06); box-shadow: 0 0 45px rgba(245, 158, 11, 0.8), inset 0 0 25px rgba(251, 191, 36, 0.4); }
 }
-
 .podium-item {
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 16px; border-radius: var(--radius-m);
@@ -901,7 +938,6 @@ body.theme-light #game-status-bar {
 .podium-item:nth-child(2) { animation-delay: 0.2s; }
 .podium-item:nth-child(3) { animation-delay: 0.3s; }
 .podium-item:nth-child(4) { animation-delay: 0.4s; }
-
 /* Dark Theme Podium Styling */
 body.theme-dark .podium-item.first,
 .podium-item.first {
@@ -927,7 +963,6 @@ body.theme-dark .podium-item.third,
   box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
   font-size: 14px; font-weight: 800;
 }
-
 /* Light Theme Podium Styling — Maximum Legibility & Rich Aesthetics */
 body.theme-light .podium-item.first {
   background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 60%, #fde68a 100%);
@@ -950,12 +985,10 @@ body.theme-light .podium-item.third {
   box-shadow: 0 4px 16px rgba(234, 88, 12, 0.2);
   font-size: 14px; font-weight: 800;
 }
-
 @keyframes podiumSlideIn {
   0% { opacity: 0; transform: translateY(16px) scale(0.96); }
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
-
 @media (max-width: 440px) {
   .player-corner { padding: 4px 8px; gap: 6px; }
   .corner-red { bottom: 56px; left: 10px; }
@@ -964,13 +997,91 @@ body.theme-light .podium-item.third {
   .corner-blue { bottom: 56px; right: 10px; }
   .player-name { max-width: 50px; font-size: 11px; }
 }
+/* Header Button Bar Utilities (True 3D Gaming Buttons) */
+.hdr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 13px;
+  font-size: 11.5px;
+  font-weight: 800;
+  font-family: var(--font-display);
+  letter-spacing: 0.4px;
+  border-radius: 10px;
+  white-space: nowrap;
+  line-height: 1;
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  text-transform: uppercase;
+}
+.hdr-btn:hover {
+  transform: translateY(-2px);
+}
+.hdr-btn:active {
+  transform: translateY(2px) !important;
+}
+/* 🏁 End Match Button (3D Emerald Game Button) */
+.hdr-btn-end {
+  background: linear-gradient(to bottom, #34d399, #10b981 60%, #059669);
+  color: #ffffff !important;
+  border: 1px solid #6ee7b7;
+  border-bottom: 3.5px solid #047857;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.hdr-btn-end:hover {
+  box-shadow: 0 6px 14px rgba(16, 185, 129, 0.5);
+}
+.hdr-btn-end:active {
+  border-bottom-width: 1px;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+/* ⚡ Speed Button (3D Theme-Adaptive Game Button) */
+.hdr-btn-speed {
+  background: linear-gradient(to bottom, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+  color: var(--text) !important;
+  border: 1px solid var(--border-active);
+  border-bottom: 3.5px solid var(--border);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+body.theme-light .hdr-btn-speed {
+  background: linear-gradient(to bottom, #ffffff, #e2e8f0);
+  border: 1px solid #cbd5e1;
+  border-bottom: 3.5px solid #94a3b8;
+  color: #0f172a !important;
+  text-shadow: none;
+}
+.hdr-btn-speed:hover {
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+.hdr-btn-speed:active {
+  border-bottom-width: 1px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+/* 🧪 Dev Tools Button (3D Violet Purple Game Button) */
+.hdr-btn-dev {
+  background: linear-gradient(to bottom, #a78bfa, #8b5cf6 60%, #6d28d9);
+  color: #ffffff !important;
+  border: 1px solid #c4b5fd;
+  border-bottom: 3.5px solid #4c1d95;
+  box-shadow: 0 4px 10px rgba(139, 92, 246, 0.35);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.hdr-btn-dev:hover {
+  box-shadow: 0 6px 14px rgba(139, 92, 246, 0.5);
+}
+.hdr-btn-dev:active {
+  border-bottom-width: 1px;
+  box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);
+}
 </style>
 </head>
 <body class="theme-dark">
-
 <div id="app">
-
-
   <!-- ==================================================
        2. SPLASH SCREEN
        ================================================== -->
@@ -980,7 +1091,6 @@ body.theme-light .podium-item.third {
       <div class="brand-sub">The Royal 3D Experience</div>
     </div>
   </div>
-
   <!-- ==================================================
        3. MAIN MENU SCREEN
        ================================================== -->
@@ -990,7 +1100,6 @@ body.theme-light .podium-item.third {
         <div class="brand-title">LUDO KING</div>
         <div class="brand-sub">Roll • Capture • Conquer</div>
       </div>
-
       <div class="panel menu-btn-list">
         <button class="btn btn-primary" id="btn-menu-play">Play Game</button>
         <button class="btn" id="btn-menu-rules">How to Play</button>
@@ -999,7 +1108,6 @@ body.theme-light .podium-item.third {
       </div>
     </div>
   </div>
-
   <!-- ==================================================
        4. MODE SELECT SCREEN
        ================================================== -->
@@ -1017,7 +1125,6 @@ body.theme-light .podium-item.third {
           </button>
         </div>
       </div>
-
       <!-- Step 2: Configuration Panel -->
       <div class="panel hidden" id="config-panel" style="display:flex; flex-direction:column; gap:16px;">
         <div>
@@ -1028,7 +1135,6 @@ body.theme-light .podium-item.third {
             <div class="choice-chip" id="chip-count-4">4 Players</div>
           </div>
         </div>
-
         <div>
           <div class="eyebrow" style="text-align:left; margin-bottom:8px;">Rule Type</div>
           <div class="option-grid">
@@ -1042,7 +1148,6 @@ body.theme-light .podium-item.third {
             </div>
           </div>
         </div>
-
         <div id="color-select-panel">
           <div class="eyebrow" style="text-align:left; margin-bottom:8px;">Starting Color</div>
           <div class="option-grid cols-4">
@@ -1084,7 +1189,6 @@ body.theme-light .podium-item.third {
             </div>
           </div>
         </div>
-
         <div id="local-names-panel" class="hidden">
           <div class="eyebrow" style="text-align:left; margin-bottom:8px;">Player Names</div>
           <div id="players-list-container" style="display:flex; flex-direction:column; gap:10px;">
@@ -1161,29 +1265,34 @@ body.theme-light .podium-item.third {
           </div>
           <div id="name-error" style="color: var(--red); font-size: 12px; font-weight: 600; text-align: center; margin-top: 6px; display: none;">Names must be 2-10 characters.</div>
         </div>
-
         <button class="btn btn-primary" id="btn-start-game" style="margin-top:6px;">Start Match</button>
       </div>
-
       <button class="btn btn-ghost" id="btn-mode-back" style="width:auto; padding:8px 24px;">Back</button>
     </div>
   </div>
-
   <!-- ==================================================
        5. GAME HUD (Overlays 3D Canvas)
        ================================================== -->
   <div id="game-screen" class="screen hidden">
     <!-- Header (Top Row) -->
     <div id="game-header">
-      <div style="display:flex; align-items:center; gap:6px;">
-        <button class="btn btn-primary" id="btn-end-match-now" style="display:none; padding:6px 12px; font-size:12px; font-weight:800; border-radius: var(--radius-full); box-shadow: 0 4px 14px var(--accent-glow);">🏁 End Match</button>
-        <button class="btn btn-primary" id="btn-open-dev-tools" style="padding:5px 12px; font-size:11.5px; font-weight:800; border-radius: var(--radius-full); background:#8b5cf6; color:#ffffff; border:none; cursor:pointer;" title="Open Developer Test Suite">🧪 Dev Tools</button>
+      <div class="hdr-tools-capsule">
+        <button class="hdr-btn hdr-btn-speed" id="btn-speed-toggle" title="Toggle AI Game Speed">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          <span id="speed-label">1x Speed</span>
+        </button>
+        <button class="hdr-btn hdr-btn-dev" id="btn-open-dev-tools" title="Open Developer Test Suite">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31L4.75 20.5a2 2 0 0 0 1.7 3h11.1a2 2 0 0 0 1.7-3L14 9.31V2"></path><path d="M8.5 2h7"></path><path d="M14 9.3a6.5 6.5 0 0 0-4 0"></path></svg>
+          <span>Dev Tools</span>
+        </button>
+        <button class="hdr-btn hdr-btn-end" id="btn-end-match-now" style="display:none;" title="End Match Now">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+          <span>End Match</span>
+        </button>
       </div>
-
       <div class="hud-title-box">
         <span id="hud-match-type">2P Classic</span>
       </div>
-
       <div class="hud-actions" style="position: relative;">
         <button class="icon-btn" id="btn-hamburger" title="Settings">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1191,7 +1300,6 @@ body.theme-light .podium-item.third {
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
         </button>
-        
         <div id="hamburger-dropdown" class="hidden" style="position:absolute; top:45px; right:0; background:var(--panel-bg); border:1px solid var(--border); border-radius:10px; padding:8px; display:flex; flex-direction:column; gap:4px; box-shadow:0 10px 30px rgba(0,0,0,0.8); z-index:100; min-width:220px;">
           <button class="btn btn-ghost" id="btn-menu-end-now" style="display:none; justify-content: flex-start; align-items:center; gap:10px; padding: 10px 15px; width:100%; cursor:pointer; color:#ef4444; font-weight:800;">
             <span>🏁</span>
@@ -1226,13 +1334,10 @@ body.theme-light .podium-item.third {
         </div>
       </div>
     </div>
-
     <!-- 3D Canvas Area (Flex 1 Below Header) -->
     <div id="canvas-container">
       <canvas id="three-canvas"></canvas>
     </div>
-
-
     <!-- Central Dice Roller -->
     <div class="player-corner active" id="central-dice-ui" style="bottom: 70px; left: 50%; transform: translateX(-50%); flex-direction: row; border-width: 3px;">
       <div class="avatar-area" id="central-avatar-area">
@@ -1248,11 +1353,9 @@ body.theme-light .podium-item.third {
         <div class="dice-cube" id="dice-cube-central"></div>
       </div>
     </div>
-
     <!-- 2D Mode Corner Dice UIs Panels -->
     <div id="board-corner-panel-top" class="board-corner-panel" style="display:none;"></div>
     <div id="board-corner-panel-bottom" class="board-corner-panel" style="display:none;"></div>
-
     <div class="corner-dice-ui" id="dice-ui-red" style="display:none;">
       <div class="avatar-area">
         <svg class="pin-icon" viewBox="0 0 24 24"><g fill="var(--red)" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="6" r="3.5" /><path d="M 10 9 C 9 14, 6 16, 6 20 C 6 21, 7 21.5, 12 21.5 C 17 21.5, 18 21, 18 20 C 18 16, 15 14, 14 9 Z" /></g></svg>
@@ -1285,13 +1388,11 @@ body.theme-light .podium-item.third {
         <div class="dice-cube" id="dice-cube-blue"></div>
       </div>
     </div>
-
     <!-- Toast Notification -->
     <div id="game-status-bar">
       <span id="status-text"></span>
     </div>
   </div>
-
   <!-- ==================================================
        6. HOW TO PLAY SCREEN
        ================================================== -->
@@ -1310,7 +1411,6 @@ body.theme-light .podium-item.third {
       .timeline-container::-webkit-scrollbar { width: 4px; }
       .timeline-container::-webkit-scrollbar-track { background: transparent; }
       .timeline-container::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 4px; }
-
       .timeline-line { 
         position: absolute; 
         left: 9px; 
@@ -1321,14 +1421,12 @@ body.theme-light .podium-item.third {
         opacity: 0.3;
         z-index: 1;
       }
-
       .timeline-item { 
         position: relative; 
         padding-bottom: 32px;
         z-index: 2;
       }
       .timeline-item:last-child { padding-bottom: 0; }
-
       .timeline-dot { 
         position: absolute; 
         left: -28px; 
@@ -1341,12 +1439,10 @@ body.theme-light .podium-item.third {
         box-shadow: 0 0 12px var(--accent-glow); 
         transition: transform 0.3s var(--ease-bounce), background 0.3s;
       }
-      
       .timeline-item:hover .timeline-dot {
         transform: scale(1.4);
         background: var(--accent);
       }
-
       .rule-content { 
         text-align: left; 
         transition: transform 0.2s var(--ease);
@@ -1354,7 +1450,6 @@ body.theme-light .podium-item.third {
       .timeline-item:hover .rule-content {
         transform: translateX(6px);
       }
-      
       .rule-title { 
         font-weight: 800; 
         color: var(--accent); 
@@ -1374,10 +1469,8 @@ body.theme-light .podium-item.third {
     <div class="menu-stack" style="max-width:520px; padding: 20px;">
       <div class="eyebrow" style="font-size: 32px; color: var(--text); font-family: var(--font-display); letter-spacing: 2px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); margin-bottom: 4px;">How to Play</div>
       <div class="eyebrow" style="margin-top: 0; margin-bottom: 12px; font-size: 13px; color: var(--text-dim); letter-spacing: 1px;">Official Rules &amp; Guide</div>
-      
       <div class="timeline-container">
         <div class="timeline-line"></div>
-        
         <!-- Rule 1 -->
         <div class="timeline-item">
           <div class="timeline-dot"></div>
@@ -1386,7 +1479,6 @@ body.theme-light .podium-item.third {
             <div class="rule-desc">Roll a <strong>6</strong> to move a pawn out of base. Move clockwise. Rolling a 6 gives an <strong>extra turn</strong>. (Three 6s in a row ends your turn).</div>
           </div>
         </div>
-
         <!-- Rule 2 -->
         <div class="timeline-item">
           <div class="timeline-dot"></div>
@@ -1395,7 +1487,6 @@ body.theme-light .podium-item.third {
             <div class="rule-desc">Land on an opponent's pawn to <strong>capture</strong> it, sending it back to base. Capturing awards you a <strong>Bonus Roll</strong>.</div>
           </div>
         </div>
-
         <!-- Rule 3 -->
         <div class="timeline-item">
           <div class="timeline-dot"></div>
@@ -1404,7 +1495,6 @@ body.theme-light .podium-item.third {
             <div class="rule-desc">Pawns on squares marked with a <strong>Star (★)</strong> are in a safe zone and cannot be captured by opponents.</div>
           </div>
         </div>
-
         <!-- Rule 4 -->
         <div class="timeline-item">
           <div class="timeline-dot"></div>
@@ -1413,7 +1503,6 @@ body.theme-light .podium-item.third {
             <div class="rule-desc">Be the first to move all 4 pawns into the center <strong>Home triangle</strong>. You must roll the <strong>exact number</strong> to enter Home.</div>
           </div>
         </div>
-        
         <!-- Rule 5 -->
         <div class="timeline-item">
           <div class="timeline-dot"></div>
@@ -1423,17 +1512,14 @@ body.theme-light .podium-item.third {
           </div>
         </div>
       </div>
-
       <button class="btn btn-primary" id="btn-rules-back" style="width:100%; max-width: 240px; margin: 32px auto 0; padding:14px; font-size: 16px; border-radius: var(--radius-full); box-shadow: 0 4px 15px var(--accent-glow); font-weight: 700;">Got It, Let's Play!</button>
     </div>
   </div>
-
   <!-- ==================================================
        7. SETTINGS SCREEN (PREFERENCES)
        ================================================== -->
   <div id="settings-screen" class="screen hidden screen-scroll">
     <div class="menu-stack" style="gap: 20px;">
-      
       <!-- Settings Header -->
       <div class="settings-header">
         <div class="settings-icon-badge">
@@ -1445,13 +1531,11 @@ body.theme-light .podium-item.third {
         <div class="settings-title">Preferences</div>
         <div class="settings-subtitle">Customize theme &amp; sound effects</div>
       </div>
-
       <div class="panel" style="display:flex; flex-direction:column; gap:20px;">
         <!-- Theme Section -->
         <div>
           <div class="eyebrow" style="text-align:left; margin-bottom:10px;">Theme</div>
           <div class="theme-card-grid">
-            
             <div class="theme-card active" data-theme="theme-dark">
               <div class="active-badge">
                 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -1462,7 +1546,6 @@ body.theme-light .podium-item.third {
               <div class="theme-name">Black</div>
               <div class="theme-sub">Dark Theme</div>
             </div>
-
             <div class="theme-card" data-theme="theme-light">
               <div class="active-badge">
                 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -1473,14 +1556,11 @@ body.theme-light .podium-item.third {
               <div class="theme-name">White</div>
               <div class="theme-sub">Light Theme</div>
             </div>
-
           </div>
         </div>
-
         <!-- Sound Section -->
         <div style="display:flex; flex-direction:column; gap:10px;">
           <div class="eyebrow" style="text-align:left; margin-bottom:2px;">Sound &amp; Effects</div>
-          
           <div class="setting-row-card" id="toggle-sound-chip" role="button" aria-label="Toggle Sound Effects">
             <div class="setting-row-info">
               <div class="setting-row-icon" id="settings-sound-icon">
@@ -1500,11 +1580,9 @@ body.theme-light .podium-item.third {
           </div>
         </div>
       </div>
-
       <button class="btn btn-primary" id="btn-settings-back" style="width:100%; max-width:220px; padding:12px 32px; font-size: 15px;">Done</button>
     </div>
   </div>
-
   <!-- ==================================================
        7b. BOT STATISTICS SCREEN (Vs Computer Records)
        ================================================== -->
@@ -1521,7 +1599,6 @@ body.theme-light .podium-item.third {
         <div class="settings-title">Statistics</div>
         <div class="settings-subtitle">Vs Computer match &amp; career statistics</div>
       </div>
-
       <div class="panel" style="display:flex; flex-direction:column; gap:14px;">
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
           <div style="background:var(--surface); padding:14px; border-radius:var(--radius-m); text-align:center;">
@@ -1533,7 +1610,6 @@ body.theme-light .podium-item.third {
             <div style="font-size:10.5px; color:var(--text-dim); text-transform:uppercase; font-weight:700; letter-spacing:0.05em; margin-top:2px;">Win Rate</div>
           </div>
         </div>
-
         <div style="display:flex; flex-direction:column; gap:8px;">
           <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:var(--surface); border-radius:var(--radius-m);">
             <span style="font-size:13px; font-weight:700;">🏆 Matches Won</span>
@@ -1548,14 +1624,11 @@ body.theme-light .podium-item.third {
             <span style="font-size:14px; font-weight:900; color:#f59e0b;" id="stat-bot-home">0</span>
           </div>
         </div>
-
         <button class="btn btn-ghost" id="btn-reset-stats" style="color:#ef4444; font-size:12px; font-weight:700; padding:8px; width:100%;">Reset Statistics</button>
       </div>
-
       <button class="btn btn-primary" id="btn-stats-back" style="width:100%; max-width:220px; margin:0 auto; padding:12px 32px; font-size:15px;">Back to Menu</button>
     </div>
   </div>
-
   <!-- ==================================================
        7b. HUMAN PLAYER FINISHED MODAL (Vs Computer)
        ================================================== -->
@@ -1591,14 +1664,12 @@ body.theme-light .podium-item.third {
       </div>
       <div class="modal-title" id="human-finish-modal-title">You Finished 1st Place!</div>
       <div class="modal-sub" id="human-finish-modal-sub">All 4 of your pawns have reached home! Would you like to end the game now and see final results, or watch the computer finish?</div>
-
       <div style="display:flex; flex-direction:column; gap:10px; margin-top:16px;">
         <button class="btn btn-primary" id="btn-human-finish-end" style="width:100%; padding:13px; font-size:15px;">End Match &amp; View Results 🏆</button>
         <button class="btn btn-ghost" id="btn-human-finish-watch" style="width:100%; padding:11px;">Watch Computer Finish 🍿</button>
       </div>
     </div>
   </div>
-
   <!-- ==================================================
        8. WINNER PODIUM MODAL
        ================================================== -->
@@ -1634,16 +1705,13 @@ body.theme-light .podium-item.third {
       </div>
       <div class="modal-title" id="win-title">Match Finished!</div>
       <div class="modal-sub" id="win-sub">Congratulations on the victory!</div>
-
       <div class="podium-list" id="podium-list"></div>
-
       <div style="display:flex; flex-direction:column; gap:8px;">
         <button class="btn btn-primary" id="btn-win-play-again">Play Again</button>
         <button class="btn btn-ghost" id="btn-win-menu">Main Menu</button>
       </div>
     </div>
   </div>
-
   <!-- ==================================================
        9. CONFIRM QUIT MODAL
        ================================================== -->
@@ -1657,7 +1725,6 @@ body.theme-light .podium-item.third {
       </div>
     </div>
   </div>
-
   <!-- ==================================================
        10. CONFIRM RESTART MODAL
        ================================================== -->
@@ -1671,7 +1738,6 @@ body.theme-light .podium-item.third {
       </div>
     </div>
   </div>
-
   <!-- ==================================================
        11. DEV TEST TOOLS MODAL
        ================================================== -->
@@ -1679,28 +1745,30 @@ body.theme-light .podium-item.third {
     <div class="modal-card" style="max-width:380px;">
       <div class="modal-title" style="font-size:20px; font-weight:800; margin-bottom:4px;">🧪 Dev Test Tools</div>
       <div class="modal-sub" style="font-size:12px; margin-bottom:16px;">Test game features and modals separately</div>
-
       <div style="display:flex; flex-direction:column; gap:8px;">
         <button class="btn btn-primary" id="btn-test-action-1st" style="padding:11px; font-size:13px; background:#10b981; color:#ffffff; border:none;">🥇 Test 1st Place Choice Prompt</button>
         <button class="btn btn-primary" id="btn-test-action-2nd" style="padding:11px; font-size:13px; background:#3b82f6; color:#ffffff; border:none;">🥈 Test 2nd Place Choice Prompt</button>
+        <button class="btn btn-primary" id="btn-test-action-3rd" style="padding:11px; font-size:13px; background:#ea580c; color:#ffffff; border:none;">🥉 Test 3rd Place Choice Prompt</button>
         <button class="btn btn-primary" id="btn-test-action-podium" style="padding:11px; font-size:13px; background:#f59e0b; color:#ffffff; border:none;">🏆 Test Final Match Podium Screen</button>
         <button class="btn btn-primary" id="btn-test-action-confetti" style="padding:11px; font-size:13px; background:#8b5cf6; color:#ffffff; border:none;">🎉 Test Victory Celebration</button>
+        <div style="margin-top:6px; border-top:1px solid rgba(255,255,255,0.15); padding-top:10px; font-size:12px; font-weight:800; color:var(--text); letter-spacing:0.5px;">♟️ PIECE STACKING LAYOUT TESTS</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
+          <button class="btn btn-primary" id="btn-test-stack-5" style="padding:10px 2px; font-size:12px; background:#ec4899; color:#ffffff; border:none; font-weight:700;">♟️ 5 Pieces</button>
+          <button class="btn btn-primary" id="btn-test-stack-6" style="padding:10px 2px; font-size:12px; background:#8b5cf6; color:#ffffff; border:none; font-weight:700;">♟️ 6 Pieces</button>
+          <button class="btn btn-primary" id="btn-test-stack-7" style="padding:10px 2px; font-size:12px; background:#06b6d4; color:#ffffff; border:none; font-weight:700;">♟️ 7 Pieces</button>
+        </div>
+        <button class="btn btn-primary" id="btn-test-stack-cycle" style="padding:11px; font-size:13px; background:linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4); color:#ffffff; border:none; font-weight:700;">🔄 Cycle 5 ➔ 6 ➔ 7 Stack Views</button>
       </div>
-
       <button class="btn btn-ghost" id="btn-close-dev-test" style="width:100%; margin-top:16px; padding:10px;">Close Dev Tools</button>
     </div>
   </div>
-
 </div>
-
 <!-- Three.js + Confetti Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-
 <script>
 (function(){
 "use strict";
-
 /* ==================================================
    1. SOUND ENGINE (Web Audio API)
    ================================================== */
@@ -1716,14 +1784,12 @@ var AudioEngine = (function(){
     init();
     if(!ctx) return;
     if(ctx.state === 'suspended') ctx.resume();
-
     var osc = ctx.createOscillator();
     var gain = ctx.createGain();
     osc.type = type || 'sine';
     osc.frequency.setValueAtTime(freq, ctx.currentTime);
     gain.gain.setValueAtTime(gainVal || 0.15, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start();
@@ -1740,7 +1806,6 @@ var AudioEngine = (function(){
       init();
       if(!ctx) return;
       if(ctx.state === 'suspended') ctx.resume();
-
       var notes = [
         { f: 523.25, t: 0.0, d: 0.25 }, // C5
         { f: 659.25, t: 0.15, d: 0.25 }, // E5
@@ -1749,7 +1814,6 @@ var AudioEngine = (function(){
         { f: 1318.51, t: 0.65, d: 0.60 }, // E6
         { f: 1567.98, t: 0.85, d: 0.90 }  // G6 Triumphant Chime!
       ];
-
       notes.forEach(function(n){
         setTimeout(function(){
           var osc = ctx.createOscillator();
@@ -1789,7 +1853,6 @@ var AudioEngine = (function(){
     }
   };
 })();
-
 /* ==================================================
    2. 3D TRACK COORDINATES & MATRIX
    ================================================== */
@@ -1807,45 +1870,38 @@ var BOARD_COORDS = [
   {r:9, c:8}, {r:10, c:8}, {r:11, c:8}, {r:12, c:8}, {r:13, c:8}, {r:14, c:8},
   {r:14, c:7}, {r:14, c:6}
 ];
-
 var STAR_TILES = [0, 8, 13, 21, 26, 34, 39, 47];
 var START_OFFSETS = { red: 0, green: 13, yellow: 26, blue: 39 };
-
 var HOME_PATHS = {
   red:    [{r:13,c:7}, {r:12,c:7}, {r:11,c:7}, {r:10,c:7}, {r:9,c:7}],
   green:  [{r:7,c:1},  {r:7,c:2},  {r:7,c:3},  {r:7,c:4},  {r:7,c:5}],
   yellow: [{r:1,c:7},  {r:2,c:7},  {r:3,c:7},  {r:4,c:7},  {r:5,c:7}],
   blue:   [{r:7,c:13}, {r:7,c:12}, {r:7,c:11}, {r:7,c:10}, {r:7,c:9}]
 };
-
 var CENTER_COORDS = {
   red:    {r:8, c:7},
   green:  {r:7, c:6},
   yellow: {r:6, c:7},
   blue:   {r:7, c:8}
 };
-
 var YARD_COORDS = {
   red:    [{r:11, c:2}, {r:11, c:3}, {r:12, c:2}, {r:12, c:3}],
   green:  [{r:2, c:2},  {r:2, c:3},  {r:3, c:2},  {r:3, c:3}],
   yellow: [{r:2, c:11}, {r:2, c:12}, {r:3, c:11}, {r:3, c:12}],
   blue:   [{r:11, c:11},{r:11, c:12},{r:12, c:11},{r:12, c:12}]
 };
-
 var PLAYER_COLORS_HEX = {
   red:    0xef4444,
   green:  0x10b981,
   yellow: 0xeab308,
   blue:   0x3b82f6
 };
-
 /* ==================================================
    3. THREE.JS 3D WORLD SETUP
    ================================================== */
 var scene, camera, renderer, boardGroup, tokenGroup, starParticles;
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
-
 /* Orbital Camera Controls */
 var isDragging = false, dragLastX = 0, dragLastY = 0;
 var boardRotY = 0, boardRotX = 0.45, boardVelY = 0, boardVelX = 0;
@@ -1854,10 +1910,8 @@ var lastInteractTime = performance.now();
 var autoSpinBlend = 0;
 var AUTO_SPIN_DELAY = 3000;
 var AUTO_SPIN_SPEED = 0.08;
-
 var tokenMeshes = { red:[], green:[], yellow:[], blue:[] };
 var _tileMeshMap = {};
-
 function gridToWorld(r, c){
   /* 15x15 grid mapped into 3D world coordinates */
   var cellSize = 0.62;
@@ -1865,7 +1919,6 @@ function gridToWorld(r, c){
   var z = (r - 7) * cellSize;
   return { x: x, y: 0.18, z: z };
 }
-
 function getStarThemeProperties(){
   if (isLightTheme()) {
     return { color: 0x64748b, opacity: 0.45, size: 0.22, bg: 0xf1f5f9 };
@@ -1873,26 +1926,21 @@ function getStarThemeProperties(){
     return { color: 0xffffff, opacity: 0.80, size: 0.32, bg: 0x000000 };
   }
 }
-
 function init3D(){
   var container = document.getElementById('canvas-container');
   var canvas = document.getElementById('three-canvas');
-
   var starTheme = getStarThemeProperties();
   scene = new THREE.Scene();
   scene.background = new THREE.Color(starTheme.bg);
   camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 100);
-
   renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
   renderer.setSize(container.clientWidth, container.clientHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
   /* Lighting — crisp high-contrast 3D shadows */
   var ambLight = new THREE.AmbientLight(0xffffff, 0.35);
   scene.add(ambLight);
-
   var dirLight = new THREE.DirectionalLight(0xffffff, 0.75);
   dirLight.position.set(12, 22, 14);
   dirLight.castShadow = true;
@@ -1906,11 +1954,9 @@ function init3D(){
   dirLight.shadow.camera.bottom = -12;
   dirLight.shadow.bias = -0.0005;
   scene.add(dirLight);
-
   var pointLight = new THREE.PointLight(0xffffff, 0.12, 20);
   pointLight.position.set(0, 8, 0);
   scene.add(pointLight);
-
   /* Ambient Floating Particles (rich density covering full screen & zoom out) */
   var starGeo = new THREE.BufferGeometry();
   var starCount = 1500;
@@ -1930,16 +1976,13 @@ function init3D(){
   starParticles = new THREE.Points(starGeo, starMat);
   starParticles.visible = true;
   scene.add(starParticles);
-
   /* Board Hierarchy */
   boardGroup = new THREE.Group();
   tokenGroup = new THREE.Group();
   boardGroup.add(tokenGroup);
   scene.add(boardGroup);
-
   build3DBoard();
   build3DPawns();
-
   /* Listeners */
   window.addEventListener('resize', onResize);
   canvas.addEventListener('pointerdown', onPointerDown, {passive:true});
@@ -1952,10 +1995,8 @@ function init3D(){
     autoSpinBlend = 0;
     zoomTarget = Math.max(0.55, Math.min(1.8, zoomTarget + e.deltaY * 0.001));
   }, {passive:false});
-
   animate();
 }
-
 function onResize(){
   var container = document.getElementById('canvas-container');
   if(!container || !renderer || !camera) return;
@@ -1963,7 +2004,6 @@ function onResize(){
   camera.updateProjectionMatrix();
   renderer.setSize(container.clientWidth, container.clientHeight);
 }
-
 /* ==================================================
    4. 3D BOARD & PAWN MESH CREATION
    ================================================== */
@@ -1993,7 +2033,6 @@ function createStarShape(radius, innerRadius, points, thickness) {
   }
   return shape;
 }
-
 function createArrowShape() {
   var shape = new THREE.Shape();
   var t = 0.015; // stem half-thickness
@@ -2009,17 +2048,14 @@ function createArrowShape() {
   shape.lineTo(-t, -0.2);
   return shape;
 }
-
 function isLightTheme(){
   return document.body.classList.contains('theme-light');
 }
-
 function build3DBoard(){
   _tileMeshMap = {};
   /* 15x15 Tiles */
   var cellSize = 0.62;
   var defaultTileColor = isLightTheme() ? 0xffffff : 0x121a28;
-
   /* Shared geometries and materials for performance */
   var sharedTileGeo = new THREE.BoxGeometry(cellSize * 0.94, 0.08, cellSize * 0.94);
   var sharedShadowPlaneGeo = new THREE.PlaneGeometry(cellSize * 1.07, cellSize * 1.07);
@@ -2030,38 +2066,31 @@ function build3DBoard(){
     depthWrite: false
   });
   var tileMatCache = {};
-
   for(var r=0; r<15; r++){
     for(var c=0; c<15; c++){
       var pos = gridToWorld(r, c);
       var tileColor = defaultTileColor;
-
       /* Check Paths & Yards */
       PLAYERS.forEach(function(p){
         HOME_PATHS[p].forEach(function(hp){
           if(hp.r === r && hp.c === c) tileColor = PLAYER_COLORS_HEX[p];
         });
       });
-
       var isStartRed    = (r===13 && c===6);
       var isStartGreen  = (r===6  && c===1);
       var isStartYellow = (r===1  && c===8);
       var isStartBlue   = (r===8  && c===13);
-
       /* Arrows at the entrance of each home path */
       var isArrowRed    = (r===14 && c===7);
       var isArrowGreen  = (r===7  && c===0);
       var isArrowYellow = (r===0  && c===7);
       var isArrowBlue   = (r===7  && c===14);
-
       var isOtherSafe   = (r===8&&c===2)||(r===2&&c===6)||(r===6&&c===12)||(r===12&&c===8);
-
       /* Start cells (where pieces spawn) are colored */
       if(isStartRed)    tileColor = PLAYER_COLORS_HEX.red;
       if(isStartGreen)  tileColor = PLAYER_COLORS_HEX.green;
       if(isStartYellow) tileColor = PLAYER_COLORS_HEX.yellow;
       if(isStartBlue)   tileColor = PLAYER_COLORS_HEX.blue;
-
       if (!tileMatCache[tileColor]) {
         var isWhiteTile = (tileColor === 0xffffff);
         tileMatCache[tileColor] = new THREE.MeshStandardMaterial({
@@ -2077,16 +2106,13 @@ function build3DBoard(){
       tileMesh.receiveShadow = true;
       boardGroup.add(tileMesh);
       _tileMeshMap[r + '_' + c] = tileMesh;
-
       /* Soft Fading Contact Shadow under each 3D tile */
       var shadowPlaneMesh = new THREE.Mesh(sharedShadowPlaneGeo, sharedShadowPlaneMat);
       shadowPlaneMesh.rotation.x = -Math.PI / 2;
       shadowPlaneMesh.position.set(pos.x, 0.005, pos.z);
       boardGroup.add(shadowPlaneMesh);
-
       /* Extrusion settings for 3D inlays */
       var extrudeSettings = { depth: 0.012, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.003, bevelThickness: 0.003 };
-
       /* Add 3D Bordered Star for non-start safe tiles */
       if(isOtherSafe){
         var starGeo = new THREE.ExtrudeGeometry(createStarShape(0.16, 0.07, 5, 0.025), extrudeSettings);
@@ -2097,7 +2123,6 @@ function build3DBoard(){
         starMesh.position.set(pos.x, 0.08, pos.z);
         boardGroup.add(starMesh);
       }
-
       /* Add 3D Colored Arrows at home entrances */
       if(isArrowRed || isArrowGreen || isArrowYellow || isArrowBlue){
         var arrowGeo = new THREE.ExtrudeGeometry(createArrowShape(), extrudeSettings);
@@ -2106,7 +2131,6 @@ function build3DBoard(){
         if(isArrowGreen)  { arrowColor = PLAYER_COLORS_HEX.green;  arrowRot = -Math.PI/2; }
         if(isArrowYellow) { arrowColor = PLAYER_COLORS_HEX.yellow; arrowRot = Math.PI; }
         if(isArrowBlue)   { arrowColor = PLAYER_COLORS_HEX.blue;   arrowRot = Math.PI/2; }
-        
         var arrowMat = new THREE.MeshStandardMaterial({ color: arrowColor, roughness: 0.3, metalness: 0.1 });
         var arrowMesh = new THREE.Mesh(arrowGeo, arrowMat);
         arrowMesh.rotation.x = -Math.PI / 2;
@@ -2116,17 +2140,14 @@ function build3DBoard(){
       }
     }
   }
-
   /* 4 Raised 3D Yards */
   var yardSize = cellSize * 6; // 3.72 units wide
-
   var yardDefs = [
     { color: PLAYER_COLORS_HEX.red,    x: -cellSize * 4.5, z:  cellSize * 4.5 },
     { color: PLAYER_COLORS_HEX.green,  x: -cellSize * 4.5, z: -cellSize * 4.5 },
     { color: PLAYER_COLORS_HEX.yellow, x:  cellSize * 4.5, z: -cellSize * 4.5 },
     { color: PLAYER_COLORS_HEX.blue,   x:  cellSize * 4.5, z:  cellSize * 4.5 }
   ];
-
   yardDefs.forEach(function(yd){
     /* 1. Base 3D coloured slab for the Yard */
     var yardGeo = new THREE.BoxGeometry(yardSize, 0.16, yardSize);
@@ -2135,7 +2156,6 @@ function build3DBoard(){
     yMesh.position.set(yd.x, 0.08, yd.z);
     yMesh.receiveShadow = true;
     boardGroup.add(yMesh);
-
     /* 2. Inset Panel (White in Light Mode, Dark Onyx #121a28 in Dark Mode) */
     var isLight = isLightTheme();
     var framePad = cellSize * 0.48;
@@ -2151,14 +2171,12 @@ function build3DBoard(){
     var whiteMesh = new THREE.Mesh(whiteGeo, whiteMat);
     whiteMesh.position.set(yd.x, 0.166, yd.z);
     boardGroup.add(whiteMesh);
-
     /* 3. Border outline for the inset panel */
     var trayEdges = new THREE.EdgesGeometry(new THREE.BoxGeometry(frameInner, 0.01, frameInner));
     var borderLine = new THREE.LineSegments(trayEdges,
       new THREE.LineBasicMaterial({ color: isLight ? 0x94a3b8 : 0x475569, opacity: 0.6, transparent: true }));
     borderLine.position.set(yd.x, 0.172, yd.z);
     boardGroup.add(borderLine);
-
     /* 4. Four circular nest pockets (2×2 grid) */
     var nestOffsets = [
       { ox: -cellSize * 1.1, oz: -cellSize * 1.1 },
@@ -2166,11 +2184,9 @@ function build3DBoard(){
       { ox: -cellSize * 1.1, oz:  cellSize * 1.1 },
       { ox:  cellSize * 1.1, oz:  cellSize * 1.1 }
     ];
-
     nestOffsets.forEach(function(no){
       var nx = yd.x + no.ox;
       var nz = yd.z + no.oz;
-
       /* Outer Nest Ring (White in Light Mode, Dark Charcoal #1e293b in Dark Mode) */
       var ringGeo = new THREE.CylinderGeometry(cellSize * 0.68, cellSize * 0.68, 0.02, 48);
       var ringMat = new THREE.MeshStandardMaterial({
@@ -2183,14 +2199,12 @@ function build3DBoard(){
       var ringMesh = new THREE.Mesh(ringGeo, ringMat);
       ringMesh.position.set(nx, 0.176, nz);
       boardGroup.add(ringMesh);
-
       /* Inner Colored Nest Disc */
       var discGeo = new THREE.CylinderGeometry(cellSize * 0.52, cellSize * 0.52, 0.025, 48);
       var discMat = new THREE.MeshStandardMaterial({ color: yd.color, roughness: 0.35, metalness: 0.15 });
       var discMesh = new THREE.Mesh(discGeo, discMat);
       discMesh.position.set(nx, 0.182, nz);
       boardGroup.add(discMesh);
-
       /* Inner Socket Shadow Ring — soft 3D recessed socket depth */
       var shadowGeo = new THREE.TorusGeometry(cellSize * 0.52, 0.008, 12, 48);
       var shadowMat = new THREE.MeshStandardMaterial({
@@ -2205,11 +2219,9 @@ function build3DBoard(){
       boardGroup.add(shadowMesh);
     });
   });
-
   /* ---- Center — proper Ludo King 4-triangle star ---- */
   var cHalf = cellSize * 1.5;   /* half-span of 3-cell area = 0.93 */
   var cY    = 0.09;             /* sits just above the tiles        */
-
   /* Dark/Light base covers full 3×3 */
   var cBaseGeo = new THREE.BoxGeometry(cHalf * 2, 0.055, cHalf * 2);
   var cBaseColor = isLightTheme() ? 0xffffff : 0x0f172a;
@@ -2217,7 +2229,6 @@ function build3DBoard(){
   var cBaseMesh = new THREE.Mesh(cBaseGeo, cBaseMat);
   cBaseMesh.position.set(0, 0.058, 0);
   boardGroup.add(cBaseMesh);
-
   /*
    * 4 right-triangle wedges sharing the centre tip (0,0).
    * Each covers exactly one quadrant of the square so they tile with NO gaps.
@@ -2244,7 +2255,6 @@ function build3DBoard(){
     { hex: PLAYER_COLORS_HEX.red,    x0:0,     z0:0,      x1: cHalf, z1: cHalf, x2:-cHalf, z2: cHalf }, /* bottom */
     { hex: PLAYER_COLORS_HEX.green,  x0:0,     z0:0,      x1:-cHalf, z1: cHalf, x2:-cHalf, z2:-cHalf }  /* left   */
   ];
-
   wedgeDefs.forEach(function(wd){
     var geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([
@@ -2263,7 +2273,6 @@ function build3DBoard(){
     mesh.position.set(0, cY, 0);
     boardGroup.add(mesh);
   });
-
   /* Diagonal lines separating the 4 wedges */
   var diagLen = Math.sqrt(2) * cHalf;
   var sepColor = isLightTheme() ? 0xffffff : 0x334155;
@@ -2275,7 +2284,6 @@ function build3DBoard(){
     lMesh.position.set(0, cY + 0.01, 0);
     boardGroup.add(lMesh);
   });
-
   /* Outer border ring around the 3×3 area */
   var bSize = cHalf * 2 + 0.04;
   var borderEdges = new THREE.EdgesGeometry(new THREE.BoxGeometry(bSize, 0.01, bSize));
@@ -2283,7 +2291,6 @@ function build3DBoard(){
     new THREE.LineBasicMaterial({ color: isLightTheme() ? 0xffffff : 0x334155, linewidth: 1 }));
   borderLines.position.set(0, cY + 0.02, 0);
   boardGroup.add(borderLines);
-
   /* Hexagon disc at dead centre */
   var cDiscGeo = new THREE.CylinderGeometry(cellSize * 0.20, cellSize * 0.20, 0.055, 6);
   var isLightDisc = isLightTheme();
@@ -2298,12 +2305,10 @@ function build3DBoard(){
   cDisc.position.set(0, cY + 0.03, 0);
   boardGroup.add(cDisc);
 }
-
 /* =====================================================
    Polished Ludo chess-pawn piece
    ===================================================== */
 function createPawnMesh(colorHex, colorName, tokIdx){
-
   /* Lathe profile — more control points for sharper neck */
   var ctrl = [
     new THREE.Vector2(0.000, 0.000),  // centre bottom
@@ -2323,17 +2328,14 @@ function createPawnMesh(colorHex, colorName, tokIdx){
     new THREE.Vector2(0.068, 0.342),  // neck exit
     new THREE.Vector2(0.092, 0.356),  // head seat
   ];
-
   var curve    = new THREE.SplineCurve(ctrl);
   var pts      = curve.getPoints(80);
   var latheGeo = new THREE.LatheGeometry(pts, 64);
-
   /* Sphere head — tangent to head-seat (r=0.092, y=0.356) */
   var jR = 0.092, jY = 0.356, headR = 0.172;
   var headY = jY + Math.sqrt(Math.max(0, headR*headR - jR*jR));
   var headGeo = new THREE.SphereGeometry(headR, 48, 36);
   headGeo.translate(0, headY, 0);
-
   /* High-gloss plastic material */
   var pawnMat = new THREE.MeshStandardMaterial({
     color:             colorHex,
@@ -2342,7 +2344,6 @@ function createPawnMesh(colorHex, colorName, tokIdx){
     emissive:          colorHex,
     emissiveIntensity: 0.18
   });
-
   /* Dark neck accent ring — gives clear head/body separation */
   var neckRing = new THREE.Mesh(
     new THREE.TorusGeometry(0.068, 0.010, 10, 48),
@@ -2353,7 +2354,6 @@ function createPawnMesh(colorHex, colorName, tokIdx){
   );
   neckRing.rotation.x = Math.PI / 2;
   neckRing.position.y = 0.316;
-
   /* Gold base rim torus — elegant finish at bottom edge */
   var baseRim = new THREE.Mesh(
     new THREE.TorusGeometry(0.226, 0.010, 10, 48),
@@ -2364,19 +2364,16 @@ function createPawnMesh(colorHex, colorName, tokIdx){
   );
   baseRim.rotation.x = Math.PI / 2;
   baseRim.position.y = 0.016;
-
   var group = new THREE.Group();
   group.add(new THREE.Mesh(latheGeo, pawnMat));
   group.add(new THREE.Mesh(headGeo,  pawnMat));
   group.add(neckRing);
   group.add(baseRim);
-
   group.scale.setScalar(0.88);
   group.userData = { color: colorName, tokIdx: tokIdx };
   tokenGroup.add(group);
   return group;
 }
-
 function build3DPawns(){
   PLAYERS.forEach(function(p){
     tokenMeshes[p] = [];
@@ -2386,9 +2383,7 @@ function build3DPawns(){
     }
   });
 }
-
 function update3DPawnPositions(){
-
   /* Build occupancy map for same-square stacking */
   var occupancy = {};
   PLAYERS.forEach(function(color){
@@ -2403,19 +2398,16 @@ function update3DPawnPositions(){
       }
     });
   });
-
   PLAYERS.forEach(function(color){
     gameState.tokens[color].forEach(function(tok, idx){
       var mesh = tokenMeshes[color][idx];
       if(!mesh) return;
-
       var isActivePlayer = true;
       if(gameState.activePlayers && gameState.activePlayers.length > 0) {
         isActivePlayer = gameState.activePlayers.indexOf(color) !== -1;
       }
       mesh.visible = isActivePlayer;
       if(!isActivePlayer) return;
-
       /* Don't fight the smooth animation — skip animating pieces */
       if(_animatingMeshes[mesh.uuid]) {
         /* Still update highlight pulse while moving */
@@ -2423,9 +2415,7 @@ function update3DPawnPositions(){
         mesh.children.forEach(function(ch){ if(ch.material) ch.material.emissiveIntensity = isMovable ? 0.6 : 0.12; });
         return;
       }
-
-      var stackOx = 0, stackOz = 0;
-
+      var stackOx = 0, stackOz = 0, stackOy = 0;
       var pawnScale = 1.0;
       if(tok.step === -1){
         var cs = 0.62;
@@ -2444,7 +2434,6 @@ function update3DPawnPositions(){
         var yc = YARD_CENTERS[color];
         var no = NEST_OFFSETS[idx];
         mesh.position.set(yc.x + no.ox, 0.24, yc.z + no.oz);
-
       } else {
         var coord;
         if(tok.step >= 0 && tok.step <= 56){
@@ -2460,42 +2449,128 @@ function update3DPawnPositions(){
             coord = CENTER_COORDS[color];
             key = "C" + color;
           }
-
-          /* Spread pieces sharing the same square in a small circle */
-          var grp = occupancy[key];
-          if(grp && grp.length > 1){
+          /* Smart multi-token stacking & dynamic auto-scaling */
+          var grp = occupancy[key] || [];
+          var total = grp.length;
+          if (total > 1) {
             var pos = -1;
             grp.forEach(function(g, gi){ if(g.color===color && g.idx===idx) pos=gi; });
-            if(pos !== -1){
-              var total  = grp.length;
-              var angle  = (pos / total) * Math.PI * 2;
-              var spread = total > 2 ? 0.12 : 0.16;
-              pawnScale = total > 2 ? 0.6 : 0.75;
-              stackOx = Math.cos(angle) * spread;
-              stackOz = Math.sin(angle) * spread;
+            if(pos === -1) pos = 0;
+            var isStarTile = false;
+            if (tok.step <= 50) {
+              var globalIdx = (START_OFFSETS[color] + tok.step) % 52;
+              isStarTile = (STAR_TILES.indexOf(globalIdx) !== -1);
             }
+            var isSafeTile = isStarTile || (tok.step >= 51);
+            if (isSafeTile) {
+              /* Multiple pieces on a safe tile: shrink slightly and arrange cleanly in sub-grid positions */
+              if (total === 2) {
+                pawnScale = 0.72;
+                var spread2 = 0.11;
+                var isFirst = (pos === 0);
+                stackOx = isFirst ? -spread2 : spread2;
+                stackOz = isFirst ? -spread2 : spread2;
+                stackOy = pos * 0.012;
+              } else if (total === 3) {
+                pawnScale = 0.60;
+                var spread3 = 0.12;
+                var angle3 = (pos / 3) * Math.PI * 2 - (Math.PI / 2);
+                stackOx = Math.cos(angle3) * spread3;
+                stackOz = Math.sin(angle3) * spread3;
+                stackOy = pos * 0.010;
+              } else if (total === 4) {
+                pawnScale = 0.52;
+                var spread4 = 0.12;
+                var cornerOffsets4 = [
+                  { ox: -spread4, oz: -spread4 },
+                  { ox:  spread4, oz: -spread4 },
+                  { ox: -spread4, oz:  spread4 },
+                  { ox:  spread4, oz:  spread4 }
+                ];
+                stackOx = cornerOffsets4[pos % 4].ox;
+                stackOz = cornerOffsets4[pos % 4].oz;
+                stackOy = pos * 0.008;
+              } else if (total === 5) {
+                /* 5 pieces: 1 Center + 4 Corners (classic 5-pip dice pattern) */
+                pawnScale = 0.46;
+                var spread5 = 0.125;
+                if (pos === 0) {
+                  stackOx = 0;
+                  stackOz = 0;
+                } else {
+                  var cornerOffsets5 = [
+                    { ox: -spread5, oz: -spread5 },
+                    { ox:  spread5, oz: -spread5 },
+                    { ox: -spread5, oz:  spread5 },
+                    { ox:  spread5, oz:  spread5 }
+                  ];
+                  stackOx = cornerOffsets5[(pos - 1) % 4].ox;
+                  stackOz = cornerOffsets5[(pos - 1) % 4].oz;
+                }
+                stackOy = pos * 0.007;
+              } else if (total === 6) {
+                /* 6 pieces: Symmetrical Hexagon Ring */
+                pawnScale = 0.42;
+                var spread6 = 0.13;
+                var angle6 = (pos / 6) * Math.PI * 2 - (Math.PI / 2);
+                stackOx = Math.cos(angle6) * spread6;
+                stackOz = Math.sin(angle6) * spread6;
+                stackOy = pos * 0.006;
+              } else if (total === 7) {
+                /* 7 pieces: Flower Pattern (1 Center + 6 Outer Hexagon Ring) */
+                pawnScale = 0.38;
+                var spread7 = 0.14;
+                if (pos === 0) {
+                  stackOx = 0;
+                  stackOz = 0;
+                } else {
+                  var angle7 = ((pos - 1) / 6) * Math.PI * 2 - (Math.PI / 2);
+                  stackOx = Math.cos(angle7) * spread7;
+                  stackOz = Math.sin(angle7) * spread7;
+                }
+                stackOy = pos * 0.005;
+              } else { // 8+ tokens
+                pawnScale = 0.35;
+                var spread8 = 0.145;
+                if (pos === 0) {
+                  stackOx = 0;
+                  stackOz = 0;
+                } else {
+                  var angle8 = ((pos - 1) / (total - 1)) * Math.PI * 2 - (Math.PI / 2);
+                  stackOx = Math.cos(angle8) * spread8;
+                  stackOz = Math.sin(angle8) * spread8;
+                }
+                stackOy = pos * 0.004;
+              }
+            } else {
+              /* Multiple tokens on non-safe tile: stay full size 1.0 centered */
+              pawnScale = 1.0;
+              stackOx = 0;
+              stackOz = 0;
+              stackOy = 0;
+            }
+          } else {
+            /* Single token on ANY tile: full size 1.0, exactly centered */
+            pawnScale = 1.0;
+            stackOx = 0;
+            stackOz = 0;
+            stackOy = 0;
           }
         }
         var world = gridToWorld(coord.r, coord.c);
-        mesh.position.set(world.x + stackOx, 0.08, world.z + stackOz);
+        mesh.position.set(world.x + stackOx, 0.08 + stackOy, world.z + stackOz);
       }
-      mesh.scale.set(pawnScale, pawnScale, pawnScale);
-
-      /* Highlight + pulse for movable pieces */
+      /* Highlight + pulse for movable pieces without losing pawn scale */
       var isMovable = (!gameState.gameOver && gameState.hasRolled && color === getCurrentPlayer() && isValidMove(color, idx, gameState.diceValue));
       mesh.children.forEach(function(ch){
         if(ch.material) ch.material.emissiveIntensity = isMovable ? 0.6 : 0.05;
       });
-      if(isMovable){
-        mesh.scale.setScalar(1.12 + Math.sin(performance.now() * 0.007) * 0.06);
-      } else {
-        mesh.scale.setScalar(1.0);
-      }
+      var pulseMultiplier = isMovable ? (1.15 + Math.sin(performance.now() * 0.007) * 0.06) : 1.0;
+      var finalScale = pawnScale * pulseMultiplier;
+      mesh.scale.set(finalScale, finalScale, finalScale);
     });
   });
 }
-
-
 /* ==================================================
    5. 3D RENDER LOOP & CAMERA CONTROLS
    ================================================== */
@@ -2509,12 +2584,10 @@ function onPointerDown(e){
   boardVelY = 0;
   boardVelX = 0;
 }
-
 function onPointerMove(e){
   if(!isDragging || (gameState && gameState.is2DMode)) return;
   var dx = e.clientX - dragLastX;
   var dy = e.clientY - dragLastY;
-  
   if(Math.abs(dx) > 2 || Math.abs(dy) > 2){
     boardVelY = dx * 0.012;
     boardVelX = dy * 0.008;
@@ -2524,21 +2597,17 @@ function onPointerMove(e){
     dragLastY = e.clientY;
   }
 }
-
 function onPointerUp(e){
   isDragging = false;
-
   /* Raycasting click on 3D Pawns */
   var rect = renderer.domElement.getBoundingClientRect();
   mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
   mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(mouse, camera);
-
   var allPawnMeshes = [];
   PLAYERS.forEach(function(p){
     tokenMeshes[p].forEach(function(g){ g.children.forEach(function(ch){ allPawnMeshes.push(ch); }); });
   });
-
   var intersects = raycaster.intersectObjects(allPawnMeshes, true);
   if(intersects.length > 0){
     var rootGroup = intersects[0].object.parent;
@@ -2551,9 +2620,7 @@ function onPointerUp(e){
     }
   }
 }
-
 var _lastHalfBoard = -1;
-
 function getScreenCoords(localX, localY, localZ) {
   if (!camera || !boardGroup) return { x: 0, y: 0 };
   var p = new THREE.Vector3(localX, localY, localZ);
@@ -2568,14 +2635,11 @@ function getScreenCoords(localX, localY, localZ) {
     y: (-p.y + 1) * h / 2 + 50
   };
 }
-
 function positionCornerDiceUIs(){
   if (!camera || !gameState || !boardGroup) return;
-
   var cs = 0.62;
   var cornerX = cs * 7.5; // 4.65 (outer edge of 3D board slab)
   var cornerZ = cs * 7.5; // 4.65 (outer edge of 3D board slab)
-
   // Local 3D outer corner coordinates for each colored yard slab
   var yardCorners = {
     red:    { x: -cornerX, y: 0.17, z:  cornerZ },
@@ -2583,36 +2647,28 @@ function positionCornerDiceUIs(){
     yellow: { x:  cornerX, y: 0.17, z: -cornerZ },
     blue:   { x:  cornerX, y: 0.17, z:  cornerZ }
   };
-
   var container = document.getElementById('canvas-container');
   var w = (container && container.clientWidth) || window.innerWidth;
   var h = (container && container.clientHeight) || (window.innerHeight - 50);
   var minDim = Math.min(w, h);
   var cardScale = Math.max(0.45, Math.min(0.88, minDim / 750));
-
   boardGroup.updateMatrixWorld(true);
-
   PLAYERS.forEach(function(pColor){
     var el = document.getElementById('dice-ui-' + pColor);
     if (!el) return;
-
     var loc = yardCorners[pColor];
     var worldVec = new THREE.Vector3(loc.x, loc.y, loc.z);
     worldVec.applyMatrix4(boardGroup.matrixWorld);
     worldVec.project(camera);
-
     var px = (worldVec.x * 0.5 + 0.5) * w;
     var py = (-worldVec.y * 0.5 + 0.5) * h + 50;
-
     // Anchor cards flush on outer board slab corners
     var isLeft = px < w / 2;
     var isTop  = py < (h / 2 + 50);
-
     var transX = isLeft ? '0%' : '-100%';
     var transY = isTop  ? '-100%' : '0%';
     var originX = isLeft ? 'left' : 'right';
     var originY = isTop  ? 'bottom' : 'top';
-
     el.style.position = 'absolute';
     el.style.top = py + 'px';
     el.style.left = px + 'px';
@@ -2622,30 +2678,24 @@ function positionCornerDiceUIs(){
     el.style.transformOrigin = originX + ' ' + originY;
     el.style.transform = 'translate(' + transX + ', ' + transY + ') scale(' + cardScale + ')';
     el.style.flexDirection = isLeft ? 'row' : 'row-reverse';
-
     var av = el.querySelector('.avatar-area');
     if (av) {
       av.style.borderRadius = isLeft ? '4px 0 0 4px' : '0 4px 4px 0';
     }
   });
 }
-
 function animate(){
   requestAnimationFrame(animate);
-
   var now = performance.now();
   var dt = 0.016;
-
   /* Smooth Zoom Lerp */
   zoomCurrent += (zoomTarget - zoomCurrent) * 0.1;
-
   /* Auto Rotation & Friction */
   autoSpinBlend = 0;
   if(!isDragging){
     boardVelY *= 0.88;
     boardVelX *= 0.88;
     boardRotY += boardVelY;
-    
     if (gameState && gameState.is2DMode) {
       boardRotX += (Math.PI / 2 - boardRotX) * 0.1;
       var angles2D = { red: 0, green: -Math.PI/2, yellow: Math.PI, blue: Math.PI/2 };
@@ -2654,57 +2704,45 @@ function animate(){
       while(diff < -Math.PI) diff += Math.PI * 2;
       while(diff > Math.PI) diff -= Math.PI * 2;
       boardRotY += diff * 0.1;
-      
       var container = document.getElementById('canvas-container');
       var w = (container && container.clientWidth) || window.innerWidth;
       var h = (container && container.clientHeight) || (window.innerHeight - 50);
       var asp = camera.aspect;
-      
       // Height fitting calculation (100% untouched)
       var vertReserve = Math.max(12, Math.min(48, h * 0.08));
       var boardHeightFit = Math.max(0.35, (h - vertReserve) / h);
-      
       // Mobile-specific width reserve ONLY (0px side margin for mobile w < 600px)
       var horizReserve = w < 600 ? 0 : 16;
       var boardWidthFit = Math.max(0.35, (w - horizReserve) / w);
       var fitRatio = Math.min(boardHeightFit, boardWidthFit);
-
       var z = 10.0 / (12.2772 * fitRatio);
       // Mobile portrait width zoom ONLY: asp < 1 zooms 6% closer to cut side space
       zoomTarget = asp < 1 ? z / (asp * 1.06) : z;
     } else {
       boardRotX = Math.max(0.2, Math.min(0.85, boardRotX + boardVelX));
-
       if(gameState && gameState.autoPOV && gameState.activePlayers && gameState.activePlayers.length > 0){
         var curPlayer = getCurrentPlayer();
         var angles = { red: 0, green: -Math.PI/2, yellow: Math.PI, blue: Math.PI/2 };
         var target = angles[curPlayer] || 0;
-        
         var diff = target - boardRotY;
         while(diff < -Math.PI) diff += Math.PI * 2;
         while(diff > Math.PI) diff -= Math.PI * 2;
-        
         boardRotY += diff * 0.05;
       }
     }
   }
-
   // Update 3D projected card UI positions on every frame in both 2D and 3D mode
   positionCornerDiceUIs();
-
   /* Camera Math */
   var camDist = 16 * zoomCurrent;
   var camY = Math.sin(boardRotX) * camDist;
   var camZ = Math.cos(boardRotX) * camDist;
-
   // Zero camera offset needed because canvas container itself is positioned below top header menu
   var targetOffsetZ = 0;
-
   camera.position.x = Math.sin(boardRotY) * camZ;
   camera.position.z = Math.cos(boardRotY) * camZ + targetOffsetZ;
   camera.position.y = camY;
   camera.lookAt(0, 0, targetOffsetZ);
-
   /* Background Particle Drift + Parallax */
   if(starParticles){
     starParticles.rotation.y = now * 0.000015 + boardRotY * 0.03;
@@ -2713,11 +2751,9 @@ function animate(){
     var targetScale = 1 + Math.min(0.5, spinSpeed * 5);
     starParticles.scale.setScalar(targetScale);
   }
-
   update3DPawnPositions();
   renderer.render(scene, camera);
 }
-
 /* ==================================================
    6. LUDO GAME RULES & ENGINE
    ================================================== */
@@ -2745,9 +2781,7 @@ var gameState = {
     blue:   [{step:-1},{step:-1},{step:-1},{step:-1}]
   }
 };
-
 function getCurrentPlayer(){ return gameState.activePlayers[gameState.currentTurnIdx]; }
-
 function createDiceFaces(cubeEl){
   cubeEl.innerHTML = '';
   var dotPositions = {
@@ -2758,15 +2792,12 @@ function createDiceFaces(cubeEl){
     5: [{cx:26, cy:26}, {cx:74, cy:26}, {cx:50, cy:50}, {cx:26, cy:74}, {cx:74, cy:74}],
     6: [{cx:26, cy:24}, {cx:74, cy:24}, {cx:26, cy:50}, {cx:74, cy:50}, {cx:26, cy:76}, {cx:74, cy:76}]
   };
-
   for(var f=1; f<=6; f++){
     var face = document.createElement('div');
     face.className = 'dice-face dice-face-' + f;
-
     var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 100 100');
     svg.setAttribute('class', 'dice-face-svg');
-
     var dots = dotPositions[f];
     dots.forEach(function(pt){
       var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -2776,12 +2807,10 @@ function createDiceFaces(cubeEl){
       circle.setAttribute('class', 'dice-pip');
       svg.appendChild(circle);
     });
-
     face.appendChild(svg);
     cubeEl.appendChild(face);
   }
 }
-
 function setDiceFace(cubeEl, val){
   var rotMap = {
     1: 'rotateY(0deg)',
@@ -2793,7 +2822,6 @@ function setDiceFace(cubeEl, val){
   };
   var transform = rotMap[val] || 'rotateY(0deg)';
   cubeEl.style.transform = transform;
-
   // Synchronize both views so toggling 2D/3D doesn't show a mismatched dice number
   if (gameState && gameState.activePlayers && gameState.activePlayers.length > 0) {
     var active = getCurrentPlayer();
@@ -2803,26 +2831,21 @@ function setDiceFace(cubeEl, val){
     if (cornerEl) cornerEl.style.transform = transform;
   }
 }
-
 function generateSmartRoll(color) {
   var locked = 0, active = 0, home = 0;
   var myActiveTokens = [];
-  
   gameState.tokens[color].forEach(function(tok){
     if(tok.step === -1) locked++;
     else if(tok.step === 56) home++;
     else { active++; myActiveTokens.push(tok); }
   });
-  
   var w = [100, 100, 100, 100, 100, 100]; // Base weights for 1 to 6
-  
   /* 1. Pity 6: Keep the game moving if heavily locked */
   if(locked === 4) {
     w[5] += 150; 
   } else if (locked === 3 && active === 1 && myActiveTokens[0].step < 10) {
     w[5] += 50; 
   }
-
   /* 2. Kill Bias, Target the Leader, & Evasion Bias */
   var maxOpponentHome = 0;
   var leaderColor = null;
@@ -2836,11 +2859,9 @@ function generateSmartRoll(color) {
       }
     }
   });
-
   myActiveTokens.forEach(function(tok){
     if(tok.step >= 0 && tok.step <= 50) {
       var myGlobal = (START_OFFSETS[color] + tok.step) % 52;
-      
       // Evasion Bias: Evaluate ONCE per token
       gameState.activePlayers.forEach(function(oppColor){
         if(oppColor !== color) {
@@ -2856,7 +2877,6 @@ function generateSmartRoll(color) {
           });
         }
       });
-
       // Kill Bias: Check exact roll needed
       for(var r = 1; r <= 6; r++) {
         if (tok.step + r <= 50) { // Only evaluate kills if we remain on the common path
@@ -2877,7 +2897,6 @@ function generateSmartRoll(color) {
                 });
               }
             });
-            
             if(hasOpponent) {
               if (isLeader && home < maxOpponentHome) w[r - 1] += 40; 
               else w[r - 1] += 25; 
@@ -2887,7 +2906,6 @@ function generateSmartRoll(color) {
       }
     }
   });
-
   /* 3. Finish Line Tease */
   myActiveTokens.forEach(function(tok){
     if(tok.step > 50 && tok.step < 56) {
@@ -2895,7 +2913,6 @@ function generateSmartRoll(color) {
       if(needed >= 1 && needed <= 6) w[needed - 1] += 30; 
     }
   });
-
   /* 4. Rubberbanding */
   if (maxOpponentHome - home >= 2) { // Only help if trailing significantly
     w[4] += 15; 
@@ -2903,7 +2920,6 @@ function generateSmartRoll(color) {
   } else if (home > maxOpponentHome && home >= 2) {
     w[5] = Math.max(20, w[5] - 30); 
   }
-
   /* 5. Anti-Clumping */
   if (gameState.rollHistory && gameState.rollHistory[color]) {
     var history = gameState.rollHistory[color];
@@ -2918,7 +2934,6 @@ function generateSmartRoll(color) {
       }
     }
   }
-
   var total = w.reduce(function(a,b){ return a+b; }, 0);
   var rand = Math.random() * total;
   var sum = 0;
@@ -2928,41 +2943,36 @@ function generateSmartRoll(color) {
   }
   return 6;
 }
-
 function rollDice(){
   if(gameState.hasRolled || gameState.isMoving || gameState.gameOver || gameState.isRolling) return;
-
+  var active = getCurrentPlayer();
+  if (gameState.winners && gameState.winners.indexOf(active) !== -1) {
+    passTurn();
+    return;
+  }
   var restartBtn = document.getElementById('btn-game-restart');
   if (restartBtn) {
     restartBtn.disabled = false;
     restartBtn.style.opacity = '1';
     restartBtn.style.pointerEvents = 'auto';
   }
-
-  var active = getCurrentPlayer();
   var cubeId = (gameState && gameState.is2DMode) ? 'dice-cube-' + active : 'dice-cube-central';
   var cubeEl = document.getElementById(cubeId);
-  
   if(!cubeEl || cubeEl.classList.contains('dice-rolling')) return;
-
   gameState.isRolling = true; // Lock dice against rapid multi-clicks
   AudioEngine.diceRoll();
   cubeEl.classList.add('dice-rolling');
-
   var val = generateSmartRoll(active);
   gameState.diceValue = val;
   if(gameState.rollHistory && gameState.rollHistory[active]) {
     gameState.rollHistory[active].push(val);
     if(gameState.rollHistory[active].length > 6) gameState.rollHistory[active].shift();
   }
-
   setTimeout(function(){
     cubeEl.classList.remove('dice-rolling');
     setDiceFace(cubeEl, val);
-    
     gameState.hasRolled = true;
     gameState.isRolling = false; // Unlock
-
     if(val === 6){
       if(gameState.mode === 'ai' && active !== gameState.humanColor){
         recordComputerStat('computerSixes', 1);
@@ -2977,17 +2987,14 @@ function rollDice(){
     } else {
       gameState.consecutiveSixes = 0;
     }
-
     processTurnAfterRoll();
   }, 600);
 }
-
 function isValidMove(color, tokIdx, roll){
   var tok = gameState.tokens[color][tokIdx];
   if(tok.step === -1) return roll === 6;
   return (tok.step + roll <= 56);
 }
-
 function getValidMoveCount(color, roll){
   var count = 0;
   gameState.tokens[color].forEach(function(tok, idx){
@@ -2995,18 +3002,15 @@ function getValidMoveCount(color, roll){
   });
   return count;
 }
-
 function getFirstValidTokenIndex(color, roll){
   for(var i=0; i<4; i++){
     if(isValidMove(color, i, roll)) return i;
   }
   return -1;
 }
-
 function processTurnAfterRoll(){
   var player = getCurrentPlayer();
   var validMoves = getValidMoveCount(player, gameState.diceValue);
-
   if(validMoves === 0){
     updateStatus("No valid moves for " + capitalize(player) + ".");
     setTimeout(passTurn, 850);
@@ -3021,10 +3025,8 @@ function processTurnAfterRoll(){
     }
   }
 }
-
 /* ── helpers ── */
 var _animatingMeshes = {};
-
 /*
  * walkPieceHome
  * -------------
@@ -3049,28 +3051,22 @@ function walkPieceHome(vm, color, tokIdx, currentStep, onDone){
     {ox:-cs*1.1, oz:-cs*1.1}, {ox:cs*1.1, oz:-cs*1.1},
     {ox:-cs*1.1, oz: cs*1.1}, {ox:cs*1.1, oz: cs*1.1}
   ];
-
   /* Build waypoints: current pos → each board cell backwards → yard nest */
   var pts = [{ x: vm.position.x, y: vm.position.y, z: vm.position.z }];
-
   for(var s = currentStep; s >= 0; s--){
     var w = getWorldForStep(color, s);
     pts.push({ x: w.x, y: w.y, z: w.z });
   }
-
   /* Final destination: exact yard nest */
   var yc = YARD_CENTERS[color];
   var no = NEST_OFFSETS[tokIdx];
   pts.push({ x: yc.x + no.ox, y: 0.24, z: yc.z + no.oz });
-
   /* Duration: 70ms per waypoint, capped at 2400ms */
   var totalMs = Math.min(pts.length * 70, 2400);
-
   /* Glow red to show it's captured */
   vm.children.forEach(function(ch){
     if(ch.material) ch.material.emissiveIntensity = 0.9;
   });
-
   /* Spin during walk */
   var spinId = { active: true };
   (function spin(){
@@ -3078,17 +3074,15 @@ function walkPieceHome(vm, color, tokIdx, currentStep, onDone){
     vm.rotation.y += 0.12;
     requestAnimationFrame(spin);
   })();
-
-  /* Audio ticks + crimson step trail during capture retreat */
+  /* Audio ticks during capture retreat */
   var audioTicks = pts.map(function(pt, idx){
     return {
       atT: idx / Math.max(1, pts.length - 1),
       fn: function(){
-        spawn3DLandingBeam(pt.x, pt.z, 0xef4444, idx === pts.length - 1);
+        AudioEngine.step(idx + 1);
       }
     };
   });
-
   animatePieceAlongPath(pts, vm, totalMs, 0.12, audioTicks, function(){
     spinId.active = false;
     vm.rotation.y = 0;
@@ -3098,7 +3092,6 @@ function walkPieceHome(vm, color, tokIdx, currentStep, onDone){
     if(onDone) onDone();
   });
 }
-
 function getWorldForStep(color, step){
   if(step === -1){
     var cs = 0.62;
@@ -3118,7 +3111,6 @@ function getWorldForStep(color, step){
   var w = gridToWorld(coord.r, coord.c);
   return { x: w.x, y: 0.08, z: w.z };
 }
-
 /*
  * animatePieceAlongPath
  * ----------------------
@@ -3131,33 +3123,26 @@ function getWorldForStep(color, step){
  */
 function animatePieceAlongPath(pts, mesh, totalMs, arcH, audioTicks, onDone){
   if(!mesh || pts.length < 2){ if(onDone) onDone(); return; }
-
   /* Build CatmullRomCurve3 through all waypoints */
   var v3pts = pts.map(function(p){ return new THREE.Vector3(p.x, p.y, p.z); });
   var curve  = new THREE.CatmullRomCurve3(v3pts, false, 'catmullrom', 0.5);
-
   var uid    = mesh.uuid;
   _animatingMeshes[uid] = true;
   var t0     = performance.now();
   var fired  = new Array(audioTicks.length).fill(false);
-
   function frame(now){
     var raw = Math.min((now - t0) / totalMs, 1);
-
     /* ease-in-out-sine */
     var t = -(Math.cos(Math.PI * raw) - 1) / 2;
-
     var pt = curve.getPoint(t);
     mesh.position.x = pt.x;
     mesh.position.z = pt.z;
     /* add smooth arc: highest at midpoint */
     mesh.position.y = pt.y + arcH * Math.sin(Math.PI * raw);
-
     /* fire audio ticks at the right moments */
     audioTicks.forEach(function(tk, i){
       if(!fired[i] && raw >= tk.atT){ fired[i] = true; tk.fn(); }
     });
-
     if(raw < 1){
       requestAnimationFrame(frame);
     } else {
@@ -3169,7 +3154,6 @@ function animatePieceAlongPath(pts, mesh, totalMs, arcH, audioTicks, onDone){
   }
   requestAnimationFrame(frame);
 }
-
 /* ==================================================
    FINAL SELECTION — STYLE 1: PHYSICAL 3D TILE BUTTON BOUNCE & FLOOR GLOW
    ================================================== */
@@ -3184,44 +3168,35 @@ function getStepCoord(color, step){
   }
   return null;
 }
-
 function trigger3DTileBounce(coord, colorHex, isFinal) {
   if (!coord) return;
   var key = coord.r + '_' + coord.c;
   var tileMesh = _tileMeshMap[key];
   if (!tileMesh) return;
-
   /* Clone material if shared so only this tile glows */
   if (!tileMesh.userData.isClonedMat) {
     tileMesh.material = tileMesh.material.clone();
     tileMesh.userData.isClonedMat = true;
   }
-
   var mat = tileMesh.material;
   var origEmissive = mat.emissive.getHex();
   var origEmissiveInt = mat.emissiveIntensity;
-
   /* Set glowing emissive color matching the player's color */
   mat.emissive.setHex(colorHex);
   mat.emissiveIntensity = isFinal ? 0.90 : 0.60;
-
   /* Physical 3D Button Bounce Down & Up */
   var origY = 0.04;
   var dipY = isFinal ? 0.022 : 0.015; // Depresses down like a real 3D button
   var t0 = performance.now();
   var duration = isFinal ? 400 : 260;
-
   function animTile(now) {
     var progress = Math.min((now - t0) / duration, 1.0);
-    
     /* Sine wave bounce: dip down in first half, spring back up in second half */
     var sinBounce = Math.sin(Math.PI * progress);
     tileMesh.position.y = origY - dipY * sinBounce;
-
     /* Smoothly fade emissive glow back to normal */
     var alpha = (1.0 - progress);
     mat.emissiveIntensity = origEmissiveInt + (isFinal ? 0.90 : 0.60) * alpha;
-
     if (progress < 1.0) {
       requestAnimationFrame(animTile);
     } else {
@@ -3232,15 +3207,12 @@ function trigger3DTileBounce(coord, colorHex, isFinal) {
   }
   requestAnimationFrame(animTile);
 }
-
 function executeMove(color, tokIdx){
   if(gameState.isMoving) return;
   gameState.isMoving = true;
-
   var tok  = gameState.tokens[color][tokIdx];
   var roll = gameState.diceValue;
   var mesh = tokenMeshes[color][tokIdx];
-
   /* ── Spawn on 6: smooth arc from yard-nest → start cell ── */
   if(tok.step === -1 && roll === 6){
     tok.step = 0;
@@ -3259,12 +3231,10 @@ function executeMove(color, tokIdx){
     }
     return;
   }
-
   /* ── Normal move: hop cell-by-cell with smooth lerp ── */
   var stepsLeft = roll;
   var STEP_DUR  = 260;   /* ms per cell */
   var HOP_H     = 0.20;
-
   function doNextStep(){
     if(stepsLeft <= 0){
       gameState.isMoving = false;
@@ -3276,9 +3246,7 @@ function executeMove(color, tokIdx){
     AudioEngine.step(tok.step);
     var dest = getWorldForStep(color, tok.step);
     var isFinal = (stepsLeft === 0);
-
     trigger3DTileBounce(getStepCoord(color, tok.step), PLAYER_COLORS_HEX[color] || 0xffffff, isFinal);
-
     if(mesh){
       var hop = isFinal ? HOP_H * 2.0 : HOP_H;
       animatePieceTo(mesh, dest.x, dest.y, dest.z, STEP_DUR, hop, doNextStep);
@@ -3288,29 +3256,23 @@ function executeMove(color, tokIdx){
   }
   doNextStep();
 }
-
 /* 3D Piece Hop Arc Lerp */
 function animatePieceTo(mesh, tx, ty, tz, duration, hopH, onDone){
   var sx = mesh.position.x, sy = mesh.position.y, sz = mesh.position.z;
   var t0  = performance.now();
   var uid = mesh.uuid;
   _animatingMeshes[uid] = true;
-
   function frame(now){
     var t = Math.min((now - t0) / duration, 1);
     var e = 1 - Math.pow(1 - t, 3);          /* ease-out cubic */
-    
     var cx = sx + (tx - sx) * e;
     var cz = sz + (tz - sz) * e;
     var sinArc = Math.sin(Math.PI * t);
     var cy = sy + (ty - sy) * e + hopH * sinArc;
-
     mesh.position.set(cx, cy, cz);
-
     /* Subtle Squash & Stretch 3D Physics */
     var stretch = sinArc * 0.20;
     mesh.scale.set(1.0 - stretch * 0.2, 1.0 + stretch * 0.35, 1.0 - stretch * 0.2);
-
     if(t < 1){
       requestAnimationFrame(frame);
     } else {
@@ -3322,12 +3284,9 @@ function animatePieceTo(mesh, tx, ty, tz, duration, hopH, onDone){
   }
   requestAnimationFrame(frame);
 }
-
-
 function postMoveCheck(color, tokIdx, wasSpawn){
   var tok = gameState.tokens[color][tokIdx];
   var extraRoll = (gameState.diceValue === 6);
-
   if(tok.step === 56){
     AudioEngine.enterHome();
     extraRoll = true;
@@ -3336,11 +3295,9 @@ function postMoveCheck(color, tokIdx, wasSpawn){
       recordComputerStat('computerPawnsHome', 1);
     }
   }
-
   if(tok.step >= 0 && tok.step <= 50){
     var myGlobalIdx = (START_OFFSETS[color] + tok.step) % 52;
     var isSafe = (STAR_TILES.indexOf(myGlobalIdx) !== -1);
-
     if(!isSafe){
       gameState.activePlayers.forEach(function(oppColor){
         if(oppColor !== color){
@@ -3354,13 +3311,14 @@ function postMoveCheck(color, tokIdx, wasSpawn){
                 if(gameState.mode === 'ai' && color !== gameState.humanColor){
                   recordComputerStat('computerCaptures', 1);
                 }
-
                 /* Walk captured piece back home along the board path */
                 (function(oColor, oIdx, oTok){
                   var vm = tokenMeshes[oColor][oIdx];
-                  if(!vm){ oTok.step = -1; return; }
-                  walkPieceHome(vm, oColor, oIdx, oTok.step, function(){
-                    oTok.step = -1;
+                  var currentStp = oTok.step;
+                  oTok.step = -1; /* Mark captured in state immediately */
+                  if(!vm) return;
+                  walkPieceHome(vm, oColor, oIdx, currentStp, function(){
+                    update3DPawnPositions();
                   });
                 })(oppColor, oppIdx, oppTok);
               }
@@ -3370,42 +3328,38 @@ function postMoveCheck(color, tokIdx, wasSpawn){
       });
     }
   }
-
   if(checkPlayerWin(color)){
     if(gameState.winners.indexOf(color) === -1){
       gameState.winners.push(color);
       triggerGrandVictoryCelebration(color);
     }
-    
+    updateStatus("🏆 " + capitalize(color) + " HAS COMPLETED ALL PAWNS!");
     // If playing Vs Computer and the human player has finished all pawns
     if(gameState.mode === 'ai' && color === gameState.humanColor){
       var rankIdx = gameState.winners.indexOf(gameState.humanColor);
       var rankNum = rankIdx + 1;
       var rankSuffix = (rankNum === 1 ? '1st' : (rankNum === 2 ? '2nd' : (rankNum === 3 ? '3rd' : rankNum + 'th')));
       var rankEmoji = (rankNum === 1 ? '👑' : (rankNum === 2 ? '🥈' : '🥉'));
-
       var mTitle = document.getElementById('human-finish-modal-title');
       var mSub = document.getElementById('human-finish-modal-sub');
-
       if(mTitle) mTitle.textContent = 'You Finished ' + rankSuffix + ' Place! ' + rankEmoji;
       if(mSub) mSub.textContent = 'All 4 of your pawns have reached home (' + rankSuffix + ' Place)! Would you like to end the game now and see final results, or watch the computer finish?';
-
       var endBtn = document.getElementById('btn-end-match-now');
       var menuEndBtn = document.getElementById('btn-menu-end-now');
       if(endBtn) endBtn.style.display = 'inline-flex';
       if(menuEndBtn) menuEndBtn.style.display = 'flex';
-      
       var promptModal = document.getElementById('human-finished-modal');
       if(promptModal) promptModal.classList.remove('hidden');
     }
-
     if(gameState.ruleType === 'quick' || gameState.winners.length >= gameState.activePlayers.length - 1){
       endMatch();
       return;
     }
+    /* Finished player MUST NOT get next turn or bonus roll — pass turn directly to next active player */
+    passTurn();
+    return;
   }
-
-  if(extraRoll && !gameState.gameOver && !checkPlayerWin(color)){
+  if(extraRoll && !gameState.gameOver){
     gameState.hasRolled = false;
     updateStatus(capitalize(color) + " gets a Bonus Roll! 🎲");
     if(gameState.mode === 'ai' && color !== gameState.humanColor){
@@ -3415,44 +3369,35 @@ function postMoveCheck(color, tokIdx, wasSpawn){
     passTurn();
   }
 }
-
 function checkPlayerWin(color){
   var needed = gameState.ruleType === 'quick' ? 1 : 4;
   var homeCount = 0;
   gameState.tokens[color].forEach(function(t){ if(t.step === 56) homeCount++; });
   return homeCount >= needed;
 }
-
 function passTurn(){
   gameState.hasRolled = false;
   gameState.isMoving = false;
-
   do {
     gameState.currentTurnIdx = (gameState.currentTurnIdx + 1) % gameState.activePlayers.length;
   } while(gameState.winners.indexOf(getCurrentPlayer()) !== -1 && !gameState.gameOver);
-
   updateTurnDisplay();
-
   var nextPlayer = getCurrentPlayer();
   if(gameState.mode === 'ai' && nextPlayer !== gameState.humanColor && !gameState.gameOver){
     setTimeout(rollDice, 600);
   }
 }
-
 /* Smart Tactical AI */
 function executeAIMove(color, roll){
   var validTokens = [];
   gameState.tokens[color].forEach(function(tok, idx){
     if(isValidMove(color, idx, roll)) validTokens.push(idx);
   });
-
   if(validTokens.length === 0){ passTurn(); return; }
-
   var bestIdx = validTokens[0], bestScore = -999;
   validTokens.forEach(function(idx){
     var tok = gameState.tokens[color][idx];
     var score = 0;
-
     /* Capture Priority */
     if(tok.step >= 0 && tok.step + roll <= 50){
       var targetGlobal = (START_OFFSETS[color] + tok.step + roll) % 52;
@@ -3472,13 +3417,10 @@ function executeAIMove(color, roll){
     if(tok.step + roll === 56) score += 60;
     if(tok.step === -1 && roll === 6) score += 40;
     if(tok.step >= 0) score += tok.step * 0.5;
-
     if(score > bestScore){ bestScore = score; bestIdx = idx; }
   });
-
   executeMove(color, bestIdx);
 }
-
 /* ==================================================
    7. UI MANAGER & NAVIGATION
    ================================================== */
@@ -3487,7 +3429,6 @@ function showScreen(id){
   var target = document.getElementById(id);
   if(target) target.classList.remove('hidden');
 }
-
 var _statusTimeout = null;
 function updateStatus(text){
   var bar = document.getElementById('game-status-bar');
@@ -3501,14 +3442,12 @@ function updateStatus(text){
     }, 2500);
   }
 }
-
 function capitalize(str){
   if(gameState && gameState.playerNames && gameState.playerNames[str]) {
     return gameState.playerNames[str];
   }
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
-
 function getActiveColors() {
   if (gameState.mode === 'pass') {
     // Ensure we have exactly playerCount colors
@@ -3524,7 +3463,6 @@ function getActiveColors() {
     }
     return selected;
   }
-
   var selected = gameState.humanColor || 'red';
   var others = ['red', 'green', 'yellow', 'blue'].filter(function(c){ return c !== selected; });
   if(gameState.playerCount === 2){
@@ -3536,16 +3474,13 @@ function getActiveColors() {
     return ['red', 'green', 'yellow', 'blue'];
   }
 }
-
 function updateNameLabels() {
   if (gameState.mode === 'pass') {
     var is4P = gameState.playerCount === 4;
     var is2P = gameState.playerCount === 2;
-    
     var pList = document.getElementById('players-list-container');
     var cbTeam1 = document.getElementById('cb-team-1');
     var cbTeam2 = document.getElementById('cb-team-2');
-
     if (is2P) {
       if(pList) {
         pList.style.display = 'grid';
@@ -3554,12 +3489,10 @@ function updateNameLabels() {
       }
       if(cbTeam1) { cbTeam1.style.display = 'flex'; cbTeam1.style.gridArea = 'cb1'; }
       if(cbTeam2) { cbTeam2.style.display = 'flex'; cbTeam2.style.gridArea = 'cb2'; }
-      
       document.getElementById('group-red').style.gridArea = 'red';
       document.getElementById('group-yellow').style.gridArea = 'yellow';
       document.getElementById('group-green').style.gridArea = 'green';
       document.getElementById('group-blue').style.gridArea = 'blue';
-
       var isRY = gameState.localSelectedColors.indexOf('red') !== -1;
       if (isRY) {
         document.getElementById('span-cb-ry').classList.add('checked');
@@ -3580,14 +3513,12 @@ function updateNameLabels() {
       if(cbTeam1) cbTeam1.style.display = 'none';
       if(cbTeam2) cbTeam2.style.display = 'none';
     }
-
     var colors = ['red', 'green', 'yellow', 'blue'];
     colors.forEach(function(c){
       var group = document.getElementById('group-' + c);
       if(group) {
         var box = group.querySelector('.color-checkbox');
         if(box) box.style.display = (is4P || is2P) ? 'none' : 'flex';
-        
         var isActive = gameState.localSelectedColors.indexOf(c) !== -1;
         if(isActive){
           group.classList.remove('disabled');
@@ -3600,26 +3531,21 @@ function updateNameLabels() {
     });
   }
 }
-
 function updateTurnDisplay(){
   var active = getCurrentPlayer();
-  
   var colorGlowMap = {
     red: '0 0 22px rgba(239, 68, 68, 0.95), 0 0 45px rgba(239, 68, 68, 0.45)',
     green: '0 0 22px rgba(16, 185, 129, 0.95), 0 0 45px rgba(16, 185, 129, 0.45)',
     yellow: '0 0 22px rgba(245, 158, 11, 0.95), 0 0 45px rgba(245, 158, 11, 0.45)',
     blue: '0 0 22px rgba(59, 130, 246, 0.95), 0 0 45px rgba(59, 130, 246, 0.45)'
   };
-
   var centralUi = document.getElementById('central-dice-ui');
   var avatarArea = document.getElementById('central-avatar-area');
   var pinPath = document.getElementById('central-pin-path');
-  
   // Toggle visibility of central vs corner dice
   if (gameState && gameState.is2DMode) {
     if(centralUi) centralUi.style.display = 'none';
     positionCornerDiceUIs();
-    
     // Manage corner dice
     ['red', 'green', 'yellow', 'blue'].forEach(function(color) {
       var ui = document.getElementById('dice-ui-' + color);
@@ -3657,7 +3583,6 @@ function updateTurnDisplay(){
       if (ui) ui.style.display = 'none';
     });
   }
-
   var hudType = document.getElementById('hud-match-type');
   if(hudType && gameState.playerNames && gameState.playerNames[active]) {
     var pName = gameState.playerNames[active];
@@ -3669,7 +3594,6 @@ function updateTurnDisplay(){
     hudType.style.color = 'var(--' + active + ')';
   }
 }
-
 function startMatch(){
   stopVictoryBoardSpotlight();
   gameState.winners = [];
@@ -3678,25 +3602,20 @@ function startMatch(){
   gameState.hasRolled = false;
   gameState.consecutiveSixes = 0;
   gameState.rollHistory = { red: [], green: [], yellow: [], blue: [] };
-
   var endBtn = document.getElementById('btn-end-match-now');
   var menuEndBtn = document.getElementById('btn-menu-end-now');
   if(endBtn) endBtn.style.display = 'none';
   if(menuEndBtn) menuEndBtn.style.display = 'none';
   var promptModal = document.getElementById('human-finished-modal');
   if(promptModal) promptModal.classList.add('hidden');
-
   var restartBtn = document.getElementById('btn-game-restart');
   if (restartBtn) {
     restartBtn.disabled = true;
     restartBtn.style.opacity = '0.3';
     restartBtn.style.pointerEvents = 'none';
   }
-
   if (!gameState.humanColor) gameState.humanColor = 'red';
-  
   gameState.activePlayers = getActiveColors();
-
   /* Ensure human player's chosen color gets the FIRST turn of the match */
   var humanIdx = gameState.activePlayers.indexOf(gameState.humanColor);
   if (humanIdx !== -1) {
@@ -3704,17 +3623,14 @@ function startMatch(){
   } else {
     gameState.currentTurnIdx = 0;
   }
-
   /* Orient board POV to face the human player's chosen color at bottom-left */
   var startAngles = { red: 0, green: -Math.PI/2, yellow: Math.PI, blue: Math.PI/2 };
   boardRotY = startAngles[gameState.humanColor] || 0;
   boardRotX = gameState.is2DMode ? (Math.PI / 2) : 0.55;
   _lastHalfBoard = -1;
-
   PLAYERS.forEach(function(p){
     gameState.tokens[p] = [{step:-1},{step:-1},{step:-1},{step:-1}];
   });
-
   gameState.playerNames = {};
   gameState.activePlayers.forEach(function(color, idx){
     var name = capitalize(color);
@@ -3730,17 +3646,13 @@ function startMatch(){
     }
     gameState.playerNames[color] = name;
   });
-
   var centralCube = document.getElementById('dice-cube-central');
   if(centralCube) { createDiceFaces(centralCube); setDiceFace(centralCube, 1); }
-
   ['red', 'green', 'yellow', 'blue'].forEach(function(color) {
     var cube = document.getElementById('dice-cube-' + color);
     if(cube) { createDiceFaces(cube); setDiceFace(cube, 1); }
   });
-
   document.getElementById('hud-match-type').textContent = gameState.playerCount + 'P ' + (gameState.mode === 'ai' ? 'Vs Computer ' : '') + capitalize(gameState.ruleType);
-
   showScreen('game-screen');
   /* Init or resize the 3D engine now that canvas is visible */
   if(!renderer){
@@ -3751,18 +3663,15 @@ function startMatch(){
   update3DPawnPositions();
   updateTurnDisplay();
 }
-
 function endMatch(){
   gameState.gameOver = true;
   stopVictoryBoardSpotlight();
-
   var endBtn = document.getElementById('btn-end-match-now');
   var menuEndBtn = document.getElementById('btn-menu-end-now');
   if(endBtn) endBtn.style.display = 'none';
   if(menuEndBtn) menuEndBtn.style.display = 'none';
   var promptModal = document.getElementById('human-finished-modal');
   if(promptModal) promptModal.classList.add('hidden');
-
   var modal = document.getElementById('win-modal');
   var card = modal ? modal.querySelector('.modal-card') : null;
   if(card && !card.querySelector('.victory-sunburst')){
@@ -3770,23 +3679,18 @@ function endMatch(){
     sb.className = 'victory-sunburst';
     card.insertBefore(sb, card.firstChild);
   }
-
   var podium = document.getElementById('podium-list');
   podium.innerHTML = '';
-
   // Collect winners + remaining active players ordered by pawn progress
   var remaining = gameState.activePlayers.filter(function(p){
     return gameState.winners.indexOf(p) === -1;
   });
-
   remaining.sort(function(a, b){
     var sumA = gameState.tokens[a].reduce(function(acc, t){ return acc + (t.step === -1 ? 0 : t.step); }, 0);
     var sumB = gameState.tokens[b].reduce(function(acc, t){ return acc + (t.step === -1 ? 0 : t.step); }, 0);
     return sumB - sumA;
   });
-
   var finalOrder = gameState.winners.concat(remaining);
-
   finalOrder.forEach(function(w, idx){
     if (idx >= 3) return; // Only show Top 3 Podium Winners (1st, 2nd, 3rd)
     var row = document.createElement('div');
@@ -3797,7 +3701,6 @@ function endMatch(){
     row.innerHTML = '<span>#' + (idx+1) + ' ' + pName + '</span><span>' + rankLabel + '</span>';
     podium.appendChild(row);
   });
-
   /* Record Computer Match Completion Stat if in Vs Computer mode */
   if(gameState.mode === 'ai'){
     var s = getComputerStats();
@@ -3810,10 +3713,8 @@ function endMatch(){
     }
     saveComputerStats(s);
   }
-
   modal.classList.remove('hidden');
 }
-
 /* ==================================================
    COMPUTER CAREER STATS SYSTEM (Vs Computer Data Only)
    ================================================== */
@@ -3834,45 +3735,35 @@ function getComputerStats(){
   } catch(e){}
   return { matchesPlayed: 0, humanWins: 0, computerWins: 0, computerCaptures: 0, computerPawnsHome: 0, computerSixes: 0 };
 }
-
 function saveComputerStats(stats){
   try {
     localStorage.setItem('ludoking_ai_stats', JSON.stringify(stats));
   } catch(e){}
 }
-
 function recordComputerStat(key, amount){
   if(gameState.mode !== 'ai') return;
   var s = getComputerStats();
   s[key] = (s[key] || 0) + (amount || 1);
   saveComputerStats(s);
 }
-
 function updateComputerStatsDisplay(){
   var s = getComputerStats();
   var totalRecorded = (s.matchesPlayed || 0) + (s.computerCaptures || 0) + (s.computerPawnsHome || 0);
-
   var matchesEl = document.getElementById('stat-matches');
   if(matchesEl) matchesEl.textContent = s.matchesPlayed || 0;
-  
   var winrateEl = document.getElementById('stat-winrate');
   if(winrateEl){
     var rate = s.matchesPlayed > 0 ? Math.round((s.computerWins / s.matchesPlayed) * 100) : 0;
     winrateEl.textContent = rate + '%';
   }
-  
   var winsEl = document.getElementById('stat-bot-wins');
   if(winsEl) winsEl.textContent = s.computerWins || 0;
-  
   var capsEl = document.getElementById('stat-bot-captures');
   if(capsEl) capsEl.textContent = s.computerCaptures || 0;
-  
   var homeEl = document.getElementById('stat-bot-home');
   if(homeEl) homeEl.textContent = s.computerPawnsHome || 0;
-  
   var sixesEl = document.getElementById('stat-bot-sixes');
   if(sixesEl) sixesEl.textContent = s.computerSixes || 0;
-
   var resetBtn = document.getElementById('btn-reset-stats');
   if(resetBtn){
     if(totalRecorded === 0){
@@ -3888,12 +3779,10 @@ function updateComputerStatsDisplay(){
     }
   }
 }
-
 /* ==================================================
    GRAND VICTORY CELEBRATION ENGINE
    ================================================== */
 var _victoryDanceActive = false;
-
 function triggerGrandVictoryCelebration(winnerColor){
   /* 1. Audio Fanfare */
   if(AudioEngine && AudioEngine.playVictoryFanfare){
@@ -3901,7 +3790,6 @@ function triggerGrandVictoryCelebration(winnerColor){
   } else if(AudioEngine) {
     AudioEngine.win();
   }
-
   /* 2. Multi-Wave Fireworks & Confetti Stream */
   if(typeof confetti === 'function'){
     var themeColors = {
@@ -3911,7 +3799,6 @@ function triggerGrandVictoryCelebration(winnerColor){
       blue:   ['#3b82f6', '#fbbf24', '#ffffff', '#2563eb', '#ffd700']
     };
     var colors = themeColors[winnerColor] || themeColors.yellow;
-
     /* Wave 1: Immediate Left & Right Side Cannons */
     confetti({
       particleCount: 90, angle: 60, spread: 75, origin: { x: 0, y: 0.75 }, colors: colors
@@ -3919,7 +3806,6 @@ function triggerGrandVictoryCelebration(winnerColor){
     confetti({
       particleCount: 90, angle: 120, spread: 75, origin: { x: 1, y: 0.75 }, colors: colors
     });
-
     /* Wave 2 (+300ms): Center Star Burst */
     setTimeout(function(){
       confetti({
@@ -3927,7 +3813,6 @@ function triggerGrandVictoryCelebration(winnerColor){
         shapes: ['star', 'circle'], colors: colors, scalar: 1.2
       });
     }, 300);
-
     /* Wave 3 (+600ms): High Altitude Skyburst */
     setTimeout(function(){
       confetti({
@@ -3935,7 +3820,6 @@ function triggerGrandVictoryCelebration(winnerColor){
         origin: { x: 0.5, y: 0.8 }, colors: colors
       });
     }, 600);
-
     /* Wave 4 (+900ms to +2600ms): Continuous Golden Rain Shower */
     var end = Date.now() + 2400;
     var interval = setInterval(function() {
@@ -3949,16 +3833,13 @@ function triggerGrandVictoryCelebration(winnerColor){
       });
     }, 200);
   }
-
   /* 3. 3D Pawn Victory Dance */
   animate3DVictoryDance(winnerColor);
 }
-
 function animate3DVictoryDance(color){
   if(!tokenMeshes || !tokenMeshes[color]) return;
   _victoryDanceActive = true;
   var startTime = performance.now();
-
   /* Animate winning pawns jumping and spinning on center home */
   function danceFrame(now){
     if(!_victoryDanceActive || now - startTime > 8000) {
@@ -3977,7 +3858,6 @@ function animate3DVictoryDance(color){
   }
   requestAnimationFrame(danceFrame);
 }
-
 function stopVictoryBoardSpotlight(){
   _victoryDanceActive = false;
   if(scene){
@@ -4000,7 +3880,101 @@ function stopVictoryBoardSpotlight(){
     });
   }
 }
-
+function animatePawnsToHome(color, onDone) {
+  var tokens = gameState.tokens[color];
+  if (!tokens) { if (onDone) onDone(); return; }
+  var completed = 0;
+  tokens.forEach(function(tok, idx) {
+    tok.step = 56;
+    var mesh = tokenMeshes[color][idx];
+    if (mesh) {
+      setTimeout(function() {
+        var endPos = getWorldForStep(color, 56);
+        var angle = (idx / 4) * Math.PI * 2;
+        var ox = Math.cos(angle) * 0.14;
+        var oz = Math.sin(angle) * 0.14;
+        AudioEngine.enterHome();
+        trigger3DTileBounce(getStepCoord(color, 56), PLAYER_COLORS_HEX[color] || 0xffffff, true);
+        animatePieceTo(mesh, endPos.x + ox, endPos.y, endPos.z + oz, 480, 0.7, function() {
+          completed++;
+          if (completed >= 4 && onDone) onDone();
+        });
+      }, idx * 120);
+    } else {
+      completed++;
+      if (completed >= 4 && onDone) onDone();
+    }
+  });
+}
+function updatePOVUI() {
+  var povBtn = document.getElementById('btn-game-pov');
+  var povIconSpan = document.getElementById('pov-icon-span');
+  var povTextSpan = document.getElementById('pov-btn-text');
+  var povChip = document.getElementById('toggle-pov-chip');
+  if(povBtn) {
+    povBtn.style.display = (gameState && gameState.is2DMode) ? 'none' : 'flex';
+    povBtn.style.opacity = (gameState && gameState.autoPOV) ? '1' : '0.6';
+  }
+  if(povTextSpan) povTextSpan.textContent = (gameState && gameState.autoPOV) ? 'Auto POV: ON' : 'Auto POV: OFF';
+  if(povIconSpan) {
+    povIconSpan.innerHTML = (gameState && gameState.autoPOV) 
+      ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+      : '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>';
+  }
+  if (povChip) {
+    povChip.style.display = (gameState && gameState.is2DMode) ? 'none' : 'flex';
+    var toggleSwitch = povChip.querySelector('.toggle-switch');
+    var statusText = povChip.querySelector('.toggle-status-text');
+    if (toggleSwitch) {
+      if (gameState.autoPOV) toggleSwitch.classList.add('active'); else toggleSwitch.classList.remove('active');
+    }
+    if (statusText) statusText.textContent = (gameState && gameState.autoPOV) ? 'ON' : 'OFF';
+  }
+}
+function updateViewModeUI() {
+  var btnText = document.getElementById('2d-btn-text');
+  var btnIcon = document.getElementById('2d-icon-span');
+  if (btnText) btnText.textContent = (gameState && gameState.is2DMode) ? 'Switch to 3D View' : 'Switch to 2D View';
+  if (btnIcon) {
+    btnIcon.innerHTML = (gameState && gameState.is2DMode)
+      ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>'
+      : '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect></svg>';
+  }
+  updatePOVUI();
+}
+function hasAnyTokenMoved(){
+  if(!gameState || !gameState.tokens) return false;
+  var moved = false;
+  PLAYERS.forEach(function(p){
+    if(gameState.tokens[p]){
+      gameState.tokens[p].forEach(function(t){
+        if(t.step > -1) moved = true;
+      });
+    }
+  });
+  return moved;
+}
+function toggle2D3DView(force) {
+  if (!force && gameState && !gameState.gameOver && hasAnyTokenMoved()) {
+    var drop = document.getElementById('hamburger-dropdown');
+    if (drop) drop.classList.add('hidden');
+    window.pendingStatsReset = false;
+    window.pendingModeSwitch = true;
+    var titleEl = document.getElementById('restart-modal-title');
+    var subEl   = document.getElementById('restart-modal-sub');
+    if (titleEl) titleEl.textContent = 'Switch Mode?';
+    if (subEl)   subEl.textContent = 'Switching mode will restart the match. Are you sure?';
+    var modal = document.getElementById('restart-modal');
+    if (modal) modal.classList.remove('hidden');
+    return;
+  }
+  gameState.is2DMode = !gameState.is2DMode;
+  /* Real-time camera tilt: Top-Down (90 deg) vs 3D Angle (0.55 rad) */
+  boardRotX = gameState.is2DMode ? (Math.PI / 2) : 0.55;
+  updateViewModeUI();
+  updateTurnDisplay();
+  updateStatus(gameState.is2DMode ? "Switched to 2D Top-Down View 📐" : "Switched to 3D Perspective View 🎲");
+}
 /* ==================================================
    8. EVENT WIRING & STARTUP
    ================================================== */
@@ -4009,7 +3983,6 @@ function bindEvents(){
     e.stopPropagation();
     document.getElementById('hamburger-dropdown').classList.toggle('hidden');
   });
-
   window.addEventListener('click', function(e){
     var drop = document.getElementById('hamburger-dropdown');
     var btn = document.getElementById('btn-hamburger');
@@ -4019,10 +3992,8 @@ function bindEvents(){
       }
     }
   });
-
   document.getElementById('btn-menu-rules').addEventListener('click', function(){ showScreen('rules-screen'); });
   document.getElementById('btn-menu-settings').addEventListener('click', function(){ showScreen('settings-screen'); });
-  
   var btnMenuStats = document.getElementById('btn-menu-stats');
   if(btnMenuStats){
     btnMenuStats.addEventListener('click', function(){
@@ -4045,19 +4016,14 @@ function bindEvents(){
         updateStatus("No statistics recorded yet to reset!");
         return;
       }
-      var t = document.getElementById('restart-modal-title');
-      if(t) t.textContent = 'Reset Statistics?';
-      var sub = document.getElementById('restart-modal-sub');
-      if(sub) sub.textContent = 'Are you sure you want to permanently clear all career statistics?';
-      var confirmBtn = document.getElementById('btn-confirm-restart');
-      if(confirmBtn){
-        confirmBtn.textContent = 'Yes, Clear Data';
-        window.pendingStatsReset = true;
-      }
+      window.pendingStatsReset = true;
+      var titleEl = document.getElementById('restart-modal-title');
+      var subEl   = document.getElementById('restart-modal-sub');
+      if(titleEl) titleEl.textContent = "Reset Statistics?";
+      if(subEl) subEl.textContent = "Are you sure you want to permanently clear all career statistics and match history? This action cannot be undone.";
       document.getElementById('restart-modal').classList.remove('hidden');
     });
   }
-
   document.getElementById('btn-mode-back').addEventListener('click', function(){
     var configPanel = document.getElementById('config-panel');
     var oppSection = document.getElementById('opponent-section');
@@ -4070,7 +4036,6 @@ function bindEvents(){
   });
   document.getElementById('btn-rules-back').addEventListener('click', function(){ showScreen('main-menu'); });
   document.getElementById('btn-settings-back').addEventListener('click', function(){ showScreen('main-menu'); });
-
   document.getElementById('btn-game-menu').addEventListener('click', function(){
     document.getElementById('hamburger-dropdown').classList.add('hidden');
     if(!gameState.gameOver) {
@@ -4086,21 +4051,19 @@ function bindEvents(){
   document.getElementById('btn-cancel-quit').addEventListener('click', function(){
     document.getElementById('confirm-modal').classList.add('hidden');
   });
-
-  var gameRestartBtn = document.getElementById('btn-game-restart');
-  if(gameRestartBtn){
-    gameRestartBtn.addEventListener('click', function(){
+  var btnRestart = document.getElementById('btn-game-restart');
+  if(btnRestart){
+    btnRestart.addEventListener('click', function(){
       document.getElementById('hamburger-dropdown').classList.add('hidden');
-      var t = document.getElementById('restart-modal-title');
-      if(t) t.textContent = 'Restart Game?';
-      var s = document.getElementById('restart-modal-sub');
-      if(s) s.textContent = 'Are you sure you want to completely restart the match?';
-      var b = document.getElementById('btn-confirm-restart');
-      if(b) b.textContent = 'Yes, Restart';
+      window.pendingStatsReset = false;
+      window.pendingModeSwitch = false;
+      var titleEl = document.getElementById('restart-modal-title');
+      var subEl   = document.getElementById('restart-modal-sub');
+      if(titleEl) titleEl.textContent = 'Restart Match?';
+      if(subEl) subEl.textContent = 'Are you sure you want to completely restart the current match? All current turn progress will be reset.';
       document.getElementById('restart-modal').classList.remove('hidden');
     });
   }
-
   var confirmRestartBtn = document.getElementById('btn-confirm-restart');
   if(confirmRestartBtn){
     confirmRestartBtn.addEventListener('click', function(){
@@ -4114,24 +4077,19 @@ function bindEvents(){
       }
       if (window.pendingModeSwitch) {
         window.pendingModeSwitch = false;
-        gameState.is2DMode = !gameState.is2DMode;
-        var btnText = document.getElementById('2d-btn-text');
-        if(btnText) btnText.textContent = gameState.is2DMode ? 'Switch to 3D View' : 'Switch to 2D View';
-        var povBtn = document.getElementById('btn-game-pov');
-        if(povBtn) povBtn.style.display = gameState.is2DMode ? 'none' : 'flex';
-        updateTurnDisplay();
+        toggle2D3DView(true);
       }
       startMatch();
     });
   }
-
   var cancelRestartBtn = document.getElementById('btn-cancel-restart');
   if(cancelRestartBtn){
     cancelRestartBtn.addEventListener('click', function(){
+      window.pendingModeSwitch = false;
+      window.pendingStatsReset = false;
       document.getElementById('restart-modal').classList.add('hidden');
     });
   }
-
   var openDevBtn = document.getElementById('btn-open-dev-tools');
   if(openDevBtn){
     openDevBtn.addEventListener('click', function(){
@@ -4144,44 +4102,178 @@ function bindEvents(){
       document.getElementById('dev-test-modal').classList.add('hidden');
     });
   }
-
   var test1stAction = document.getElementById('btn-test-action-1st');
   if(test1stAction){
     test1stAction.addEventListener('click', function(){
       document.getElementById('dev-test-modal').classList.add('hidden');
-      var titleEl = document.getElementById('human-finish-modal-title');
-      if(titleEl) titleEl.textContent = 'You Finished 1st Place!';
-      triggerGrandVictoryCelebration('red');
-      document.getElementById('human-finished-modal').classList.remove('hidden');
+      var humanCol = (gameState && gameState.humanColor) || 'red';
+      gameState.winners = [humanCol];
+      animatePawnsToHome(humanCol, function(){
+        var titleEl = document.getElementById('human-finish-modal-title');
+        var subEl   = document.getElementById('human-finish-modal-sub');
+        if(titleEl) titleEl.textContent = 'You Finished 1st Place! 👑';
+        if(subEl) subEl.textContent = 'All 4 of your pawns have reached home (1st Place)! Would you like to end the game now and see final results, or watch the computer finish?';
+        triggerGrandVictoryCelebration(humanCol);
+        document.getElementById('human-finished-modal').classList.remove('hidden');
+      });
     });
   }
-
   var test2ndAction = document.getElementById('btn-test-action-2nd');
   if(test2ndAction){
     test2ndAction.addEventListener('click', function(){
       document.getElementById('dev-test-modal').classList.add('hidden');
-      var titleEl = document.getElementById('human-finish-modal-title');
-      if(titleEl) titleEl.textContent = 'You Finished 2nd Place!';
-      triggerGrandVictoryCelebration('red');
-      document.getElementById('human-finished-modal').classList.remove('hidden');
+      var humanCol = (gameState && gameState.humanColor) || 'red';
+      var oppCol   = PLAYERS.find(function(p){ return p !== humanCol; }) || 'green';
+      gameState.winners = [oppCol, humanCol];
+      animatePawnsToHome(oppCol, function(){
+        animatePawnsToHome(humanCol, function(){
+          var titleEl = document.getElementById('human-finish-modal-title');
+          var subEl   = document.getElementById('human-finish-modal-sub');
+          if(titleEl) titleEl.textContent = 'You Finished 2nd Place! 🥈';
+          if(subEl) subEl.textContent = 'All 4 of your pawns have reached home (2nd Place)! Would you like to end the game now and see final results, or watch the computer finish?';
+          triggerGrandVictoryCelebration(humanCol);
+          document.getElementById('human-finished-modal').classList.remove('hidden');
+        });
+      });
     });
   }
-
+  var test3rdAction = document.getElementById('btn-test-action-3rd');
+  if(test3rdAction){
+    test3rdAction.addEventListener('click', function(){
+      document.getElementById('dev-test-modal').classList.add('hidden');
+      var humanCol = (gameState && gameState.humanColor) || 'red';
+      var otherCols = PLAYERS.filter(function(p){ return p !== humanCol; });
+      var opp1 = otherCols[0] || 'green';
+      var opp2 = otherCols[1] || 'yellow';
+      gameState.winners = [opp1, opp2, humanCol];
+      animatePawnsToHome(opp1, function(){
+        animatePawnsToHome(opp2, function(){
+          animatePawnsToHome(humanCol, function(){
+            var titleEl = document.getElementById('human-finish-modal-title');
+            var subEl   = document.getElementById('human-finish-modal-sub');
+            if(titleEl) titleEl.textContent = 'You Finished 3rd Place! 🥉';
+            if(subEl) subEl.textContent = 'All 4 of your pawns have reached home (3rd Place)! Would you like to end the game now and see final results, or watch the computer finish?';
+            triggerGrandVictoryCelebration(humanCol);
+            document.getElementById('human-finished-modal').classList.remove('hidden');
+          });
+        });
+      });
+    });
+  }
   var testPodiumAction = document.getElementById('btn-test-action-podium');
   if(testPodiumAction){
     testPodiumAction.addEventListener('click', function(){
       document.getElementById('dev-test-modal').classList.add('hidden');
+      var humanCol = (gameState && gameState.humanColor) || 'red';
+      var otherCols = PLAYERS.filter(function(p){ return p !== humanCol; });
+      gameState.winners = [humanCol].concat(otherCols);
+      PLAYERS.forEach(function(p){
+        gameState.tokens[p] = [{step:56},{step:56},{step:56},{step:56}];
+      });
+      update3DPawnPositions();
       endMatch();
     });
   }
-
   var testConfettiAction = document.getElementById('btn-test-action-confetti');
   if(testConfettiAction){
     testConfettiAction.addEventListener('click', function(){
-      triggerGrandVictoryCelebration('red');
+      var humanCol = (gameState && gameState.humanColor) || 'red';
+      triggerGrandVictoryCelebration(humanCol);
     });
   }
 
+  function testPieceStacking(count){
+    var devModal = document.getElementById('dev-test-modal');
+    if(devModal) devModal.classList.add('hidden');
+
+    ['splash', 'num-players-modal', 'color-select-modal', 'human-finished-modal', 'match-results-modal'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.classList.add('hidden');
+    });
+    var gameScreen = document.getElementById('game-screen');
+    if(gameScreen) gameScreen.classList.remove('hidden');
+
+    if(!gameState) return;
+    gameState.activePlayers = ['red', 'green', 'yellow', 'blue'];
+    gameState.gameOver = false;
+    gameState.hasRolled = false;
+
+    // Reset all tokens to off-board (-1)
+    PLAYERS.forEach(function(p){
+      gameState.tokens[p] = [{step:-1},{step:-1},{step:-1},{step:-1}];
+    });
+
+    // Star Safe Tile global index 8:
+    // red: step 8; green: step 47; yellow: step 34; blue: step 21
+    var stackPool = [
+      { color: 'red', idx: 0, step: 8 },
+      { color: 'green', idx: 0, step: 47 },
+      { color: 'yellow', idx: 0, step: 34 },
+      { color: 'blue', idx: 0, step: 21 },
+      { color: 'red', idx: 1, step: 8 },
+      { color: 'green', idx: 1, step: 47 },
+      { color: 'yellow', idx: 1, step: 34 },
+      { color: 'blue', idx: 1, step: 21 }
+    ];
+
+    for(var i = 0; i < count && i < stackPool.length; i++){
+      var pObj = stackPool[i];
+      gameState.tokens[pObj.color][pObj.idx].step = pObj.step;
+    }
+
+    update3DPawnPositions();
+    updateStatus("♟️ Stacking test: Displaying " + count + " pieces stacked on Star Safe Tile (Global #8)! Toggle 2D/3D to inspect.");
+  }
+
+  var btnStack5 = document.getElementById('btn-test-stack-5');
+  if(btnStack5){
+    btnStack5.addEventListener('click', function(){ testPieceStacking(5); });
+  }
+  var btnStack6 = document.getElementById('btn-test-stack-6');
+  if(btnStack6){
+    btnStack6.addEventListener('click', function(){ testPieceStacking(6); });
+  }
+  var btnStack7 = document.getElementById('btn-test-stack-7');
+  if(btnStack7){
+    btnStack7.addEventListener('click', function(){ testPieceStacking(7); });
+  }
+  var stackCycleCount = 5;
+  var btnStackCycle = document.getElementById('btn-test-stack-cycle');
+  if(btnStackCycle){
+    btnStackCycle.addEventListener('click', function(){
+      testPieceStacking(stackCycleCount);
+      stackCycleCount = (stackCycleCount === 5) ? 6 : (stackCycleCount === 6 ? 7 : 5);
+    });
+  }
+  var speedBtn = document.getElementById('btn-speed-toggle');
+  var speedLabel = document.getElementById('speed-label');
+  if(speedBtn){
+    speedBtn.addEventListener('click', function(){
+      if(!window.gameSpeedMultiplier || window.gameSpeedMultiplier === 1){
+        window.gameSpeedMultiplier = 2;
+        if(speedLabel) speedLabel.textContent = '2x Speed';
+        speedBtn.style.setProperty('background', 'linear-gradient(180deg, #f59e0b 0%, #b45309 100%)', 'important');
+        speedBtn.style.setProperty('color', '#ffffff', 'important');
+        speedBtn.style.setProperty('border-color', '#fbbf24', 'important');
+        speedBtn.style.setProperty('border-bottom', '3.5px solid #78350f', 'important');
+      } else if(window.gameSpeedMultiplier === 2){
+        window.gameSpeedMultiplier = 3;
+        if(speedLabel) speedLabel.textContent = '3x Speed';
+        speedBtn.style.setProperty('background', 'linear-gradient(180deg, #ef4444 0%, #b91c1c 100%)', 'important');
+        speedBtn.style.setProperty('color', '#ffffff', 'important');
+        speedBtn.style.setProperty('border-color', '#fca5a5', 'important');
+        speedBtn.style.setProperty('border-bottom', '3.5px solid #7f1d1d', 'important');
+      } else {
+        window.gameSpeedMultiplier = 1;
+        if(speedLabel) speedLabel.textContent = '1x Speed';
+        speedBtn.style.setProperty('background', 'linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%)', 'important');
+        speedBtn.style.setProperty('color', '#ffffff', 'important');
+        speedBtn.style.setProperty('border-color', '#60a5fa', 'important');
+        speedBtn.style.setProperty('border-bottom', '3.5px solid #1e40af', 'important');
+      }
+      updateStatus("Game Speed set to " + window.gameSpeedMultiplier + "x ⚡");
+    });
+  }
   var finishEndBtn = document.getElementById('btn-human-finish-end');
   if(finishEndBtn){
     finishEndBtn.addEventListener('click', function(){
@@ -4190,16 +4282,18 @@ function bindEvents(){
       endMatch();
     });
   }
-
   var finishWatchBtn = document.getElementById('btn-human-finish-watch');
   if(finishWatchBtn){
     finishWatchBtn.addEventListener('click', function(){
       stopVictoryBoardSpotlight();
       document.getElementById('human-finished-modal').classList.add('hidden');
+      var endTopBtn = document.getElementById('btn-end-match-now');
+      if(endTopBtn) endTopBtn.style.display = 'inline-flex';
+      var menuEndBtn = document.getElementById('btn-menu-end-now');
+      if(menuEndBtn) menuEndBtn.style.display = 'flex';
       updateStatus("Watching Computer finish... Tap 'End Match' anytime.");
     });
   }
-
   var endNowBtn = document.getElementById('btn-end-match-now');
   if(endNowBtn){
     endNowBtn.addEventListener('click', function(){
@@ -4208,7 +4302,6 @@ function bindEvents(){
       endMatch();
     });
   }
-
   var menuEndNowBtn = document.getElementById('btn-menu-end-now');
   if(menuEndNowBtn){
     menuEndNowBtn.addEventListener('click', function(){
@@ -4218,7 +4311,6 @@ function bindEvents(){
       endMatch();
     });
   }
-
   document.getElementById('btn-win-play-again').addEventListener('click', function(){
     document.getElementById('win-modal').classList.add('hidden');
     startMatch();
@@ -4227,19 +4319,16 @@ function bindEvents(){
     document.getElementById('win-modal').classList.add('hidden');
     showScreen('main-menu');
   });
-
   document.getElementById('chip-mode-pass').addEventListener('click', function(){
     gameState.mode = 'pass';
     document.getElementById('opponent-section').classList.add('hidden');
     document.getElementById('config-panel').classList.remove('hidden');
     document.getElementById('local-names-panel').classList.remove('hidden');
     document.getElementById('color-select-panel').classList.add('hidden');
-    
     ['red', 'green', 'yellow', 'blue'].forEach(function(c){
       var inp = document.getElementById('name-' + c);
       if(inp) inp.value = '';
     });
-
     updateNameLabels();
   });
   document.getElementById('chip-mode-ai').addEventListener('click', function(){
@@ -4249,25 +4338,21 @@ function bindEvents(){
     document.getElementById('local-names-panel').classList.add('hidden');
     document.getElementById('color-select-panel').classList.remove('hidden');
   });
-
   [2, 3, 4].forEach(function(cnt){
     document.getElementById('chip-count-' + cnt).addEventListener('click', function(){
       gameState.playerCount = cnt;
       var err = document.getElementById('name-error');
       if (err) err.style.display = 'none';
-      
       if (cnt === 2) {
         gameState.localSelectedColors = ['red', 'yellow'];
       } else {
         gameState.localSelectedColors = ['red', 'green', 'yellow', 'blue'].slice(0, cnt);
       }
-      
       [2, 3, 4].forEach(function(c){ document.getElementById('chip-count-' + c).classList.remove('active'); });
       this.classList.add('active');
       updateNameLabels();
     });
   });
-
   var cbTeam1 = document.getElementById('cb-team-1');
   if (cbTeam1) {
     cbTeam1.addEventListener('click', function() {
@@ -4288,7 +4373,6 @@ function bindEvents(){
       updateNameLabels();
     });
   }
-
   ['red', 'green', 'yellow', 'blue'].forEach(function(color){
     var group = document.getElementById('group-' + color);
     if(group){
@@ -4296,7 +4380,6 @@ function bindEvents(){
       toggleEls.forEach(function(el){
         el.addEventListener('click', function(){
           if(gameState.mode !== 'pass') return;
-          
           if(gameState.playerCount === 2) {
             if (color === 'red' || color === 'yellow') {
               gameState.localSelectedColors = ['red', 'yellow'];
@@ -4327,7 +4410,6 @@ function bindEvents(){
       });
     }
   });
-
   document.getElementById('chip-rule-classic').addEventListener('click', function(){
     gameState.ruleType = 'classic';
     this.classList.add('active');
@@ -4344,13 +4426,11 @@ function bindEvents(){
       });
     }
   });
-
   document.getElementById('chip-rule-quick').addEventListener('click', function(){
     gameState.ruleType = 'quick';
     this.classList.add('active');
     document.getElementById('chip-rule-classic').classList.remove('active');
   });
-
   document.getElementById('btn-start-game').addEventListener('click', function(){
     if (gameState.mode === 'pass') {
       var err = document.getElementById('name-error');
@@ -4386,7 +4466,6 @@ function bindEvents(){
     }
     startMatch();
   });
-
   var centralBox = document.getElementById('dice-box-central');
   if(centralBox){
     centralBox.addEventListener('click', function(){
@@ -4395,7 +4474,6 @@ function bindEvents(){
       if (!gameState.is2DMode) rollDice();
     });
   }
-  
   // Bind corner dice
   ['red', 'green', 'yellow', 'blue'].forEach(function(color) {
     var box = document.getElementById('dice-box-' + color);
@@ -4407,56 +4485,15 @@ function bindEvents(){
       });
     }
   });
-
   var btn2D = document.getElementById('btn-game-2d');
-  var btnText = document.getElementById('2d-btn-text');
-  if(btn2D && btnText) {
+  if(btn2D) {
     btn2D.addEventListener('click', function(){
-      if (!document.getElementById('btn-game-restart').disabled && !gameState.gameOver) {
-        document.getElementById('hamburger-dropdown').classList.add('hidden');
-        window.pendingModeSwitch = true;
-        var t = document.getElementById('restart-modal-title');
-        if(t) t.textContent = 'Switch Interface?';
-        var s = document.getElementById('restart-modal-sub');
-        if(s) s.textContent = 'Switching interfaces will restart the current game. Are you sure?';
-        var b = document.getElementById('btn-confirm-restart');
-        if(b) b.textContent = 'Yes, Switch';
-        document.getElementById('restart-modal').classList.remove('hidden');
-      } else {
-        gameState.is2DMode = !gameState.is2DMode;
-        btnText.textContent = gameState.is2DMode ? 'Switch to 3D View' : 'Switch to 2D View';
-        var povBtn = document.getElementById('btn-game-pov');
-        if(povBtn) povBtn.style.display = gameState.is2DMode ? 'none' : 'flex';
-        updateTurnDisplay();
-      }
+      document.getElementById('hamburger-dropdown').classList.add('hidden');
+      toggle2D3DView();
     });
-    btnText.textContent = gameState.is2DMode ? 'Switch to 3D View' : 'Switch to 2D View';
-    var povBtn = document.getElementById('btn-game-pov');
-    if(povBtn) povBtn.style.display = gameState.is2DMode ? 'none' : 'flex';
   }
-
   var povBtn = document.getElementById('btn-game-pov');
-  var povIconSpan = document.getElementById('pov-icon-span');
-  var povTextSpan = document.getElementById('pov-btn-text');
   var povChip = document.getElementById('toggle-pov-chip');
-  
-  function updatePOVUI() {
-    if(povBtn) povBtn.style.opacity = gameState.autoPOV ? '1' : '0.6';
-    if(povTextSpan) povTextSpan.textContent = gameState.autoPOV ? 'Auto POV: ON' : 'Auto POV: OFF';
-    if(povIconSpan) {
-      povIconSpan.innerHTML = gameState.autoPOV 
-        ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
-        : '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>';
-    }
-    if (povChip) {
-      var toggleSwitch = povChip.querySelector('.toggle-switch');
-      var statusText = povChip.querySelector('.toggle-status-text');
-      if (toggleSwitch) {
-        if (gameState.autoPOV) toggleSwitch.classList.add('active'); else toggleSwitch.classList.remove('active');
-      }
-      if (statusText) statusText.textContent = gameState.autoPOV ? 'ON' : 'OFF';
-    }
-  }
   if(povBtn) {
     povBtn.addEventListener('click', function(){
       gameState.autoPOV = !gameState.autoPOV;
@@ -4470,12 +4507,10 @@ function bindEvents(){
     });
   }
   updatePOVUI();
-
   var soundBtn = document.getElementById('btn-game-sound');
   var soundChip = document.getElementById('toggle-sound-chip');
   function toggleSound(){
     var isEnabled = AudioEngine.toggle();
-    
     // Update Preferences Settings UI
     var sSwitch = document.getElementById('settings-sound-switch');
     var sStatus = document.getElementById('settings-sound-status');
@@ -4491,7 +4526,6 @@ function bindEvents(){
         ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>'
         : '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
     }
-
     // Update HUD Sound Button
     var hudIcon = document.getElementById('sound-icon-span');
     var hudText = document.getElementById('sound-btn-text');
@@ -4507,7 +4541,6 @@ function bindEvents(){
   }
   if(soundBtn) soundBtn.addEventListener('click', toggleSound);
   if(soundChip) soundChip.addEventListener('click', toggleSound);
-
   document.querySelectorAll('[data-theme]').forEach(function(chip){
     chip.addEventListener('click', function(){
       document.querySelectorAll('[data-theme]').forEach(function(c){ c.classList.remove('active'); });
@@ -4533,7 +4566,6 @@ function bindEvents(){
       if(scene){
         scene.background = new THREE.Color(starProps.bg);
       }
-
       if(starParticles && starParticles.material){
         starParticles.material.color.setHex(starProps.color);
         starParticles.material.opacity = starProps.opacity;
@@ -4544,10 +4576,8 @@ function bindEvents(){
     });
   });
 }
-
 window.addEventListener('DOMContentLoaded', function(){
   bindEvents();
-  
   var colors = ['red', 'green', 'yellow', 'blue'];
   for (var i = 0; i < colors.length; i++) {
     var c = colors[i];
@@ -4557,7 +4587,6 @@ window.addEventListener('DOMContentLoaded', function(){
       el.value = stored;
     }
   }
-
   // Reset mode screen to initial state
   document.getElementById('btn-menu-play').addEventListener('click', function(){
     if(!gameState.humanColor) gameState.humanColor = 'red';
@@ -4567,12 +4596,10 @@ window.addEventListener('DOMContentLoaded', function(){
     updateNameLabels();
     showScreen('mode-screen');
   });
-
   setTimeout(function(){
     showScreen('main-menu');
   }, 700);
 });
-
 })();
 </script>
 </body>

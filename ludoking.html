@@ -628,6 +628,20 @@ body.theme-light .hdr-tools-capsule {
   border: 1.5px solid #fbbf24 !important;
   border-bottom: 3.5px solid #78350f !important;
 }
+/* ✨ Movement Style Button (3D Neon Cyan Arcade Button) */
+.hdr-tools-capsule button#btn-style-hdr-toggle,
+.hdr-btn-style {
+  background: linear-gradient(180deg, #06b6d4 0%, #0891b2 100%) !important;
+  color: #ffffff !important;
+  border: 1.5px solid #67e8f9 !important;
+  border-bottom: 3.5px solid #164e63 !important;
+  box-shadow: 0 3px 8px rgba(6, 182, 212, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+.hdr-tools-capsule button#btn-style-hdr-toggle:hover,
+.hdr-btn-style:hover {
+  box-shadow: 0 5px 12px rgba(6, 182, 212, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
 .hud-title-box {
   display: flex; align-items: center; gap: 8px;
   font-family: var(--font-display); font-weight: 800; font-size: 14px;
@@ -1300,6 +1314,10 @@ body.theme-light .hdr-btn-speed {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
           <span id="speed-label">1x Speed</span>
         </button>
+        <button class="hdr-btn hdr-btn-style" id="btn-style-hdr-toggle" title="Switch Piece Movement Animation Style">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+          <span id="anim-style-label">Arcade Flip</span>
+        </button>
         <button class="hdr-btn hdr-btn-autoplay" id="btn-autoplay-toggle" title="Toggle Auto-Play (Hands-Free All Players)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
           <span id="autoplay-label">Auto-Play OFF</span>
@@ -1783,6 +1801,14 @@ body.theme-light .hdr-btn-speed {
         <button class="btn btn-primary" id="btn-test-stack-cycle" style="padding:11px; font-size:13px; background:linear-gradient(135deg, #ec4899, #8b5cf6, #06b6d4); color:#ffffff; border:none; font-weight:700;">🔄 Cycle 5 ➔ 6 ➔ 7 Stack Views</button>
         <div style="margin-top:6px; border-top:1px solid rgba(255,255,255,0.15); padding-top:10px; font-size:12px; font-weight:800; color:var(--text); letter-spacing:0.5px;">🤖 HANDS-FREE AUTOMATION</div>
         <button class="btn btn-primary" id="btn-test-autoplay-modal" style="padding:11px; font-size:13px; background:linear-gradient(135deg, #10b981, #059669); color:#ffffff; border:none; font-weight:700;">🤖 Toggle Auto-Play (Hands-Free All Turns)</button>
+        <div style="margin-top:6px; border-top:1px solid rgba(255,255,255,0.15); padding-top:10px; font-size:12px; font-weight:800; color:var(--text); letter-spacing:0.5px;">✨ DISTINCT MOVEMENT ANIMATIONS (5 STYLES)</div>
+        <div style="display:flex; flex-direction:column; gap:5px;">
+          <button class="btn btn-primary" id="btn-anim-bounce" style="padding:9px; font-size:12px; background:#3b82f6; color:#fff; border:none; font-weight:700; text-align:left;">🏀 Style 1: Classic Arcade Hop & Flip</button>
+          <button class="btn btn-primary" id="btn-anim-teleport" style="padding:9px; font-size:12px; background:#06b6d4; color:#fff; border:none; font-weight:700; text-align:left;">⚡ Style 2: Flash Step</button>
+          <button class="btn btn-primary" id="btn-anim-surf" style="padding:9px; font-size:12px; background:#10b981; color:#fff; border:none; font-weight:700; text-align:left;">🌊 Style 3: Hydro Wave Slide</button>
+          <button class="btn btn-primary" id="btn-anim-meteor" style="padding:9px; font-size:12px; background:#ef4444; color:#fff; border:none; font-weight:700; text-align:left;">💥 Style 4: Space Meteor Ground Slam</button>
+          <button class="btn btn-primary" id="btn-anim-tornado" style="padding:9px; font-size:12px; background:#8b5cf6; color:#fff; border:none; font-weight:700; text-align:left;">🌪️ Style 5: Tornado Slow-Mo Vortex</button>
+        </div>
       </div>
       <button class="btn btn-ghost" id="btn-close-dev-test" style="width:100%; margin-top:16px; padding:10px;">Close Dev Tools</button>
     </div>
@@ -1869,6 +1895,61 @@ var AudioEngine = (function(){
     enterHome: function(){
       playTone(523.25, 'sine', 0.15, 0.2);
       setTimeout(function(){ playTone(659.25, 'sine', 0.25, 0.25); }, 120);
+    },
+    playStyleSound: function(styleName){
+      if(!enabled) return;
+      init(); if(!ctx) return;
+      if(ctx.state === 'suspended') ctx.resume();
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      if(styleName === 'teleport'){
+        // Sci-Fi Laser Beam Teleport (Dematerialize Charge -> Rematerialize Drop)
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(350, t);
+        osc.frequency.exponentialRampToValueAtTime(1600, t + 0.10);
+        osc.frequency.exponentialRampToValueAtTime(400, t + 0.25);
+        gain.gain.setValueAtTime(0.18, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+        osc.start(t); osc.stop(t + 0.25);
+      } else if(styleName === 'surf'){
+        // Water Wave Glide
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(320, t);
+        osc.frequency.linearRampToValueAtTime(560, t + 0.10);
+        osc.frequency.linearRampToValueAtTime(280, t + 0.22);
+        gain.gain.setValueAtTime(0.16, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
+        osc.start(t); osc.stop(t + 0.24);
+      } else if(styleName === 'meteor'){
+        // Space Meteor Launch & Bass Boom Impact
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(600, t);
+        osc.frequency.exponentialRampToValueAtTime(80, t + 0.28);
+        gain.gain.setValueAtTime(0.28, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.30);
+        osc.start(t); osc.stop(t + 0.30);
+      } else if(styleName === 'tornado'){
+        // Tornado Slow-Mo Bullet-Time Sound
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(550, t);
+        osc.frequency.exponentialRampToValueAtTime(130, t + 0.15);
+        osc.frequency.linearRampToValueAtTime(380, t + 0.28);
+        gain.gain.setValueAtTime(0.22, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+        osc.start(t); osc.stop(t + 0.28);
+      } else {
+        // Classic Arcade Hop (bounce)
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(340, t);
+        osc.frequency.exponentialRampToValueAtTime(620, t + 0.12);
+        gain.gain.setValueAtTime(0.16, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+        osc.start(t); osc.stop(t + 0.14);
+      }
     },
     win: function(){
       var notes = [523.25, 659.25, 783.99, 1046.50];
@@ -3209,30 +3290,61 @@ function trigger3DTileBounce(coord, colorHex, isFinal) {
     tileMesh.userData.isClonedMat = true;
   }
   var mat = tileMesh.material;
-  var origEmissive = mat.emissive.getHex();
-  var origEmissiveInt = mat.emissiveIntensity;
-  /* Set glowing emissive color matching the player's color */
-  mat.emissive.setHex(colorHex);
-  mat.emissiveIntensity = isFinal ? 0.90 : 0.60;
+  var origEmissive = mat.emissive ? mat.emissive.getHex() : 0x000000;
+  var origEmissiveInt = mat.emissiveIntensity !== undefined ? mat.emissiveIntensity : 0;
+  var origColorHex = mat.color ? mat.color.getHex() : 0xffffff;
+
+  var isLight = document.body.classList.contains('theme-light');
+  var colObj = new THREE.Color(colorHex);
+  var origColObj = new THREE.Color(origColorHex);
+
+  if (isLight) {
+    // In Light Mode: Exact diffuse player pawn color + subtle glow so colors don't wash out
+    if (mat.color) mat.color.setHex(colorHex);
+    if (mat.emissive) {
+      mat.emissive.setHex(colorHex);
+      mat.emissiveIntensity = 0.20;
+    }
+  } else {
+    // In Dark Mode: High-contrast emissive glow
+    if (mat.emissive) {
+      mat.emissive.setHex(colorHex);
+      mat.emissiveIntensity = isFinal ? 0.90 : 0.65;
+    }
+  }
+
   /* Physical 3D Button Bounce Down & Up */
-  var origY = 0.04;
+  var origY = tileMesh.position.y || 0.04;
   var dipY = isFinal ? 0.022 : 0.015; // Depresses down like a real 3D button
   var t0 = performance.now();
   var duration = isFinal ? 400 : 260;
+
   function animTile(now) {
     var progress = Math.min((now - t0) / duration, 1.0);
     /* Sine wave bounce: dip down in first half, spring back up in second half */
     var sinBounce = Math.sin(Math.PI * progress);
     tileMesh.position.y = origY - dipY * sinBounce;
-    /* Smoothly fade emissive glow back to normal */
+
+    /* Smoothly fade emissive glow & base color back to normal */
     var alpha = (1.0 - progress);
-    mat.emissiveIntensity = origEmissiveInt + (isFinal ? 0.90 : 0.60) * alpha;
+    if (isLight) {
+      if (mat.color) mat.color.copy(colObj).lerp(origColObj, progress);
+      if (mat.emissiveIntensity !== undefined) mat.emissiveIntensity = origEmissiveInt + 0.20 * alpha;
+    } else {
+      if (mat.emissiveIntensity !== undefined) mat.emissiveIntensity = origEmissiveInt + (isFinal ? 0.90 : 0.65) * alpha;
+    }
+
     if (progress < 1.0) {
       requestAnimationFrame(animTile);
     } else {
       tileMesh.position.y = origY;
-      mat.emissive.setHex(origEmissive);
-      mat.emissiveIntensity = origEmissiveInt;
+      if (mat.emissive) {
+        mat.emissive.setHex(origEmissive);
+        mat.emissiveIntensity = origEmissiveInt;
+      }
+      if (mat.color) {
+        mat.color.setHex(origColorHex);
+      }
     }
   }
   requestAnimationFrame(animTile);
@@ -3250,12 +3362,17 @@ function executeMove(color, tokIdx){
     if(mesh){
       var startPos = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z };
       var endPos   = getWorldForStep(color, 0);
-      trigger3DTileBounce(getStepCoord(color, 0), PLAYER_COLORS_HEX[color] || 0xffffff, true);
-      animatePieceTo(mesh, endPos.x, endPos.y, endPos.z, 520, 0.9, function(){
+      var stepCoord = getStepCoord(color, 0);
+      var colorHex  = PLAYER_COLORS_HEX[color] || 0xffffff;
+      var highlightTile = function(){
+        trigger3DTileBounce(stepCoord, colorHex, true);
+      };
+      animatePieceTo(mesh, endPos.x, endPos.y, endPos.z, 520, 0.9, highlightTile, function(){
         gameState.isMoving = false;
         postMoveCheck(color, tokIdx, true);
       });
     } else {
+      trigger3DTileBounce(getStepCoord(color, 0), PLAYER_COLORS_HEX[color] || 0xffffff, true);
       gameState.isMoving = false;
       postMoveCheck(color, tokIdx, true);
     }
@@ -3276,37 +3393,130 @@ function executeMove(color, tokIdx){
     AudioEngine.step(tok.step);
     var dest = getWorldForStep(color, tok.step);
     var isFinal = (stepsLeft === 0);
-    trigger3DTileBounce(getStepCoord(color, tok.step), PLAYER_COLORS_HEX[color] || 0xffffff, isFinal);
+    var stepCoord = getStepCoord(color, tok.step);
+    var colorHex  = PLAYER_COLORS_HEX[color] || 0xffffff;
+
+    var highlightTile = function(){
+      trigger3DTileBounce(stepCoord, colorHex, isFinal);
+    };
+
     if(mesh){
       var hop = isFinal ? HOP_H * 2.0 : HOP_H;
-      animatePieceTo(mesh, dest.x, dest.y, dest.z, currentStepDur, hop, doNextStep);
+      animatePieceTo(mesh, dest.x, dest.y, dest.z, currentStepDur, hop, highlightTile, doNextStep);
     } else {
+      highlightTile();
       setTimeout(doNextStep, currentStepDur);
     }
   }
   doNextStep();
 }
-/* 3D Piece Hop Arc Lerp */
-function animatePieceTo(mesh, tx, ty, tz, duration, hopH, onDone){
+/* 3D Piece Movement Animation Engine (5 Distinct Styles + Sound FX & Particles) */
+function animatePieceTo(mesh, tx, ty, tz, duration, hopH, tileHighlightFn, onDone){
+  if(typeof tileHighlightFn === 'function' && !onDone){
+    onDone = tileHighlightFn;
+    tileHighlightFn = null;
+  }
   var sx = mesh.position.x, sy = mesh.position.y, sz = mesh.position.z;
+  var sRotY = mesh.rotation.y;
   var t0  = performance.now();
   var uid = mesh.uuid;
   _animatingMeshes[uid] = true;
+  var style = window.pawnAnimStyle || 'bounce';
+  var tileFired = false;
+
+  // Make Flash Step (teleport) slightly slower & cinematic so it feels super smooth
+  if(style === 'teleport'){
+    duration = Math.max(duration, Math.round(380 / (window.gameSpeedMultiplier || 1)));
+  }
+
+  // Play movement sound corresponding to style
+  if(AudioEngine && AudioEngine.playStyleSound){
+    AudioEngine.playStyleSound(style);
+  }
+
   function frame(now){
     var t = Math.min((now - t0) / duration, 1);
-    var e = 1 - Math.pow(1 - t, 3);          /* ease-out cubic */
-    var cx = sx + (tx - sx) * e;
-    var cz = sz + (tz - sz) * e;
     var sinArc = Math.sin(Math.PI * t);
-    var cy = sy + (ty - sy) * e + hopH * sinArc;
+    var cx = sx, cy = sy, cz = sz;
+
+    // Trigger tile highlight exactly when pawn lands/touches down on tile
+    var touchdownTime = (style === 'teleport') ? 0.65 : 0.78;
+    if(tileHighlightFn && !tileFired && t >= touchdownTime){
+      tileFired = true;
+      tileHighlightFn();
+    }
+
+    if(style === 'teleport'){
+      // ⚡ Flash Step (Ultra-Smooth Electric Beam Teleport)
+      if(t < 0.38){
+        var u = t / 0.38;
+        var fade = 1 - (u * u * (3 - 2 * u));
+        cx = sx; cz = sz;
+        cy = sy + u * 0.6;
+        var scaleXZ = Math.max(0.01, fade * 0.9);
+        var scaleY  = fade * 2.4 + 0.1;
+        mesh.scale.set(scaleXZ, scaleY, scaleXZ);
+        mesh.rotation.y = sRotY + u * Math.PI * 4;
+      } else if(t < 0.52){
+        cx = tx; cz = tz; cy = ty + 3.2;
+        mesh.scale.set(0.001, 0.001, 0.001);
+      } else {
+        var u = (t - 0.52) / 0.48;
+        var cubicOut = 1 - Math.pow(1 - u, 3);
+        cx = tx; cz = tz;
+        cy = ty + (1 - cubicOut) * 3.2;
+        var landingDamp = u > 0.82 ? Math.sin((u - 0.82) / 0.18 * Math.PI) * 0.15 : 0;
+        var scaleXZ = Math.min(1.15, u * 1.0 + landingDamp);
+        var scaleY  = Math.max(0.3, (1 - u) * 2.2 + 1.0 - landingDamp * 0.6);
+        mesh.scale.set(scaleXZ, scaleY, scaleXZ);
+        mesh.rotation.y = sRotY + (1 - u) * Math.PI * 4;
+      }
+    } else if(style === 'surf'){
+      // 🌊 Hydro Ground Wave Slide (0 vertical jump!)
+      var e = t * t * (3 - 2 * t);
+      cx = sx + (tx - sx) * e + Math.sin(t * Math.PI * 2) * 0.28;
+      cz = sz + (tz - sz) * e;
+      cy = sy + (ty - sy) * e + 0.05;
+      mesh.rotation.z = Math.sin(t * Math.PI * 2) * 0.35;
+      mesh.scale.set(1.2, 0.8, 1.2);
+    } else if(style === 'meteor'){
+      // 💥 Space Meteor Ground Slam
+      var e = t < 0.5 ? Math.pow(t / 0.5, 2) * 0.5 : 0.5 + (1 - Math.pow(1 - (t - 0.5) / 0.5, 3)) * 0.5;
+      cx = sx + (tx - sx) * e;
+      cz = sz + (tz - sz) * e;
+      cy = sy + (ty - sy) * e + (hopH * 5.0) * sinArc;
+    } else if(style === 'tornado'){
+      // 🌪️ Tornado Slow-Mo Bullet-Time Vortex
+      var e = t < 0.25 ? (t / 0.25) * 0.35 : (t < 0.75 ? 0.35 + ((t - 0.25) / 0.5) * 0.30 : 0.65 + ((t - 0.75) / 0.25) * 0.35);
+      cx = sx + (tx - sx) * e;
+      cz = sz + (tz - sz) * e;
+      cy = sy + (ty - sy) * e + (hopH * 2.0) * sinArc;
+      mesh.rotation.y = sRotY + t * Math.PI * 4;
+      mesh.rotation.z = Math.sin(t * Math.PI * 2) * 0.45;
+      mesh.scale.set(1.0 + sinArc * 0.25, 1.0 - sinArc * 0.15, 1.0 + sinArc * 0.25);
+    } else {
+      // 🏀 Classic Arcade Hop & Flip (Default)
+      var e = 1 - Math.pow(1 - t, 3);
+      cx = sx + (tx - sx) * e;
+      cz = sz + (tz - sz) * e;
+      cy = sy + (ty - sy) * e + hopH * sinArc;
+      mesh.rotation.y = sRotY + t * Math.PI * 2;
+      var stretch = sinArc * 0.22;
+      mesh.scale.set(1.0 - stretch * 0.2, 1.0 + stretch * 0.35, 1.0 - stretch * 0.2);
+    }
+
     mesh.position.set(cx, cy, cz);
-    /* Subtle Squash & Stretch 3D Physics */
-    var stretch = sinArc * 0.20;
-    mesh.scale.set(1.0 - stretch * 0.2, 1.0 + stretch * 0.35, 1.0 - stretch * 0.2);
+
     if(t < 1){
       requestAnimationFrame(frame);
     } else {
+      if(tileHighlightFn && !tileFired){
+        tileFired = true;
+        tileHighlightFn();
+      }
       mesh.position.set(tx, ty, tz);
+      mesh.rotation.y = sRotY;
+      mesh.rotation.z = 0;
       mesh.scale.set(1.0, 1.0, 1.0);
       delete _animatingMeshes[uid];
       if(onDone) onDone();
@@ -4321,6 +4531,57 @@ function bindEvents(){
       document.getElementById('dev-test-modal').classList.add('hidden');
       toggleAutoPlay();
     });
+  }
+
+  var animStyleList = [
+    { id: 'bounce', label: 'Arcade Hop', desc: '🏀 Style 1: Classic Arcade Hop & Flip' },
+    { id: 'teleport', label: 'Flash Step', desc: '⚡ Style 2: Flash Step' },
+    { id: 'surf', label: 'Wave Slide', desc: '🌊 Style 3: Hydro Wave Slide' },
+    { id: 'meteor', label: 'Meteor Slam', desc: '💥 Style 4: Space Meteor Ground Slam' },
+    { id: 'tornado', label: 'Tornado Slow-Mo', desc: '🌪️ Style 5: Tornado Slow-Mo Vortex' }
+  ];
+
+  function setPawnAnimStyle(styleName, desc, labelText){
+    window.pawnAnimStyle = styleName;
+    var devModal = document.getElementById('dev-test-modal');
+    if(devModal) devModal.classList.add('hidden');
+    var labelEl = document.getElementById('anim-style-label');
+    if(labelEl && labelText) labelEl.textContent = labelText;
+    updateStatus("✨ Movement Style set to: " + desc + "!");
+  }
+
+  var btnHdrStyle = document.getElementById('btn-style-hdr-toggle');
+  if(btnHdrStyle){
+    btnHdrStyle.addEventListener('click', function(){
+      var current = window.pawnAnimStyle || 'bounce';
+      var idx = 0;
+      for(var i=0; i<animStyleList.length; i++){
+        if(animStyleList[i].id === current) { idx = (i + 1) % animStyleList.length; break; }
+      }
+      var nextObj = animStyleList[idx];
+      setPawnAnimStyle(nextObj.id, nextObj.desc, nextObj.label);
+    });
+  }
+
+  var btnAnimBounce = document.getElementById('btn-anim-bounce');
+  if(btnAnimBounce){
+    btnAnimBounce.addEventListener('click', function(){ setPawnAnimStyle('bounce', '🏀 Style 1: Classic Arcade Hop & Flip', 'Arcade Hop'); });
+  }
+  var btnAnimTeleport = document.getElementById('btn-anim-teleport');
+  if(btnAnimTeleport){
+    btnAnimTeleport.addEventListener('click', function(){ setPawnAnimStyle('teleport', '⚡ Style 2: Flash Step', 'Flash Step'); });
+  }
+  var btnAnimSurf = document.getElementById('btn-anim-surf');
+  if(btnAnimSurf){
+    btnAnimSurf.addEventListener('click', function(){ setPawnAnimStyle('surf', '🌊 Style 3: Hydro Wave Slide', 'Wave Slide'); });
+  }
+  var btnAnimMeteor = document.getElementById('btn-anim-meteor');
+  if(btnAnimMeteor){
+    btnAnimMeteor.addEventListener('click', function(){ setPawnAnimStyle('meteor', '💥 Style 4: Space Meteor Ground Slam', 'Meteor Slam'); });
+  }
+  var btnAnimTornado = document.getElementById('btn-anim-tornado');
+  if(btnAnimTornado){
+    btnAnimTornado.addEventListener('click', function(){ setPawnAnimStyle('tornado', '🌪️ Style 5: Tornado Slow-Mo Vortex', 'Tornado Slow-Mo'); });
   }
 
   var speedBtn = document.getElementById('btn-speed-toggle');

@@ -535,7 +535,7 @@ body.theme-light .hdr-tools-capsule {
   border-color: #cbd5e1;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
-/* 3D Game Buttons */
+/* Theme-Based Header Buttons (Dark & Light Glassmorphic Style) */
 .hdr-tools-capsule button.hdr-btn,
 .hdr-btn {
   display: inline-flex !important;
@@ -545,102 +545,64 @@ body.theme-light .hdr-tools-capsule {
   height: 30px !important;
   padding: 0 12px !important;
   font-size: 11px !important;
-  font-weight: 900 !important;
+  font-weight: 800 !important;
   font-family: var(--font-display) !important;
   letter-spacing: 0.5px !important;
   border-radius: 8px !important;
   white-space: nowrap !important;
   line-height: 1 !important;
-  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
   cursor: pointer !important;
   user-select: none !important;
   text-transform: uppercase !important;
   box-sizing: border-box !important;
   outline: none !important;
+  /* Dark Theme Glassmorphic Base */
+  background: rgba(30, 41, 59, 0.85) !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  border-bottom: 2.5px solid rgba(15, 23, 42, 0.8) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 .hdr-tools-capsule button.hdr-btn:hover,
 .hdr-btn:hover {
   transform: translateY(-1.5px) !important;
+  background: rgba(51, 65, 85, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 }
 .hdr-tools-capsule button.hdr-btn:active,
 .hdr-btn:active {
-  transform: translateY(1.5px) !important;
+  transform: translateY(1px) !important;
   border-bottom-width: 1px !important;
 }
-/* ⚡ Speed Button (3D Blue Arcade Button) */
-.hdr-tools-capsule button#btn-speed-toggle,
-.hdr-btn-speed {
-  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%) !important;
+
+/* Light Theme Adaptations */
+body.theme-light .hdr-tools-capsule button.hdr-btn,
+body.theme-light .hdr-btn {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  border-bottom: 2.5px solid #94a3b8 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  text-shadow: none !important;
+}
+body.theme-light .hdr-tools-capsule button.hdr-btn:hover,
+body.theme-light .hdr-btn:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Active Highlight States (e.g. Auto-Play ON, High Speed) */
+.hdr-tools-capsule button.hdr-btn.active,
+.hdr-btn.active {
+  background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%) !important;
   color: #ffffff !important;
-  border: 1.5px solid #60a5fa !important;
-  border-bottom: 3.5px solid #1e40af !important;
-  box-shadow: 0 3px 8px rgba(59, 130, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
-}
-.hdr-tools-capsule button#btn-speed-toggle:hover,
-.hdr-btn-speed:hover {
-  box-shadow: 0 5px 12px rgba(59, 130, 246, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-}
-/* 🧪 Dev Tools Button (3D Royal Violet Arcade Button) */
-.hdr-tools-capsule button#btn-open-dev-tools,
-.hdr-btn-dev {
-  background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%) !important;
-  color: #ffffff !important;
-  border: 1.5px solid #a78bfa !important;
-  border-bottom: 3.5px solid #4c1d95 !important;
-  box-shadow: 0 3px 8px rgba(139, 92, 246, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
-}
-.hdr-tools-capsule button#btn-open-dev-tools:hover,
-.hdr-btn-dev:hover {
-  box-shadow: 0 5px 12px rgba(139, 92, 246, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-}
-/* 🏁 End Match Button (3D Emerald Green Arcade Button) */
-.hdr-tools-capsule button#btn-end-match-now,
-.hdr-btn-end {
-  background: linear-gradient(180deg, #10b981 0%, #047857 100%) !important;
-  color: #ffffff !important;
-  border: 1.5px solid #34d399 !important;
-  border-bottom: 3.5px solid #065f46 !important;
-  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
-}
-.hdr-tools-capsule button#btn-end-match-now:hover,
-.hdr-btn-end:hover {
-  box-shadow: 0 5px 12px rgba(16, 185, 129, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-}
-/* 🤖 Auto-Play Button (3D Emerald/Amber Arcade Button) */
-.hdr-tools-capsule button#btn-autoplay-toggle,
-.hdr-btn-autoplay {
-  background: linear-gradient(180deg, #10b981 0%, #047857 100%) !important;
-  color: #ffffff !important;
-  border: 1.5px solid #34d399 !important;
-  border-bottom: 3.5px solid #065f46 !important;
-  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
-}
-.hdr-tools-capsule button#btn-autoplay-toggle:hover,
-.hdr-btn-autoplay:hover {
-  box-shadow: 0 5px 12px rgba(16, 185, 129, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-}
-.hdr-btn-autoplay.active {
-  background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%) !important;
-  border: 1.5px solid #fbbf24 !important;
-  border-bottom: 3.5px solid #78350f !important;
-}
-/* ✨ Movement Style Button (3D Neon Cyan Arcade Button) */
-.hdr-tools-capsule button#btn-style-hdr-toggle,
-.hdr-btn-style {
-  background: linear-gradient(180deg, #06b6d4 0%, #0891b2 100%) !important;
-  color: #ffffff !important;
-  border: 1.5px solid #67e8f9 !important;
-  border-bottom: 3.5px solid #164e63 !important;
-  box-shadow: 0 3px 8px rgba(6, 182, 212, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
-}
-.hdr-tools-capsule button#btn-style-hdr-toggle:hover,
-.hdr-btn-style:hover {
-  box-shadow: 0 5px 12px rgba(6, 182, 212, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  border: 1px solid #fbbf24 !important;
+  border-bottom: 2.5px solid #78350f !important;
+  box-shadow: 0 3px 10px rgba(245, 158, 11, 0.4) !important;
 }
 .hud-title-box {
   display: flex; align-items: center; gap: 8px;
@@ -899,7 +861,7 @@ body.theme-light #game-status-bar {
   100% { opacity: 0; transform: scale(1.05); }
 }
 .modal-card {
-  position: relative; overflow: hidden;
+  position: relative;
   width: 90%; max-width: 440px;
   background: var(--panel-bg);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -908,7 +870,32 @@ body.theme-light #game-status-bar {
   padding: 32px 24px;
   text-align: center;
   box-shadow: var(--shadow-l);
-  max-height: 90vh; overflow-y: auto;
+  max-height: 85vh; overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #8b5cf6 rgba(15, 23, 42, 0.4);
+}
+
+/* Custom Sleek Scrollbar for Dev Tools & Modals */
+.modal-card::-webkit-scrollbar,
+#dev-test-modal .modal-card::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.modal-card::-webkit-scrollbar-track,
+#dev-test-modal .modal-card::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 9999px;
+  margin: 12px 0;
+}
+.modal-card::-webkit-scrollbar-thumb,
+#dev-test-modal .modal-card::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #8b5cf6 0%, #6366f1 100%);
+  border-radius: 9999px;
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
+}
+.modal-card::-webkit-scrollbar-thumb:hover,
+#dev-test-modal .modal-card::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #a78bfa 0%, #818cf8 100%);
 }
 .victory-sunburst {
   position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;

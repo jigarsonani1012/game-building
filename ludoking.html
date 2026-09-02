@@ -754,6 +754,32 @@ body.theme-light .dice-pip {
   100% { transform: rotateX(1080deg) rotateY(720deg) scale(1); }
 }
 
+#central-dice-ui {
+  position: absolute;
+  bottom: clamp(14px, 4.5vh, 48px);
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: row;
+  border-width: 3px;
+  z-index: 50;
+  transform-origin: center bottom;
+  transition: transform 0.25s var(--ease), border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+@media (max-width: 600px) {
+  #central-dice-ui {
+    bottom: clamp(10px, 2.5vh, 28px);
+    transform: translateX(-50%) scale(0.85);
+  }
+}
+
+@media (max-width: 440px) {
+  #central-dice-ui {
+    bottom: clamp(8px, 2vh, 20px);
+    transform: translateX(-50%) scale(0.76);
+  }
+}
+
 #game-status-bar {
   position: absolute;
   top: 62px;
@@ -1465,7 +1491,7 @@ body.theme-light .hdr-btn-speed {
       </div>
     </div>
     
-    <div class="player-corner active" id="central-dice-ui" style="bottom: 70px; left: 50%; transform: translateX(-50%); flex-direction: row; border-width: 3px;">
+    <div class="player-corner active" id="central-dice-ui">
       <div class="avatar-area" id="central-avatar-area">
         <svg class="pin-icon" viewBox="0 0 24 24">
           <g id="central-pin-path" fill="var(--red)" stroke="#fff" stroke-width="1.5" stroke-linejoin="round">
@@ -3152,6 +3178,15 @@ function animate(){
       zoomTarget = asp < 1 ? z / (asp * 1.06) : z;
     } else {
       boardRotX = Math.max(0.2, Math.min(0.85, boardRotX + boardVelX));
+      var container = document.getElementById('canvas-container');
+      var w = (container && container.clientWidth) || window.innerWidth;
+      var h = (container && container.clientHeight) || (window.innerHeight - 50);
+      var asp = camera ? camera.aspect : (w / h);
+      if (asp < 1) {
+        zoomTarget = Math.max(1.12, 1.25 / asp);
+      } else {
+        zoomTarget = 1.0;
+      }
       if(gameState && gameState.autoPOV && gameState.activePlayers && gameState.activePlayers.length > 0){
         var curPlayer = getCurrentPlayer();
         var angles = { red: 0, green: -Math.PI/2, yellow: Math.PI, blue: Math.PI/2 };
@@ -3170,7 +3205,7 @@ function animate(){
   var camY = Math.sin(boardRotX) * camDist;
   var camZ = Math.cos(boardRotX) * camDist;
   
-  var targetOffsetZ = 0;
+  var targetOffsetZ = (gameState && !gameState.is2DMode && camera && camera.aspect < 1) ? -1.5 : 0;
   camera.position.x = Math.sin(boardRotY) * camZ;
   camera.position.z = Math.cos(boardRotY) * camZ + targetOffsetZ;
   camera.position.y = camY;

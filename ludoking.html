@@ -2107,6 +2107,7 @@ var AUTO_SPIN_DELAY = 3000;
 var AUTO_SPIN_SPEED = 0.08;
 var tokenMeshes = { red:[], green:[], yellow:[], blue:[] };
 var _tileMeshMap = {};
+var _starTileMeshes = {};
 function gridToWorld(r, c){
   
   var cellSize = 0.62;
@@ -2305,13 +2306,27 @@ function build3DBoard(){
       var extrudeSettings = { depth: 0.012, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.003, bevelThickness: 0.003 };
       
       if(isOtherSafe){
-        var starGeo = new THREE.ExtrudeGeometry(createStarShape(0.16, 0.07, 5, 0.025), extrudeSettings);
+        var starGeo = new THREE.ExtrudeGeometry(createStarShape(0.26, 0.11, 5, 0.020), extrudeSettings);
         var safeStarColor = isLightTheme() ? 0x9ca3af : 0xffffff;
-        var starMat = new THREE.MeshStandardMaterial({ color: safeStarColor, roughness: 0.35, metalness: 0.2 });
+        var starMat = new THREE.MeshStandardMaterial({
+          color: safeStarColor,
+          roughness: 0.35,
+          metalness: 0.2,
+          emissive: safeStarColor,
+          emissiveIntensity: 0.15
+        });
         var starMesh = new THREE.Mesh(starGeo, starMat);
         starMesh.rotation.x = -Math.PI / 2;
-        starMesh.position.set(pos.x, 0.08, pos.z);
+        starMesh.position.set(pos.x, 0.082, pos.z);
         boardGroup.add(starMesh);
+
+        var keyName = "";
+        if (r===8 && c===2) keyName = "P8";
+        else if (r===2 && c===6) keyName = "P21";
+        else if (r===6 && c===12) keyName = "P34";
+        else if (r===12 && c===8) keyName = "P47";
+
+        if(keyName) _starTileMeshes[keyName] = starMesh;
       }
       
       if(isArrowRed || isArrowGreen || isArrowYellow || isArrowBlue){
@@ -2686,6 +2701,10 @@ function trigger3DLockUnlockParticles(pos, colorHex) {
 }
 
 function animateUnlockPadlock(color, onDone) {
+  if (gameState && gameState.ruleType !== 'quick') {
+    if (onDone) onDone();
+    return;
+  }
   var is2D = (gameState && gameState.is2DMode);
   
   if (AudioEngine && AudioEngine.playStyleSound) {
@@ -3029,6 +3048,21 @@ function update3DPawnPositions(){
       mesh.scale.set(finalScale, finalScale, finalScale);
     });
   });
+
+  if (typeof _starTileMeshes !== 'undefined') {
+    Object.keys(_starTileMeshes).forEach(function(starKey) {
+      var starMesh = _starTileMeshes[starKey];
+      if (!starMesh) return;
+      var hasPawns = occupancy[starKey] && occupancy[starKey].length > 0;
+      if (hasPawns) {
+        starMesh.position.y = 0.086;
+        if (starMesh.material) starMesh.material.emissiveIntensity = 0.55;
+      } else {
+        starMesh.position.y = 0.082;
+        if (starMesh.material) starMesh.material.emissiveIntensity = 0.15;
+      }
+    });
+  }
 }
 
 function onPointerDown(e){
@@ -3902,7 +3936,8 @@ function postMoveCheck(color, tokIdx, wasSpawn){
                 if(!gameState.hasKilled) gameState.hasKilled = {};
                 var wasFirstKill = !gameState.hasKilled[color];
                 gameState.hasKilled[color] = true;
-                if(wasFirstKill){
+                var isQuickMode = (gameState && gameState.ruleType === 'quick');
+                if(isQuickMode && wasFirstKill){
                   updateStatus("🔓 " + capitalize(color) + " captured a pawn & UNLOCKED the Home Stretch!");
                   animateUnlockPadlock(color);
                 } else {

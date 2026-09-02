@@ -95,13 +95,14 @@ html, body {
 .screen {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 24px 16px;
+  align-items: center; justify-content: safe center;
+  padding: clamp(12px, 3vh, 24px) 16px;
   background: var(--bg);
   z-index: 10;
   opacity: 1;
   transition: opacity var(--dur-med) var(--ease);
   -webkit-font-smoothing: antialiased;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
 .screen.hidden {
   opacity: 0;
@@ -117,9 +118,10 @@ html, body {
 }
 .menu-stack {
   display: flex; flex-direction: column;
-  gap: 18px; align-items: center;
+  gap: clamp(10px, 2.5vh, 18px); align-items: center;
   width: min(440px, 100%);
   margin: auto 0;
+  padding: 8px 0;
 }
 #splash {
   background: var(--bg);
@@ -132,7 +134,7 @@ html, body {
 }
 .brand-title {
   font-family: var(--font-display);
-  font-weight: 900; font-size: clamp(44px, 10vw, 60px);
+  font-weight: 900; font-size: clamp(36px, 8vw, 60px);
   letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--text);
   text-shadow: 0 4px 20px var(--accent-glow), 0 2px 4px rgba(0, 0, 0, 0.4);
@@ -151,7 +153,7 @@ body.theme-light .brand-title {
   background: var(--panel-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-l);
-  padding: 22px;
+  padding: clamp(14px, 3vh, 22px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   -webkit-font-smoothing: antialiased;
 }
@@ -177,8 +179,7 @@ button {
   background: var(--surface); border: 1px solid var(--border);
   color: var(--text);
   transition: all var(--dur-fast) var(--ease);
-}
-.btn:hover {
+}.btn:hover {
   background: var(--surface-hover);
   border-color: var(--border-active);
   transform: translateY(-1px);
@@ -267,7 +268,6 @@ body.theme-dark .choice-chip.active .chip-sub {
 .choice-chip .chip-sub {
   font-size: 10.5px; color: var(--text-dim); font-weight: 600;
 }
-
 .settings-header {
   display: flex; flex-direction: column; align-items: center; gap: 2px;
   margin-bottom: 4px; text-align: center;
@@ -441,17 +441,13 @@ body.theme-light .toggle-switch.active .toggle-knob {
 .name-input:focus-visible { outline: none; }
 .floating-label {
   position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-  font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.05em;
   text-transform: uppercase; color: var(--text-dim); pointer-events: none;
-  transition: transform 0.22s var(--ease), font-size 0.22s var(--ease), color 0.22s var(--ease), top 0.22s var(--ease), left 0.22s var(--ease);
-  transform-origin: left top;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
 }
 .name-input:not(:placeholder-shown) ~ .floating-label {
-  top: -6px; left: 2px; transform: translateY(-100%);
-  font-size: 11px; font-weight: 800; color: var(--accent);
-}
-.name-input:not(:focus):not(:placeholder-shown) ~ .floating-label {
-  color: var(--text-dim);
+  opacity: 0;
+  visibility: hidden;
 }
 
 .color-toggle-group {
@@ -506,76 +502,66 @@ body.theme-light .toggle-switch.active .toggle-knob {
   box-sizing: border-box;
 }
 
-.hdr-tools-capsule {
+.hdr-tools-group button.hdr-btn,
+.hdr-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 6px;
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-body.theme-light .hdr-tools-capsule {
-  background: rgba(241, 245, 249, 0.95);
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-}
-
-.hdr-tools-capsule button.hdr-btn,
-.hdr-btn {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 6px !important;
-  height: 30px !important;
-  padding: 0 12px !important;
-  font-size: 11px !important;
-  font-weight: 800 !important;
-  font-family: var(--font-display) !important;
-  letter-spacing: 0.5px !important;
-  border-radius: 8px !important;
-  white-space: nowrap !important;
-  line-height: 1 !important;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-  cursor: pointer !important;
-  user-select: none !important;
-  text-transform: uppercase !important;
-  box-sizing: border-box !important;
-  outline: none !important;
+  justify-content: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 14px;
+  font-size: 11.5px;
+  font-weight: 800;
+  font-family: var(--font-display);
+  letter-spacing: 0.5px;
+  border-radius: 10px;
+  white-space: nowrap;
+  line-height: 1;
+  transition: all 0.2s var(--ease);
+  cursor: pointer;
+  user-select: none;
+  text-transform: uppercase;
+  box-sizing: border-box;
+  outline: none;
   
-  background: rgba(30, 41, 59, 0.85) !important;
-  color: #f8fafc !important;
-  border: 1px solid rgba(255, 255, 255, 0.14) !important;
-  border-bottom: 2.5px solid rgba(15, 23, 42, 0.8) !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
-}
-.hdr-tools-capsule button.hdr-btn:hover,
-.hdr-btn:hover {
-  transform: translateY(-1.5px) !important;
-  background: rgba(51, 65, 85, 0.95) !important;
-  border-color: rgba(255, 255, 255, 0.28) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-}
-.hdr-tools-capsule button.hdr-btn:active,
-.hdr-btn:active {
-  transform: translateY(1px) !important;
-  border-bottom-width: 1px !important;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-bottom: 2.5px solid var(--border-active);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-body.theme-light .hdr-tools-capsule button.hdr-btn,
+.hdr-btn svg {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.hdr-tools-group button.hdr-btn:hover,
+.hdr-btn:hover {
+  transform: translateY(-1.5px);
+  background: var(--surface-hover);
+  border-color: var(--border-active);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.hdr-tools-group button.hdr-btn:active,
+.hdr-btn:active {
+  transform: translateY(1px);
+  border-bottom-width: 1px;
+}
+
+body.theme-light .hdr-tools-group button.hdr-btn,
 body.theme-light .hdr-btn {
-  background: rgba(255, 255, 255, 0.95) !important;
+  background: #ffffff !important;
   color: #0f172a !important;
   border: 1px solid #cbd5e1 !important;
   border-bottom: 2.5px solid #94a3b8 !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
   text-shadow: none !important;
 }
-body.theme-light .hdr-tools-capsule button.hdr-btn:hover,
+
+body.theme-light .hdr-tools-group button.hdr-btn:hover,
 body.theme-light .hdr-btn:hover {
   background: #f8fafc !important;
   border-color: #94a3b8 !important;
@@ -782,29 +768,30 @@ body.theme-light .dice-pip {
 
 #game-status-bar {
   position: absolute;
-  top: 62px;
+  top: clamp(58px, 7.5vh, 64px);
   left: 50%;
-  transform: translateX(-50%) translateY(-8px);
+  transform: translateX(-50%) translateY(-6px);
   background: rgba(15, 23, 42, 0.92);
   border: 1.5px solid rgba(255, 255, 255, 0.2);
-  padding: 7px 18px;
+  padding: 4px 14px;
   border-radius: 9999px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   font-family: var(--font-display);
-  font-size: clamp(11px, 2.6vw, 13.5px);
+  font-size: clamp(10px, 2.2vw, 12px);
   font-weight: 800;
   letter-spacing: 0.02em;
   color: #ffffff;
   z-index: 9999;
   opacity: 0;
   pointer-events: none;
-  max-width: min(86vw, 330px);
+  max-width: min(92vw, 380px);
   text-align: center;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease-bounce);
-  white-space: normal;
-  line-height: 1.35;
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease-bounce);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   box-sizing: border-box;
 }
 body.theme-light #game-status-bar {
@@ -1116,6 +1103,45 @@ body.theme-light .podium-item.third {
   .corner-yellow { top: 56px; right: 10px; }
   .corner-blue { bottom: 56px; right: 10px; }
   .player-name { max-width: 50px; font-size: 11px; }
+  .panel { padding: 14px; }
+  .choice-chip { padding: 8px 4px; font-size: 11.5px; }
+  .color-toggle-group { gap: 6px; }
+}
+
+@media (max-height: 680px) {
+  .screen { padding: 12px 14px; }
+  .menu-stack { gap: 10px; margin: auto 0; padding: 4px 0; }
+  .brand-title { font-size: clamp(26px, 6vh, 40px); }
+  .brandmark { margin-bottom: 2px; gap: 2px; }
+  .panel { padding: 12px 14px; border-radius: 16px; gap: 10px !important; }
+  .eyebrow { margin-bottom: 6px; font-size: 10px; }
+  .option-grid { gap: 6px; }
+  .choice-chip { padding: 8px 6px; font-size: 12px; }
+  .color-toggle-group { margin-top: 6px; gap: 8px; }
+  .name-input { height: 38px; padding: 8px 10px; font-size: 13px; }
+  .btn { padding: 9px 14px; font-size: 14px; }
+  #opponent-section { margin-bottom: 4px; }
+  .modal-backdrop { padding: 12px; }
+  .modal-card { padding: 18px 16px; max-height: 90vh; }
+  .modal-icon { width: 48px; height: 48px; font-size: 22px; margin-bottom: 8px; }
+  .modal-title { font-size: 20px; margin-bottom: 4px; }
+  .modal-sub { font-size: 12.5px; margin-bottom: 12px; }
+}
+
+@media (max-height: 520px) {
+  .screen { padding: 6px 10px; }
+  .menu-stack { gap: 6px; padding: 2px 0; }
+  .brand-title { font-size: 22px; letter-spacing: 0.08em; }
+  .brand-sub { font-size: 9.5px; letter-spacing: 0.12em; }
+  .panel { padding: 8px 10px; gap: 6px !important; }
+  .eyebrow { margin-bottom: 3px; font-size: 9px; }
+  .btn { padding: 7px 10px; font-size: 12.5px; }
+  .choice-chip { padding: 5px; font-size: 10.5px; }
+  .name-input { height: 34px; padding: 6px 8px; font-size: 12px; }
+  .color-toggle-group { margin-top: 4px; gap: 6px; }
+  .color-checkbox { width: 24px; height: 24px; }
+  .pawn-icon { width: 22px; height: 22px; }
+  .modal-card { max-height: 94vh; padding: 10px 10px; }
 }
 
 .hdr-btn {
@@ -1218,7 +1244,6 @@ body.theme-light .hdr-btn-speed {
       </div>
       <div class="panel menu-btn-list">
         <button class="btn btn-primary" id="btn-menu-play">Play Game</button>
-        <button class="btn" id="btn-menu-rules">How to Play</button>
         <button class="btn" id="btn-menu-settings">Settings</button>
         <button class="btn" id="btn-menu-stats">Statistics</button>
       </div>
@@ -1388,15 +1413,18 @@ body.theme-light .hdr-btn-speed {
   <div id="game-screen" class="screen hidden">
     
     <div id="game-header">
-      <div class="hdr-tools-capsule">
+      <div class="hdr-tools-group">
+        <!--
         <button class="hdr-btn hdr-btn-speed" id="btn-speed-toggle" title="Toggle AI Game Speed">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
           <span id="speed-label">1x Speed</span>
         </button>
+        -->
         <button class="hdr-btn hdr-btn-style" id="btn-style-hdr-toggle" title="Switch Piece Movement Animation Style">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-          <span id="anim-style-label">Arcade Flip</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3Z"/></svg>
+          <span id="anim-style-label">Arcade Hop</span>
         </button>
+        <!--
         <button class="hdr-btn hdr-btn-autoplay" id="btn-autoplay-toggle" title="Toggle Auto-Play (Hands-Free All Players)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><polygon points="10 8 16 12 10 16 10 8"></polygon></svg>
           <span id="autoplay-label">Auto-Play OFF</span>
@@ -1405,7 +1433,8 @@ body.theme-light .hdr-btn-speed {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31L4.75 20.5a2 2 0 0 0 1.7 3h11.1a2 2 0 0 0 1.7-3L14 9.31V2"></path><path d="M8.5 2h7"></path><path d="M14 9.3a6.5 6.5 0 0 0-4 0"></path></svg>
           <span>Dev Tools</span>
         </button>
-        <button class="hdr-btn hdr-btn-end" id="btn-end-match-now" style="display:none;" title="End Match Now">
+        -->
+        <button class="hdr-btn hdr-btn-end" id="btn-end-match-now" style="display:none !important;" title="End Match Now">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
           <span>End Match</span>
         </button>
@@ -1545,126 +1574,7 @@ body.theme-light .hdr-btn-speed {
       <span id="status-text"></span>
     </div>
   </div>
-  
-  <div id="rules-screen" class="screen hidden screen-scroll">
-    <style>
-      .timeline-container { 
-        position: relative; 
-        padding-left: 32px; 
-        margin-top: 20px; 
-        margin-bottom: 20px;
-        width: 100%;
-        max-height: 60vh;
-        overflow-y: auto;
-        padding-right: 12px;
-      }
-      .timeline-container::-webkit-scrollbar { width: 4px; }
-      .timeline-container::-webkit-scrollbar-track { background: transparent; }
-      .timeline-container::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 4px; }
-      .timeline-line { 
-        position: absolute; 
-        left: 9px; 
-        top: 8px; 
-        bottom: 40px; 
-        width: 2px; 
-        background: linear-gradient(to bottom, var(--accent), transparent); 
-        opacity: 0.3;
-        z-index: 1;
-      }
-      .timeline-item { 
-        position: relative; 
-        padding-bottom: 32px;
-        z-index: 2;
-      }
-      .timeline-item:last-child { padding-bottom: 0; }
-      .timeline-dot { 
-        position: absolute; 
-        left: -28px; 
-        top: 2px; 
-        width: 12px; 
-        height: 12px; 
-        border-radius: 50%; 
-        background: var(--bg); 
-        border: 2px solid var(--accent); 
-        box-shadow: 0 0 12px var(--accent-glow); 
-        transition: transform 0.3s var(--ease-bounce), background 0.3s;
-      }
-      .timeline-item:hover .timeline-dot {
-        transform: scale(1.4);
-        background: var(--accent);
-      }
-      .rule-content { 
-        text-align: left; 
-        transition: transform 0.2s var(--ease);
-      }
-      .timeline-item:hover .rule-content {
-        transform: translateX(6px);
-      }
-      .rule-title { 
-        font-weight: 800; 
-        color: var(--accent); 
-        font-size: 15px; 
-        margin-bottom: 6px; 
-        letter-spacing: 0.5px; 
-        text-transform: uppercase; 
-        font-family: var(--font-display); 
-      }
-      .rule-desc { 
-        font-size: 14px; 
-        color: var(--text-dim); 
-        line-height: 1.6; 
-      }
-      .rule-desc strong { color: var(--text); font-weight: 700; }
-    </style>
-    <div class="menu-stack" style="max-width:520px; padding: 20px;">
-      <div class="eyebrow" style="font-size: 32px; color: var(--text); font-family: var(--font-display); letter-spacing: 2px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); margin-bottom: 4px;">How to Play</div>
-      <div class="eyebrow" style="margin-top: 0; margin-bottom: 12px; font-size: 13px; color: var(--text-dim); letter-spacing: 1px;">Official Rules &amp; Guide</div>
-      <div class="timeline-container">
-        <div class="timeline-line"></div>
-        
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="rule-content">
-            <div class="rule-title">Starting &amp; Moving</div>
-            <div class="rule-desc">Roll a <strong>6</strong> to move a pawn out of base. Move clockwise. Rolling a 6 gives an <strong>extra turn</strong>. (Three 6s in a row ends your turn).</div>
-          </div>
-        </div>
-        
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="rule-content">
-            <div class="rule-title">Capturing Opponents</div>
-            <div class="rule-desc">Land on an opponent's pawn to <strong>capture</strong> it, sending it back to base. Capturing awards you a <strong>Bonus Roll</strong>.</div>
-          </div>
-        </div>
-        
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="rule-content">
-            <div class="rule-title">Safe Zones</div>
-            <div class="rule-desc">Pawns on squares marked with a <strong>Star (★)</strong> are in a safe zone and cannot be captured by opponents.</div>
-          </div>
-        </div>
-        
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="rule-content">
-            <div class="rule-title">Winning the Game</div>
-            <div class="rule-desc">Be the first to move all 4 pawns into the center <strong>Home triangle</strong>. You must roll the <strong>exact number</strong> to enter Home.</div>
-          </div>
-        </div>
-        
-        <div class="timeline-item">
-          <div class="timeline-dot"></div>
-          <div class="rule-content">
-            <div class="rule-title">3D Controls</div>
-            <div class="rule-desc"><strong>Drag</strong> to orbit, <strong>Pinch/Scroll</strong> to zoom, and <strong>Double-Tap</strong> to reset the camera view.</div>
-          </div>
-        </div>
-      </div>
-      <button class="btn btn-primary" id="btn-rules-back" style="width:100%; max-width: 240px; margin: 32px auto 0; padding:14px; font-size: 16px; border-radius: var(--radius-full); box-shadow: 0 4px 15px var(--accent-glow); font-weight: 700;">Got It, Let's Play!</button>
-    </div>
-  </div>
+
   
   <div id="settings-screen" class="screen hidden screen-scroll">
     <div class="menu-stack" style="gap: 20px;">
@@ -2098,8 +2008,31 @@ var scene, camera, renderer, boardGroup, tokenGroup, starParticles;
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
 
+var savedViewMode = (typeof localStorage !== 'undefined') ? localStorage.getItem('ludo_view_mode') : null;
+var initial2DMode = (savedViewMode === '3d') ? false : true;
+
+var gameState = {
+  mode: 'ai',
+  playerCount: 2,
+  ruleType: 'classic',
+  humanColor: 'red',
+  activePlayers: ['red', 'yellow'],
+  localSelectedColors: ['red', 'yellow'],
+  tokens: { red:[], green:[], yellow:[], blue:[] },
+  currentTurnIdx: 0,
+  diceValue: 1,
+  hasRolled: false,
+  isMoving: false,
+  gameOver: false,
+  winners: [],
+  hasKilled: { red: false, green: false, yellow: false, blue: false },
+  is2DMode: initial2DMode,
+  autoPOV: false,
+  autoPlayAll: false
+};
+
 var isDragging = false, dragLastX = 0, dragLastY = 0;
-var boardRotY = 0, boardRotX = 0.45, boardVelY = 0, boardVelX = 0;
+var boardRotY = 0, boardRotX = initial2DMode ? (Math.PI / 2) : 0.45, boardVelY = 0, boardVelX = 0;
 var zoomCurrent = 1.0, zoomTarget = 1.0;
 var lastInteractTime = performance.now();
 var autoSpinBlend = 0;
@@ -3999,10 +3932,7 @@ function postMoveCheck(color, tokIdx, wasSpawn){
       if(mTitle) mTitle.textContent = 'You Finished ' + rankSuffix + ' Place! ' + rankEmoji;
       var pawnDesc = (gameState.ruleType === 'quick') ? 'Your pawn has' : 'All 4 of your pawns have';
       if(mSub) mSub.textContent = pawnDesc + ' reached home (' + rankSuffix + ' Place)! Would you like to end the game now and see final results, or watch the computer finish?';
-      var endBtn = document.getElementById('btn-end-match-now');
-      var menuEndBtn = document.getElementById('btn-menu-end-now');
-      if(endBtn) endBtn.style.display = 'inline-flex';
-      if(menuEndBtn) menuEndBtn.style.display = 'flex';
+      setEndMatchButtonVisible(false);
       var promptModal = document.getElementById('human-finished-modal');
       if(promptModal) promptModal.classList.remove('hidden');
     }
@@ -4267,10 +4197,18 @@ function startMatch(){
   gameState.hasRolled = false;
   gameState.consecutiveSixes = 0;
   gameState.rollHistory = { red: [], green: [], yellow: [], blue: [] };
-  var endBtn = document.getElementById('btn-end-match-now');
-  var menuEndBtn = document.getElementById('btn-menu-end-now');
-  if(endBtn) endBtn.style.display = 'none';
-  if(menuEndBtn) menuEndBtn.style.display = 'none';
+  function setEndMatchButtonVisible(visible) {
+    var endTopBtn = document.getElementById('btn-end-match-now');
+    var menuEndBtn = document.getElementById('btn-menu-end-now');
+    if (endTopBtn) {
+      endTopBtn.style.setProperty('display', visible ? 'inline-flex' : 'none', 'important');
+    }
+    if (menuEndBtn) {
+      menuEndBtn.style.setProperty('display', visible ? 'flex' : 'none', 'important');
+    }
+  }
+  window.setEndMatchButtonVisible = setEndMatchButtonVisible;
+  setEndMatchButtonVisible(false);
   var promptModal = document.getElementById('human-finished-modal');
   if(promptModal) promptModal.classList.add('hidden');
   var restartBtn = document.getElementById('btn-game-restart');
@@ -4331,10 +4269,7 @@ function startMatch(){
 function endMatch(){
   gameState.gameOver = true;
   stopVictoryBoardSpotlight();
-  var endBtn = document.getElementById('btn-end-match-now');
-  var menuEndBtn = document.getElementById('btn-menu-end-now');
-  if(endBtn) endBtn.style.display = 'none';
-  if(menuEndBtn) menuEndBtn.style.display = 'none';
+  setEndMatchButtonVisible(false);
   var promptModal = document.getElementById('human-finished-modal');
   if(promptModal) promptModal.classList.add('hidden');
   var modal = document.getElementById('win-modal');
@@ -4641,6 +4576,9 @@ function toggle2D3DView(force) {
     return;
   }
   gameState.is2DMode = !gameState.is2DMode;
+  try {
+    localStorage.setItem('ludo_view_mode', gameState.is2DMode ? '2d' : '3d');
+  } catch(e) {}
   
   boardRotX = gameState.is2DMode ? (Math.PI / 2) : 0.55;
   updateViewModeUI();
@@ -4662,7 +4600,8 @@ function bindEvents(){
       }
     }
   });
-  document.getElementById('btn-menu-rules').addEventListener('click', function(){ showScreen('rules-screen'); });
+  var btnMenuRules = document.getElementById('btn-menu-rules');
+  if(btnMenuRules){ btnMenuRules.addEventListener('click', function(){ showScreen('rules-screen'); }); }
   document.getElementById('btn-menu-settings').addEventListener('click', function(){ showScreen('settings-screen'); });
   var btnMenuStats = document.getElementById('btn-menu-stats');
   if(btnMenuStats){
@@ -4704,7 +4643,8 @@ function bindEvents(){
       showScreen('main-menu');
     }
   });
-  document.getElementById('btn-rules-back').addEventListener('click', function(){ showScreen('main-menu'); });
+  var btnRulesBack = document.getElementById('btn-rules-back');
+  if(btnRulesBack){ btnRulesBack.addEventListener('click', function(){ showScreen('main-menu'); }); }
   document.getElementById('btn-settings-back').addEventListener('click', function(){ showScreen('main-menu'); });
   document.getElementById('btn-game-menu').addEventListener('click', function(){
     document.getElementById('hamburger-dropdown').classList.add('hidden');
@@ -4972,7 +4912,7 @@ function bindEvents(){
     { id: 'teleport', label: 'Flash Step', desc: '⚡ Style 2: Flash Step' },
     { id: 'surf', label: 'Wave Slide', desc: '🌊 Style 3: Hydro Wave Slide' },
     { id: 'meteor', label: 'Meteor Slam', desc: '💥 Style 4: Space Meteor Ground Slam' },
-    { id: 'tornado', label: 'Tornado Slow-Mo', desc: '🌪️ Style 5: Tornado Slow-Mo Vortex' }
+    { id: 'tornado', label: 'Tornado', desc: '🌪️ Style 5: Tornado Vortex' }
   ];
 
   function setPawnAnimStyle(styleName, desc, labelText){
@@ -4981,7 +4921,7 @@ function bindEvents(){
     if(devModal) devModal.classList.add('hidden');
     var labelEl = document.getElementById('anim-style-label');
     if(labelEl && labelText) labelEl.textContent = labelText;
-    updateStatus("✨ Movement Style set to: " + desc + "!");
+    updateStatus("Movement Style set to: " + labelText);
   }
 
   var btnHdrStyle = document.getElementById('btn-style-hdr-toggle');
@@ -5015,7 +4955,7 @@ function bindEvents(){
   }
   var btnAnimTornado = document.getElementById('btn-anim-tornado');
   if(btnAnimTornado){
-    btnAnimTornado.addEventListener('click', function(){ setPawnAnimStyle('tornado', '🌪️ Style 5: Tornado Slow-Mo Vortex', 'Tornado Slow-Mo'); });
+    btnAnimTornado.addEventListener('click', function(){ setPawnAnimStyle('tornado', '🌪️ Style 5: Tornado Vortex', 'Tornado'); });
   }
 
   var speedBtn = document.getElementById('btn-speed-toggle');
@@ -5089,11 +5029,12 @@ function bindEvents(){
     finishWatchBtn.addEventListener('click', function(){
       stopVictoryBoardSpotlight();
       document.getElementById('human-finished-modal').classList.add('hidden');
-      var endTopBtn = document.getElementById('btn-end-match-now');
-      if(endTopBtn) endTopBtn.style.display = 'inline-flex';
-      var menuEndBtn = document.getElementById('btn-menu-end-now');
-      if(menuEndBtn) menuEndBtn.style.display = 'flex';
-      updateStatus("Watching Computer finish... Tap 'End Match' anytime.");
+      if (gameState && gameState.mode === 'ai') {
+        setEndMatchButtonVisible(true);
+        updateStatus("Watching Computer finish... Tap 'End Match' anytime.");
+      } else {
+        setEndMatchButtonVisible(false);
+      }
     });
   }
   var endNowBtn = document.getElementById('btn-end-match-now');
@@ -5115,10 +5056,12 @@ function bindEvents(){
   }
   document.getElementById('btn-win-play-again').addEventListener('click', function(){
     document.getElementById('win-modal').classList.add('hidden');
+    setEndMatchButtonVisible(false);
     startMatch();
   });
   document.getElementById('btn-win-menu').addEventListener('click', function(){
     document.getElementById('win-modal').classList.add('hidden');
+    setEndMatchButtonVisible(false);
     showScreen('main-menu');
   });
   document.getElementById('chip-mode-pass').addEventListener('click', function(){
@@ -5343,43 +5286,64 @@ function bindEvents(){
   }
   if(soundBtn) soundBtn.addEventListener('click', toggleSound);
   if(soundChip) soundChip.addEventListener('click', toggleSound);
+  function applyTheme(themeName){
+    if (!themeName) return;
+    document.body.className = themeName;
+    localStorage.setItem('ludo_theme', themeName);
+    document.querySelectorAll('[data-theme]').forEach(function(c){
+      if (c.dataset.theme === themeName) c.classList.add('active');
+      else c.classList.remove('active');
+    });
+    if(boardGroup){
+      boardGroup.traverse(function(obj){
+        if(obj !== boardGroup && obj !== tokenGroup && obj.parent !== tokenGroup){
+          if(obj.geometry) obj.geometry.dispose();
+          if(obj.material){
+            if(Array.isArray(obj.material)) obj.material.forEach(function(m){ m.dispose(); });
+            else obj.material.dispose();
+          }
+        }
+      });
+      while(boardGroup.children.length > 0) boardGroup.remove(boardGroup.children[0]);
+      boardGroup.add(tokenGroup);
+      build3DBoard();
+    }
+    
+    var starProps = getStarThemeProperties();
+    if(scene){
+      scene.background = new THREE.Color(starProps.bg);
+    }
+    if(starParticles && starParticles.material){
+      starParticles.material.color.setHex(starProps.color);
+      starParticles.material.opacity = starProps.opacity;
+      starParticles.material.size = starProps.size;
+      starParticles.visible = true;
+      starParticles.material.needsUpdate = true;
+    }
+  }
+  window.applyTheme = applyTheme;
+
   document.querySelectorAll('[data-theme]').forEach(function(chip){
     chip.addEventListener('click', function(){
-      document.querySelectorAll('[data-theme]').forEach(function(c){ c.classList.remove('active'); });
-      this.classList.add('active');
-      document.body.className = this.dataset.theme;
-      
-      if(boardGroup){
-        boardGroup.traverse(function(obj){
-          if(obj !== boardGroup && obj !== tokenGroup && obj.parent !== tokenGroup){
-            if(obj.geometry) obj.geometry.dispose();
-            if(obj.material){
-              if(Array.isArray(obj.material)) obj.material.forEach(function(m){ m.dispose(); });
-              else obj.material.dispose();
-            }
-          }
-        });
-        while(boardGroup.children.length > 0) boardGroup.remove(boardGroup.children[0]);
-        boardGroup.add(tokenGroup);
-        build3DBoard();
-      }
-      
-      var starProps = getStarThemeProperties();
-      if(scene){
-        scene.background = new THREE.Color(starProps.bg);
-      }
-      if(starParticles && starParticles.material){
-        starParticles.material.color.setHex(starProps.color);
-        starParticles.material.opacity = starProps.opacity;
-        starParticles.material.size = starProps.size;
-        starParticles.visible = true;
-        starParticles.material.needsUpdate = true;
-      }
+      applyTheme(this.dataset.theme);
     });
   });
 }
 window.addEventListener('DOMContentLoaded', function(){
   bindEvents();
+  var savedTheme = localStorage.getItem('ludo_theme');
+  if (savedTheme) {
+    applyTheme(savedTheme);
+  }
+  var savedViewMode = localStorage.getItem('ludo_view_mode');
+  if (savedViewMode) {
+    gameState.is2DMode = (savedViewMode === '2d');
+  } else {
+    gameState.is2DMode = true;
+  }
+  boardRotX = gameState.is2DMode ? (Math.PI / 2) : 0.55;
+  updateViewModeUI();
+  
   var colors = ['red', 'green', 'yellow', 'blue'];
   for (var i = 0; i < colors.length; i++) {
     var c = colors[i];

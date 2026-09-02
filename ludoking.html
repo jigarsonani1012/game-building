@@ -792,6 +792,92 @@ body.theme-light #game-status-bar {
   transform: translateX(-50%) translateY(0);
 }
 
+.lock-2d-badge {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.92);
+  border: 2px solid var(--badge-color, #f59e0b);
+  box-shadow: 0 0 12px var(--badge-glow, rgba(245, 158, 11, 0.7)), 0 2px 6px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  z-index: 18;
+  pointer-events: none;
+  animation: lockPulse2D 2s infinite ease-in-out;
+}
+.lock-2d-badge[data-color="red"] {
+  --badge-color: #ef4444;
+  --badge-glow: rgba(239, 68, 68, 0.85);
+}
+.lock-2d-badge[data-color="green"] {
+  --badge-color: #10b981;
+  --badge-glow: rgba(16, 185, 129, 0.85);
+}
+.lock-2d-badge[data-color="yellow"] {
+  --badge-color: #f59e0b;
+  --badge-glow: rgba(245, 158, 11, 0.85);
+}
+.lock-2d-badge[data-color="blue"] {
+  --badge-color: #3b82f6;
+  --badge-glow: rgba(59, 130, 246, 0.85);
+}
+body.theme-light .lock-2d-badge {
+  background: rgba(15, 23, 42, 0.94);
+  box-shadow: 0 0 14px var(--badge-glow), 0 3px 8px rgba(0, 0, 0, 0.45);
+  --shackle-color: #ffffff;
+  --lock-stroke: #ffffff;
+}
+@keyframes lockPulse2D {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 8px var(--badge-glow, rgba(245, 158, 11, 0.5)); }
+  50% { transform: translate(-50%, -50%) scale(1.14); box-shadow: 0 0 16px var(--badge-glow, rgba(245, 158, 11, 0.9)); }
+}
+
+.lock-2d-badge.unlocking-2d-badge {
+  animation: unlockBadge2D 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+  z-index: 30 !important;
+}
+.lock-2d-badge.unlocking-2d-badge svg path:first-child {
+  animation: liftShackle2D 0.75s ease-out forwards;
+}
+
+@keyframes liftShackle2D {
+  0% { transform: translateY(0) rotate(0deg); }
+  40%, 100% { transform: translateY(-4px) rotate(45deg); }
+}
+
+@keyframes unlockBadge2D {
+  0% { transform: translate(-50%, -50%) scale(1); filter: brightness(1); }
+  35% { transform: translate(-50%, -50%) scale(1.55); filter: brightness(1.8); box-shadow: 0 0 30px var(--badge-glow, #f59e0b), 0 0 50px #ffffff; }
+  70% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(0.1) rotate(180deg); opacity: 0; }
+}
+
+.lock-unlock-flare {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 3px solid var(--badge-color, #f59e0b);
+  box-shadow: 0 0 20px var(--badge-glow, #f59e0b);
+  pointer-events: none;
+  z-index: 29;
+  animation: flareExpand2D 0.7s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+.lock-unlock-flare[data-color="red"] { --badge-color: #ef4444; --badge-glow: rgba(239, 68, 68, 0.9); }
+.lock-unlock-flare[data-color="green"] { --badge-color: #10b981; --badge-glow: rgba(16, 185, 129, 0.9); }
+.lock-unlock-flare[data-color="yellow"] { --badge-color: #f59e0b; --badge-glow: rgba(245, 158, 11, 0.9); }
+.lock-unlock-flare[data-color="blue"] { --badge-color: #3b82f6; --badge-glow: rgba(59, 130, 246, 0.9); }
+
+@keyframes flareExpand2D {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; border-width: 4px; }
+  100% { transform: translate(-50%, -50%) scale(3.5); opacity: 0; border-width: 1px; }
+}
+
 .modal-backdrop {
   position: fixed; inset: 0;
   background: rgba(0, 0, 0, 0.65);
@@ -852,15 +938,22 @@ body.theme-light #game-status-bar {
   padding: 32px 24px;
   text-align: center;
   box-shadow: var(--shadow-l);
-  max-height: 85vh; overflow-y: auto;
+  max-height: 85vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
   scrollbar-width: thin;
   scrollbar-color: #8b5cf6 rgba(15, 23, 42, 0.4);
 }
 
+#win-modal .modal-card {
+  overflow: hidden;
+}
+
 .modal-card::-webkit-scrollbar,
 #dev-test-modal .modal-card::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 0px;
 }
 .modal-card::-webkit-scrollbar-track,
 #dev-test-modal .modal-card::-webkit-scrollbar-track {
@@ -1338,6 +1431,38 @@ body.theme-light .hdr-btn-speed {
     
     <div id="canvas-container">
       <canvas id="three-canvas"></canvas>
+      <div class="lock-2d-badge" id="lock-2d-red" data-color="red" style="display:none;">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none">
+          <path d="M 7 10 V 7 A 5 5 0 0 1 17 7 V 10" stroke="var(--shackle-color, #ffffff)" stroke-width="2.2" stroke-linecap="round"/>
+          <rect x="5" y="10" width="14" height="11" rx="2.5" fill="var(--badge-color)" stroke="var(--lock-stroke, #ffffff)" stroke-width="1"/>
+          <circle cx="12" cy="14.5" r="1.2" fill="#000000"/>
+          <path d="M 12 15.5 V 17.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="lock-2d-badge" id="lock-2d-green" data-color="green" style="display:none;">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none">
+          <path d="M 7 10 V 7 A 5 5 0 0 1 17 7 V 10" stroke="var(--shackle-color, #ffffff)" stroke-width="2.2" stroke-linecap="round"/>
+          <rect x="5" y="10" width="14" height="11" rx="2.5" fill="var(--badge-color)" stroke="var(--lock-stroke, #ffffff)" stroke-width="1"/>
+          <circle cx="12" cy="14.5" r="1.2" fill="#000000"/>
+          <path d="M 12 15.5 V 17.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="lock-2d-badge" id="lock-2d-yellow" data-color="yellow" style="display:none;">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none">
+          <path d="M 7 10 V 7 A 5 5 0 0 1 17 7 V 10" stroke="var(--shackle-color, #ffffff)" stroke-width="2.2" stroke-linecap="round"/>
+          <rect x="5" y="10" width="14" height="11" rx="2.5" fill="var(--badge-color)" stroke="var(--lock-stroke, #ffffff)" stroke-width="1"/>
+          <circle cx="12" cy="14.5" r="1.2" fill="#000000"/>
+          <path d="M 12 15.5 V 17.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="lock-2d-badge" id="lock-2d-blue" data-color="blue" style="display:none;">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none">
+          <path d="M 7 10 V 7 A 5 5 0 0 1 17 7 V 10" stroke="var(--shackle-color, #ffffff)" stroke-width="2.2" stroke-linecap="round"/>
+          <rect x="5" y="10" width="14" height="11" rx="2.5" fill="var(--badge-color)" stroke="var(--lock-stroke, #ffffff)" stroke-width="1"/>
+          <circle cx="12" cy="14.5" r="1.2" fill="#000000"/>
+          <path d="M 12 15.5 V 17.5" stroke="#000000" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
     </div>
     
     <div class="player-corner active" id="central-dice-ui" style="bottom: 70px; left: 50%; transform: translateX(-50%); flex-direction: row; border-width: 3px;">
@@ -2325,6 +2450,295 @@ function build3DBoard(){
   var cDisc = new THREE.Mesh(cDiscGeo, cDiscMat);
   cDisc.position.set(0, cY + 0.03, 0);
   boardGroup.add(cDisc);
+
+  buildHomeLocks();
+}
+
+var _homeLockMeshes = { red: null, green: null, yellow: null, blue: null };
+
+function create3DPadlockMesh(colorHex) {
+  var lockGroup = new THREE.Group();
+
+  var bodyGeo = new THREE.BoxGeometry(0.24, 0.19, 0.11);
+  var bodyMat = new THREE.MeshStandardMaterial({
+    color: colorHex,
+    metalness: 0.65,
+    roughness: 0.25,
+    emissive: colorHex,
+    emissiveIntensity: 0.35
+  });
+  var bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
+  bodyMesh.position.y = 0.095;
+  bodyMesh.castShadow = true;
+  lockGroup.add(bodyMesh);
+
+  var keyholeGeo = new THREE.CylinderGeometry(0.026, 0.026, 0.115, 16);
+  var keyholeMat = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.9 });
+  var keyholeMesh = new THREE.Mesh(keyholeGeo, keyholeMat);
+  keyholeMesh.rotation.x = Math.PI / 2;
+  keyholeMesh.position.set(0, 0.095, 0);
+  lockGroup.add(keyholeMesh);
+
+  var isLight = (typeof isLightTheme === 'function' && isLightTheme());
+  var shackleGeo = new THREE.TorusGeometry(0.075, 0.022, 16, 32, Math.PI);
+  var shackleMat = new THREE.MeshStandardMaterial({
+    color: isLight ? 0x1e293b : 0xf1f5f9,
+    metalness: isLight ? 0.45 : 0.95,
+    roughness: 0.15
+  });
+  var shackleMesh = new THREE.Mesh(shackleGeo, shackleMat);
+  shackleMesh.position.set(0, 0.19, 0);
+  shackleMesh.castShadow = true;
+  shackleMesh.name = "shackle";
+  lockGroup.add(shackleMesh);
+
+  var ringGeo = new THREE.TorusGeometry(0.18, 0.015, 12, 32);
+  var ringMat = new THREE.MeshStandardMaterial({
+    color: colorHex,
+    emissive: colorHex,
+    emissiveIntensity: 0.8,
+    roughness: 0.2
+  });
+  var ringMesh = new THREE.Mesh(ringGeo, ringMat);
+  ringMesh.rotation.x = Math.PI / 2;
+  ringMesh.position.y = 0.01;
+  lockGroup.add(ringMesh);
+
+  return lockGroup;
+}
+
+function buildHomeLocks() {
+  _homeLockMeshes = { red: null, green: null, yellow: null, blue: null };
+  var lockCoords = {
+    red:    HOME_PATHS.red[0],
+    green:  HOME_PATHS.green[0],
+    yellow: HOME_PATHS.yellow[0],
+    blue:   HOME_PATHS.blue[0]
+  };
+  PLAYERS.forEach(function(color) {
+    var lc = lockCoords[color];
+    var pos = gridToWorld(lc.r, lc.c);
+    var mesh = create3DPadlockMesh(PLAYER_COLORS_HEX[color]);
+    mesh.position.set(pos.x, 0.08, pos.z);
+    mesh.name = "lock_" + color;
+    boardGroup.add(mesh);
+    _homeLockMeshes[color] = mesh;
+  });
+  updateLockVisuals();
+}
+
+function position2DLockBadges() {
+  if (!camera || !gameState || !boardGroup) return;
+  var container = document.getElementById('canvas-container');
+  if (!container) return;
+  var w = container.clientWidth;
+  var h = container.clientHeight;
+  var isQuickMode = (gameState.ruleType === 'quick');
+  boardGroup.updateMatrixWorld(true);
+
+  PLAYERS.forEach(function(color) {
+    var el = document.getElementById('lock-2d-' + color);
+    if (!el) return;
+    var isLocked = isQuickMode && (!gameState.hasKilled || !gameState.hasKilled[color]);
+    var isActive = (gameState.activePlayers.indexOf(color) !== -1);
+    var showLock = isLocked && isActive && !gameState.gameOver && gameState.is2DMode;
+
+    if (!showLock) {
+      el.style.display = 'none';
+      return;
+    }
+
+    el.style.display = 'flex';
+    var hp = HOME_PATHS[color][0];
+    var worldPos = gridToWorld(hp.r, hp.c);
+    var worldVec = new THREE.Vector3(worldPos.x, 0.12, worldPos.z);
+    worldVec.applyMatrix4(boardGroup.matrixWorld);
+    worldVec.project(camera);
+    var px = (worldVec.x * 0.5 + 0.5) * w;
+    var py = (-worldVec.y * 0.5 + 0.5) * h;
+
+    el.style.left = px + 'px';
+    el.style.top = py + 'px';
+  });
+}
+
+function resetLockMeshToClosed(color) {
+  var mesh = _homeLockMeshes ? _homeLockMeshes[color] : null;
+  if (!mesh) return;
+  var hp = HOME_PATHS[color][0];
+  var pos = gridToWorld(hp.r, hp.c);
+  mesh.position.set(pos.x, 0.08, pos.z);
+  mesh.rotation.set(0, 0, 0);
+  mesh.scale.setScalar(1.0);
+  var shackle = mesh.getObjectByName("shackle");
+  if (shackle) {
+    shackle.position.set(0, 0.19, 0);
+    shackle.rotation.set(0, 0, 0);
+  }
+  var bodyMesh = mesh.children[0];
+  if (bodyMesh && bodyMesh.material) {
+    bodyMesh.material.emissiveIntensity = 0.35;
+  }
+}
+
+function updateLockVisuals() {
+  var isQuickMode = (gameState && gameState.ruleType === 'quick');
+  PLAYERS.forEach(function(color) {
+    var isLocked = isQuickMode && (!gameState.hasKilled || !gameState.hasKilled[color]);
+    var isActive = (gameState && gameState.activePlayers && gameState.activePlayers.indexOf(color) !== -1);
+    var showLock = isLocked && isActive && !(gameState && gameState.gameOver);
+
+    var mesh = _homeLockMeshes ? _homeLockMeshes[color] : null;
+    if (mesh) {
+      if (showLock) {
+        resetLockMeshToClosed(color);
+      }
+      mesh.visible = showLock && !(gameState && gameState.is2DMode);
+    }
+
+    var overlay2D = document.getElementById('lock-2d-' + color);
+    if (overlay2D) {
+      overlay2D.classList.remove('unlocking-2d-badge');
+      overlay2D.style.display = (showLock && gameState && gameState.is2DMode) ? 'flex' : 'none';
+    }
+  });
+  if (gameState && gameState.is2DMode) {
+    position2DLockBadges();
+  }
+}
+
+function trigger3DLockUnlockParticles(pos, colorHex) {
+  if (!scene) return;
+  var group = new THREE.Group();
+  var particleCount = 18;
+  var pGeo = new THREE.SphereGeometry(0.022, 8, 8);
+  var pMat = new THREE.MeshStandardMaterial({
+    color: colorHex,
+    emissive: colorHex,
+    emissiveIntensity: 1.2,
+    metalness: 0.1,
+    roughness: 0.1
+  });
+
+  var particles = [];
+  for (var i = 0; i < particleCount; i++) {
+    var mesh = new THREE.Mesh(pGeo, pMat);
+    mesh.position.set(pos.x, 0.15, pos.z);
+    var angle = (i / particleCount) * Math.PI * 2 + (Math.random() * 0.4 - 0.2);
+    var speed = 0.02 + Math.random() * 0.025;
+    var vy = 0.03 + Math.random() * 0.035;
+    particles.push({
+      mesh: mesh,
+      vx: Math.cos(angle) * speed,
+      vy: vy,
+      vz: Math.sin(angle) * speed,
+      scale: 1.0 + Math.random() * 0.5
+    });
+    group.add(mesh);
+  }
+  scene.add(group);
+
+  var t0 = performance.now();
+  var duration = 800;
+  function update(now) {
+    var progress = Math.min((now - t0) / duration, 1.0);
+    particles.forEach(function(p) {
+      p.mesh.position.x += p.vx;
+      p.mesh.position.y += p.vy;
+      p.mesh.position.z += p.vz;
+      p.vy -= 0.0008;
+      var s = Math.max(0, (1 - progress) * p.scale);
+      p.mesh.scale.setScalar(s);
+    });
+    if (progress < 1.0) {
+      requestAnimationFrame(update);
+    } else {
+      scene.remove(group);
+    }
+  }
+  requestAnimationFrame(update);
+}
+
+function animateUnlockPadlock(color, onDone) {
+  var is2D = (gameState && gameState.is2DMode);
+  
+  if (AudioEngine && AudioEngine.playStyleSound) {
+    AudioEngine.playStyleSound('teleport');
+  } else if (AudioEngine && AudioEngine.enterHome) {
+    AudioEngine.enterHome();
+  }
+
+  var overlay2D = document.getElementById('lock-2d-' + color);
+  if (overlay2D && is2D) {
+    overlay2D.classList.add('unlocking-2d-badge');
+    
+    var container = document.getElementById('canvas-container');
+    if (container) {
+      var flare = document.createElement('div');
+      flare.className = 'lock-unlock-flare';
+      flare.setAttribute('data-color', color);
+      flare.style.left = overlay2D.style.left;
+      flare.style.top = overlay2D.style.top;
+      container.appendChild(flare);
+      setTimeout(function() {
+        if (flare.parentNode) flare.parentNode.removeChild(flare);
+      }, 750);
+    }
+
+    setTimeout(function() {
+      overlay2D.classList.remove('unlocking-2d-badge');
+      overlay2D.style.display = 'none';
+      if (onDone) onDone();
+    }, 750);
+  }
+
+  var mesh = _homeLockMeshes ? _homeLockMeshes[color] : null;
+  if (mesh) {
+    mesh.visible = true;
+    var shackle = mesh.getObjectByName("shackle");
+    var bodyMesh = mesh.children[0];
+    var hp = HOME_PATHS[color][0];
+    var worldPos = gridToWorld(hp.r, hp.c);
+    
+    trigger3DLockUnlockParticles(worldPos, PLAYER_COLORS_HEX[color] || 0xf59e0b);
+    
+    var t0 = performance.now();
+    var duration = 750;
+    var startY = mesh.position.y;
+
+    function step(now) {
+      var progress = Math.min((now - t0) / duration, 1.0);
+      var easeOut = 1 - Math.pow(1 - progress, 3);
+      
+      if (shackle) {
+        shackle.position.y = 0.19 + easeOut * 0.12;
+        shackle.rotation.y = easeOut * Math.PI * 0.5;
+      }
+      
+      mesh.position.y = startY + easeOut * 0.45;
+      mesh.rotation.y += 0.12;
+      
+      var pulseScale = (1.0 + Math.sin(progress * Math.PI) * 0.4) * (1 - progress * 0.85);
+      mesh.scale.setScalar(Math.max(0.01, pulseScale));
+
+      if (bodyMesh && bodyMesh.material) {
+        bodyMesh.material.emissiveIntensity = 0.35 + Math.sin(progress * Math.PI) * 1.8;
+      }
+
+      if (progress < 1.0) {
+        requestAnimationFrame(step);
+      } else {
+        mesh.visible = false;
+        mesh.scale.setScalar(1.0);
+        mesh.position.y = startY;
+        if (bodyMesh && bodyMesh.material) bodyMesh.material.emissiveIntensity = 0.35;
+        if (!is2D && onDone) onDone();
+      }
+    }
+    requestAnimationFrame(step);
+  } else if (!is2D && onDone) {
+    onDone();
+  }
 }
 
 function createPawnMesh(colorHex, colorName, tokIdx){
@@ -2700,6 +3114,7 @@ function positionCornerDiceUIs(){
       av.style.borderRadius = isLeft ? '4px 0 0 4px' : '0 4px 4px 0';
     }
   });
+  position2DLockBadges();
 }
 function animate(){
   requestAnimationFrame(animate);
@@ -2768,6 +3183,15 @@ function animate(){
     var targetScale = 1 + Math.min(0.5, spinSpeed * 5);
     starParticles.scale.setScalar(targetScale);
   }
+  if (_homeLockMeshes) {
+    PLAYERS.forEach(function(color) {
+      var mesh = _homeLockMeshes[color];
+      if (mesh && mesh.visible) {
+        mesh.position.y = 0.08 + Math.sin(now * 0.004) * 0.015;
+        mesh.rotation.y = now * 0.0018;
+      }
+    });
+  }
   update3DPawnPositions();
   renderer.render(scene, camera);
 }
@@ -2789,6 +3213,7 @@ var gameState = {
   autoPOV: false,
   winners: [],
   gameOver: false,
+  hasKilled: { red: false, green: false, yellow: false, blue: false },
   tokens: {
     red:    [{step:-1},{step:-1},{step:-1},{step:-1}],
     green:  [{step:-1},{step:-1},{step:-1},{step:-1}],
@@ -3012,7 +3437,12 @@ function rollDice(){
 function isValidMove(color, tokIdx, roll){
   var tok = gameState.tokens[color][tokIdx];
   if(tok.step === -1) return roll === 6;
-  return (tok.step + roll <= 56);
+  var targetStep = tok.step + roll;
+  if(targetStep > 56) return false;
+  if(targetStep >= 51 && gameState && gameState.ruleType === 'quick' && (!gameState.hasKilled || !gameState.hasKilled[color])){
+    return false;
+  }
+  return true;
 }
 function getValidMoveCount(color, roll){
   var count = 0;
@@ -3434,7 +3864,16 @@ function postMoveCheck(color, tokIdx, wasSpawn){
               if(oppGlobalIdx === myGlobalIdx){
                 AudioEngine.capture();
                 extraRoll = true;
-                updateStatus("Captured " + capitalize(oppColor) + "! Bonus roll awarded ⚔️");
+                if(!gameState.hasKilled) gameState.hasKilled = {};
+                var wasFirstKill = !gameState.hasKilled[color];
+                gameState.hasKilled[color] = true;
+                if(wasFirstKill){
+                  updateStatus("🔓 " + capitalize(color) + " captured a pawn & UNLOCKED the Home Stretch!");
+                  animateUnlockPadlock(color);
+                } else {
+                  updateStatus("Captured " + capitalize(oppColor) + "! Bonus roll awarded ⚔️");
+                }
+                updateTurnDisplay();
                 if(gameState.mode === 'ai' && color !== gameState.humanColor){
                   recordComputerStat('computerCaptures', 1);
                 }
@@ -3470,7 +3909,8 @@ function postMoveCheck(color, tokIdx, wasSpawn){
       var mTitle = document.getElementById('human-finish-modal-title');
       var mSub = document.getElementById('human-finish-modal-sub');
       if(mTitle) mTitle.textContent = 'You Finished ' + rankSuffix + ' Place! ' + rankEmoji;
-      if(mSub) mSub.textContent = 'All 4 of your pawns have reached home (' + rankSuffix + ' Place)! Would you like to end the game now and see final results, or watch the computer finish?';
+      var pawnDesc = (gameState.ruleType === 'quick') ? 'Your pawn has' : 'All 4 of your pawns have';
+      if(mSub) mSub.textContent = pawnDesc + ' reached home (' + rankSuffix + ' Place)! Would you like to end the game now and see final results, or watch the computer finish?';
       var endBtn = document.getElementById('btn-end-match-now');
       var menuEndBtn = document.getElementById('btn-menu-end-now');
       if(endBtn) endBtn.style.display = 'inline-flex';
@@ -3478,7 +3918,15 @@ function postMoveCheck(color, tokIdx, wasSpawn){
       var promptModal = document.getElementById('human-finished-modal');
       if(promptModal) promptModal.classList.remove('hidden');
     }
-    if(gameState.ruleType === 'quick' || gameState.winners.length >= gameState.activePlayers.length - 1){
+    if(gameState.winners.length >= gameState.activePlayers.length - 1){
+      var remainingLast = gameState.activePlayers.filter(function(p){
+        return gameState.winners.indexOf(p) === -1;
+      });
+      remainingLast.forEach(function(lastP){
+        if(gameState.winners.indexOf(lastP) === -1){
+          gameState.winners.push(lastP);
+        }
+      });
       endMatch();
       return;
     }
@@ -3659,6 +4107,7 @@ function updateNameLabels() {
   }
 }
 function updateTurnDisplay(){
+  updateLockVisuals();
   var active = getCurrentPlayer();
   var colorGlowMap = {
     red: '0 0 22px rgba(239, 68, 68, 0.95), 0 0 45px rgba(239, 68, 68, 0.45)',
@@ -3725,6 +4174,7 @@ function startMatch(){
   stopVictoryBoardSpotlight();
   gameState.winners = [];
   gameState.gameOver = false;
+  gameState.hasKilled = { red: false, green: false, yellow: false, blue: false };
   gameState.currentTurnIdx = 0;
   gameState.hasRolled = false;
   gameState.consecutiveSixes = 0;
@@ -3819,11 +4269,18 @@ function endMatch(){
   });
   var finalOrder = gameState.winners.concat(remaining);
   finalOrder.forEach(function(w, idx){
-    if (idx >= 3) return; 
+    if (idx >= gameState.activePlayers.length) return; 
     var row = document.createElement('div');
-    var rankClass = (idx === 0 ? ' first' : (idx === 1 ? ' second' : ' third'));
+    var isActualWinner = (gameState.winners.indexOf(w) !== -1);
+    var rankClass = (idx === 0 ? ' first' : (idx === 1 ? ' second' : (idx === 2 ? ' third' : ' fourth')));
     row.className = 'podium-item' + rankClass;
-    var rankLabel = (idx === 0 ? '🏆 1st Place' : (idx === 1 ? '🥈 2nd Place' : '🥉 3rd Place'));
+    var rankLabel;
+    if (isActualWinner) {
+      rankLabel = (idx === 0 ? '🏆 1st Place' : (idx === 1 ? '🥈 2nd Place' : (idx === 2 ? '🥉 3rd Place' : '🏅 4th Place')));
+    } else {
+      var pts = gameState.tokens[w].reduce(function(acc, t){ return acc + (t.step === -1 ? 0 : t.step); }, 0);
+      rankLabel = '🏃 Runner Up (' + pts + ' pts)';
+    }
     var pName = (gameState.playerNames && gameState.playerNames[w]) ? gameState.playerNames[w] : capitalize(w);
     row.innerHTML = '<span>#' + (idx+1) + ' ' + pName + '</span><span>' + rankLabel + '</span>';
     podium.appendChild(row);
@@ -4006,28 +4463,32 @@ function stopVictoryBoardSpotlight(){
 function animatePawnsToHome(color, onDone) {
   var tokens = gameState.tokens[color];
   if (!tokens) { if (onDone) onDone(); return; }
+  var countToMove = (gameState && gameState.ruleType === 'quick') ? 1 : 4;
   var completed = 0;
-  tokens.forEach(function(tok, idx) {
-    tok.step = 56;
-    var mesh = tokenMeshes[color][idx];
-    if (mesh) {
-      setTimeout(function() {
-        var endPos = getWorldForStep(color, 56);
-        var angle = (idx / 4) * Math.PI * 2;
-        var ox = Math.cos(angle) * 0.14;
-        var oz = Math.sin(angle) * 0.14;
-        AudioEngine.enterHome();
-        trigger3DTileBounce(getStepCoord(color, 56), PLAYER_COLORS_HEX[color] || 0xffffff, true);
-        animatePieceTo(mesh, endPos.x + ox, endPos.y, endPos.z + oz, 480, 0.7, function() {
-          completed++;
-          if (completed >= 4 && onDone) onDone();
-        });
-      }, idx * 120);
-    } else {
-      completed++;
-      if (completed >= 4 && onDone) onDone();
-    }
-  });
+  for (var idx = 0; idx < countToMove; idx++) {
+    (function(i) {
+      var tok = tokens[i];
+      tok.step = 56;
+      var mesh = tokenMeshes[color][i];
+      if (mesh) {
+        setTimeout(function() {
+          var endPos = getWorldForStep(color, 56);
+          var angle = (i / 4) * Math.PI * 2;
+          var ox = Math.cos(angle) * 0.14;
+          var oz = Math.sin(angle) * 0.14;
+          AudioEngine.enterHome();
+          trigger3DTileBounce(getStepCoord(color, 56), PLAYER_COLORS_HEX[color] || 0xffffff, true);
+          animatePieceTo(mesh, endPos.x + ox, endPos.y, endPos.z + oz, 480, 0.7, function() {
+            completed++;
+            if (completed >= countToMove && onDone) onDone();
+          });
+        }, i * 120);
+      } else {
+        completed++;
+        if (completed >= countToMove && onDone) onDone();
+      }
+    })(idx);
+  }
 }
 function updatePOVUI() {
   var povBtn = document.getElementById('btn-game-pov');
@@ -4228,12 +4689,16 @@ function bindEvents(){
     test1stAction.addEventListener('click', function(){
       document.getElementById('dev-test-modal').classList.add('hidden');
       var humanCol = (gameState && gameState.humanColor) || 'red';
+      if(!gameState.hasKilled) gameState.hasKilled = { red: false, green: false, yellow: false, blue: false };
+      gameState.hasKilled[humanCol] = true;
+      updateLockVisuals();
       gameState.winners = [humanCol];
       animatePawnsToHome(humanCol, function(){
         var titleEl = document.getElementById('human-finish-modal-title');
         var subEl   = document.getElementById('human-finish-modal-sub');
         if(titleEl) titleEl.textContent = 'You Finished 1st Place! 👑';
-        if(subEl) subEl.textContent = 'All 4 of your pawns have reached home (1st Place)! Would you like to end the game now and see final results, or watch the computer finish?';
+        var pawnStr = (gameState && gameState.ruleType === 'quick') ? 'Your pawn has' : 'All 4 of your pawns have';
+        if(subEl) subEl.textContent = pawnStr + ' reached home (1st Place)! Would you like to end the game now and see final results, or watch the computer finish?';
         triggerGrandVictoryCelebration(humanCol);
         document.getElementById('human-finished-modal').classList.remove('hidden');
       });
@@ -4251,7 +4716,8 @@ function bindEvents(){
           var titleEl = document.getElementById('human-finish-modal-title');
           var subEl   = document.getElementById('human-finish-modal-sub');
           if(titleEl) titleEl.textContent = 'You Finished 2nd Place! 🥈';
-          if(subEl) subEl.textContent = 'All 4 of your pawns have reached home (2nd Place)! Would you like to end the game now and see final results, or watch the computer finish?';
+          var pawnStr2 = (gameState && gameState.ruleType === 'quick') ? 'Your pawn has' : 'All 4 of your pawns have';
+          if(subEl) subEl.textContent = pawnStr2 + ' reached home (2nd Place)! Would you like to end the game now and see final results, or watch the computer finish?';
           triggerGrandVictoryCelebration(humanCol);
           document.getElementById('human-finished-modal').classList.remove('hidden');
         });
@@ -4273,7 +4739,8 @@ function bindEvents(){
             var titleEl = document.getElementById('human-finish-modal-title');
             var subEl   = document.getElementById('human-finish-modal-sub');
             if(titleEl) titleEl.textContent = 'You Finished 3rd Place! 🥉';
-            if(subEl) subEl.textContent = 'All 4 of your pawns have reached home (3rd Place)! Would you like to end the game now and see final results, or watch the computer finish?';
+            var pawnStr3 = (gameState && gameState.ruleType === 'quick') ? 'Your pawn has' : 'All 4 of your pawns have';
+            if(subEl) subEl.textContent = pawnStr3 + ' reached home (3rd Place)! Would you like to end the game now and see final results, or watch the computer finish?';
             triggerGrandVictoryCelebration(humanCol);
             document.getElementById('human-finished-modal').classList.remove('hidden');
           });

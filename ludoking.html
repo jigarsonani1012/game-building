@@ -8,9 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* ==================================================
-   1. RESET & THEME VARIABLES
-   ================================================== */
+
 :root {
   --font-main: 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-display: 'Outfit', system-ui, sans-serif;
@@ -23,7 +21,7 @@
   --radius-m: 14px;
   --radius-l: 22px;
   --radius-full: 9999px;
-  /* Dark Theme (Black) */
+  
   --bg: #000000;
   --panel-bg: rgba(0, 0, 0, 0.85);
   --panel-solid: #000000;
@@ -42,7 +40,7 @@
   --blue: #3b82f6;
 }
 body.theme-light {
-  /* Light Theme */
+  
   --bg: #f1f5f9;
   --panel-bg: rgba(255, 255, 255, 0.96);
   --panel-solid: #ffffff;
@@ -76,9 +74,7 @@ html, body {
   display: flex; flex-direction: column;
   overflow: hidden;
 }
-/* ==================================================
-   2. 3D CANVAS & BACKGROUND
-   ================================================== */
+
 #canvas-container {
   position: relative;
   width: 100%; height: 100%;
@@ -87,7 +83,7 @@ html, body {
   pointer-events: none;
   overflow: hidden;
 }
-/* Only enable canvas interaction when the game is actually playing */
+
 #game-screen:not(.hidden) #canvas-container {
   pointer-events: auto;
 }
@@ -95,9 +91,7 @@ html, body {
   width: 100%; height: 100%;
   display: block;
 }
-/* ==================================================
-   3. SCREEN SYSTEM & MENUS
-   ================================================== */
+
 .screen {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
@@ -169,9 +163,7 @@ body.theme-light .panel {
   text-transform: uppercase; color: var(--text-dim);
   text-align: center; margin-bottom: 12px; font-weight: 700;
 }
-/* ==================================================
-   4. BUTTONS & CHIPS
-   ================================================== */
+
 button {
   font-family: inherit; cursor: pointer;
   border: none; outline: none; background: none; color: inherit;
@@ -275,9 +267,7 @@ body.theme-dark .choice-chip.active .chip-sub {
 .choice-chip .chip-sub {
   font-size: 10.5px; color: var(--text-dim); font-weight: 600;
 }
-/* ==================================================
-   4b. PREFERENCES & SETTINGS UI
-   ================================================== */
+
 .settings-header {
   display: flex; flex-direction: column; align-items: center; gap: 2px;
   margin-bottom: 4px; text-align: center;
@@ -300,7 +290,7 @@ body.theme-light .settings-title { text-shadow: none; }
   font-size: 11.5px; color: var(--text-dim); font-weight: 600;
   letter-spacing: 0.02em;
 }
-/* Theme Cards Grid */
+
 .theme-card-grid {
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
 }
@@ -355,7 +345,7 @@ body.theme-light .theme-card .theme-icon {
 .theme-card.active .active-badge {
   opacity: 1; transform: scale(1);
 }
-/* Settings Row Card */
+
 .setting-row-card {
   display: flex; align-items: center; justify-content: space-between;
   padding: 10px 14px; border-radius: var(--radius-m);
@@ -391,7 +381,7 @@ body.theme-light .setting-row-icon {
 .setting-row-sub {
   font-size: 11px; color: var(--text-dim); font-weight: 500;
 }
-/* Modern Toggle Switch */
+
 .toggle-control-group {
   display: flex; align-items: center; gap: 10px; flex-shrink: 0;
 }
@@ -434,7 +424,7 @@ body.theme-light .toggle-knob {
 body.theme-light .toggle-switch.active .toggle-knob {
   background: #ffffff;
 }
-/* Floating Input Labels */
+
 .floating-group {
   position: relative;
   width: 100%;
@@ -463,7 +453,7 @@ body.theme-light .toggle-switch.active .toggle-knob {
 .name-input:not(:focus):not(:placeholder-shown) ~ .floating-label {
   color: var(--text-dim);
 }
-/* Color Checkbox Names */
+
 .color-toggle-group {
   display: flex; align-items: center; gap: 12px;
   width: 100%; transition: opacity var(--dur-fast);
@@ -498,9 +488,7 @@ body.theme-light .toggle-switch.active .toggle-knob {
 .color-toggle-group[data-color="green"] .name-input:focus { border-color: var(--green); }
 .color-toggle-group[data-color="yellow"] .name-input:focus { border-color: var(--yellow); }
 .color-toggle-group[data-color="blue"] .name-input:focus { border-color: var(--blue); }
-/* ==================================================
-   5. GAME SCREEN & 3D HUD
-   ================================================== */
+
 #game-screen {
   padding: 0; justify-content: flex-start;
   pointer-events: none;
@@ -517,7 +505,7 @@ body.theme-light .toggle-switch.active .toggle-knob {
   z-index: 20; pointer-events: auto;
   box-sizing: border-box;
 }
-/* Real Mobile Game Header Tools Capsule */
+
 .hdr-tools-capsule {
   display: inline-flex;
   align-items: center;
@@ -535,7 +523,7 @@ body.theme-light .hdr-tools-capsule {
   border-color: #cbd5e1;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
-/* Theme-Based Header Buttons (Dark & Light Glassmorphic Style) */
+
 .hdr-tools-capsule button.hdr-btn,
 .hdr-btn {
   display: inline-flex !important;
@@ -557,7 +545,7 @@ body.theme-light .hdr-tools-capsule {
   text-transform: uppercase !important;
   box-sizing: border-box !important;
   outline: none !important;
-  /* Dark Theme Glassmorphic Base */
+  
   background: rgba(30, 41, 59, 0.85) !important;
   color: #f8fafc !important;
   border: 1px solid rgba(255, 255, 255, 0.14) !important;
@@ -578,7 +566,6 @@ body.theme-light .hdr-tools-capsule {
   border-bottom-width: 1px !important;
 }
 
-/* Light Theme Adaptations */
 body.theme-light .hdr-tools-capsule button.hdr-btn,
 body.theme-light .hdr-btn {
   background: rgba(255, 255, 255, 0.95) !important;
@@ -595,7 +582,6 @@ body.theme-light .hdr-btn:hover {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Active Highlight States (e.g. Auto-Play ON, High Speed) */
 .hdr-tools-capsule button.hdr-btn.active,
 .hdr-btn.active {
   background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%) !important;
@@ -665,13 +651,13 @@ body.theme-dark #hamburger-dropdown .btn-ghost:hover {
   border-radius: 0 0 6px 6px !important;
   box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
-/* 4 Corner Player Cards (Match Ludo King Board Slab Material) */
+
 .player-corner,
 .corner-dice-ui {
   position: absolute;
   display: flex; align-items: stretch;
   border-radius: 6px;
-  background: #0f172a !important; /* Solid Onyx Board Material */
+  background: #0f172a !important; 
   border: 2px solid #334155;
   box-shadow: 0 4px 12px rgba(0,0,0,0.6);
   z-index: 15; pointer-events: auto;
@@ -708,7 +694,7 @@ body.theme-dark .avatar-area {
   background: #0f172a;
 }
 .pin-icon { width: 24px; height: 24px; transition: fill 0.4s var(--ease); }
-/* 3D Dice Corner Roller */
+
 .dice-box {
   width: 44px; height: 44px;
   perspective: 400px;
@@ -722,7 +708,7 @@ body.theme-dark .avatar-area {
   transform-style: preserve-3d;
   transition: transform 0.6s var(--ease-bounce);
 }
-/* Black Dice Faces in Dark Mode */
+
 .dice-face {
   position: absolute; width: 36px; height: 36px;
   background: #0f172a; border-radius: 6px;
@@ -767,7 +753,7 @@ body.theme-light .dice-pip {
   70% { transform: rotateX(720deg) rotateY(540deg) scale(1.1); }
   100% { transform: rotateX(1080deg) rotateY(720deg) scale(1); }
 }
-/* Toast Notification Popup */
+
 #game-status-bar {
   position: absolute;
   top: 62px;
@@ -805,9 +791,7 @@ body.theme-light #game-status-bar {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
-/* ==================================================
-   6. MODAL WINDOWS & WINNER PODIUM
-   ================================================== */
+
 .modal-backdrop {
   position: fixed; inset: 0;
   background: rgba(0, 0, 0, 0.65);
@@ -843,9 +827,7 @@ body.theme-light #game-status-bar {
 .modal-title { font-family: var(--font-display); font-size: 24px; font-weight: 900; margin-bottom: 6px; }
 .modal-sub { color: var(--text-dim); font-size: 13.5px; line-height: 1.5; margin-bottom: 20px; }
 .podium-list { display: flex; flex-direction: column; gap: 8px; margin: 14px 0 22px; }
-/* ==================================================
-   6b. EPIC VICTORY CELEBRATION & PODIUM STYLING
-   ================================================== */
+
 #victory-flash-overlay {
   position: fixed; inset: 0;
   background: radial-gradient(circle at center, rgba(251, 191, 36, 0.35) 0%, rgba(245, 158, 11, 0.15) 50%, transparent 80%);
@@ -875,7 +857,6 @@ body.theme-light #game-status-bar {
   scrollbar-color: #8b5cf6 rgba(15, 23, 42, 0.4);
 }
 
-/* Custom Sleek Scrollbar for Dev Tools & Modals */
 .modal-card::-webkit-scrollbar,
 #dev-test-modal .modal-card::-webkit-scrollbar {
   width: 6px;
@@ -958,7 +939,7 @@ body.theme-light #game-status-bar {
 .podium-item:nth-child(2) { animation-delay: 0.2s; }
 .podium-item:nth-child(3) { animation-delay: 0.3s; }
 .podium-item:nth-child(4) { animation-delay: 0.4s; }
-/* Dark Theme Podium Styling */
+
 body.theme-dark .podium-item.first,
 .podium-item.first {
   background: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(245, 158, 11, 0.12));
@@ -983,7 +964,7 @@ body.theme-dark .podium-item.third,
   box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
   font-size: 14px; font-weight: 800;
 }
-/* Light Theme Podium Styling — Maximum Legibility & Rich Aesthetics */
+
 body.theme-light .podium-item.first {
   background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 60%, #fde68a 100%);
   border: 1.5px solid #d97706;
@@ -1017,7 +998,7 @@ body.theme-light .podium-item.third {
   .corner-blue { bottom: 56px; right: 10px; }
   .player-name { max-width: 50px; font-size: 11px; }
 }
-/* Header Button Bar Utilities (True 3D Gaming Buttons) */
+
 .hdr-btn {
   display: inline-flex;
   align-items: center;
@@ -1044,7 +1025,7 @@ body.theme-light .podium-item.third {
 .hdr-btn:active {
   transform: translateY(2px) !important;
 }
-/* 🏁 End Match Button (3D Emerald Game Button) */
+
 .hdr-btn-end {
   background: linear-gradient(to bottom, #34d399, #10b981 60%, #059669);
   color: #ffffff !important;
@@ -1060,7 +1041,7 @@ body.theme-light .podium-item.third {
   border-bottom-width: 1px;
   box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
-/* ⚡ Speed Button (3D Theme-Adaptive Game Button) */
+
 .hdr-btn-speed {
   background: linear-gradient(to bottom, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
   color: var(--text) !important;
@@ -1082,7 +1063,7 @@ body.theme-light .hdr-btn-speed {
   border-bottom-width: 1px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
-/* 🧪 Dev Tools Button (3D Violet Purple Game Button) */
+
 .hdr-btn-dev {
   background: linear-gradient(to bottom, #a78bfa, #8b5cf6 60%, #6d28d9);
   color: #ffffff !important;
@@ -1102,18 +1083,14 @@ body.theme-light .hdr-btn-speed {
 </head>
 <body class="theme-dark">
 <div id="app">
-  <!-- ==================================================
-       2. SPLASH SCREEN
-       ================================================== -->
+  
   <div id="splash" class="screen">
     <div class="brandmark">
       <div class="brand-title">LUDO KING</div>
       <div class="brand-sub">The Royal 3D Experience</div>
     </div>
   </div>
-  <!-- ==================================================
-       3. MAIN MENU SCREEN
-       ================================================== -->
+  
   <div id="main-menu" class="screen hidden">
     <div class="menu-stack">
       <div class="brandmark">
@@ -1128,12 +1105,10 @@ body.theme-light .hdr-btn-speed {
       </div>
     </div>
   </div>
-  <!-- ==================================================
-       4. MODE SELECT SCREEN
-       ================================================== -->
+  
   <div id="mode-screen" class="screen hidden screen-scroll">
     <div class="menu-stack">
-      <!-- Step 1: Opponent Selection -->
+      
       <div id="opponent-section" style="width:100%; display:flex; flex-direction:column; align-items:center;">
         <div class="eyebrow" style="margin-bottom:12px;">Choose opponent</div>
         <div class="panel menu-btn-list">
@@ -1145,7 +1120,7 @@ body.theme-light .hdr-btn-speed {
           </button>
         </div>
       </div>
-      <!-- Step 2: Configuration Panel -->
+      
       <div class="panel hidden" id="config-panel" style="display:flex; flex-direction:column; gap:16px;">
         <div>
           <div class="eyebrow" style="text-align:left; margin-bottom:8px;">Player Count</div>
@@ -1290,11 +1265,9 @@ body.theme-light .hdr-btn-speed {
       <button class="btn btn-ghost" id="btn-mode-back" style="width:auto; padding:8px 24px;">Back</button>
     </div>
   </div>
-  <!-- ==================================================
-       5. GAME HUD (Overlays 3D Canvas)
-       ================================================== -->
+  
   <div id="game-screen" class="screen hidden">
-    <!-- Header (Top Row) -->
+    
     <div id="game-header">
       <div class="hdr-tools-capsule">
         <button class="hdr-btn hdr-btn-speed" id="btn-speed-toggle" title="Toggle AI Game Speed">
@@ -1362,11 +1335,11 @@ body.theme-light .hdr-btn-speed {
         </div>
       </div>
     </div>
-    <!-- 3D Canvas Area (Flex 1 Below Header) -->
+    
     <div id="canvas-container">
       <canvas id="three-canvas"></canvas>
     </div>
-    <!-- Central Dice Roller -->
+    
     <div class="player-corner active" id="central-dice-ui" style="bottom: 70px; left: 50%; transform: translateX(-50%); flex-direction: row; border-width: 3px;">
       <div class="avatar-area" id="central-avatar-area">
         <svg class="pin-icon" viewBox="0 0 24 24">
@@ -1381,7 +1354,7 @@ body.theme-light .hdr-btn-speed {
         <div class="dice-cube" id="dice-cube-central"></div>
       </div>
     </div>
-    <!-- 2D Mode Corner Dice UIs Panels -->
+    
     <div id="board-corner-panel-top" class="board-corner-panel" style="display:none;"></div>
     <div id="board-corner-panel-bottom" class="board-corner-panel" style="display:none;"></div>
     <div class="corner-dice-ui" id="dice-ui-red" style="display:none;">
@@ -1416,14 +1389,12 @@ body.theme-light .hdr-btn-speed {
         <div class="dice-cube" id="dice-cube-blue"></div>
       </div>
     </div>
-    <!-- Toast Notification -->
+    
     <div id="game-status-bar">
       <span id="status-text"></span>
     </div>
   </div>
-  <!-- ==================================================
-       6. HOW TO PLAY SCREEN
-       ================================================== -->
+  
   <div id="rules-screen" class="screen hidden screen-scroll">
     <style>
       .timeline-container { 
@@ -1499,7 +1470,7 @@ body.theme-light .hdr-btn-speed {
       <div class="eyebrow" style="margin-top: 0; margin-bottom: 12px; font-size: 13px; color: var(--text-dim); letter-spacing: 1px;">Official Rules &amp; Guide</div>
       <div class="timeline-container">
         <div class="timeline-line"></div>
-        <!-- Rule 1 -->
+        
         <div class="timeline-item">
           <div class="timeline-dot"></div>
           <div class="rule-content">
@@ -1507,7 +1478,7 @@ body.theme-light .hdr-btn-speed {
             <div class="rule-desc">Roll a <strong>6</strong> to move a pawn out of base. Move clockwise. Rolling a 6 gives an <strong>extra turn</strong>. (Three 6s in a row ends your turn).</div>
           </div>
         </div>
-        <!-- Rule 2 -->
+        
         <div class="timeline-item">
           <div class="timeline-dot"></div>
           <div class="rule-content">
@@ -1515,7 +1486,7 @@ body.theme-light .hdr-btn-speed {
             <div class="rule-desc">Land on an opponent's pawn to <strong>capture</strong> it, sending it back to base. Capturing awards you a <strong>Bonus Roll</strong>.</div>
           </div>
         </div>
-        <!-- Rule 3 -->
+        
         <div class="timeline-item">
           <div class="timeline-dot"></div>
           <div class="rule-content">
@@ -1523,7 +1494,7 @@ body.theme-light .hdr-btn-speed {
             <div class="rule-desc">Pawns on squares marked with a <strong>Star (★)</strong> are in a safe zone and cannot be captured by opponents.</div>
           </div>
         </div>
-        <!-- Rule 4 -->
+        
         <div class="timeline-item">
           <div class="timeline-dot"></div>
           <div class="rule-content">
@@ -1531,7 +1502,7 @@ body.theme-light .hdr-btn-speed {
             <div class="rule-desc">Be the first to move all 4 pawns into the center <strong>Home triangle</strong>. You must roll the <strong>exact number</strong> to enter Home.</div>
           </div>
         </div>
-        <!-- Rule 5 -->
+        
         <div class="timeline-item">
           <div class="timeline-dot"></div>
           <div class="rule-content">
@@ -1543,12 +1514,10 @@ body.theme-light .hdr-btn-speed {
       <button class="btn btn-primary" id="btn-rules-back" style="width:100%; max-width: 240px; margin: 32px auto 0; padding:14px; font-size: 16px; border-radius: var(--radius-full); box-shadow: 0 4px 15px var(--accent-glow); font-weight: 700;">Got It, Let's Play!</button>
     </div>
   </div>
-  <!-- ==================================================
-       7. SETTINGS SCREEN (PREFERENCES)
-       ================================================== -->
+  
   <div id="settings-screen" class="screen hidden screen-scroll">
     <div class="menu-stack" style="gap: 20px;">
-      <!-- Settings Header -->
+      
       <div class="settings-header">
         <div class="settings-icon-badge">
           <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1560,7 +1529,7 @@ body.theme-light .hdr-btn-speed {
         <div class="settings-subtitle">Customize theme &amp; sound effects</div>
       </div>
       <div class="panel" style="display:flex; flex-direction:column; gap:20px;">
-        <!-- Theme Section -->
+        
         <div>
           <div class="eyebrow" style="text-align:left; margin-bottom:10px;">Theme</div>
           <div class="theme-card-grid">
@@ -1586,7 +1555,7 @@ body.theme-light .hdr-btn-speed {
             </div>
           </div>
         </div>
-        <!-- Sound Section -->
+        
         <div style="display:flex; flex-direction:column; gap:10px;">
           <div class="eyebrow" style="text-align:left; margin-bottom:2px;">Sound &amp; Effects</div>
           <div class="setting-row-card" id="toggle-sound-chip" role="button" aria-label="Toggle Sound Effects">
@@ -1611,9 +1580,7 @@ body.theme-light .hdr-btn-speed {
       <button class="btn btn-primary" id="btn-settings-back" style="width:100%; max-width:220px; padding:12px 32px; font-size: 15px;">Done</button>
     </div>
   </div>
-  <!-- ==================================================
-       7b. BOT STATISTICS SCREEN (Vs Computer Records)
-       ================================================== -->
+  
   <div id="stats-screen" class="screen hidden screen-scroll">
     <div class="menu-stack" style="max-width:420px;">
       <div class="settings-header">
@@ -1657,9 +1624,7 @@ body.theme-light .hdr-btn-speed {
       <button class="btn btn-primary" id="btn-stats-back" style="width:100%; max-width:220px; margin:0 auto; padding:12px 32px; font-size:15px;">Back to Menu</button>
     </div>
   </div>
-  <!-- ==================================================
-       7b. HUMAN PLAYER FINISHED MODAL (Vs Computer)
-       ================================================== -->
+  
   <div id="human-finished-modal" class="modal-backdrop hidden">
     <div class="modal-card" style="max-width:380px;">
       <div class="modal-icon" id="human-finish-modal-icon">
@@ -1698,9 +1663,7 @@ body.theme-light .hdr-btn-speed {
       </div>
     </div>
   </div>
-  <!-- ==================================================
-       8. WINNER PODIUM MODAL
-       ================================================== -->
+  
   <div id="win-modal" class="modal-backdrop hidden">
     <div class="modal-card">
       <div class="modal-icon" id="win-modal-icon">
@@ -1740,9 +1703,7 @@ body.theme-light .hdr-btn-speed {
       </div>
     </div>
   </div>
-  <!-- ==================================================
-       9. CONFIRM QUIT MODAL
-       ================================================== -->
+  
   <div id="confirm-modal" class="modal-backdrop hidden">
     <div class="modal-card">
       <div class="modal-title">Are you sure?</div>
@@ -1753,9 +1714,7 @@ body.theme-light .hdr-btn-speed {
       </div>
     </div>
   </div>
-  <!-- ==================================================
-       10. CONFIRM RESTART MODAL
-       ================================================== -->
+  
   <div id="restart-modal" class="modal-backdrop hidden">
     <div class="modal-card">
       <div class="modal-title" id="restart-modal-title">Restart Game?</div>
@@ -1766,9 +1725,7 @@ body.theme-light .hdr-btn-speed {
       </div>
     </div>
   </div>
-  <!-- ==================================================
-       11. DEV TEST TOOLS MODAL
-       ================================================== -->
+  
   <div id="dev-test-modal" class="modal-backdrop hidden">
     <div class="modal-card" style="max-width:380px;">
       <div class="modal-title" style="font-size:20px; font-weight:800; margin-bottom:4px;">🧪 Dev Test Tools</div>
@@ -1801,15 +1758,13 @@ body.theme-light .hdr-btn-speed {
     </div>
   </div>
 </div>
-<!-- Three.js + Confetti Scripts -->
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script>
 (function(){
 "use strict";
-/* ==================================================
-   1. SOUND ENGINE (Web Audio API)
-   ================================================== */
+
 var AudioEngine = (function(){
   var ctx = null, enabled = true;
   function init(){
@@ -1845,12 +1800,12 @@ var AudioEngine = (function(){
       if(!ctx) return;
       if(ctx.state === 'suspended') ctx.resume();
       var notes = [
-        { f: 523.25, t: 0.0, d: 0.25 }, // C5
-        { f: 659.25, t: 0.15, d: 0.25 }, // E5
-        { f: 783.99, t: 0.30, d: 0.25 }, // G5
-        { f: 1046.50, t: 0.45, d: 0.45 }, // C6
-        { f: 1318.51, t: 0.65, d: 0.60 }, // E6
-        { f: 1567.98, t: 0.85, d: 0.90 }  // G6 Triumphant Chime!
+        { f: 523.25, t: 0.0, d: 0.25 }, 
+        { f: 659.25, t: 0.15, d: 0.25 }, 
+        { f: 783.99, t: 0.30, d: 0.25 }, 
+        { f: 1046.50, t: 0.45, d: 0.45 }, 
+        { f: 1318.51, t: 0.65, d: 0.60 }, 
+        { f: 1567.98, t: 0.85, d: 0.90 }  
       ];
       notes.forEach(function(n){
         setTimeout(function(){
@@ -1894,7 +1849,7 @@ var AudioEngine = (function(){
       gain.connect(ctx.destination);
 
       if(styleName === 'teleport'){
-        // Sci-Fi Laser Beam Teleport (Dematerialize Charge -> Rematerialize Drop)
+        
         osc.type = 'sine';
         osc.frequency.setValueAtTime(350, t);
         osc.frequency.exponentialRampToValueAtTime(1600, t + 0.10);
@@ -1903,7 +1858,7 @@ var AudioEngine = (function(){
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
         osc.start(t); osc.stop(t + 0.25);
       } else if(styleName === 'surf'){
-        // Water Wave Glide
+        
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(320, t);
         osc.frequency.linearRampToValueAtTime(560, t + 0.10);
@@ -1912,7 +1867,7 @@ var AudioEngine = (function(){
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
         osc.start(t); osc.stop(t + 0.24);
       } else if(styleName === 'meteor'){
-        // Space Meteor Launch & Bass Boom Impact
+        
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(600, t);
         osc.frequency.exponentialRampToValueAtTime(80, t + 0.28);
@@ -1920,7 +1875,7 @@ var AudioEngine = (function(){
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.30);
         osc.start(t); osc.stop(t + 0.30);
       } else if(styleName === 'tornado'){
-        // Tornado Slow-Mo Bullet-Time Sound
+        
         osc.type = 'sine';
         osc.frequency.setValueAtTime(550, t);
         osc.frequency.exponentialRampToValueAtTime(130, t + 0.15);
@@ -1929,7 +1884,7 @@ var AudioEngine = (function(){
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
         osc.start(t); osc.stop(t + 0.28);
       } else {
-        // Classic Arcade Hop (bounce)
+        
         osc.type = 'sine';
         osc.frequency.setValueAtTime(340, t);
         osc.frequency.exponentialRampToValueAtTime(620, t + 0.12);
@@ -1946,9 +1901,7 @@ var AudioEngine = (function(){
     }
   };
 })();
-/* ==================================================
-   2. 3D TRACK COORDINATES & MATRIX
-   ================================================== */
+
 var BOARD_COORDS = [
   {r:13, c:6}, {r:12, c:6}, {r:11, c:6}, {r:10, c:6}, {r:9, c:6},
   {r:8, c:5}, {r:8, c:4}, {r:8, c:3}, {r:8, c:2}, {r:8, c:1}, {r:8, c:0},
@@ -1989,13 +1942,11 @@ var PLAYER_COLORS_HEX = {
   yellow: 0xeab308,
   blue:   0x3b82f6
 };
-/* ==================================================
-   3. THREE.JS 3D WORLD SETUP
-   ================================================== */
+
 var scene, camera, renderer, boardGroup, tokenGroup, starParticles;
 var raycaster = new THREE.Raycaster();
 var mouse = new THREE.Vector2();
-/* Orbital Camera Controls */
+
 var isDragging = false, dragLastX = 0, dragLastY = 0;
 var boardRotY = 0, boardRotX = 0.45, boardVelY = 0, boardVelX = 0;
 var zoomCurrent = 1.0, zoomTarget = 1.0;
@@ -2006,7 +1957,7 @@ var AUTO_SPIN_SPEED = 0.08;
 var tokenMeshes = { red:[], green:[], yellow:[], blue:[] };
 var _tileMeshMap = {};
 function gridToWorld(r, c){
-  /* 15x15 grid mapped into 3D world coordinates */
+  
   var cellSize = 0.62;
   var x = (c - 7) * cellSize;
   var z = (r - 7) * cellSize;
@@ -2031,7 +1982,7 @@ function init3D(){
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  /* Lighting — crisp high-contrast 3D shadows */
+  
   var ambLight = new THREE.AmbientLight(0xffffff, 0.35);
   scene.add(ambLight);
   var dirLight = new THREE.DirectionalLight(0xffffff, 0.75);
@@ -2050,7 +2001,7 @@ function init3D(){
   var pointLight = new THREE.PointLight(0xffffff, 0.12, 20);
   pointLight.position.set(0, 8, 0);
   scene.add(pointLight);
-  /* Ambient Floating Particles (rich density covering full screen & zoom out) */
+  
   var starGeo = new THREE.BufferGeometry();
   var starCount = 1500;
   var starPos = new Float32Array(starCount * 3);
@@ -2069,14 +2020,14 @@ function init3D(){
   starParticles = new THREE.Points(starGeo, starMat);
   starParticles.visible = true;
   scene.add(starParticles);
-  /* Board Hierarchy */
+  
   boardGroup = new THREE.Group();
   tokenGroup = new THREE.Group();
   boardGroup.add(tokenGroup);
   scene.add(boardGroup);
   build3DBoard();
   build3DPawns();
-  /* Listeners */
+  
   window.addEventListener('resize', onResize);
   canvas.addEventListener('pointerdown', onPointerDown, {passive:true});
   canvas.addEventListener('pointermove', onPointerMove, {passive:true});
@@ -2097,12 +2048,7 @@ function onResize(){
   camera.updateProjectionMatrix();
   renderer.setSize(container.clientWidth, container.clientHeight);
 }
-/* ==================================================
-   4. 3D BOARD & PAWN MESH CREATION
-   ================================================== */
-/* ==================================================
-   SHAPE HELPERS
-   ================================================== */
+
 function createStarShape(radius, innerRadius, points, thickness) {
   var shape = new THREE.Shape();
   var pi2 = Math.PI * 2;
@@ -2128,13 +2074,13 @@ function createStarShape(radius, innerRadius, points, thickness) {
 }
 function createArrowShape() {
   var shape = new THREE.Shape();
-  var t = 0.015; // stem half-thickness
+  var t = 0.015; 
   shape.moveTo(-t, -0.2);
   shape.lineTo(t, -0.2);
   shape.lineTo(t, 0.04);
   shape.lineTo(0.12, -0.05);
   shape.lineTo(0.14, -0.01);
-  shape.lineTo(0, 0.16); // Tip
+  shape.lineTo(0, 0.16); 
   shape.lineTo(-0.14, -0.01);
   shape.lineTo(-0.12, -0.05);
   shape.lineTo(-t, 0.04);
@@ -2146,10 +2092,10 @@ function isLightTheme(){
 }
 function build3DBoard(){
   _tileMeshMap = {};
-  /* 15x15 Tiles */
+  
   var cellSize = 0.62;
   var defaultTileColor = isLightTheme() ? 0xffffff : 0x121a28;
-  /* Shared geometries and materials for performance */
+  
   var sharedTileGeo = new THREE.BoxGeometry(cellSize * 0.94, 0.08, cellSize * 0.94);
   var sharedShadowPlaneGeo = new THREE.PlaneGeometry(cellSize * 1.07, cellSize * 1.07);
   var sharedShadowPlaneMat = new THREE.MeshBasicMaterial({
@@ -2163,7 +2109,7 @@ function build3DBoard(){
     for(var c=0; c<15; c++){
       var pos = gridToWorld(r, c);
       var tileColor = defaultTileColor;
-      /* Check Paths & Yards */
+      
       PLAYERS.forEach(function(p){
         HOME_PATHS[p].forEach(function(hp){
           if(hp.r === r && hp.c === c) tileColor = PLAYER_COLORS_HEX[p];
@@ -2173,13 +2119,13 @@ function build3DBoard(){
       var isStartGreen  = (r===6  && c===1);
       var isStartYellow = (r===1  && c===8);
       var isStartBlue   = (r===8  && c===13);
-      /* Arrows at the entrance of each home path */
+      
       var isArrowRed    = (r===14 && c===7);
       var isArrowGreen  = (r===7  && c===0);
       var isArrowYellow = (r===0  && c===7);
       var isArrowBlue   = (r===7  && c===14);
       var isOtherSafe   = (r===8&&c===2)||(r===2&&c===6)||(r===6&&c===12)||(r===12&&c===8);
-      /* Start cells (where pieces spawn) are colored */
+      
       if(isStartRed)    tileColor = PLAYER_COLORS_HEX.red;
       if(isStartGreen)  tileColor = PLAYER_COLORS_HEX.green;
       if(isStartYellow) tileColor = PLAYER_COLORS_HEX.yellow;
@@ -2199,14 +2145,14 @@ function build3DBoard(){
       tileMesh.receiveShadow = true;
       boardGroup.add(tileMesh);
       _tileMeshMap[r + '_' + c] = tileMesh;
-      /* Soft Fading Contact Shadow under each 3D tile */
+      
       var shadowPlaneMesh = new THREE.Mesh(sharedShadowPlaneGeo, sharedShadowPlaneMat);
       shadowPlaneMesh.rotation.x = -Math.PI / 2;
       shadowPlaneMesh.position.set(pos.x, 0.005, pos.z);
       boardGroup.add(shadowPlaneMesh);
-      /* Extrusion settings for 3D inlays */
+      
       var extrudeSettings = { depth: 0.012, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.003, bevelThickness: 0.003 };
-      /* Add 3D Bordered Star for non-start safe tiles */
+      
       if(isOtherSafe){
         var starGeo = new THREE.ExtrudeGeometry(createStarShape(0.16, 0.07, 5, 0.025), extrudeSettings);
         var safeStarColor = isLightTheme() ? 0x9ca3af : 0xffffff;
@@ -2216,7 +2162,7 @@ function build3DBoard(){
         starMesh.position.set(pos.x, 0.08, pos.z);
         boardGroup.add(starMesh);
       }
-      /* Add 3D Colored Arrows at home entrances */
+      
       if(isArrowRed || isArrowGreen || isArrowYellow || isArrowBlue){
         var arrowGeo = new THREE.ExtrudeGeometry(createArrowShape(), extrudeSettings);
         var arrowColor, arrowRot;
@@ -2233,8 +2179,8 @@ function build3DBoard(){
       }
     }
   }
-  /* 4 Raised 3D Yards */
-  var yardSize = cellSize * 6; // 3.72 units wide
+  
+  var yardSize = cellSize * 6; 
   var yardDefs = [
     { color: PLAYER_COLORS_HEX.red,    x: -cellSize * 4.5, z:  cellSize * 4.5 },
     { color: PLAYER_COLORS_HEX.green,  x: -cellSize * 4.5, z: -cellSize * 4.5 },
@@ -2242,14 +2188,14 @@ function build3DBoard(){
     { color: PLAYER_COLORS_HEX.blue,   x:  cellSize * 4.5, z:  cellSize * 4.5 }
   ];
   yardDefs.forEach(function(yd){
-    /* 1. Base 3D coloured slab for the Yard */
+    
     var yardGeo = new THREE.BoxGeometry(yardSize, 0.16, yardSize);
     var yMat = new THREE.MeshStandardMaterial({ color: yd.color, roughness: 0.35, metalness: 0.15 });
     var yMesh = new THREE.Mesh(yardGeo, yMat);
     yMesh.position.set(yd.x, 0.08, yd.z);
     yMesh.receiveShadow = true;
     boardGroup.add(yMesh);
-    /* 2. Inset Panel (White in Light Mode, Dark Onyx #121a28 in Dark Mode) */
+    
     var isLight = isLightTheme();
     var framePad = cellSize * 0.48;
     var frameInner = yardSize - framePad * 2;
@@ -2264,13 +2210,13 @@ function build3DBoard(){
     var whiteMesh = new THREE.Mesh(whiteGeo, whiteMat);
     whiteMesh.position.set(yd.x, 0.166, yd.z);
     boardGroup.add(whiteMesh);
-    /* 3. Border outline for the inset panel */
+    
     var trayEdges = new THREE.EdgesGeometry(new THREE.BoxGeometry(frameInner, 0.01, frameInner));
     var borderLine = new THREE.LineSegments(trayEdges,
       new THREE.LineBasicMaterial({ color: isLight ? 0x94a3b8 : 0x475569, opacity: 0.6, transparent: true }));
     borderLine.position.set(yd.x, 0.172, yd.z);
     boardGroup.add(borderLine);
-    /* 4. Four circular nest pockets (2×2 grid) */
+    
     var nestOffsets = [
       { ox: -cellSize * 1.1, oz: -cellSize * 1.1 },
       { ox:  cellSize * 1.1, oz: -cellSize * 1.1 },
@@ -2280,7 +2226,7 @@ function build3DBoard(){
     nestOffsets.forEach(function(no){
       var nx = yd.x + no.ox;
       var nz = yd.z + no.oz;
-      /* Outer Nest Ring (White in Light Mode, Dark Charcoal #1e293b in Dark Mode) */
+      
       var ringGeo = new THREE.CylinderGeometry(cellSize * 0.68, cellSize * 0.68, 0.02, 48);
       var ringMat = new THREE.MeshStandardMaterial({
         color: isLight ? 0xffffff : 0x1e293b,
@@ -2292,13 +2238,13 @@ function build3DBoard(){
       var ringMesh = new THREE.Mesh(ringGeo, ringMat);
       ringMesh.position.set(nx, 0.176, nz);
       boardGroup.add(ringMesh);
-      /* Inner Colored Nest Disc */
+      
       var discGeo = new THREE.CylinderGeometry(cellSize * 0.52, cellSize * 0.52, 0.025, 48);
       var discMat = new THREE.MeshStandardMaterial({ color: yd.color, roughness: 0.35, metalness: 0.15 });
       var discMesh = new THREE.Mesh(discGeo, discMat);
       discMesh.position.set(nx, 0.182, nz);
       boardGroup.add(discMesh);
-      /* Inner Socket Shadow Ring — soft 3D recessed socket depth */
+      
       var shadowGeo = new THREE.TorusGeometry(cellSize * 0.52, 0.008, 12, 48);
       var shadowMat = new THREE.MeshStandardMaterial({
         color: isLight ? 0x64748b : 0x000000,
@@ -2312,41 +2258,23 @@ function build3DBoard(){
       boardGroup.add(shadowMesh);
     });
   });
-  /* ---- Center — proper Ludo King 4-triangle star ---- */
-  var cHalf = cellSize * 1.5;   /* half-span of 3-cell area = 0.93 */
-  var cY    = 0.09;             /* sits just above the tiles        */
-  /* Dark/Light base covers full 3×3 */
+  
+  var cHalf = cellSize * 1.5;   
+  var cY    = 0.09;             
+  
   var cBaseGeo = new THREE.BoxGeometry(cHalf * 2, 0.055, cHalf * 2);
   var cBaseColor = isLightTheme() ? 0xffffff : 0x0f172a;
   var cBaseMat = new THREE.MeshStandardMaterial({ color: cBaseColor, roughness: 0.6, metalness: 0.05 });
   var cBaseMesh = new THREE.Mesh(cBaseGeo, cBaseMat);
   cBaseMesh.position.set(0, 0.058, 0);
   boardGroup.add(cBaseMesh);
-  /*
-   * 4 right-triangle wedges sharing the centre tip (0,0).
-   * Each covers exactly one quadrant of the square so they tile with NO gaps.
-   * Vertices in XZ (Y=up):  tip → corner1 → corner2
-   *
-   *   (-H,-H)  (H,-H)   ← top edge    (negative Z = "up" on board)
-   *      \_____/
-   *      |\   /|
-   *      | \ / |
-   *      |  X  |        X = (0,0) centre
-   *      | / \ |
-   *      |/   \|
-   *      /‾‾‾‾‾\
-   *   (-H, H)  (H, H)   ← bottom edge (positive Z = "down" on board)
-   *
-   *  Yellow = top    (–Z side)
-   *  Blue   = right  (+X side)
-   *  Red    = bottom (+Z side)
-   *  Green  = left   (–X side)
-   */
+  
+
   var wedgeDefs = [
-    { hex: PLAYER_COLORS_HEX.yellow, x0:0,     z0:0,      x1:-cHalf, z1:-cHalf, x2: cHalf, z2:-cHalf }, /* top    */
-    { hex: PLAYER_COLORS_HEX.blue,   x0:0,     z0:0,      x1: cHalf, z1:-cHalf, x2: cHalf, z2: cHalf }, /* right  */
-    { hex: PLAYER_COLORS_HEX.red,    x0:0,     z0:0,      x1: cHalf, z1: cHalf, x2:-cHalf, z2: cHalf }, /* bottom */
-    { hex: PLAYER_COLORS_HEX.green,  x0:0,     z0:0,      x1:-cHalf, z1: cHalf, x2:-cHalf, z2:-cHalf }  /* left   */
+    { hex: PLAYER_COLORS_HEX.yellow, x0:0,     z0:0,      x1:-cHalf, z1:-cHalf, x2: cHalf, z2:-cHalf }, 
+    { hex: PLAYER_COLORS_HEX.blue,   x0:0,     z0:0,      x1: cHalf, z1:-cHalf, x2: cHalf, z2: cHalf }, 
+    { hex: PLAYER_COLORS_HEX.red,    x0:0,     z0:0,      x1: cHalf, z1: cHalf, x2:-cHalf, z2: cHalf }, 
+    { hex: PLAYER_COLORS_HEX.green,  x0:0,     z0:0,      x1:-cHalf, z1: cHalf, x2:-cHalf, z2:-cHalf }  
   ];
   wedgeDefs.forEach(function(wd){
     var geo = new THREE.BufferGeometry();
@@ -2366,7 +2294,7 @@ function build3DBoard(){
     mesh.position.set(0, cY, 0);
     boardGroup.add(mesh);
   });
-  /* Diagonal lines separating the 4 wedges */
+  
   var diagLen = Math.sqrt(2) * cHalf;
   var sepColor = isLightTheme() ? 0xffffff : 0x334155;
   [Math.PI / 4, -Math.PI / 4].forEach(function(a){
@@ -2377,14 +2305,14 @@ function build3DBoard(){
     lMesh.position.set(0, cY + 0.01, 0);
     boardGroup.add(lMesh);
   });
-  /* Outer border ring around the 3×3 area */
+  
   var bSize = cHalf * 2 + 0.04;
   var borderEdges = new THREE.EdgesGeometry(new THREE.BoxGeometry(bSize, 0.01, bSize));
   var borderLines = new THREE.LineSegments(borderEdges,
     new THREE.LineBasicMaterial({ color: isLightTheme() ? 0xffffff : 0x334155, linewidth: 1 }));
   borderLines.position.set(0, cY + 0.02, 0);
   boardGroup.add(borderLines);
-  /* Hexagon disc at dead centre */
+  
   var cDiscGeo = new THREE.CylinderGeometry(cellSize * 0.20, cellSize * 0.20, 0.055, 6);
   var isLightDisc = isLightTheme();
   var cDiscMat = new THREE.MeshStandardMaterial({
@@ -2398,38 +2326,36 @@ function build3DBoard(){
   cDisc.position.set(0, cY + 0.03, 0);
   boardGroup.add(cDisc);
 }
-/* =====================================================
-   Polished Ludo chess-pawn piece
-   ===================================================== */
+
 function createPawnMesh(colorHex, colorName, tokIdx){
-  /* Lathe profile — more control points for sharper neck */
+  
   var ctrl = [
-    new THREE.Vector2(0.000, 0.000),  // centre bottom
-    new THREE.Vector2(0.228, 0.000),  // base outer
-    new THREE.Vector2(0.236, 0.016),  // outward rim flare
-    new THREE.Vector2(0.226, 0.036),  // base top
-    new THREE.Vector2(0.208, 0.055),  // body lower start
-    new THREE.Vector2(0.190, 0.085),  // body lower
-    new THREE.Vector2(0.172, 0.118),  // body mid-lower
-    new THREE.Vector2(0.156, 0.155),  // body mid
-    new THREE.Vector2(0.142, 0.192),  // body mid-upper
-    new THREE.Vector2(0.130, 0.228),  // body upper
-    new THREE.Vector2(0.115, 0.258),  // narrowing to neck
-    new THREE.Vector2(0.088, 0.284),  // neck entry
-    new THREE.Vector2(0.068, 0.306),  // neck thin (min)
-    new THREE.Vector2(0.065, 0.326),  // neck straight
-    new THREE.Vector2(0.068, 0.342),  // neck exit
-    new THREE.Vector2(0.092, 0.356),  // head seat
+    new THREE.Vector2(0.000, 0.000),  
+    new THREE.Vector2(0.228, 0.000),  
+    new THREE.Vector2(0.236, 0.016),  
+    new THREE.Vector2(0.226, 0.036),  
+    new THREE.Vector2(0.208, 0.055),  
+    new THREE.Vector2(0.190, 0.085),  
+    new THREE.Vector2(0.172, 0.118),  
+    new THREE.Vector2(0.156, 0.155),  
+    new THREE.Vector2(0.142, 0.192),  
+    new THREE.Vector2(0.130, 0.228),  
+    new THREE.Vector2(0.115, 0.258),  
+    new THREE.Vector2(0.088, 0.284),  
+    new THREE.Vector2(0.068, 0.306),  
+    new THREE.Vector2(0.065, 0.326),  
+    new THREE.Vector2(0.068, 0.342),  
+    new THREE.Vector2(0.092, 0.356),  
   ];
   var curve    = new THREE.SplineCurve(ctrl);
   var pts      = curve.getPoints(80);
   var latheGeo = new THREE.LatheGeometry(pts, 64);
-  /* Sphere head — tangent to head-seat (r=0.092, y=0.356) */
+  
   var jR = 0.092, jY = 0.356, headR = 0.172;
   var headY = jY + Math.sqrt(Math.max(0, headR*headR - jR*jR));
   var headGeo = new THREE.SphereGeometry(headR, 48, 36);
   headGeo.translate(0, headY, 0);
-  /* High-gloss plastic material */
+  
   var pawnMat = new THREE.MeshStandardMaterial({
     color:             colorHex,
     roughness:         0.06,
@@ -2437,7 +2363,7 @@ function createPawnMesh(colorHex, colorName, tokIdx){
     emissive:          colorHex,
     emissiveIntensity: 0.18
   });
-  /* Dark neck accent ring — gives clear head/body separation */
+  
   var neckRing = new THREE.Mesh(
     new THREE.TorusGeometry(0.068, 0.010, 10, 48),
     new THREE.MeshStandardMaterial({
@@ -2447,7 +2373,7 @@ function createPawnMesh(colorHex, colorName, tokIdx){
   );
   neckRing.rotation.x = Math.PI / 2;
   neckRing.position.y = 0.316;
-  /* Gold base rim torus — elegant finish at bottom edge */
+  
   var baseRim = new THREE.Mesh(
     new THREE.TorusGeometry(0.226, 0.010, 10, 48),
     new THREE.MeshStandardMaterial({
@@ -2477,7 +2403,7 @@ function build3DPawns(){
   });
 }
 function update3DPawnPositions(){
-  /* Build occupancy map for same-square stacking */
+  
   var occupancy = {};
   PLAYERS.forEach(function(color){
     gameState.tokens[color].forEach(function(tok, idx){
@@ -2501,9 +2427,9 @@ function update3DPawnPositions(){
       }
       mesh.visible = isActivePlayer;
       if(!isActivePlayer) return;
-      /* Don't fight the smooth animation — skip animating pieces */
+      
       if(_animatingMeshes[mesh.uuid]) {
-        /* Still update highlight pulse while moving */
+        
         var isMovable = (!gameState.gameOver && gameState.hasRolled && color === getCurrentPlayer() && isValidMove(color, idx, gameState.diceValue));
         mesh.children.forEach(function(ch){ if(ch.material) ch.material.emissiveIntensity = isMovable ? 0.6 : 0.12; });
         return;
@@ -2542,7 +2468,7 @@ function update3DPawnPositions(){
             coord = CENTER_COORDS[color];
             key = "C" + color;
           }
-          /* Smart multi-token stacking & dynamic auto-scaling */
+          
           var grp = occupancy[key] || [];
           var total = grp.length;
           if (total > 1) {
@@ -2556,7 +2482,7 @@ function update3DPawnPositions(){
             }
             var isSafeTile = isStarTile || (tok.step >= 51);
             if (isSafeTile) {
-              /* Multiple pieces on a safe tile: shrink slightly and arrange cleanly in sub-grid positions */
+              
               if (total === 2) {
                 pawnScale = 0.72;
                 var spread2 = 0.11;
@@ -2584,7 +2510,7 @@ function update3DPawnPositions(){
                 stackOz = cornerOffsets4[pos % 4].oz;
                 stackOy = pos * 0.008;
               } else if (total === 5) {
-                /* 5 pieces: 1 Center + 4 Corners (classic 5-pip dice pattern) */
+                
                 pawnScale = 0.46;
                 var spread5 = 0.125;
                 if (pos === 0) {
@@ -2602,7 +2528,7 @@ function update3DPawnPositions(){
                 }
                 stackOy = pos * 0.007;
               } else if (total === 6) {
-                /* 6 pieces: Symmetrical Hexagon Ring */
+                
                 pawnScale = 0.42;
                 var spread6 = 0.13;
                 var angle6 = (pos / 6) * Math.PI * 2 - (Math.PI / 2);
@@ -2610,7 +2536,7 @@ function update3DPawnPositions(){
                 stackOz = Math.sin(angle6) * spread6;
                 stackOy = pos * 0.006;
               } else if (total === 7) {
-                /* 7 pieces: Flower Pattern (1 Center + 6 Outer Hexagon Ring) */
+                
                 pawnScale = 0.38;
                 var spread7 = 0.14;
                 if (pos === 0) {
@@ -2622,7 +2548,7 @@ function update3DPawnPositions(){
                   stackOz = Math.sin(angle7) * spread7;
                 }
                 stackOy = pos * 0.005;
-              } else { // 8+ tokens
+              } else { 
                 pawnScale = 0.35;
                 var spread8 = 0.145;
                 if (pos === 0) {
@@ -2636,14 +2562,14 @@ function update3DPawnPositions(){
                 stackOy = pos * 0.004;
               }
             } else {
-              /* Multiple tokens on non-safe tile: stay full size 1.0 centered */
+              
               pawnScale = 1.0;
               stackOx = 0;
               stackOz = 0;
               stackOy = 0;
             }
           } else {
-            /* Single token on ANY tile: full size 1.0, exactly centered */
+            
             pawnScale = 1.0;
             stackOx = 0;
             stackOz = 0;
@@ -2653,7 +2579,7 @@ function update3DPawnPositions(){
         var world = gridToWorld(coord.r, coord.c);
         mesh.position.set(world.x + stackOx, 0.08 + stackOy, world.z + stackOz);
       }
-      /* Highlight + pulse for movable pieces without losing pawn scale */
+      
       var isMovable = (!gameState.gameOver && gameState.hasRolled && color === getCurrentPlayer() && isValidMove(color, idx, gameState.diceValue));
       mesh.children.forEach(function(ch){
         if(ch.material) ch.material.emissiveIntensity = isMovable ? 0.6 : 0.05;
@@ -2664,9 +2590,7 @@ function update3DPawnPositions(){
     });
   });
 }
-/* ==================================================
-   5. 3D RENDER LOOP & CAMERA CONTROLS
-   ================================================== */
+
 function onPointerDown(e){
   lastInteractTime = performance.now();
   autoSpinBlend = 0;
@@ -2692,7 +2616,7 @@ function onPointerMove(e){
 }
 function onPointerUp(e){
   isDragging = false;
-  /* Raycasting click on 3D Pawns */
+  
   var rect = renderer.domElement.getBoundingClientRect();
   mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
   mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -2731,9 +2655,9 @@ function getScreenCoords(localX, localY, localZ) {
 function positionCornerDiceUIs(){
   if (!camera || !gameState || !boardGroup) return;
   var cs = 0.62;
-  var cornerX = cs * 7.5; // 4.65 (outer edge of 3D board slab)
-  var cornerZ = cs * 7.5; // 4.65 (outer edge of 3D board slab)
-  // Local 3D outer corner coordinates for each colored yard slab
+  var cornerX = cs * 7.5; 
+  var cornerZ = cs * 7.5; 
+  
   var yardCorners = {
     red:    { x: -cornerX, y: 0.17, z:  cornerZ },
     green:  { x: -cornerX, y: 0.17, z: -cornerZ },
@@ -2755,7 +2679,7 @@ function positionCornerDiceUIs(){
     worldVec.project(camera);
     var px = (worldVec.x * 0.5 + 0.5) * w;
     var py = (-worldVec.y * 0.5 + 0.5) * h + 50;
-    // Anchor cards flush on outer board slab corners
+    
     var isLeft = px < w / 2;
     var isTop  = py < (h / 2 + 50);
     var transX = isLeft ? '0%' : '-100%';
@@ -2781,9 +2705,9 @@ function animate(){
   requestAnimationFrame(animate);
   var now = performance.now();
   var dt = 0.016;
-  /* Smooth Zoom Lerp */
+  
   zoomCurrent += (zoomTarget - zoomCurrent) * 0.1;
-  /* Auto Rotation & Friction */
+  
   autoSpinBlend = 0;
   if(!isDragging){
     boardVelY *= 0.88;
@@ -2801,15 +2725,15 @@ function animate(){
       var w = (container && container.clientWidth) || window.innerWidth;
       var h = (container && container.clientHeight) || (window.innerHeight - 50);
       var asp = camera.aspect;
-      // Height fitting calculation (100% untouched)
+      
       var vertReserve = Math.max(12, Math.min(48, h * 0.08));
       var boardHeightFit = Math.max(0.35, (h - vertReserve) / h);
-      // Mobile-specific width reserve ONLY (0px side margin for mobile w < 600px)
+      
       var horizReserve = w < 600 ? 0 : 16;
       var boardWidthFit = Math.max(0.35, (w - horizReserve) / w);
       var fitRatio = Math.min(boardHeightFit, boardWidthFit);
       var z = 10.0 / (12.2772 * fitRatio);
-      // Mobile portrait width zoom ONLY: asp < 1 zooms 6% closer to cut side space
+      
       zoomTarget = asp < 1 ? z / (asp * 1.06) : z;
     } else {
       boardRotX = Math.max(0.2, Math.min(0.85, boardRotX + boardVelX));
@@ -2824,19 +2748,19 @@ function animate(){
       }
     }
   }
-  // Update 3D projected card UI positions on every frame in both 2D and 3D mode
+  
   positionCornerDiceUIs();
-  /* Camera Math */
+  
   var camDist = 16 * zoomCurrent;
   var camY = Math.sin(boardRotX) * camDist;
   var camZ = Math.cos(boardRotX) * camDist;
-  // Zero camera offset needed because canvas container itself is positioned below top header menu
+  
   var targetOffsetZ = 0;
   camera.position.x = Math.sin(boardRotY) * camZ;
   camera.position.z = Math.cos(boardRotY) * camZ + targetOffsetZ;
   camera.position.y = camY;
   camera.lookAt(0, 0, targetOffsetZ);
-  /* Background Particle Drift + Parallax */
+  
   if(starParticles){
     starParticles.rotation.y = now * 0.000015 + boardRotY * 0.03;
     starParticles.rotation.x = Math.sin(now * 0.00001) * 0.02 + boardRotX * 0.02;
@@ -2847,9 +2771,7 @@ function animate(){
   update3DPawnPositions();
   renderer.render(scene, camera);
 }
-/* ==================================================
-   6. LUDO GAME RULES & ENGINE
-   ================================================== */
+
 var PLAYERS = ['red', 'green', 'yellow', 'blue'];
 var gameState = {
   mode: 'pass',
@@ -2915,7 +2837,7 @@ function setDiceFace(cubeEl, val){
   };
   var transform = rotMap[val] || 'rotateY(0deg)';
   cubeEl.style.transform = transform;
-  // Synchronize both views so toggling 2D/3D doesn't show a mismatched dice number
+  
   if (gameState && gameState.activePlayers && gameState.activePlayers.length > 0) {
     var active = getCurrentPlayer();
     var centralEl = document.getElementById('dice-cube-central');
@@ -2932,14 +2854,14 @@ function generateSmartRoll(color) {
     else if(tok.step === 56) home++;
     else { active++; myActiveTokens.push(tok); }
   });
-  var w = [100, 100, 100, 100, 100, 100]; // Base weights for 1 to 6
-  /* 1. Pity 6: Keep the game moving if heavily locked */
+  var w = [100, 100, 100, 100, 100, 100]; 
+  
   if(locked === 4) {
     w[5] += 150; 
   } else if (locked === 3 && active === 1 && myActiveTokens[0].step < 10) {
     w[5] += 50; 
   }
-  /* 2. Kill Bias, Target the Leader, & Evasion Bias */
+  
   var maxOpponentHome = 0;
   var leaderColor = null;
   gameState.activePlayers.forEach(function(oppColor){
@@ -2955,7 +2877,7 @@ function generateSmartRoll(color) {
   myActiveTokens.forEach(function(tok){
     if(tok.step >= 0 && tok.step <= 50) {
       var myGlobal = (START_OFFSETS[color] + tok.step) % 52;
-      // Evasion Bias: Evaluate ONCE per token
+      
       gameState.activePlayers.forEach(function(oppColor){
         if(oppColor !== color) {
           gameState.tokens[oppColor].forEach(function(oppTok){
@@ -2963,16 +2885,16 @@ function generateSmartRoll(color) {
               var oppGlobal = (START_OFFSETS[oppColor] + oppTok.step) % 52;
               var distBehind = (myGlobal - oppGlobal + 52) % 52;
               if (distBehind >= 1 && distBehind <= 5) {
-                w[4] += 15; // Subtle boost to 5
-                w[5] += 25; // Subtle boost to 6
+                w[4] += 15; 
+                w[5] += 25; 
               }
             }
           });
         }
       });
-      // Kill Bias: Check exact roll needed
+      
       for(var r = 1; r <= 6; r++) {
-        if (tok.step + r <= 50) { // Only evaluate kills if we remain on the common path
+        if (tok.step + r <= 50) { 
           var targetGlobal = (myGlobal + r) % 52;
           if(STAR_TILES.indexOf(targetGlobal) === -1) {
             var hasOpponent = false;
@@ -2999,21 +2921,21 @@ function generateSmartRoll(color) {
       }
     }
   });
-  /* 3. Finish Line Tease */
+  
   myActiveTokens.forEach(function(tok){
     if(tok.step > 50 && tok.step < 56) {
       var needed = 56 - tok.step; 
       if(needed >= 1 && needed <= 6) w[needed - 1] += 30; 
     }
   });
-  /* 4. Rubberbanding */
-  if (maxOpponentHome - home >= 2) { // Only help if trailing significantly
+  
+  if (maxOpponentHome - home >= 2) { 
     w[4] += 15; 
     w[5] += 20; 
   } else if (home > maxOpponentHome && home >= 2) {
     w[5] = Math.max(20, w[5] - 30); 
   }
-  /* 5. Anti-Clumping */
+  
   if (gameState.rollHistory && gameState.rollHistory[color]) {
     var history = gameState.rollHistory[color];
     if (history.length >= 3) {
@@ -3056,7 +2978,7 @@ function rollDice(){
   var cubeId = (gameState && gameState.is2DMode) ? 'dice-cube-' + active : 'dice-cube-central';
   var cubeEl = document.getElementById(cubeId);
   if(!cubeEl || cubeEl.classList.contains('dice-rolling')) return;
-  gameState.isRolling = true; // Lock dice against rapid multi-clicks
+  gameState.isRolling = true; 
   AudioEngine.diceRoll();
   cubeEl.classList.add('dice-rolling');
   var val = generateSmartRoll(active);
@@ -3069,7 +2991,7 @@ function rollDice(){
     cubeEl.classList.remove('dice-rolling');
     setDiceFace(cubeEl, val);
     gameState.hasRolled = true;
-    gameState.isRolling = false; // Unlock
+    gameState.isRolling = false; 
     if(val === 6){
       if(gameState.mode === 'ai' && active !== gameState.humanColor){
         recordComputerStat('computerSixes', 1);
@@ -3123,20 +3045,9 @@ function processTurnAfterRoll(){
     }
   }
 }
-/* ── helpers ── */
+
 var _animatingMeshes = {};
-/*
- * walkPieceHome
- * -------------
- * Animates a captured piece walking backwards along the real board path
- * from its current step all the way to its yard nest.
- *
- * vm          : THREE.Group (the piece mesh)
- * color       : 'red' | 'green' | 'yellow' | 'blue'
- * tokIdx      : 0-3 (which piece, determines nest position)
- * currentStep : the step the piece is currently on
- * onDone      : callback when animation finishes
- */
+
 function walkPieceHome(vm, color, tokIdx, currentStep, onDone){
   var cs = 0.62;
   var YARD_CENTERS = {
@@ -3149,30 +3060,30 @@ function walkPieceHome(vm, color, tokIdx, currentStep, onDone){
     {ox:-cs*1.1, oz:-cs*1.1}, {ox:cs*1.1, oz:-cs*1.1},
     {ox:-cs*1.1, oz: cs*1.1}, {ox:cs*1.1, oz: cs*1.1}
   ];
-  /* Build waypoints: current pos → each board cell backwards → yard nest */
+  
   var pts = [{ x: vm.position.x, y: vm.position.y, z: vm.position.z }];
   for(var s = currentStep; s >= 0; s--){
     var w = getWorldForStep(color, s);
     pts.push({ x: w.x, y: w.y, z: w.z });
   }
-  /* Final destination: exact yard nest */
+  
   var yc = YARD_CENTERS[color];
   var no = NEST_OFFSETS[tokIdx];
   pts.push({ x: yc.x + no.ox, y: 0.24, z: yc.z + no.oz });
-  /* Duration: 70ms per waypoint, capped at 2400ms */
+  
   var totalMs = Math.min(pts.length * 70, 2400);
-  /* Glow red to show it's captured */
+  
   vm.children.forEach(function(ch){
     if(ch.material) ch.material.emissiveIntensity = 0.9;
   });
-  /* Spin during walk */
+  
   var spinId = { active: true };
   (function spin(){
     if(!spinId.active) return;
     vm.rotation.y += 0.12;
     requestAnimationFrame(spin);
   })();
-  /* Audio ticks during capture retreat */
+  
   var audioTicks = pts.map(function(pt, idx){
     return {
       atT: idx / Math.max(1, pts.length - 1),
@@ -3209,19 +3120,10 @@ function getWorldForStep(color, step){
   var w = gridToWorld(coord.r, coord.c);
   return { x: w.x, y: 0.08, z: w.z };
 }
-/*
- * animatePieceAlongPath
- * ----------------------
- * pts        : Array of {x,y,z} world positions (start → end)
- * mesh       : THREE.Group to animate
- * totalMs    : total animation duration in milliseconds
- * arcH       : peak height added as a sin-arc along the path
- * audioTicks : array of { atT: 0..1, fn: function } to call mid-animation
- * onDone     : callback when finished
- */
+
 function animatePieceAlongPath(pts, mesh, totalMs, arcH, audioTicks, onDone){
   if(!mesh || pts.length < 2){ if(onDone) onDone(); return; }
-  /* Build CatmullRomCurve3 through all waypoints */
+  
   var v3pts = pts.map(function(p){ return new THREE.Vector3(p.x, p.y, p.z); });
   var curve  = new THREE.CatmullRomCurve3(v3pts, false, 'catmullrom', 0.5);
   var uid    = mesh.uuid;
@@ -3230,14 +3132,14 @@ function animatePieceAlongPath(pts, mesh, totalMs, arcH, audioTicks, onDone){
   var fired  = new Array(audioTicks.length).fill(false);
   function frame(now){
     var raw = Math.min((now - t0) / totalMs, 1);
-    /* ease-in-out-sine */
+    
     var t = -(Math.cos(Math.PI * raw) - 1) / 2;
     var pt = curve.getPoint(t);
     mesh.position.x = pt.x;
     mesh.position.z = pt.z;
-    /* add smooth arc: highest at midpoint */
+    
     mesh.position.y = pt.y + arcH * Math.sin(Math.PI * raw);
-    /* fire audio ticks at the right moments */
+    
     audioTicks.forEach(function(tk, i){
       if(!fired[i] && raw >= tk.atT){ fired[i] = true; tk.fn(); }
     });
@@ -3252,9 +3154,7 @@ function animatePieceAlongPath(pts, mesh, totalMs, arcH, audioTicks, onDone){
   }
   requestAnimationFrame(frame);
 }
-/* ==================================================
-   FINAL SELECTION — STYLE 1: PHYSICAL 3D TILE BUTTON BOUNCE & FLOOR GLOW
-   ================================================== */
+
 function getStepCoord(color, step){
   if(step >= 0 && step <= 50){
     var gi = (START_OFFSETS[color] + step) % 52;
@@ -3271,7 +3171,7 @@ function trigger3DTileBounce(coord, colorHex, isFinal) {
   var key = coord.r + '_' + coord.c;
   var tileMesh = _tileMeshMap[key];
   if (!tileMesh) return;
-  /* Clone material if shared so only this tile glows */
+  
   if (!tileMesh.userData.isClonedMat) {
     tileMesh.material = tileMesh.material.clone();
     tileMesh.userData.isClonedMat = true;
@@ -3286,33 +3186,33 @@ function trigger3DTileBounce(coord, colorHex, isFinal) {
   var origColObj = new THREE.Color(origColorHex);
 
   if (isLight) {
-    // In Light Mode: Exact diffuse player pawn color + subtle glow so colors don't wash out
+    
     if (mat.color) mat.color.setHex(colorHex);
     if (mat.emissive) {
       mat.emissive.setHex(colorHex);
       mat.emissiveIntensity = 0.20;
     }
   } else {
-    // In Dark Mode: High-contrast emissive glow
+    
     if (mat.emissive) {
       mat.emissive.setHex(colorHex);
       mat.emissiveIntensity = isFinal ? 0.90 : 0.65;
     }
   }
 
-  /* Physical 3D Button Bounce Down & Up */
+  
   var origY = tileMesh.position.y || 0.04;
-  var dipY = isFinal ? 0.022 : 0.015; // Depresses down like a real 3D button
+  var dipY = isFinal ? 0.022 : 0.015; 
   var t0 = performance.now();
   var duration = isFinal ? 400 : 260;
 
   function animTile(now) {
     var progress = Math.min((now - t0) / duration, 1.0);
-    /* Sine wave bounce: dip down in first half, spring back up in second half */
+    
     var sinBounce = Math.sin(Math.PI * progress);
     tileMesh.position.y = origY - dipY * sinBounce;
 
-    /* Smoothly fade emissive glow & base color back to normal */
+    
     var alpha = (1.0 - progress);
     if (isLight) {
       if (mat.color) mat.color.copy(colObj).lerp(origColObj, progress);
@@ -3342,7 +3242,7 @@ function executeMove(color, tokIdx){
   var tok  = gameState.tokens[color][tokIdx];
   var roll = gameState.diceValue;
   var mesh = tokenMeshes[color][tokIdx];
-  /* ── Spawn on 6: smooth arc from yard-nest → start cell ── */
+  
   if(tok.step === -1 && roll === 6){
     tok.step = 0;
     AudioEngine.step(1);
@@ -3365,9 +3265,9 @@ function executeMove(color, tokIdx){
     }
     return;
   }
-  /* ── Normal move: hop cell-by-cell with smooth lerp ── */
+  
   var stepsLeft = roll;
-  var currentStepDur = Math.max(15, Math.round(260 / (window.gameSpeedMultiplier || 1))); /* dynamic ms per cell */
+  var currentStepDur = Math.max(15, Math.round(260 / (window.gameSpeedMultiplier || 1))); 
   var HOP_H     = 0.20;
   function doNextStep(){
     if(stepsLeft <= 0){
@@ -3397,7 +3297,7 @@ function executeMove(color, tokIdx){
   }
   doNextStep();
 }
-/* 3D Piece Movement Animation Engine (5 Distinct Styles + Sound FX & Particles) */
+
 function animatePieceTo(mesh, tx, ty, tz, duration, hopH, tileHighlightFn, onDone){
   if(typeof tileHighlightFn === 'function' && !onDone){
     onDone = tileHighlightFn;
@@ -3411,12 +3311,12 @@ function animatePieceTo(mesh, tx, ty, tz, duration, hopH, tileHighlightFn, onDon
   var style = window.pawnAnimStyle || 'bounce';
   var tileFired = false;
 
-  // Make Flash Step (teleport) slightly slower & cinematic so it feels super smooth
+  
   if(style === 'teleport'){
     duration = Math.max(duration, Math.round(380 / (window.gameSpeedMultiplier || 1)));
   }
 
-  // Play movement sound corresponding to style
+  
   if(AudioEngine && AudioEngine.playStyleSound){
     AudioEngine.playStyleSound(style);
   }
@@ -3426,7 +3326,7 @@ function animatePieceTo(mesh, tx, ty, tz, duration, hopH, tileHighlightFn, onDon
     var sinArc = Math.sin(Math.PI * t);
     var cx = sx, cy = sy, cz = sz;
 
-    // Trigger tile highlight exactly when pawn lands/touches down on tile
+    
     var touchdownTime = (style === 'teleport') ? 0.65 : 0.78;
     if(tileHighlightFn && !tileFired && t >= touchdownTime){
       tileFired = true;
@@ -3434,7 +3334,7 @@ function animatePieceTo(mesh, tx, ty, tz, duration, hopH, tileHighlightFn, onDon
     }
 
     if(style === 'teleport'){
-      // ⚡ Flash Step (Ultra-Smooth Electric Beam Teleport)
+      
       if(t < 0.38){
         var u = t / 0.38;
         var fade = 1 - (u * u * (3 - 2 * u));
@@ -3538,11 +3438,11 @@ function postMoveCheck(color, tokIdx, wasSpawn){
                 if(gameState.mode === 'ai' && color !== gameState.humanColor){
                   recordComputerStat('computerCaptures', 1);
                 }
-                /* Walk captured piece back home along the board path */
+                
                 (function(oColor, oIdx, oTok){
                   var vm = tokenMeshes[oColor][oIdx];
                   var currentStp = oTok.step;
-                  oTok.step = -1; /* Mark captured in state immediately */
+                  oTok.step = -1; 
                   if(!vm) return;
                   walkPieceHome(vm, oColor, oIdx, currentStp, function(){
                     update3DPawnPositions();
@@ -3561,7 +3461,7 @@ function postMoveCheck(color, tokIdx, wasSpawn){
       triggerGrandVictoryCelebration(color);
     }
     updateStatus("🏆 " + capitalize(color) + " HAS COMPLETED ALL PAWNS!");
-    // If playing Vs Computer and the human player has finished all pawns
+    
     if(gameState.mode === 'ai' && color === gameState.humanColor && !gameState.autoPlayAll){
       var rankIdx = gameState.winners.indexOf(gameState.humanColor);
       var rankNum = rankIdx + 1;
@@ -3582,7 +3482,7 @@ function postMoveCheck(color, tokIdx, wasSpawn){
       endMatch();
       return;
     }
-    /* Finished player MUST NOT get next turn or bonus roll — pass turn directly to next active player */
+    
     passTurn();
     return;
   }
@@ -3616,7 +3516,7 @@ function passTurn(){
     setTimeout(rollDice, getSpeedDelay(600));
   }
 }
-/* Smart Tactical AI */
+
 function executeAIMove(color, roll){
   var validTokens = [];
   gameState.tokens[color].forEach(function(tok, idx){
@@ -3627,7 +3527,7 @@ function executeAIMove(color, roll){
   validTokens.forEach(function(idx){
     var tok = gameState.tokens[color][idx];
     var score = 0;
-    /* Capture Priority */
+    
     if(tok.step >= 0 && tok.step + roll <= 50){
       var targetGlobal = (START_OFFSETS[color] + tok.step + roll) % 52;
       if(STAR_TILES.indexOf(targetGlobal) === -1){
@@ -3650,9 +3550,7 @@ function executeAIMove(color, roll){
   });
   executeMove(color, bestIdx);
 }
-/* ==================================================
-   7. UI MANAGER & NAVIGATION
-   ================================================== */
+
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(function(s){ s.classList.add('hidden'); });
   var target = document.getElementById(id);
@@ -3679,10 +3577,10 @@ function capitalize(str){
 }
 function getActiveColors() {
   if (gameState.mode === 'pass') {
-    // Ensure we have exactly playerCount colors
+    
     var selected = gameState.localSelectedColors || ['red', 'green'];
     if (selected.length < gameState.playerCount) {
-      // fill missing
+      
       var all = ['red', 'green', 'yellow', 'blue'];
       for(var i=0; i<4 && selected.length < gameState.playerCount; i++){
         if(selected.indexOf(all[i]) === -1) selected.push(all[i]);
@@ -3771,11 +3669,11 @@ function updateTurnDisplay(){
   var centralUi = document.getElementById('central-dice-ui');
   var avatarArea = document.getElementById('central-avatar-area');
   var pinPath = document.getElementById('central-pin-path');
-  // Toggle visibility of central vs corner dice
+  
   if (gameState && gameState.is2DMode) {
     if(centralUi) centralUi.style.display = 'none';
     positionCornerDiceUIs();
-    // Manage corner dice
+    
     ['red', 'green', 'yellow', 'blue'].forEach(function(color) {
       var ui = document.getElementById('dice-ui-' + color);
       if (ui) {
@@ -3845,14 +3743,14 @@ function startMatch(){
   }
   if (!gameState.humanColor) gameState.humanColor = 'red';
   gameState.activePlayers = getActiveColors();
-  /* Ensure human player's chosen color gets the FIRST turn of the match */
+  
   var humanIdx = gameState.activePlayers.indexOf(gameState.humanColor);
   if (humanIdx !== -1) {
     gameState.currentTurnIdx = humanIdx;
   } else {
     gameState.currentTurnIdx = 0;
   }
-  /* Orient board POV to face the human player's chosen color at bottom-left */
+  
   var startAngles = { red: 0, green: -Math.PI/2, yellow: Math.PI, blue: Math.PI/2 };
   boardRotY = startAngles[gameState.humanColor] || 0;
   boardRotX = gameState.is2DMode ? (Math.PI / 2) : 0.55;
@@ -3883,7 +3781,7 @@ function startMatch(){
   });
   document.getElementById('hud-match-type').textContent = gameState.playerCount + 'P ' + (gameState.mode === 'ai' ? 'Vs Computer ' : '') + capitalize(gameState.ruleType);
   showScreen('game-screen');
-  /* Init or resize the 3D engine now that canvas is visible */
+  
   if(!renderer){
     init3D();
   } else {
@@ -3910,7 +3808,7 @@ function endMatch(){
   }
   var podium = document.getElementById('podium-list');
   podium.innerHTML = '';
-  // Collect winners + remaining active players ordered by pawn progress
+  
   var remaining = gameState.activePlayers.filter(function(p){
     return gameState.winners.indexOf(p) === -1;
   });
@@ -3921,7 +3819,7 @@ function endMatch(){
   });
   var finalOrder = gameState.winners.concat(remaining);
   finalOrder.forEach(function(w, idx){
-    if (idx >= 3) return; // Only show Top 3 Podium Winners (1st, 2nd, 3rd)
+    if (idx >= 3) return; 
     var row = document.createElement('div');
     var rankClass = (idx === 0 ? ' first' : (idx === 1 ? ' second' : ' third'));
     row.className = 'podium-item' + rankClass;
@@ -3930,7 +3828,7 @@ function endMatch(){
     row.innerHTML = '<span>#' + (idx+1) + ' ' + pName + '</span><span>' + rankLabel + '</span>';
     podium.appendChild(row);
   });
-  /* Record Computer Match Completion Stat if in Vs Computer mode */
+  
   if(gameState.mode === 'ai'){
     var s = getComputerStats();
     s.matchesPlayed = (s.matchesPlayed || 0) + 1;
@@ -3944,9 +3842,7 @@ function endMatch(){
   }
   modal.classList.remove('hidden');
 }
-/* ==================================================
-   COMPUTER CAREER STATS SYSTEM (Vs Computer Data Only)
-   ================================================== */
+
 function getComputerStats(){
   try {
     var raw = localStorage.getItem('ludoking_ai_stats');
@@ -4008,18 +3904,16 @@ function updateComputerStatsDisplay(){
     }
   }
 }
-/* ==================================================
-   GRAND VICTORY CELEBRATION ENGINE
-   ================================================== */
+
 var _victoryDanceActive = false;
 function triggerGrandVictoryCelebration(winnerColor){
-  /* 1. Audio Fanfare */
+  
   if(AudioEngine && AudioEngine.playVictoryFanfare){
     AudioEngine.playVictoryFanfare();
   } else if(AudioEngine) {
     AudioEngine.win();
   }
-  /* 2. Multi-Wave Fireworks & Confetti Stream */
+  
   if(typeof confetti === 'function'){
     var themeColors = {
       red:    ['#ef4444', '#fbbf24', '#ffffff', '#dc2626', '#ffd700'],
@@ -4028,28 +3922,28 @@ function triggerGrandVictoryCelebration(winnerColor){
       blue:   ['#3b82f6', '#fbbf24', '#ffffff', '#2563eb', '#ffd700']
     };
     var colors = themeColors[winnerColor] || themeColors.yellow;
-    /* Wave 1: Immediate Left & Right Side Cannons */
+    
     confetti({
       particleCount: 90, angle: 60, spread: 75, origin: { x: 0, y: 0.75 }, colors: colors
     });
     confetti({
       particleCount: 90, angle: 120, spread: 75, origin: { x: 1, y: 0.75 }, colors: colors
     });
-    /* Wave 2 (+300ms): Center Star Burst */
+    
     setTimeout(function(){
       confetti({
         particleCount: 130, spread: 100, origin: { y: 0.45 },
         shapes: ['star', 'circle'], colors: colors, scalar: 1.2
       });
     }, 300);
-    /* Wave 3 (+600ms): High Altitude Skyburst */
+    
     setTimeout(function(){
       confetti({
         particleCount: 100, angle: 90, spread: 120, startVelocity: 60,
         origin: { x: 0.5, y: 0.8 }, colors: colors
       });
     }, 600);
-    /* Wave 4 (+900ms to +2600ms): Continuous Golden Rain Shower */
+    
     var end = Date.now() + 2400;
     var interval = setInterval(function() {
       if (Date.now() > end) {
@@ -4062,14 +3956,14 @@ function triggerGrandVictoryCelebration(winnerColor){
       });
     }, 200);
   }
-  /* 3. 3D Pawn Victory Dance */
+  
   animate3DVictoryDance(winnerColor);
 }
 function animate3DVictoryDance(color){
   if(!tokenMeshes || !tokenMeshes[color]) return;
   _victoryDanceActive = true;
   var startTime = performance.now();
-  /* Animate winning pawns jumping and spinning on center home */
+  
   function danceFrame(now){
     if(!_victoryDanceActive || now - startTime > 8000) {
       stopVictoryBoardSpotlight();
@@ -4198,15 +4092,13 @@ function toggle2D3DView(force) {
     return;
   }
   gameState.is2DMode = !gameState.is2DMode;
-  /* Real-time camera tilt: Top-Down (90 deg) vs 3D Angle (0.55 rad) */
+  
   boardRotX = gameState.is2DMode ? (Math.PI / 2) : 0.55;
   updateViewModeUI();
   updateTurnDisplay();
   updateStatus(gameState.is2DMode ? "Switched to 2D Top-Down View 📐" : "Switched to 3D Perspective View 🎲");
 }
-/* ==================================================
-   8. EVENT WIRING & STARTUP
-   ================================================== */
+
 function bindEvents(){
   document.getElementById('btn-hamburger').addEventListener('click', function(e){
     e.stopPropagation();
@@ -4427,13 +4319,13 @@ function bindEvents(){
     gameState.gameOver = false;
     gameState.hasRolled = false;
 
-    // Reset all tokens to off-board (-1)
+    
     PLAYERS.forEach(function(p){
       gameState.tokens[p] = [{step:-1},{step:-1},{step:-1},{step:-1}];
     });
 
-    // Star Safe Tile global index 8:
-    // red: step 8; green: step 47; yellow: step 34; blue: step 21
+    
+    
     var stackPool = [
       { color: 'red', idx: 0, step: 8 },
       { color: 'green', idx: 0, step: 47 },
@@ -4829,7 +4721,7 @@ function bindEvents(){
       if (!gameState.is2DMode) rollDice();
     });
   }
-  // Bind corner dice
+  
   ['red', 'green', 'yellow', 'blue'].forEach(function(color) {
     var box = document.getElementById('dice-box-' + color);
     if (box) {
@@ -4866,7 +4758,7 @@ function bindEvents(){
   var soundChip = document.getElementById('toggle-sound-chip');
   function toggleSound(){
     var isEnabled = AudioEngine.toggle();
-    // Update Preferences Settings UI
+    
     var sSwitch = document.getElementById('settings-sound-switch');
     var sStatus = document.getElementById('settings-sound-status');
     var sIcon = document.getElementById('settings-sound-icon');
@@ -4881,7 +4773,7 @@ function bindEvents(){
         ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>'
         : '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
     }
-    // Update HUD Sound Button
+    
     var hudIcon = document.getElementById('sound-icon-span');
     var hudText = document.getElementById('sound-btn-text');
     if (hudIcon) {
@@ -4901,7 +4793,7 @@ function bindEvents(){
       document.querySelectorAll('[data-theme]').forEach(function(c){ c.classList.remove('active'); });
       this.classList.add('active');
       document.body.className = this.dataset.theme;
-      /* Rebuild board so tile colors match the new theme */
+      
       if(boardGroup){
         boardGroup.traverse(function(obj){
           if(obj !== boardGroup && obj !== tokenGroup && obj.parent !== tokenGroup){
@@ -4916,7 +4808,7 @@ function bindEvents(){
         boardGroup.add(tokenGroup);
         build3DBoard();
       }
-      /* 3D scene background and particle colors match index.html theme definitions */
+      
       var starProps = getStarThemeProperties();
       if(scene){
         scene.background = new THREE.Color(starProps.bg);
@@ -4942,7 +4834,7 @@ window.addEventListener('DOMContentLoaded', function(){
       el.value = stored;
     }
   }
-  // Reset mode screen to initial state
+  
   document.getElementById('btn-menu-play').addEventListener('click', function(){
     if(!gameState.humanColor) gameState.humanColor = 'red';
     if(!gameState.playerCount) gameState.playerCount = 2;

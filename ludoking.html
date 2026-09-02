@@ -3898,6 +3898,24 @@ function postMoveCheck(color, tokIdx, wasSpawn){
     if(gameState.winners.indexOf(color) === -1){
       gameState.winners.push(color);
       triggerGrandVictoryCelebration(color);
+
+      if(gameState.ruleType === 'quick'){
+        gameState.tokens[color].forEach(function(tok, tokIdx){
+          if(tok.step !== 56){
+            tok.step = 56;
+            var mesh = tokenMeshes[color] ? tokenMeshes[color][tokIdx] : null;
+            if(mesh){
+              var endPos = getWorldForStep(color, 56);
+              var angle = (tokIdx / 4) * Math.PI * 2;
+              var ox = Math.cos(angle) * 0.14;
+              var oz = Math.sin(angle) * 0.14;
+              animatePieceTo(mesh, endPos.x + ox, endPos.y, endPos.z + oz, 420, 0.6, function(){
+                trigger3DTileBounce(getStepCoord(color, 56), PLAYER_COLORS_HEX[color] || 0xffffff, true);
+              });
+            }
+          }
+        });
+      }
     }
     updateStatus("🏆 " + capitalize(color) + " HAS COMPLETED ALL PAWNS!");
     

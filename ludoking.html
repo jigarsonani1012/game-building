@@ -1884,8 +1884,16 @@ var AudioEngine = (function(){
       });
     },
     diceRoll: function(){
-      for(var i=0; i<6; i++){
-        setTimeout(function(){ playTone(160 + Math.random()*240, 'triangle', 0.08, 0.1); }, i * 65);
+      var clicks = 8;
+      for(var i = 0; i < clicks; i++){
+        (function(step){
+          var delay = step * 55;
+          var pitch = 220 + Math.random() * 320;
+          var vol = (step === clicks - 1) ? 0.45 : (0.32 + (step / clicks) * 0.12);
+          setTimeout(function(){
+            playTone(pitch, 'triangle', 0.10, vol);
+          }, delay);
+        })(i);
       }
     },
     step: function(stepIndex){

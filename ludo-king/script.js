@@ -217,9 +217,15 @@ var YARD_COORDS = {
 };
 var PLAYER_COLORS_HEX = {
   red:    0xef4444,
-  green:  0x10b981,
+  green:  0x16a34a,
   yellow: 0xeab308,
   blue:   0x3b82f6
+};
+var darkHighlightColors = {
+  red:    0x991b1b,
+  green:  0x15803d,
+  yellow: 0xca8a04,
+  blue:   0x1e40af
 };
 
 var scene, camera, renderer, boardGroup, tokenGroup, starParticles;
@@ -421,13 +427,20 @@ function build3DBoard(){
   _tileMeshMap = {};
   
   var cellSize = 0.62;
-  var defaultTileColor = isLightTheme() ? 0xffffff : 0x121a28;
+  var isLight = isLightTheme();
+  var activePlayerColors = {
+    red:    isLight ? 0xdc2626 : PLAYER_COLORS_HEX.red,
+    green:  isLight ? 0x15803d : PLAYER_COLORS_HEX.green,
+    yellow: PLAYER_COLORS_HEX.yellow,
+    blue:   isLight ? 0x2563eb : PLAYER_COLORS_HEX.blue
+  };
+  var defaultTileColor = isLight ? 0xffffff : 0x121a28;
   
   var sharedTileGeo = new THREE.BoxGeometry(cellSize * 0.94, 0.08, cellSize * 0.94);
   var sharedShadowPlaneGeo = new THREE.PlaneGeometry(cellSize * 1.07, cellSize * 1.07);
   var sharedShadowPlaneMat = new THREE.MeshBasicMaterial({
     color: 0x000000,
-    opacity: isLightTheme() ? 0.22 : 0.35,
+    opacity: isLight ? 0.22 : 0.35,
     transparent: true,
     depthWrite: false
   });
@@ -439,7 +452,7 @@ function build3DBoard(){
       
       PLAYERS.forEach(function(p){
         HOME_PATHS[p].forEach(function(hp){
-          if(hp.r === r && hp.c === c) tileColor = PLAYER_COLORS_HEX[p];
+          if(hp.r === r && hp.c === c) tileColor = activePlayerColors[p];
         });
       });
       var isStartRed    = (r===13 && c===6);
@@ -453,17 +466,17 @@ function build3DBoard(){
       var isArrowBlue   = (r===7  && c===14);
       var isOtherSafe   = (r===8&&c===2)||(r===2&&c===6)||(r===6&&c===12)||(r===12&&c===8);
       
-      if(isStartRed)    tileColor = PLAYER_COLORS_HEX.red;
-      if(isStartGreen)  tileColor = PLAYER_COLORS_HEX.green;
-      if(isStartYellow) tileColor = PLAYER_COLORS_HEX.yellow;
-      if(isStartBlue)   tileColor = PLAYER_COLORS_HEX.blue;
+      if(isStartRed)    tileColor = activePlayerColors.red;
+      if(isStartGreen)  tileColor = activePlayerColors.green;
+      if(isStartYellow) tileColor = activePlayerColors.yellow;
+      if(isStartBlue)   tileColor = activePlayerColors.blue;
       if (!tileMatCache[tileColor]) {
-        var isWhiteTile = (tileColor === 0xffffff);
+        var isWhiteTile = (tileColor === defaultTileColor);
         tileMatCache[tileColor] = new THREE.MeshStandardMaterial({
           color: tileColor,
           roughness: isWhiteTile ? 0.15 : 0.35,
           metalness: isWhiteTile ? 0.0 : 0.15,
-          emissive: isWhiteTile ? 0xffffff : 0x000000,
+          emissive: isWhiteTile ? (isLight ? 0xffffff : 0x000000) : 0x000000,
           emissiveIntensity: isWhiteTile ? 0.08 : 0
         });
       }
@@ -482,13 +495,13 @@ function build3DBoard(){
       
       if(isOtherSafe){
         var starGeo = new THREE.ExtrudeGeometry(createStarShape(0.26, 0.11, 5, 0.020), extrudeSettings);
-        var safeStarColor = isLightTheme() ? 0x9ca3af : 0xffffff;
+        var safeStarColor = isLight ? 0x1e293b : 0xffffff;
         var starMat = new THREE.MeshStandardMaterial({
           color: safeStarColor,
-          roughness: 0.35,
-          metalness: 0.2,
+          roughness: 0.25,
+          metalness: 0.1,
           emissive: safeStarColor,
-          emissiveIntensity: 0.15
+          emissiveIntensity: isLight ? 0.35 : 0.15
         });
         var starMesh = new THREE.Mesh(starGeo, starMat);
         starMesh.rotation.x = -Math.PI / 2;
@@ -507,10 +520,10 @@ function build3DBoard(){
       if(isArrowRed || isArrowGreen || isArrowYellow || isArrowBlue){
         var arrowGeo = new THREE.ExtrudeGeometry(createArrowShape(), extrudeSettings);
         var arrowColor, arrowRot;
-        if(isArrowRed)    { arrowColor = PLAYER_COLORS_HEX.red;    arrowRot = 0; }
-        if(isArrowGreen)  { arrowColor = PLAYER_COLORS_HEX.green;  arrowRot = -Math.PI/2; }
-        if(isArrowYellow) { arrowColor = PLAYER_COLORS_HEX.yellow; arrowRot = Math.PI; }
-        if(isArrowBlue)   { arrowColor = PLAYER_COLORS_HEX.blue;   arrowRot = Math.PI/2; }
+        if(isArrowRed)    { arrowColor = activePlayerColors.red;    arrowRot = 0; }
+        if(isArrowGreen)  { arrowColor = activePlayerColors.green;  arrowRot = -Math.PI/2; }
+        if(isArrowYellow) { arrowColor = activePlayerColors.yellow; arrowRot = Math.PI; }
+        if(isArrowBlue)   { arrowColor = activePlayerColors.blue;   arrowRot = Math.PI/2; }
         var arrowMat = new THREE.MeshStandardMaterial({ color: arrowColor, roughness: 0.3, metalness: 0.1 });
         var arrowMesh = new THREE.Mesh(arrowGeo, arrowMat);
         arrowMesh.rotation.x = -Math.PI / 2;
@@ -522,15 +535,25 @@ function build3DBoard(){
   }
   
   var yardSize = cellSize * 6; 
+  var darkHighlightColors = {
+    red:    0x991b1b,
+    green:  0x065f46,
+    yellow: 0xca8a04,
+    blue:   0x1e40af
+  };
   var yardDefs = [
-    { player: 'red',    color: PLAYER_COLORS_HEX.red,    x: -cellSize * 4.5, z:  cellSize * 4.5 },
-    { player: 'green',  color: PLAYER_COLORS_HEX.green,  x: -cellSize * 4.5, z: -cellSize * 4.5 },
-    { player: 'yellow', color: PLAYER_COLORS_HEX.yellow, x:  cellSize * 4.5, z: -cellSize * 4.5 },
-    { player: 'blue',   color: PLAYER_COLORS_HEX.blue,   x:  cellSize * 4.5, z:  cellSize * 4.5 }
+    { player: 'red',    color: activePlayerColors.red,    x: -cellSize * 4.5, z:  cellSize * 4.5 },
+    { player: 'green',  color: activePlayerColors.green,  x: -cellSize * 4.5, z: -cellSize * 4.5 },
+    { player: 'yellow', color: activePlayerColors.yellow, x:  cellSize * 4.5, z: -cellSize * 4.5 },
+    { player: 'blue',   color: activePlayerColors.blue,   x:  cellSize * 4.5, z:  cellSize * 4.5 }
   ];
   yardDefs.forEach(function(yd){
     var yardGeo = new THREE.BoxGeometry(yardSize, 0.16, yardSize);
-    var yMat = new THREE.MeshStandardMaterial({ color: yd.color, roughness: 0.35, metalness: 0.15 });
+    var yMat = new THREE.MeshStandardMaterial({
+      color: yd.color,
+      roughness: isLight ? 0.25 : 0.35,
+      metalness: isLight ? 0.05 : 0.15
+    });
     var yMesh = new THREE.Mesh(yardGeo, yMat);
     yMesh.position.set(yd.x, 0.08, yd.z);
     yMesh.receiveShadow = true;
@@ -538,7 +561,6 @@ function build3DBoard(){
     _yardMeshes[yd.player] = yMesh;
     _yardMaterials[yd.player] = yMat;
 
-    var isLight = isLightTheme();
     var framePad = cellSize * 0.64;
     var frameInner = yardSize - framePad * 2;
     var whiteGeo = new THREE.BoxGeometry(frameInner, 0.012, frameInner);
@@ -553,16 +575,17 @@ function build3DBoard(){
     whiteMesh.position.set(yd.x, 0.166, yd.z);
     boardGroup.add(whiteMesh);
 
-    // Animated outer hollow border rim mesh (fits exact 6x6 base square dimensions, zero UI or grid overflow)
+    // Animated outer hollow border rim mesh (fits exact 6x6 base square dimensions)
     var hollowShape = createHollowBorderShape(yardSize, frameInner);
     var extrudeOpts = { depth: 0.02, bevelEnabled: false };
     var pulseGeo = new THREE.ExtrudeGeometry(hollowShape, extrudeOpts);
+    var pulseColor = isLight ? darkHighlightColors[yd.player] : yd.color;
     var pulseMat = new THREE.MeshStandardMaterial({
-      color: yd.color,
-      emissive: yd.color,
-      emissiveIntensity: 1.2,
-      roughness: 0.2,
-      metalness: 0.15,
+      color: pulseColor,
+      emissive: pulseColor,
+      emissiveIntensity: isLight ? 0.45 : 0.35,
+      roughness: 0.35,
+      metalness: 0.10,
       transparent: true,
       opacity: 0
     });
@@ -632,10 +655,10 @@ function build3DBoard(){
   boardGroup.add(cBaseMesh);
 
   var wedgeDefs = [
-    { hex: PLAYER_COLORS_HEX.yellow, x0:0,     z0:0,      x1:-cHalf, z1:-cHalf, x2: cHalf, z2:-cHalf }, 
-    { hex: PLAYER_COLORS_HEX.blue,   x0:0,     z0:0,      x1: cHalf, z1:-cHalf, x2: cHalf, z2: cHalf }, 
-    { hex: PLAYER_COLORS_HEX.red,    x0:0,     z0:0,      x1: cHalf, z1: cHalf, x2:-cHalf, z2: cHalf }, 
-    { hex: PLAYER_COLORS_HEX.green,  x0:0,     z0:0,      x1:-cHalf, z1: cHalf, x2:-cHalf, z2:-cHalf }  
+    { hex: activePlayerColors.yellow, x0:0,     z0:0,      x1:-cHalf, z1:-cHalf, x2: cHalf, z2:-cHalf }, 
+    { hex: activePlayerColors.blue,   x0:0,     z0:0,      x1: cHalf, z1:-cHalf, x2: cHalf, z2: cHalf }, 
+    { hex: activePlayerColors.red,    x0:0,     z0:0,      x1: cHalf, z1: cHalf, x2:-cHalf, z2: cHalf }, 
+    { hex: activePlayerColors.green,  x0:0,     z0:0,      x1:-cHalf, z1: cHalf, x2:-cHalf, z2:-cHalf }  
   ];
   wedgeDefs.forEach(function(wd){
     var geo = new THREE.BufferGeometry();
@@ -1082,7 +1105,19 @@ function update3DPawnPositions(){
       
       if(_animatingMeshes[mesh.uuid]) {
         var isMovable = (!gameState.gameOver && gameState.hasRolled && color === getCurrentPlayer() && isValidMove(color, idx, gameState.diceValue));
-        mesh.children.forEach(function(ch){ if(ch.material) ch.material.emissiveIntensity = isMovable ? 0.6 : 0.12; });
+        var isLight = isLightTheme();
+        mesh.children.forEach(function(ch){
+          if(ch.material) {
+            if (isLight) {
+              var darkTone = darkHighlightColors[color] || PLAYER_COLORS_HEX[color];
+              ch.material.emissive.setHex(isMovable ? darkTone : PLAYER_COLORS_HEX[color]);
+              ch.material.emissiveIntensity = isMovable ? 0.35 : 0.10;
+            } else {
+              ch.material.emissive.setHex(PLAYER_COLORS_HEX[color]);
+              ch.material.emissiveIntensity = isMovable ? 0.6 : 0.12;
+            }
+          }
+        });
         return;
       }
       var stackOx = 0, stackOz = 0, stackOy = 0;
@@ -1226,8 +1261,19 @@ function update3DPawnPositions(){
       }
       
       var isMovable = (!gameState.gameOver && gameState.hasRolled && color === getCurrentPlayer() && isValidMove(color, idx, gameState.diceValue));
+      var isLight = isLightTheme();
+      var pulse = (Math.sin(performance.now() * 0.0055) + 1) / 2;
       mesh.children.forEach(function(ch){
-        if(ch.material) ch.material.emissiveIntensity = isMovable ? 0.6 : 0.05;
+        if(ch.material) {
+          if (isLight) {
+            var darkTone = darkHighlightColors[color] || PLAYER_COLORS_HEX[color];
+            ch.material.emissive.setHex(isMovable ? darkTone : PLAYER_COLORS_HEX[color]);
+            ch.material.emissiveIntensity = isMovable ? (0.25 + pulse * 0.25) : 0.08;
+          } else {
+            ch.material.emissive.setHex(PLAYER_COLORS_HEX[color]);
+            ch.material.emissiveIntensity = isMovable ? (0.30 + pulse * 0.30) : 0.05;
+          }
+        }
       });
       var pulseMultiplier = isMovable ? (1.15 + Math.sin(performance.now() * 0.007) * 0.06) : 1.0;
       var finalScale = pawnScale * pulseMultiplier;
@@ -1366,17 +1412,23 @@ function updateYardBaseHighlight(now){
   if(!gameState || gameState.gameOver) {
     PLAYERS.forEach(function(color){
       if(_yardOuterRimMeshes[color]) _yardOuterRimMeshes[color].visible = false;
+      if(_yardMaterials[color]) {
+        _yardMaterials[color].emissive.setHex(0x000000);
+        _yardMaterials[color].emissiveIntensity = 0;
+      }
     });
     return;
   }
   
   var activePlayer = getCurrentPlayer();
+  var isLight = isLightTheme();
   var pulse = (Math.sin(now * 0.0055) + 1) / 2;
-  var glowOpacity = 0.45 + pulse * 0.50;
-  var emissiveInt = 0.8 + pulse * 1.5;
+  var glowOpacity = isLight ? (0.45 + pulse * 0.45) : (0.35 + pulse * 0.35);
+  var emissiveInt = isLight ? (0.25 + pulse * 0.35) : (0.20 + pulse * 0.25);
 
   PLAYERS.forEach(function(color){
     var rimMesh = _yardOuterRimMeshes[color];
+    var yMat = _yardMaterials[color];
     var isActive = (color === activePlayer && gameState.activePlayers && gameState.activePlayers.indexOf(color) !== -1);
 
     if(isActive){
@@ -1385,9 +1437,18 @@ function updateYardBaseHighlight(now){
         rimMesh.material.opacity = glowOpacity;
         rimMesh.material.emissiveIntensity = emissiveInt;
       }
+      if(yMat){
+        var activeHex = isLight ? (darkHighlightColors[color] || PLAYER_COLORS_HEX[color]) : PLAYER_COLORS_HEX[color];
+        yMat.emissive.setHex(activeHex);
+        yMat.emissiveIntensity = emissiveInt;
+      }
     } else {
       if(rimMesh){
         rimMesh.visible = false;
+      }
+      if(yMat){
+        yMat.emissive.setHex(0x000000);
+        yMat.emissiveIntensity = 0;
       }
     }
   });

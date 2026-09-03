@@ -604,9 +604,10 @@ body.theme-dark #hamburger-dropdown .btn-ghost:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 15;
+  z-index: 90 !important;
   pointer-events: none;
   box-sizing: border-box;
+  overflow: visible !important;
 }
 .board-corner-panel .corner-dice-ui {
   position: relative !important;
@@ -631,14 +632,23 @@ body.theme-dark #hamburger-dropdown .btn-ghost:hover {
 .corner-dice-ui {
   position: absolute;
   display: flex; align-items: stretch;
-  border-radius: 6px;
+  min-width: 105px;
+  justify-content: space-between;
+  border-radius: 8px;
   background: #0f172a !important; 
   border: 2px solid #334155;
   box-shadow: 0 4px 12px rgba(0,0,0,0.6);
-  z-index: 15; pointer-events: auto;
+  z-index: 90 !important; pointer-events: auto;
   transition: opacity var(--dur-med) var(--ease), border-color var(--dur-med) var(--ease), box-shadow var(--dur-med) var(--ease);
-  overflow: visible;
+  overflow: visible !important;
   opacity: 1;
+}
+.corner-dice-ui.active,
+.corner-dice-ui:has(.dice-rolling) {
+  z-index: 100 !important;
+}
+.dice-rolling {
+  z-index: 1000 !important;
 }
 body.theme-light .player-corner,
 body.theme-light .corner-dice-ui {
@@ -713,7 +723,8 @@ body.theme-light .corner-dice-ui {
 }
 .avatar-area {
   background: #0f172a;
-  padding: 8px 12px;
+  padding: 10px 12px;
+  min-width: 46px;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.4s var(--ease);
 }
@@ -726,10 +737,11 @@ body.theme-dark .avatar-area {
 .pin-icon { width: 24px; height: 24px; transition: fill 0.4s var(--ease); }
 
 .dice-box {
-  width: 44px; height: 44px;
+  width: 52px; height: 50px;
   perspective: 400px;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
+  padding: 0 8px;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
 }
 .dice-cube {
@@ -775,13 +787,14 @@ body.theme-light .dice-pip {
 .dice-face-5 { transform: rotateY(-90deg) translateZ(17.8px); }
 .dice-face-6 { transform: rotateY(180deg) translateZ(17.8px); }
 .dice-rolling {
-  animation: diceRollAnim 0.6s cubic-bezier(0.2, 0.8, 0.4, 1);
+  animation: diceRollAnim 0.60s cubic-bezier(0.15, 0.9, 0.35, 1.2);
 }
 @keyframes diceRollAnim {
-  0% { transform: rotateX(0deg) rotateY(0deg) scale(0.9); }
-  30% { transform: rotateX(360deg) rotateY(180deg) scale(1.25); }
-  70% { transform: rotateX(720deg) rotateY(540deg) scale(1.1); }
-  100% { transform: rotateX(1080deg) rotateY(720deg) scale(1); }
+  0%   { transform: translateY(0px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1); }
+  35%  { transform: translateY(-22px) translateZ(18px) rotateX(450deg) rotateY(540deg) rotateZ(180deg) scale(1.18); }
+  70%  { transform: translateY(-6px) translateZ(8px) rotateX(810deg) rotateY(900deg) rotateZ(270deg) scale(1.07); }
+  88%  { transform: translateY(-1px) translateZ(2px) rotateX(1020deg) rotateY(1080deg) rotateZ(330deg) scale(1.01); }
+  100% { transform: translateY(0px) translateZ(0px) rotateX(1080deg) rotateY(1080deg) rotateZ(360deg) scale(1); }
 }
 
 #central-dice-ui {

@@ -3,16 +3,50 @@
 
 var AudioEngine = (function(){
   var ctx = null, enabled = true;
+  var soundCache = {};
+
   function init(){
     if(!ctx && (window.AudioContext || window.webkitAudioContext)){
       ctx = new (window.AudioContext || window.webkitAudioContext)();
     }
   }
 
+  var soundPools = {};
+  var POOL_SIZE = 5;
+
+  function playFile(filename, vol, rate){
+    if(!enabled) return;
+    try {
+      if(!soundPools[filename]){
+        soundPools[filename] = [];
+        for(var i = 0; i < POOL_SIZE; i++){
+          var a = new Audio('audio/' + filename);
+          a.preload = 'auto';
+          soundPools[filename].push(a);
+        }
+      }
+      var pool = soundPools[filename];
+      var snd = null;
+      for(var j = 0; j < pool.length; j++){
+        if(pool[j].paused || pool[j].ended){
+          snd = pool[j];
+          break;
+        }
+      }
+      if(!snd){
+        snd = pool[0];
+      }
+      snd.currentTime = 0;
+      snd.volume = (vol !== undefined) ? vol : 1.0;
+      if (rate !== undefined) snd.playbackRate = rate;
+      var p = snd.play();
+      if(p && p.catch) p.catch(function(){});
+    } catch(e) {  }
+  }
+
   function playTone(freq, type, duration, gainVal){
     if(!enabled) return;
-    init();
-    if(!ctx) return;
+    init(); if(!ctx) return;
     if(ctx.state === 'suspended') ctx.resume();
     var t = ctx.currentTime;
     var osc = ctx.createOscillator();
@@ -49,133 +83,57 @@ var AudioEngine = (function(){
     toggle: function(){ enabled = !enabled; return enabled; },
     isEnabled: function(){ return enabled; },
 
-    // Authentic Ludo King Shaker & Dice Land Impact Sound
+    // Authentic Ludo King Audio FX
     diceRoll: function(){
-      if(!enabled) return;
-      init(); if(!ctx) return;
-      if(ctx.state === 'suspended') ctx.resume();
-      
-      // Fast rattle clicks (Dice shaking in cup)
-      var rattles = 7;
-      for(var i = 0; i < rattles; i++){
-        (function(step){
-          var delay = step * 48;
-          var pitch = 380 + Math.random() * 260;
-          var vol = 0.28 + (step / rattles) * 0.15;
-          setTimeout(function(){
-            playPop(pitch, pitch * 0.5, 0.045, vol, 'triangle');
-          }, delay);
-        })(i);
-      }
-      
-      // Final solid dice landing slam on wood board
-      setTimeout(function(){
-        playPop(180, 50, 0.12, 0.55, 'triangle');
-        playTone(520, 'sine', 0.06, 0.35);
-      }, 390);
+      playFile('dice_roll.mp3', 1.0);
     },
 
-    // Crisp Bouncy Ludo Pawn Step
     step: function(stepIndex){
-      if(!enabled) return;
-      var basePitch = 520 + (stepIndex % 6) * 35;
-      playPop(basePitch, basePitch * 0.45, 0.07, 0.35, 'sine');
-      playTone(basePitch * 1.4, 'triangle', 0.03, 0.15);
+      playFile('pile_move.mp3', 0.9);
     },
 
-    // Dramatic Ludo Pawn Capture Knockout
     capture: function(){
-      if(!enabled) return;
-      playPop(750, 80, 0.28, 0.6, 'sawtooth');
-      playPop(350, 60, 0.20, 0.4, 'square');
-      setTimeout(function(){
-        playPop(160, 40, 0.25, 0.45, 'triangle');
-      }, 90);
+      playFile('collide.mp3', 1.0);
     },
 
-    // Bright Ludo Home Stretch Celebration Chime
+    safeSpot: function(){
+      playFile('safe_spot.mp3', 1.0);
+    },
+
     enterHome: function(){
-      if(!enabled) return;
-      var notes = [523.25, 659.25, 783.99, 1046.50];
-      notes.forEach(function(freq, i){
-        setTimeout(function(){
-          playPop(freq, freq * 0.85, 0.18, 0.35, 'sine');
-        }, i * 75);
-      });
+      playFile('home.mp3', 1.0);
+    },
+
+    homeWin: function(){
+      playFile('home_win.mp3', 1.0);
     },
 
     win: function(){
-      this.playVictoryFanfare();
+      playFile('cheer.mp3', 1.0);
     },
 
     playVictoryFanfare: function(){
-      if(!enabled) return;
-      init(); if(!ctx) return;
-      if(ctx.state === 'suspended') ctx.resume();
-      var notes = [
-        { f: 523.25, t: 0.0,  d: 0.22 },
-        { f: 659.25, t: 0.12, d: 0.22 },
-        { f: 783.99, t: 0.24, d: 0.22 },
-        { f: 1046.50, t: 0.36, d: 0.40 },
-        { f: 1318.51, t: 0.54, d: 0.55 },
-        { f: 1567.98, t: 0.72, d: 0.80 }
-      ];
-      notes.forEach(function(n){
-        setTimeout(function(){
-          playPop(n.f, n.f * 0.95, n.d, 0.38, 'triangle');
-          playTone(n.f * 1.5, 'sine', n.d * 0.7, 0.18);
-        }, n.t * 1000);
-      });
+      playFile('cheer.mp3', 1.0);
+    },
+
+    gameStart: function(){
+      playFile('game_start.mp3', 1.0);
+    },
+
+    ui: function(){
+      playFile('ui.mp3', 0.8);
     },
 
     playStyleSound: function(styleName){
       if(!enabled) return;
-      init(); if(!ctx) return;
-      if(ctx.state === 'suspended') ctx.resume();
-      var t = ctx.currentTime;
-      var osc = ctx.createOscillator();
-      var gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
       if(styleName === 'teleport'){
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(350, t);
-        osc.frequency.exponentialRampToValueAtTime(1600, t + 0.10);
-        osc.frequency.exponentialRampToValueAtTime(400, t + 0.25);
-        gain.gain.setValueAtTime(0.25, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
-        osc.start(t); osc.stop(t + 0.25);
+        playFile('safe_spot.mp3', 1.0);
       } else if(styleName === 'surf'){
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(320, t);
-        osc.frequency.linearRampToValueAtTime(560, t + 0.10);
-        osc.frequency.linearRampToValueAtTime(280, t + 0.22);
-        gain.gain.setValueAtTime(0.22, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
-        osc.start(t); osc.stop(t + 0.24);
+        playFile('home.mp3', 0.8);
       } else if(styleName === 'meteor'){
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(600, t);
-        osc.frequency.exponentialRampToValueAtTime(80, t + 0.28);
-        gain.gain.setValueAtTime(0.35, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.30);
-        osc.start(t); osc.stop(t + 0.30);
-      } else if(styleName === 'tornado'){
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(550, t);
-        osc.frequency.exponentialRampToValueAtTime(130, t + 0.15);
-        osc.frequency.linearRampToValueAtTime(380, t + 0.28);
-        gain.gain.setValueAtTime(0.30, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
-        osc.start(t); osc.stop(t + 0.28);
+        playFile('collide.mp3', 1.0);
       } else {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(340, t);
-        osc.frequency.exponentialRampToValueAtTime(620, t + 0.12);
-        gain.gain.setValueAtTime(0.22, t);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
-        osc.start(t); osc.stop(t + 0.14);
+        playFile('ui.mp3', 0.8);
       }
     }
   };
@@ -251,7 +209,7 @@ var gameState = {
   winners: [],
   hasKilled: { red: false, green: false, yellow: false, blue: false },
   is2DMode: initial2DMode,
-  autoPOV: false,
+  autoPOV: true,
   autoPlayAll: false
 };
 
@@ -1297,6 +1255,7 @@ function update3DPawnPositions(){
   }
 }
 
+var dragStartY = 0;
 function onPointerDown(e){
   lastInteractTime = performance.now();
   autoSpinBlend = 0;
@@ -1304,6 +1263,7 @@ function onPointerDown(e){
   isDragging = true;
   dragLastX = e.clientX;
   dragLastY = e.clientY;
+  dragStartY = e.clientY;
   boardVelY = 0;
   boardVelX = 0;
 }
@@ -1312,7 +1272,11 @@ function onPointerMove(e){
   var dx = e.clientX - dragLastX;
   var dy = e.clientY - dragLastY;
   if(Math.abs(dx) > 2 || Math.abs(dy) > 2){
-    boardVelY = dx * 0.012;
+    var container = document.getElementById('canvas-container');
+    var h = (container && container.clientHeight) || (window.innerHeight - 50);
+    var centerY = h * 0.5;
+    var dirFactor = dragStartY > centerY ? -1 : 1;
+    boardVelY = dx * 0.012 * dirFactor;
     boardVelX = dy * 0.008;
     boardRotY += boardVelY;
     boardRotX = Math.max(0.2, Math.min(0.85, boardRotX + boardVelX));
@@ -1379,6 +1343,8 @@ function positionCornerDiceUIs(){
   PLAYERS.forEach(function(pColor){
     var el = document.getElementById('dice-ui-' + pColor);
     if (!el) return;
+    // Skip repositioning if this card is currently lifted to body during roll
+    if (window._liftedRollEl && window._liftedRollEl === el) return;
     var loc = yardCorners[pColor];
     var worldVec = new THREE.Vector3(loc.x, loc.y, loc.z);
     worldVec.applyMatrix4(boardGroup.matrixWorld);
@@ -1579,14 +1545,14 @@ function createDiceFaces(cubeEl){
 }
 function setDiceFace(cubeEl, val){
   var rotMap = {
-    1: 'rotateY(0deg)',
-    2: 'rotateY(-90deg)',
-    3: 'rotateX(-90deg)',
-    4: 'rotateX(90deg)',
-    5: 'rotateY(90deg)',
-    6: 'rotateY(180deg)'
+    1: 'rotateX(0deg) rotateY(0deg)',
+    2: 'rotateX(0deg) rotateY(-90deg)',
+    3: 'rotateX(-90deg) rotateY(0deg)',
+    4: 'rotateX(90deg) rotateY(0deg)',
+    5: 'rotateX(0deg) rotateY(90deg)',
+    6: 'rotateX(0deg) rotateY(180deg)'
   };
-  var transform = rotMap[val] || 'rotateY(0deg)';
+  var transform = rotMap[val] || 'rotateX(0deg) rotateY(0deg)';
   cubeEl.style.transform = transform;
   
   if (gameState && gameState.activePlayers && gameState.activePlayers.length > 0) {
@@ -1596,6 +1562,52 @@ function setDiceFace(cubeEl, val){
     if (centralEl) centralEl.style.transform = transform;
     if (cornerEl) cornerEl.style.transform = transform;
   }
+}
+
+function animateDiceRollTo(cubeEl, val, callback){
+  var baseRot = {
+    1: { x: 0,    y: 0 },
+    2: { x: 0,    y: -90 },
+    3: { x: -90,  y: 0 },
+    4: { x: 90,   y: 0 },
+    5: { x: 0,    y: 90 },
+    6: { x: 0,    y: 180 }
+  };
+  var target = baseRot[val] || baseRot[1];
+  var spinsX = 1080 + target.x;
+  var spinsY = 1440 + target.y;
+  var spinsZ = 720;
+  
+  var spinTransform = 'rotateX(' + spinsX + 'deg) rotateY(' + spinsY + 'deg) rotateZ(' + spinsZ + 'deg)';
+  var finalTransform = 'rotateX(' + target.x + 'deg) rotateY(' + target.y + 'deg) rotateZ(0deg)';
+
+  var durMs = getSpeedDelay(650);
+  var transitionStyle = 'transform ' + (durMs / 1000) + 's cubic-bezier(0.12, 0.8, 0.3, 1.15)';
+
+  cubeEl.style.transition = transitionStyle;
+  cubeEl.style.transform = spinTransform;
+  
+  if (gameState && gameState.activePlayers && gameState.activePlayers.length > 0) {
+    var active = getCurrentPlayer();
+    var centralEl = document.getElementById('dice-cube-central');
+    var cornerEl = document.getElementById('dice-cube-' + active);
+    if (centralEl && centralEl !== cubeEl) {
+      centralEl.style.transition = transitionStyle;
+      centralEl.style.transform = spinTransform;
+    }
+    if (cornerEl && cornerEl !== cubeEl) {
+      cornerEl.style.transition = transitionStyle;
+      cornerEl.style.transform = spinTransform;
+    }
+  }
+
+  setTimeout(function(){
+    cubeEl.style.transition = 'none';
+    cubeEl.style.transform = finalTransform;
+    if (centralEl) { centralEl.style.transition = 'none'; centralEl.style.transform = finalTransform; }
+    if (cornerEl) { cornerEl.style.transition = 'none'; cornerEl.style.transform = finalTransform; }
+    if (callback) callback();
+  }, durMs);
 }
 function generateSmartRoll(color) {
   var locked = 0, active = 0, home = 0;
@@ -1739,9 +1751,51 @@ function rollDice(){
     gameState.rollHistory[active].push(val);
     if(gameState.rollHistory[active].length > 6) gameState.rollHistory[active].shift();
   }
-  setTimeout(function(){
+
+  // Only lift to body in 3D mode — in 2D mode the layout handles z-index fine
+  var diceBox = cubeEl.parentElement;
+  var diceCard = diceBox ? diceBox.parentElement : null;
+  var liftEl = (!gameState.is2DMode && diceCard && (diceCard.classList.contains('corner-dice-ui') || diceCard.classList.contains('player-corner'))) ? diceCard : null;
+  var liftPlaceholder = null;
+  var liftSavedTransform = '';
+  if (liftEl) {
+    var liftRect = liftEl.getBoundingClientRect();
+    liftSavedTransform = liftEl.style.transform || '';
+    liftPlaceholder = document.createElement('div');
+    liftPlaceholder.style.cssText = 'width:' + liftRect.width + 'px;height:' + liftRect.height + 'px;visibility:hidden;flex-shrink:0;position:absolute;';
+    liftEl.parentElement.insertBefore(liftPlaceholder, liftEl);
+    // Use actual bounding rect (already accounts for existing transforms)
+    // and clear transform so fixed position is accurate
+    liftEl.style.position = 'fixed';
+    liftEl.style.left = liftRect.left + 'px';
+    liftEl.style.top = liftRect.top + 'px';
+    liftEl.style.width = liftRect.width + 'px';
+    liftEl.style.height = liftRect.height + 'px';
+    liftEl.style.transform = 'none';
+    liftEl.style.transformOrigin = 'top left';
+    liftEl.style.zIndex = '2147483647';
+    liftEl.style.pointerEvents = 'auto';
+    window._liftedRollEl = liftEl;
+    document.body.appendChild(liftEl);
+  }
+
+  animateDiceRollTo(cubeEl, val, function(){
+    // Return card to original parent and restore its styles
+    window._liftedRollEl = null;
+    if (liftEl && liftPlaceholder && liftPlaceholder.parentElement) {
+      liftEl.style.position = '';
+      liftEl.style.left = '';
+      liftEl.style.top = '';
+      liftEl.style.width = '';
+      liftEl.style.height = '';
+      liftEl.style.transform = liftSavedTransform;
+      liftEl.style.transformOrigin = '';
+      liftEl.style.zIndex = '';
+      liftEl.style.pointerEvents = '';
+      liftPlaceholder.parentElement.insertBefore(liftEl, liftPlaceholder);
+      liftPlaceholder.parentElement.removeChild(liftPlaceholder);
+    }
     cubeEl.classList.remove('dice-rolling');
-    setDiceFace(cubeEl, val);
     gameState.hasRolled = true;
     gameState.isRolling = false; 
     updateTurnDisplay();
@@ -1760,7 +1814,7 @@ function rollDice(){
       gameState.consecutiveSixes = 0;
     }
     processTurnAfterRoll();
-  }, getSpeedDelay(600));
+  });
 }
 function isValidMove(color, tokIdx, roll){
   var tok = gameState.tokens[color][tokIdx];
@@ -2169,7 +2223,9 @@ function postMoveCheck(color, tokIdx, wasSpawn){
   if(tok.step >= 0 && tok.step <= 50){
     var myGlobalIdx = (START_OFFSETS[color] + tok.step) % 52;
     var isSafe = (STAR_TILES.indexOf(myGlobalIdx) !== -1);
-    if(!isSafe){
+    if(isSafe){
+      AudioEngine.safeSpot();
+    } else {
       gameState.activePlayers.forEach(function(oppColor){
         if(oppColor !== color){
           gameState.tokens[oppColor].forEach(function(oppTok, oppIdx){
@@ -2520,6 +2576,7 @@ function updateTurnDisplay(){
   }
 }
 function startMatch(){
+  AudioEngine.gameStart();
   stopVictoryBoardSpotlight();
   gameState.winners = [];
   gameState.gameOver = false;

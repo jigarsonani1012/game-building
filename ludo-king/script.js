@@ -259,6 +259,9 @@ var AUTO_SPIN_SPEED = 0.08;
 var tokenMeshes = { red:[], green:[], yellow:[], blue:[] };
 var _tileMeshMap = {};
 var _starTileMeshes = {};
+var _yardMeshes = { red:null, green:null, yellow:null, blue:null };
+var _yardMaterials = { red:null, green:null, yellow:null, blue:null };
+var _yardOuterRimMeshes = { red:null, green:null, yellow:null, blue:null };
 
 function gridToWorld(r, c){
   var cellSize = 0.62;
@@ -392,6 +395,25 @@ function createArrowShape() {
   shape.lineTo(-t, -0.2);
   return shape;
 }
+function createHollowBorderShape(outerDim, innerDim) {
+  var shape = new THREE.Shape();
+  var o = outerDim / 2;
+  shape.moveTo(-o, -o);
+  shape.lineTo(o, -o);
+  shape.lineTo(o, o);
+  shape.lineTo(-o, o);
+  shape.lineTo(-o, -o);
+
+  var hole = new THREE.Path();
+  var i = innerDim / 2;
+  hole.moveTo(-i, -i);
+  hole.lineTo(-i, i);
+  hole.lineTo(i, i);
+  hole.lineTo(i, -i);
+  hole.lineTo(-i, -i);
+  shape.holes.push(hole);
+  return shape;
+}
 function isLightTheme(){
   return document.body.classList.contains('theme-light');
 }
@@ -501,10 +523,10 @@ function build3DBoard(){
   
   var yardSize = cellSize * 6; 
   var yardDefs = [
-    { color: PLAYER_COLORS_HEX.red,    x: -cellSize * 4.5, z:  cellSize * 4.5 },
-    { color: PLAYER_COLORS_HEX.green,  x: -cellSize * 4.5, z: -cellSize * 4.5 },
-    { color: PLAYER_COLORS_HEX.yellow, x:  cellSize * 4.5, z: -cellSize * 4.5 },
-    { color: PLAYER_COLORS_HEX.blue,   x:  cellSize * 4.5, z:  cellSize * 4.5 }
+    { player: 'red',    color: PLAYER_COLORS_HEX.red,    x: -cellSize * 4.5, z:  cellSize * 4.5 },
+    { player: 'green',  color: PLAYER_COLORS_HEX.green,  x: -cellSize * 4.5, z: -cellSize * 4.5 },
+    { player: 'yellow', color: PLAYER_COLORS_HEX.yellow, x:  cellSize * 4.5, z: -cellSize * 4.5 },
+    { player: 'blue',   color: PLAYER_COLORS_HEX.blue,   x:  cellSize * 4.5, z:  cellSize * 4.5 }
   ];
   yardDefs.forEach(function(yd){
     var yardGeo = new THREE.BoxGeometry(yardSize, 0.16, yardSize);
@@ -513,9 +535,11 @@ function build3DBoard(){
     yMesh.position.set(yd.x, 0.08, yd.z);
     yMesh.receiveShadow = true;
     boardGroup.add(yMesh);
-    
+    _yardMeshes[yd.player] = yMesh;
+    _yardMaterials[yd.player] = yMat;
+
     var isLight = isLightTheme();
-    var framePad = cellSize * 0.48;
+    var framePad = cellSize * 0.64;
     var frameInner = yardSize - framePad * 2;
     var whiteGeo = new THREE.BoxGeometry(frameInner, 0.012, frameInner);
     var whiteMat = new THREE.MeshStandardMaterial({
@@ -528,6 +552,26 @@ function build3DBoard(){
     var whiteMesh = new THREE.Mesh(whiteGeo, whiteMat);
     whiteMesh.position.set(yd.x, 0.166, yd.z);
     boardGroup.add(whiteMesh);
+
+    // Animated outer hollow border rim mesh (fits exact 6x6 base square dimensions, zero UI or grid overflow)
+    var hollowShape = createHollowBorderShape(yardSize, frameInner);
+    var extrudeOpts = { depth: 0.02, bevelEnabled: false };
+    var pulseGeo = new THREE.ExtrudeGeometry(hollowShape, extrudeOpts);
+    var pulseMat = new THREE.MeshStandardMaterial({
+      color: yd.color,
+      emissive: yd.color,
+      emissiveIntensity: 1.2,
+      roughness: 0.2,
+      metalness: 0.15,
+      transparent: true,
+      opacity: 0
+    });
+    var pulseMesh = new THREE.Mesh(pulseGeo, pulseMat);
+    pulseMesh.rotation.x = -Math.PI / 2;
+    pulseMesh.position.set(yd.x, 0.162, yd.z);
+    pulseMesh.visible = false;
+    boardGroup.add(pulseMesh);
+    _yardOuterRimMeshes[yd.player] = pulseMesh;
     
     var trayEdges = new THREE.EdgesGeometry(new THREE.BoxGeometry(frameInner, 0.01, frameInner));
     var borderLine = new THREE.LineSegments(trayEdges,
@@ -536,10 +580,10 @@ function build3DBoard(){
     boardGroup.add(borderLine);
     
     var nestOffsets = [
-      { ox: -cellSize * 1.1, oz: -cellSize * 1.1 },
-      { ox:  cellSize * 1.1, oz: -cellSize * 1.1 },
-      { ox: -cellSize * 1.1, oz:  cellSize * 1.1 },
-      { ox:  cellSize * 1.1, oz:  cellSize * 1.1 }
+      { ox: -cellSize * 1.0, oz: -cellSize * 1.0 },
+      { ox:  cellSize * 1.0, oz: -cellSize * 1.0 },
+      { ox: -cellSize * 1.0, oz:  cellSize * 1.0 },
+      { ox:  cellSize * 1.0, oz:  cellSize * 1.0 }
     ];
     nestOffsets.forEach(function(no){
       var nx = yd.x + no.ox;
@@ -1052,10 +1096,10 @@ function update3DPawnPositions(){
           blue:   { x:  cs*4.5, z:  cs*4.5 }
         };
         var NEST_OFFSETS = [
-          { ox: -cs*1.1, oz: -cs*1.1 },
-          { ox:  cs*1.1, oz: -cs*1.1 },
-          { ox: -cs*1.1, oz:  cs*1.1 },
-          { ox:  cs*1.1, oz:  cs*1.1 }
+          { ox: -cs*1.0, oz: -cs*1.0 },
+          { ox:  cs*1.0, oz: -cs*1.0 },
+          { ox: -cs*1.0, oz:  cs*1.0 },
+          { ox:  cs*1.0, oz:  cs*1.0 }
         ];
         var yc = YARD_CENTERS[color];
         var no = NEST_OFFSETS[idx];
@@ -1318,6 +1362,37 @@ function positionCornerDiceUIs(){
   });
   position2DLockBadges();
 }
+function updateYardBaseHighlight(now){
+  if(!gameState || gameState.gameOver) {
+    PLAYERS.forEach(function(color){
+      if(_yardOuterRimMeshes[color]) _yardOuterRimMeshes[color].visible = false;
+    });
+    return;
+  }
+  
+  var activePlayer = getCurrentPlayer();
+  var pulse = (Math.sin(now * 0.0055) + 1) / 2;
+  var glowOpacity = 0.45 + pulse * 0.50;
+  var emissiveInt = 0.8 + pulse * 1.5;
+
+  PLAYERS.forEach(function(color){
+    var rimMesh = _yardOuterRimMeshes[color];
+    var isActive = (color === activePlayer && gameState.activePlayers && gameState.activePlayers.indexOf(color) !== -1);
+
+    if(isActive){
+      if(rimMesh){
+        rimMesh.visible = true;
+        rimMesh.material.opacity = glowOpacity;
+        rimMesh.material.emissiveIntensity = emissiveInt;
+      }
+    } else {
+      if(rimMesh){
+        rimMesh.visible = false;
+      }
+    }
+  });
+}
+
 function animate(){
   requestAnimationFrame(animate);
   var now = performance.now();
@@ -1404,6 +1479,7 @@ function animate(){
       }
     });
   }
+  updateYardBaseHighlight(now);
   update3DPawnPositions();
   renderer.render(scene, camera);
 }
@@ -1593,6 +1669,7 @@ function rollDice(){
   var cubeEl = document.getElementById(cubeId);
   if(!cubeEl || cubeEl.classList.contains('dice-rolling')) return;
   gameState.isRolling = true; 
+  updateTurnDisplay();
   AudioEngine.diceRoll();
   cubeEl.classList.add('dice-rolling');
   var val = generateSmartRoll(active);
@@ -1606,6 +1683,7 @@ function rollDice(){
     setDiceFace(cubeEl, val);
     gameState.hasRolled = true;
     gameState.isRolling = false; 
+    updateTurnDisplay();
     if(val === 6){
       if(gameState.mode === 'ai' && active !== gameState.humanColor){
         recordComputerStat('computerSixes', 1);
@@ -1676,8 +1754,8 @@ function walkPieceHome(vm, color, tokIdx, currentStep, onDone){
     blue:   { x: cs*4.5, z: cs*4.5 }
   };
   var NEST_OFFSETS = [
-    {ox:-cs*1.1, oz:-cs*1.1}, {ox:cs*1.1, oz:-cs*1.1},
-    {ox:-cs*1.1, oz: cs*1.1}, {ox:cs*1.1, oz: cs*1.1}
+    {ox:-cs*1.0, oz:-cs*1.0}, {ox:cs*1.0, oz:-cs*1.0},
+    {ox:-cs*1.0, oz: cs*1.0}, {ox:cs*1.0, oz: cs*1.0}
   ];
   
   var pts = [{ x: vm.position.x, y: vm.position.y, z: vm.position.z }];
@@ -1851,6 +1929,7 @@ function trigger3DTileBounce(coord, colorHex, isFinal) {
 function executeMove(color, tokIdx){
   if(gameState.isMoving) return;
   gameState.isMoving = true;
+  updateTurnDisplay();
   var tok  = gameState.tokens[color][tokIdx];
   var roll = gameState.diceValue;
   var mesh = tokenMeshes[color][tokIdx];
@@ -2126,6 +2205,7 @@ function postMoveCheck(color, tokIdx, wasSpawn){
   }
   if(extraRoll && !gameState.gameOver){
     gameState.hasRolled = false;
+    updateTurnDisplay();
     updateStatus(capitalize(color) + " gets a Bonus Roll! 🎲");
     var isAI = (gameState.mode === 'ai' && color !== gameState.humanColor) || gameState.autoPlayAll;
     if(isAI){
@@ -2347,6 +2427,26 @@ function updateTurnDisplay(){
       if (ui) ui.style.display = 'none';
     });
   }
+  var isTurnToRoll = (gameState && !gameState.gameOver && !gameState.hasRolled && !gameState.isRolling && !gameState.isMoving);
+  ['red', 'green', 'yellow', 'blue'].forEach(function(color) {
+    var badge = document.getElementById('arrow-badge-' + color);
+    if(badge){
+      if(color === active && isTurnToRoll && gameState.is2DMode) {
+        badge.classList.add('show-arrow');
+      } else {
+        badge.classList.remove('show-arrow');
+      }
+    }
+  });
+  var centralBadge = document.getElementById('arrow-badge-central');
+  if(centralBadge){
+    if(!gameState.is2DMode && isTurnToRoll) {
+      centralBadge.classList.add('show-arrow');
+    } else {
+      centralBadge.classList.remove('show-arrow');
+    }
+  }
+
   var hudType = document.getElementById('hud-match-type');
   if(hudType && gameState.playerNames && gameState.playerNames[active]) {
     var pName = gameState.playerNames[active];

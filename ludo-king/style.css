@@ -647,7 +647,62 @@ body.theme-light .corner-dice-ui {
 }
 .player-corner.active,
 .corner-dice-ui.active {
-  box-shadow: 0 0 16px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 22px rgba(59, 130, 246, 0.75), 0 0 40px rgba(59, 130, 246, 0.35);
+}
+
+.turn-arrow-badge {
+  position: absolute;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 35;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease);
+}
+
+.turn-arrow-badge.show-arrow {
+  opacity: 1 !important;
+}
+
+/* Red & Green (Left side of board): Arrow attached to right side of UI pointing left at dice box */
+.corner-dice-ui[data-color="red"] .turn-arrow-badge,
+.corner-dice-ui[data-color="green"] .turn-arrow-badge {
+  right: -42px;
+  transform: translateY(-50%);
+  animation: turnArrowBounceLeft 0.75s ease-in-out infinite alternate;
+}
+
+/* Yellow & Blue (Right side of board): Arrow attached to left side of UI pointing right at dice box */
+.corner-dice-ui[data-color="yellow"] .turn-arrow-badge,
+.corner-dice-ui[data-color="blue"] .turn-arrow-badge {
+  left: -42px;
+  transform: translateY(-50%);
+  animation: turnArrowBounceRight 0.75s ease-in-out infinite alternate;
+}
+
+/* Central Dice UI: Arrow floating above pointing down at dice box */
+#central-dice-ui .turn-arrow-badge {
+  top: -42px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: turnArrowBounceDown 0.75s ease-in-out infinite alternate;
+}
+
+@keyframes turnArrowBounceLeft {
+  0% { transform: translateY(-50%) translateX(0px); filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6)); }
+  100% { transform: translateY(-50%) translateX(-10px); filter: drop-shadow(0 2px 14px var(--red, #ef4444)); }
+}
+
+@keyframes turnArrowBounceRight {
+  0% { transform: translateY(-50%) translateX(0px); filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6)); }
+  100% { transform: translateY(-50%) translateX(10px); filter: drop-shadow(0 2px 14px var(--blue, #3b82f6)); }
+}
+
+@keyframes turnArrowBounceDown {
+  0% { transform: translateX(-50%) translateY(0px); filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6)); }
+  100% { transform: translateX(-50%) translateY(-10px); filter: drop-shadow(0 2px 14px #ffffff); }
 }
 .player-corner > .avatar-area,
 .corner-dice-ui > .avatar-area {

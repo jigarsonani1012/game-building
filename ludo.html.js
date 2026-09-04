@@ -23,9 +23,9 @@
   --accent: #ffffff;
   --accent2: #e5e5e5;
   --accent-glow: rgba(255, 255, 255, 0.3);
-  --red: #ff5252;
-  --green: #22c55e;
-  --yellow: #ffcc00;
+  --red: #ef4444;
+  --green: #16a34a;
+  --yellow: #eab308;
   --blue: #3b82f6;
 }
 body.theme-light {
@@ -487,8 +487,7 @@ body.theme-light .toggle-switch.active .toggle-knob {
   background: var(--bg); border-bottom: 1px solid var(--border);
   color: var(--text);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  position: relative;
-  z-index: 999999 !important; pointer-events: auto;
+  z-index: 20; pointer-events: auto;
   box-sizing: border-box;
 }
 
@@ -575,9 +574,8 @@ body.theme-light .hdr-btn:hover {
 #hamburger-dropdown {
   background: var(--panel-bg);
   border: 1px solid var(--border);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   color: var(--text);
-  z-index: 99999999 !important;
 }
 #hamburger-dropdown .btn-ghost {
   color: var(--text);
@@ -634,37 +632,26 @@ body.theme-dark #hamburger-dropdown .btn-ghost:hover {
 .corner-dice-ui {
   position: absolute;
   display: flex; align-items: stretch;
-  min-width: 90px;
-  justify-content: space-between;
-  border-radius: 7px;
+  border-radius: 6px;
   background: #0f172a !important; 
   border: 2px solid #334155;
   box-shadow: 0 4px 12px rgba(0,0,0,0.6);
   z-index: 90 !important; pointer-events: auto;
-  cursor: pointer;
   transition: opacity var(--dur-med) var(--ease), border-color var(--dur-med) var(--ease), box-shadow var(--dur-med) var(--ease);
   overflow: visible !important;
   opacity: 1;
 }
-.corner-dice-ui.active {
+.corner-dice-ui.active,
+.corner-dice-ui:has(.dice-rolling) {
   z-index: 100 !important;
 }
-.corner-dice-ui:has(.dice-rolling),
-.corner-dice-ui.dice-rolling-card {
-  z-index: 50000 !important;
-}
 .dice-rolling {
-  z-index: 50000 !important;
+  z-index: 1000 !important;
 }
 body.theme-light .player-corner,
 body.theme-light .corner-dice-ui {
   background: #ffffff !important;
   border-color: #cbd5e1;
-}
-body.theme-dark .player-corner,
-body.theme-dark .corner-dice-ui {
-  background: #0f172a !important;
-  border-color: #334155;
 }
 .player-corner.active,
 .corner-dice-ui.active {
@@ -687,18 +674,18 @@ body.theme-dark .corner-dice-ui {
   opacity: 1 !important;
 }
 
-/* Left side card (dice box on right): Arrow attached to right side of card pointing left at dice box */
-.turn-arrow-badge.arrow-side-right {
-  left: auto !important;
-  right: -38px !important;
+/* Red & Green (Left side of board): Arrow attached to right side of UI pointing left at dice box */
+.corner-dice-ui[data-color="red"] .turn-arrow-badge,
+.corner-dice-ui[data-color="green"] .turn-arrow-badge {
+  right: -42px;
   transform: translateY(-50%);
   animation: turnArrowBounceLeft 0.75s ease-in-out infinite alternate;
 }
 
-/* Right side card (dice box on left): Arrow attached to left side of card pointing right at dice box */
-.turn-arrow-badge.arrow-side-left {
-  right: auto !important;
-  left: -38px !important;
+/* Yellow & Blue (Right side of board): Arrow attached to left side of UI pointing right at dice box */
+.corner-dice-ui[data-color="yellow"] .turn-arrow-badge,
+.corner-dice-ui[data-color="blue"] .turn-arrow-badge {
+  left: -42px;
   transform: translateY(-50%);
   animation: turnArrowBounceRight 0.75s ease-in-out infinite alternate;
 }
@@ -734,32 +721,24 @@ body.theme-dark .corner-dice-ui {
 }
 .avatar-area {
   background: #0f172a;
-  padding: 7px 10px;
-  min-width: 38px;
+  padding: 8px 12px;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.4s var(--ease);
 }
 body.theme-light .avatar-area {
-  background: #ffffff !important;
+  background: #ffffff;
 }
 body.theme-dark .avatar-area {
-  background: #0f172a !important;
-}
-body.theme-light .avatar-area .pin-icon g {
-  stroke: #0f172a;
-}
-body.theme-dark .avatar-area .pin-icon g {
-  stroke: #ffffff;
+  background: #0f172a;
 }
 .pin-icon { width: 24px; height: 24px; transition: fill 0.4s var(--ease); }
 
 .dice-box {
-  width: 52px; height: 46px;
+  width: 44px; height: 44px;
   perspective: 400px;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  padding: 0 6px;
-  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
 }
 .dice-cube {
   width: 36px; height: 36px;
@@ -771,7 +750,7 @@ body.theme-dark .avatar-area .pin-icon g {
 .dice-face {
   position: absolute; width: 36px; height: 36px;
   background: #0f172a; border-radius: 6px;
-  border: 1.5px solid #334155;
+  border: 1px solid #334155;
   padding: 2px;
   box-sizing: border-box;
   box-shadow: inset 0 1px 3px rgba(0,0,0,0.4);
@@ -808,9 +787,9 @@ body.theme-light .dice-pip {
 }
 @keyframes diceRollAnim {
   0%   { transform: translateY(0px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1); }
-  35%  { transform: translateY(-14px) translateZ(14px) rotateX(450deg) rotateY(540deg) rotateZ(180deg) scale(1.12); }
-  70%  { transform: translateY(-4px) translateZ(6px) rotateX(810deg) rotateY(900deg) rotateZ(270deg) scale(1.05); }
-  88%  { transform: translateY(-1px) translateZ(2px) rotateX(1020deg) rotateY(1080deg) rotateZ(330deg) scale(1.01); }
+  35%  { transform: translateY(-46px) translateZ(40px) rotateX(450deg) rotateY(540deg) rotateZ(180deg) scale(1.38); }
+  70%  { transform: translateY(-12px) translateZ(16px) rotateX(810deg) rotateY(900deg) rotateZ(270deg) scale(1.12); }
+  88%  { transform: translateY(-2px) translateZ(4px) rotateX(1020deg) rotateY(1080deg) rotateZ(330deg) scale(1.02); }
   100% { transform: translateY(0px) translateZ(0px) rotateX(1080deg) rotateY(1080deg) rotateZ(360deg) scale(1); }
 }
 
@@ -842,7 +821,7 @@ body.theme-light .dice-pip {
 
 #game-status-bar {
   position: absolute;
-  top: clamp(54px, 7vh, 62px);
+  top: clamp(58px, 7.5vh, 64px);
   left: 50%;
   transform: translateX(-50%) translateY(-6px);
   background: rgba(15, 23, 42, 0.92);
@@ -855,7 +834,7 @@ body.theme-light .dice-pip {
   font-weight: 800;
   letter-spacing: 0.02em;
   color: #ffffff;
-  z-index: 85;
+  z-index: 9999;
   opacity: 0;
   pointer-events: none;
   max-width: min(92vw, 380px);
@@ -868,26 +847,6 @@ body.theme-light .dice-pip {
   text-overflow: ellipsis;
   box-sizing: border-box;
 }
-
-@media (max-width: 600px) {
-  #game-status-bar {
-    top: clamp(52px, 6.5vh, 58px);
-    max-width: calc(100vw - 180px) !important;
-    font-size: clamp(9px, 2.6vw, 11px);
-    padding: 3px 10px;
-    letter-spacing: 0;
-  }
-}
-
-@media (max-width: 440px) {
-  #game-status-bar {
-    top: clamp(50px, 6vh, 56px);
-    max-width: calc(100vw - 160px) !important;
-    font-size: clamp(8.5px, 2.8vw, 10.5px);
-    padding: 2.5px 8px;
-  }
-}
-
 body.theme-light #game-status-bar {
   background: rgba(255, 255, 255, 0.96);
   border-color: #cbd5e1;

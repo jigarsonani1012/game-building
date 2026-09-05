@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Moto Rush 3D — Superbike Street Racing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* ==================================================
+   1. RESET & THEME VARIABLES
+   ================================================== */
+:root {
+  --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-mono: 'Space Grotesk', monospace;
+  --dur-fast: 0.16s;
+  --dur-med: 0.3s;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --bg: #090c14;
+  --panel-bg: rgba(14, 20, 34, 0.88);
+  --surface: rgba(255, 255, 255, 0.08);
+  --surface-hover: rgba(255, 255, 255, 0.15);
+  --border: rgba(255, 255, 255, 0.15);
+  --text: #f8fafc;
+  --text-dim: #94a3b8;
+  --accent: #ff0055;
+  --accent-glow: rgba(255, 0, 85, 0.5);
+  --cyan: #00f0ff;
+  --gold: #ffb703;
+  --green: #10b981;
+  --danger: #ef4444;
+}
+
+*, *::before, *::after {
+  margin: 0; padding: 0; box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: var(--font-main);
+  background: var(--bg);
+  color: var(--text);
+}
+
+#app {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+/* 3D Viewport */
+#canvas-container {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  overflow: hidden; z-index: 1;
+}
+#three-canvas {
+  width: 100%; height: 100%;
+  display: block; outline: none;
+}
+
+/* Rain / Tunnel FX overlay */
+#speed-blur-fx {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 2;
+  opacity: 0; transition: opacity 0.2s ease;
+  background: radial-gradient(circle at center, transparent 50%, rgba(255, 0, 85, 0.15) 100%);
+}
+#speed-blur-fx.active { opacity: 1; }
+
+/* ==================================================
+   2. SCREEN PANELS & UI
+   ================================================== */
+.screen {
+  position: absolute; inset: 0;
+  z-index: 10; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 20px; pointer-events: auto;
+  opacity: 1; transform: scale(1);
+  transition: opacity var(--dur-med) var(--ease), transform var(--dur-med) var(--ease), visibility var(--dur-med);
+}
+.screen.hidden {
+  opacity: 0; transform: scale(1.03);
+  pointer-events: none; visibility: hidden;
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 28px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.7), 0 0 30px rgba(255, 0, 85, 0.1);
+  max-width: 480px; width: 100%;
+  text-align: center;
+}
+
+.brand-title {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 7vw, 46px);
+  font-weight: 900;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #ffffff 0%, var(--accent) 60%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2px;
+}
+.brand-sub {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 24px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 14px 24px;
+  border-radius: 14px;
+  font-family: var(--font-display);
+  font-size: 15px; font-weight: 800;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer; outline: none;
+  transition: transform var(--dur-fast) var(--ease), background var(--dur-fast), border-color var(--dur-fast);
+}
+.btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent) 0%, #ff5500 100%);
+  border: none; color: #ffffff;
+  box-shadow: 0 10px 30px var(--accent-glow);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #ff2a70 0%, #ff6b1a 100%);
+  box-shadow: 0 14px 38px rgba(255, 0, 85, 0.6);
+}
+.btn-ghost { background: transparent; border-color: transparent; color: var(--text-dim); }
+.btn-ghost:hover { background: var(--surface); color: #ffffff; }
+
+.icon-btn {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); cursor: pointer; outline: none;
+}
+.icon-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+/* Stats & Swatches */
+.garage-carousel { display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 16px 0; }
+.stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; text-align: left; }
+.stat-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 4px; }
+.stat-bar-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; }
+.stat-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--gold)); border-radius: 99px; transition: width 0.35s; }
+
+.color-swatch-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 18px; }
+.color-swatch { width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: transform 0.2s; }
+.color-swatch.active { border-color: #ffffff; transform: scale(1.15); box-shadow: 0 0 12px currentColor; }
+
+/* ==================================================
+   3. IN-GAME HUD
+   ================================================== */
+#hud-overlay {
+  position: absolute; inset: 0;
+  z-index: 5; pointer-events: none;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+}
+#hud-overlay.hidden { display: none !important; }
+
+.hud-top { display: flex; align-items: flex-start; justify-content: space-between; width: 100%; }
+.hud-card {
+  background: rgba(14, 20, 34, 0.75); border: 1px solid var(--border);
+  border-radius: 16px; backdrop-filter: blur(12px);
+  padding: 10px 18px; display: flex; flex-direction: column;
+}
+.hud-val { font-family: var(--font-mono); font-size: 22px; font-weight: 700; color: #ffffff; }
+.hud-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-dim); }
+
+/* Tachometer / Speedometer */
+.cluster-container { display: flex; flex-direction: column; align-items: flex-end; }
+.speed-digital {
+  font-family: var(--font-display);
+  font-size: clamp(50px, 9vw, 70px);
+  font-weight: 900; line-height: 1; color: #ffffff;
+  text-shadow: 0 0 24px rgba(255, 0, 85, 0.4);
+}
+.speed-unit { font-size: 14px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-top: -4px; }
+.gear-badge {
+  font-family: var(--font-mono); font-size: 16px; font-weight: 800;
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 2px 10px; border-radius: 8px; color: var(--gold); margin-top: 4px;
+}
+
+/* Wheelie / Near Miss Notification */
+#wheelie-badge {
+  position: absolute; top: 32%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  font-family: var(--font-display); font-size: 32px; font-weight: 900;
+  color: var(--gold); text-shadow: 0 0 20px rgba(255, 183, 3, 0.8);
+  text-transform: uppercase; opacity: 0; pointer-events: none;
+  transition: transform 0.2s var(--ease-bounce), opacity 0.2s;
+}
+#wheelie-badge.show { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+
+/* ==================================================
+   4. TOUCH CONTROLS (Mobile)
+   ================================================== */
+#touch-controls {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 6;
+  display: none; justify-content: space-between; align-items: flex-end;
+  padding: 24px;
+}
+.touch-zone { display: flex; gap: 14px; pointer-events: auto; }
+.touch-btn {
+  width: 68px; height: 68px; border-radius: 50%;
+  background: rgba(14, 20, 34, 0.65); border: 2px solid var(--border);
+  backdrop-filter: blur(8px); color: #ffffff; font-size: 20px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: none;
+}
+.touch-btn.wheelie-touch {
+  background: rgba(255, 183, 3, 0.35); border-color: var(--gold);
+  width: 76px; height: 76px;
+}
+.touch-btn:active, .touch-btn.pressed { transform: scale(0.9); background: var(--surface-hover); border-color: var(--accent); }
+
+@media (pointer: coarse), (max-width: 900px) {
+  #touch-controls { display: flex; }
+}
+
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(10px); z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; opacity: 1; transition: opacity var(--dur-med);
+}
+.modal-backdrop.hidden { opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- 3D Canvas Container -->
+  <div id="canvas-container">
+    <canvas id="three-canvas"></canvas>
+    <div id="speed-blur-fx"></div>
+  </div>
+
+  <!-- MAIN MENU -->
+  <div id="menu-screen" class="screen">
+    <div class="panel">
+      <div class="brand-title">Moto Rush 3D</div>
+      <div class="brand-sub">Superbike Street Racing</div>
+
+      <div style="display:flex; flex-direction:column; gap:12px; width:100%;">
+        <button class="btn btn-primary" id="btn-play-traffic">
+          <svg viewBox="0 0 24 24" style="width:20px; height:20px; stroke:currentColor; stroke-width:2.5; fill:none;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Traffic Highway Rush
+        </button>
+        <button class="btn" id="btn-open-garage">
+          <svg viewBox="0 0 24 24" style="width:20px; height:20px; stroke:currentColor; stroke-width:2; fill:none;"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 3"></path></svg>
+          Superbike Garage
+        </button>
+        <button class="btn btn-ghost" id="btn-open-settings">Settings &amp; View</button>
+      </div>
+
+      <div style="margin-top:20px; display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); font-weight:600;">
+        <div>Best Run: <span id="menu-high-score" style="color:#ffffff; font-family:var(--font-mono);">0</span> pts</div>
+        <div>Credits: <span id="menu-coins" style="color:var(--gold); font-family:var(--font-mono);">0</span> 🪙</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GARAGE SCREEN -->
+  <div id="garage-screen" class="screen hidden">
+    <div class="panel" style="max-width:520px;">
+      <div class="brand-title" style="font-size:28px;">Superbike Garage</div>
+      
+      <div class="garage-carousel">
+        <button class="icon-btn" id="btn-bike-prev">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <div id="garage-bike-name" style="font-family:var(--font-display); font-size:22px; font-weight:800; color:var(--accent);">Ninja ZX-1000</div>
+        <button class="icon-btn" id="btn-bike-next">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+
+      <div class="color-swatch-row">
+        <div class="color-swatch active" style="background:#ff0055; color:#ff0055;" data-color="#ff0055"></div>
+        <div class="color-swatch" style="background:#00f0ff; color:#00f0ff;" data-color="#00f0ff"></div>
+        <div class="color-swatch" style="background:#10b981; color:#10b981;" data-color="#10b981"></div>
+        <div class="color-swatch" style="background:#ffb703; color:#ffb703;" data-color="#ffb703"></div>
+        <div class="color-swatch" style="background:#8b5cf6; color:#8b5cf6;" data-color="#8b5cf6"></div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+        <div class="stat-box">
+          <div class="stat-lbl">Top Speed</div>
+          <div class="stat-bar-bg"><div class="stat-bar-fill" id="stat-speed-fill" style="width:85%;"></div></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">Acceleration</div>
+          <div class="stat-bar-bg"><div class="stat-bar-fill" id="stat-accel-fill" style="width:90%;"></div></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">Lean Agility</div>
+          <div class="stat-bar-bg"><div class="stat-bar-fill" id="stat-lean-fill" style="width:80%;"></div></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">Braking Power</div>
+          <div class="stat-bar-bg"><div class="stat-bar-fill" id="stat-brake-fill" style="width:75%;"></div></div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <button class="btn btn-primary" id="btn-garage-select">Ride Now</button>
+        <button class="btn btn-ghost" id="btn-garage-back">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IN-GAME HUD -->
+  <div id="hud-overlay" class="hidden">
+    <div class="hud-top">
+      <div class="hud-card">
+        <div class="hud-lbl">Score</div>
+        <div class="hud-val" id="hud-score">0</div>
+      </div>
+      <div class="hud-card">
+        <div class="hud-lbl">Distance</div>
+        <div class="hud-val" id="hud-distance">0.0 km</div>
+      </div>
+      <button class="icon-btn" id="btn-cam-toggle" style="pointer-events:auto;" aria-label="Toggle View">
+        <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+      </button>
+    </div>
+
+    <div id="wheelie-badge">WHEELIE BONUS! ⚡</div>
+
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; width:100%;">
+      <div>
+        <div class="hud-lbl" style="color:var(--gold); margin-bottom:2px;">WHEELIE [SPACE]</div>
+        <div style="font-size:12px; color:var(--text-dim); font-weight:600;">Hold to Wheelie for 2x Score</div>
+      </div>
+
+      <div class="cluster-container">
+        <div class="gear-badge" id="hud-gear">GEAR 1</div>
+        <div class="speed-digital" id="hud-speed">0</div>
+        <div class="speed-unit">KM / H</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOUCH CONTROLS -->
+  <div id="touch-controls">
+    <div class="touch-zone">
+      <div class="touch-btn" id="touch-left">◀</div>
+      <div class="touch-btn" id="touch-right">▶</div>
+    </div>
+    <div class="touch-zone">
+      <div class="touch-btn" id="touch-brake">🛑</div>
+      <div class="touch-btn" id="touch-gas">⚡</div>
+      <div class="touch-btn wheelie-touch" id="touch-wheelie">🏍️</div>
+    </div>
+  </div>
+
+  <!-- GAME OVER MODAL -->
+  <div id="game-over-modal" class="modal-backdrop hidden">
+    <div class="panel">
+      <div class="brand-title" style="font-size:32px; color:var(--danger); -webkit-text-fill-color:initial; background:none;">CRASHED!</div>
+      <div style="font-size:14px; color:var(--text-dim); margin-bottom:20px;">High-speed wipeout! Keep your eyes on the road.</div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px;">
+        <div class="stat-box">
+          <div class="stat-lbl">Final Score</div>
+          <div class="hud-val" id="modal-score" style="color:var(--accent);">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">Distance</div>
+          <div class="hud-val" id="modal-distance" style="color:#ffffff;">0.0 km</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">Top Velocity</div>
+          <div class="hud-val" id="modal-max-speed" style="color:var(--gold);">0 km/h</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">Near Misses</div>
+          <div class="hud-val" id="modal-near-miss" style="color:var(--cyan);">0</div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button class="btn btn-primary" id="btn-restart-game">Ride Again</button>
+        <button class="btn btn-ghost" id="btn-return-menu">Main Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settings-modal" class="modal-backdrop hidden">
+    <div class="panel">
+      <div class="brand-title" style="font-size:26px;">Settings</div>
+      <div style="display:flex; flex-direction:column; gap:14px; margin:20px 0; text-align:left;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div><div style="font-weight:700;">Inline-4 Audio</div><div style="font-size:12px; color:var(--text-dim);">14,000 RPM Synthesizer</div></div>
+          <input type="checkbox" id="toggle-sound" checked style="width:20px; height:20px; cursor:pointer;">
+        </div>
+      </div>
+      <button class="btn btn-primary" id="btn-close-settings">Done</button>
+    </div>
+  </div>
+
+</div><!-- /#app -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ==================================================
+   1. PROCEDURAL 14,000 RPM SUPERBIKE AUDIO
+   ================================================== */
+var AudioEngine = (function(){
+  var ctx = null;
+  var osc1 = null, osc2 = null, gainNode = null, filterNode = null;
+  var soundEnabled = true;
+
+  function init(){
+    if(ctx) return;
+    try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+  }
+
+  function startEngine(){
+    if(!ctx || !soundEnabled || osc1) return;
+    try {
+      osc1 = ctx.createOscillator();
+      osc2 = ctx.createOscillator();
+      osc1.type = 'sawtooth';
+      osc2.type = 'square';
+
+      filterNode = ctx.createBiquadFilter();
+      filterNode.type = 'lowpass';
+      filterNode.frequency.setValueAtTime(500, ctx.currentTime);
+
+      gainNode = ctx.createGain();
+      gainNode.gain.setValueAtTime(0.09, ctx.currentTime);
+
+      osc1.connect(filterNode);
+      osc2.connect(filterNode);
+      filterNode.connect(gainNode);
+      gainNode.connect(ctx.destination);
+
+      osc1.start();
+      osc2.start();
+    } catch(e){}
+  }
+
+  function updateRPM(speedKmh, maxSpeed, isWheelie){
+    if(!ctx || !osc1) return;
+    var norm = Math.min(speedKmh / maxSpeed, 1.15);
+    var freq = 60 + norm * 260 + (isWheelie ? 30 : 0);
+    var cutoff = 450 + norm * 1800;
+
+    osc1.frequency.setTargetAtTime(freq, ctx.currentTime, 0.04);
+    osc2.frequency.setTargetAtTime(freq * 1.5, ctx.currentTime, 0.04);
+    filterNode.frequency.setTargetAtTime(cutoff, ctx.currentTime, 0.04);
+  }
+
+  function stopEngine(){
+    try {
+      if(osc1){ osc1.stop(); osc1 = null; }
+      if(osc2){ osc2.stop(); osc2 = null; }
+    } catch(e){}
+  }
+
+  function playCrash(){
+    if(!ctx || !soundEnabled) return;
+    try {
+      var osc = ctx.createOscillator();
+      var g = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(25, ctx.currentTime + 0.5);
+      g.gain.setValueAtTime(0.3, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.55);
+    } catch(e){}
+  }
+
+  function playNearMiss(){
+    if(!ctx || !soundEnabled) return;
+    try {
+      var osc = ctx.createOscillator();
+      var g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(650, ctx.currentTime);
+      osc.frequency.setValueAtTime(980, ctx.currentTime + 0.08);
+      g.gain.setValueAtTime(0.16, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.32);
+    } catch(e){}
+  }
+
+  return {
+    init: init,
+    startEngine: startEngine,
+    updateRPM: updateRPM,
+    stopEngine: stopEngine,
+    playCrash: playCrash,
+    playNearMiss: playNearMiss,
+    setSound: function(v){ soundEnabled = v; if(!v) stopEngine(); }
+  };
+})();
+
+/* ==================================================
+   2. SUPERBIKE 3D PROCEDURAL MESH
+   ================================================== */
+var BIKES_DATA = [
+  { id: 'ninja', name: 'Ninja ZX-1000', topSpeed: 299, accel: 19, leanRate: 11, defaultColor: '#ff0055' },
+  { id: 'ducati', name: 'Ducati V4 Monster', topSpeed: 315, accel: 21, leanRate: 10.5, defaultColor: '#ff0000' },
+  { id: 'katana', name: 'Cyber Katana 3000', topSpeed: 325, accel: 22, leanRate: 12, defaultColor: '#00f0ff' },
+  { id: 'phantom', name: 'Phantom Cruiser', topSpeed: 285, accel: 17, leanRate: 9.5, defaultColor: '#ffb703' }
+];
+var selectedBikeIndex = 0;
+var selectedBikeColor = '#ff0055';
+
+function buildSuperbikeMesh(colorHex){
+  var bikeGroup = new THREE.Group();
+
+  // Premium Materials
+  var matPaint = new THREE.MeshStandardMaterial({ color: colorHex, metalness: 0.85, roughness: 0.18 });
+  var matFrame = new THREE.MeshStandardMaterial({ color: 0x1e222d, metalness: 0.8, roughness: 0.35 });
+  var matGoldFork = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.95, roughness: 0.1 });
+  var matTitanium = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.95, roughness: 0.15 });
+  var matCarbon = new THREE.MeshStandardMaterial({ color: 0x0f1115, roughness: 0.4, metalness: 0.6 });
+  var matTire = new THREE.MeshStandardMaterial({ color: 0x121316, roughness: 0.85 });
+  var matAlloy = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.95, roughness: 0.12 });
+  var matBrembo = new THREE.MeshStandardMaterial({ color: 0xff0033, roughness: 0.25 });
+  var matBrakeDisc = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2 });
+  var matGlass = new THREE.MeshStandardMaterial({ color: 0x050d1a, roughness: 0.05, transparent: true, opacity: 0.85 });
+  var matSeat = new THREE.MeshStandardMaterial({ color: 0x18181b, roughness: 0.8 });
+  var matRiderSuit = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.6 });
+  var matVisor = new THREE.MeshStandardMaterial({ color: 0x000000, metalness: 1.0, roughness: 0.05 });
+  var matLight = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  var matTail = new THREE.MeshBasicMaterial({ color: 0xff0044 });
+
+  // 1. Twin-Spar Aluminum Perimeter Frame
+  var frameL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 1.2), matFrame);
+  frameL.rotation.x = 0.2;
+  frameL.position.set(-0.22, 0.62, 0);
+  bikeGroup.add(frameL);
+  var frameR = frameL.clone();
+  frameR.position.x = 0.22;
+  bikeGroup.add(frameR);
+
+  // 2. Sculpted Fuel Tank (with ergonomic knee indents)
+  var tankGeo = new THREE.BoxGeometry(0.48, 0.36, 0.85);
+  var tankMesh = new THREE.Mesh(tankGeo, matPaint);
+  tankMesh.position.set(0, 0.78, 0.05);
+  bikeGroup.add(tankMesh);
+
+  // Tank filler cap
+  var capMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.02, 12), matAlloy);
+  capMesh.position.set(0, 0.97, 0.18);
+  bikeGroup.add(capMesh);
+
+  // 3. Aerodynamic Front Fairing & Ram-Air Nose
+  var fairingNose = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.42, 0.65), matPaint);
+  fairingNose.position.set(0, 0.86, 0.72);
+  bikeGroup.add(fairingNose);
+
+  // Ram air intake duct (Center)
+  var intakeDuct = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.08, 0.1), matCarbon);
+  intakeDuct.position.set(0, 0.78, 1.05);
+  bikeGroup.add(intakeDuct);
+
+  // Curved Windscreen
+  var windGeo = new THREE.PlaneGeometry(0.36, 0.36);
+  var windMesh = new THREE.Mesh(windGeo, matGlass);
+  windMesh.rotation.x = -Math.PI / 3;
+  windMesh.position.set(0, 1.15, 0.7);
+  bikeGroup.add(windMesh);
+
+  // Dual Projector LED Headlights
+  var headL = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.06, 0.08), matLight);
+  headL.position.set(-0.13, 0.84, 1.04);
+  bikeGroup.add(headL);
+  var headR = headL.clone();
+  headR.position.x = 0.13;
+  bikeGroup.add(headR);
+
+  // 4. Inverted Gold Telescopic Front Forks & Triple Clamp
+  var forkGeo = new THREE.CylinderGeometry(0.038, 0.038, 0.95, 16);
+  var forkL = new THREE.Mesh(forkGeo, matGoldFork);
+  forkL.rotation.x = -0.32;
+  forkL.position.set(-0.16, 0.62, 0.75);
+  bikeGroup.add(forkL);
+  var forkR = forkL.clone();
+  forkR.position.x = 0.16;
+  bikeGroup.add(forkR);
+
+  // Triple Clamp
+  var clampMesh = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.04, 0.12), matFrame);
+  clampMesh.position.set(0, 0.98, 0.62);
+  bikeGroup.add(clampMesh);
+
+  // Clip-On Handlebars & Grips
+  var barGeo = new THREE.CylinderGeometry(0.022, 0.022, 0.68, 12);
+  barGeo.rotateZ(Math.PI / 2);
+  var barMesh = new THREE.Mesh(barGeo, matFrame);
+  barMesh.position.set(0, 1.0, 0.58);
+  bikeGroup.add(barMesh);
+
+  // Levers (Brake & Clutch)
+  var leverL = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.015, 0.015), matAlloy);
+  leverL.position.set(-0.28, 0.99, 0.64);
+  bikeGroup.add(leverL);
+  var leverR = leverL.clone();
+  leverR.position.x = 0.28;
+  bikeGroup.add(leverR);
+
+  // Color TFT Digital Dashboard
+  var tftMesh = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.1, 0.02), matCarbon);
+  tftMesh.rotation.x = -Math.PI / 4;
+  tftMesh.position.set(0, 1.04, 0.66);
+  bikeGroup.add(tftMesh);
+
+  var tftScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.07), new THREE.MeshBasicMaterial({ color: 0x00f0ff }));
+  tftScreen.rotation.x = -Math.PI / 4;
+  tftScreen.position.set(0, 1.045, 0.67);
+  bikeGroup.add(tftScreen);
+
+  // 5. Detailed Inline-4 Engine Block & Transmission
+  var engGeo = new THREE.BoxGeometry(0.44, 0.38, 0.65);
+  var engMesh = new THREE.Mesh(engGeo, matFrame);
+  engMesh.position.set(0, 0.42, 0.08);
+  bikeGroup.add(engMesh);
+
+  // Cylinder cooling fins
+  for(var f = 0; f < 4; f++){
+    var finMesh = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.02, 0.58), matTitanium);
+    finMesh.position.set(0, 0.34 + f * 0.08, 0.08);
+    bikeGroup.add(finMesh);
+  }
+
+  // 6. 4-into-1 Titanium Exhaust & Carbon Muffler
+  var pipeGeo = new THREE.CylinderGeometry(0.045, 0.045, 0.8, 12);
+  pipeGeo.rotateX(Math.PI / 2.4);
+  var pipeMesh = new THREE.Mesh(pipeGeo, matTitanium);
+  pipeMesh.position.set(0.24, 0.36, -0.4);
+  bikeGroup.add(pipeMesh);
+
+  var mufflerGeo = new THREE.CylinderGeometry(0.075, 0.065, 0.55, 16);
+  mufflerGeo.rotateX(Math.PI / 2.2);
+  var mufflerMesh = new THREE.Mesh(mufflerGeo, matCarbon);
+  mufflerMesh.position.set(0.26, 0.56, -0.95);
+  bikeGroup.add(mufflerMesh);
+
+  // 7. Stepped Racing Seat & Aerodynamic Tail Fairing
+  var seatRider = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.12, 0.48), matSeat);
+  seatRider.position.set(0, 0.76, -0.45);
+  bikeGroup.add(seatRider);
+
+  var tailFairing = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.22, 0.65), matPaint);
+  tailFairing.rotation.x = -0.15;
+  tailFairing.position.set(0, 0.84, -0.95);
+  bikeGroup.add(tailFairing);
+
+  // Slim Rear LED Taillight
+  var tailLight = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.04, 0.04), matTail);
+  tailLight.position.set(0, 0.86, -1.28);
+  bikeGroup.add(tailLight);
+
+  // 8. Aluminum Swingarm & Mono-Shock Absorber
+  var swingarm = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.08, 0.7), matAlloy);
+  swingarm.rotation.x = 0.18;
+  swingarm.position.set(0, 0.42, -0.65);
+  bikeGroup.add(swingarm);
+
+  var shock = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.28, 12), new THREE.MeshStandardMaterial({ color: 0xff0033, roughness: 0.3 }));
+  shock.position.set(0, 0.55, -0.42);
+  bikeGroup.add(shock);
+
+  // 9. Ultra-Detailed Racing Wheels (Front & Rear)
+  var tireGeoF = new THREE.CylinderGeometry(0.36, 0.36, 0.14, 24);
+  tireGeoF.rotateZ(Math.PI / 2);
+  var tireGeoR = new THREE.CylinderGeometry(0.36, 0.36, 0.22, 24);
+  tireGeoR.rotateZ(Math.PI / 2);
+
+  var rimGeoF = new THREE.CylinderGeometry(0.24, 0.24, 0.15, 16);
+  rimGeoF.rotateZ(Math.PI / 2);
+  var rimGeoR = new THREE.CylinderGeometry(0.24, 0.24, 0.23, 16);
+  rimGeoR.rotateZ(Math.PI / 2);
+
+  var discGeo = new THREE.CylinderGeometry(0.22, 0.22, 0.02, 16);
+  discGeo.rotateZ(Math.PI / 2);
+  var caliperGeo = new THREE.BoxGeometry(0.04, 0.12, 0.08);
+
+  // Front Wheel Assembly
+  var wFront = new THREE.Group();
+  wFront.add(new THREE.Mesh(tireGeoF, matTire));
+  wFront.add(new THREE.Mesh(rimGeoF, matAlloy));
+  // Dual Front Brake Discs & Brembo Calipers
+  var discFL = new THREE.Mesh(discGeo, matBrakeDisc); discFL.position.x = -0.09; wFront.add(discFL);
+  var discFR = new THREE.Mesh(discGeo, matBrakeDisc); discFR.position.x =  0.09; wFront.add(discFR);
+  var calFL = new THREE.Mesh(caliperGeo, matBrembo); calFL.position.set(-0.09, 0.12, 0.08); wFront.add(calFL);
+  var calFR = new THREE.Mesh(caliperGeo, matBrembo); calFR.position.set( 0.09, 0.12, 0.08); wFront.add(calFR);
+  wFront.position.set(0, 0.36, 1.05);
+  bikeGroup.add(wFront);
+
+  // Rear Wheel Assembly (Wide tire + rear disc)
+  var wRear = new THREE.Group();
+  wRear.add(new THREE.Mesh(tireGeoR, matTire));
+  wRear.add(new THREE.Mesh(rimGeoR, matAlloy));
+  var discRR = new THREE.Mesh(discGeo, matBrakeDisc); discRR.position.x = 0.12; wRear.add(discRR);
+  var calRR = new THREE.Mesh(caliperGeo, matBrembo); calRR.position.set(0.12, 0.1, 0.06); wRear.add(calRR);
+  wRear.position.set(0, 0.36, -0.98);
+  bikeGroup.add(wRear);
+
+  // 10. Articulated 3D Rider in Aggressive Tuck Position
+  var riderGroup = new THREE.Group();
+
+  // Torso / Leathers
+  var torso = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.42, 0.48), matRiderSuit);
+  torso.rotation.x = 0.55; // Aggressive forward tuck
+  torso.position.set(0, 0.98, -0.22);
+  riderGroup.add(torso);
+
+  // Helmet & Smoked Visor
+  var helmet = new THREE.Mesh(new THREE.SphereGeometry(0.17, 20, 20), matPaint);
+  helmet.position.set(0, 1.28, 0.05);
+  riderGroup.add(helmet);
+
+  var visor = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.1, 0.14), matVisor);
+  visor.position.set(0, 1.28, 0.12);
+  riderGroup.add(visor);
+
+  // Arms reaching down to clip-on handlebars
+  var armL = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.04, 0.42, 10), matRiderSuit);
+  armL.rotation.set(0.7, 0, -0.3);
+  armL.position.set(-0.24, 1.05, 0.16);
+  riderGroup.add(armL);
+
+  var armR = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.04, 0.42, 10), matRiderSuit);
+  armR.rotation.set(0.7, 0, 0.3);
+  armR.position.set(0.24, 1.05, 0.16);
+  riderGroup.add(armR);
+
+  // Legs with knee sliders
+  var legL = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.38, 0.22), matRiderSuit);
+  legL.rotation.x = -0.6;
+  legL.position.set(-0.22, 0.72, -0.42);
+  riderGroup.add(legL);
+
+  var legR = legL.clone();
+  legR.position.x = 0.22;
+  riderGroup.add(legR);
+
+  bikeGroup.add(riderGroup);
+
+  bikeGroup.userData = {
+    wheels: [wFront, wRear],
+    rider: riderGroup,
+    bodyMaterial: matPaint
+  };
+
+  return bikeGroup;
+}
+
+/* ==================================================
+   3. GAME STATE & 3D SCENE
+   ================================================== */
+var state = {
+  score: 0,
+  highScore: parseInt(localStorage.getItem('moto_high_score')||'0', 10),
+  coins: parseInt(localStorage.getItem('moto_coins')||'0', 10),
+  distance: 0,
+  speed: 0,
+  gear: 1,
+  laneX: 0,
+  steerInput: 0,
+  gasInput: 0,
+  brakeInput: 0,
+  isWheelie: false,
+  wheelieAngle: 0,
+  nearMissCount: 0,
+  cameraMode: 'third', // 'third' or 'first'
+  playing: false,
+  paused: false
+};
+
+var scene, camera, renderer, playerBike;
+var roadSegments = [], trafficCars = [];
+var ROAD_WIDTH = 13;
+var NUM_SEGMENTS = 14;
+var SEGMENT_LENGTH = 30;
+
+function initThreeScene(){
+  var container = document.getElementById('canvas-container');
+  var canvas = document.getElementById('three-canvas');
+
+  scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x090c14, 0.008);
+
+  camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 400);
+  camera.position.set(0, 2.5, -4.5);
+
+  renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+  // Lighting
+  var ambient = new THREE.AmbientLight(0xffffff, 0.45);
+  scene.add(ambient);
+
+  var dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+  dirLight.position.set(20, 35, -25);
+  scene.add(dirLight);
+
+  // Player Superbike
+  playerBike = buildSuperbikeMesh(selectedBikeColor);
+  scene.add(playerBike);
+
+  // Infinite Road & City
+  buildInfiniteRoad();
+  buildCityScenery();
+
+  window.addEventListener('resize', onWindowResize);
+}
+
+function onWindowResize(){
+  if(!camera || !renderer) return;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function buildInfiniteRoad(){
+  var roadMat = new THREE.MeshStandardMaterial({ color: 0x131722, roughness: 0.8 });
+  var railMat = new THREE.MeshStandardMaterial({ color: 0xff0055, emissive: 0xff0055, emissiveIntensity: 0.6 });
+  var dashMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+  for(var i = 0; i < NUM_SEGMENTS; i++){
+    var grp = new THREE.Group();
+
+    var road = new THREE.Mesh(new THREE.PlaneGeometry(ROAD_WIDTH, SEGMENT_LENGTH), roadMat);
+    road.rotation.x = -Math.PI / 2;
+    grp.add(road);
+
+    var railL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.5, SEGMENT_LENGTH), railMat);
+    railL.position.set(-ROAD_WIDTH/2 - 0.2, 0.25, 0);
+    grp.add(railL);
+
+    var railR = railL.clone();
+    railR.position.x = ROAD_WIDTH/2 + 0.2;
+    grp.add(railR);
+
+    // Center divider dashes
+    for(var d = -SEGMENT_LENGTH/2; d < SEGMENT_LENGTH/2; d += 6){
+      var dash = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 3), dashMat);
+      dash.rotation.x = -Math.PI / 2;
+      dash.position.set(0, 0.02, d);
+      grp.add(dash);
+    }
+
+    grp.position.z = i * SEGMENT_LENGTH;
+    scene.add(grp);
+    roadSegments.push(grp);
+  }
+}
+
+function buildCityScenery(){
+  var buildingMat = new THREE.MeshStandardMaterial({ color: 0x0a0e1a, roughness: 0.5 });
+  for(var i = -4; i < 20; i++){
+    var bL = new THREE.Mesh(new THREE.BoxGeometry(10, 40, 16), buildingMat);
+    var hL = 18 + Math.random() * 32;
+    bL.scale.y = hL / 40;
+    bL.position.set(-ROAD_WIDTH/2 - 12 - Math.random()*6, hL/2, i * 26);
+    scene.add(bL);
+
+    var bR = bL.clone();
+    var hR = 18 + Math.random() * 32;
+    bR.scale.y = hR / 40;
+    bR.position.set(ROAD_WIDTH/2 + 12 + Math.random()*6, hR/2, i * 26);
+    scene.add(bR);
+  }
+}
+
+/* ==================================================
+   4. TRAFFIC SPAWN & NEAR-MISS
+   ================================================== */
+function spawnTrafficCar(zPos){
+  var mesh = new THREE.Group();
+  var mat = new THREE.MeshStandardMaterial({ color: Math.random() > 0.5 ? 0x3b82f6 : 0xf59e0b, roughness: 0.3 });
+  var carBody = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.8, 3.8), mat);
+  carBody.position.y = 0.5;
+  mesh.add(carBody);
+
+  var lane = (Math.floor(Math.random() * 3) - 1) * (ROAD_WIDTH / 3.6);
+  mesh.position.set(lane, 0, zPos);
+  mesh.userData = { speed: 90 + Math.random() * 55, passed: false };
+  scene.add(mesh);
+  trafficCars.push(mesh);
+}
+
+function updateTraffic(dt, playerSpeedMps){
+  for(var i = trafficCars.length - 1; i >= 0; i--){
+    var car = trafficCars[i];
+    var civMps = car.userData.speed / 3.6;
+    car.position.z += (civMps - playerSpeedMps) * dt;
+
+    // Near miss detection
+    if(!car.userData.passed && car.position.z < playerBike.position.z + 1.0 && car.position.z > playerBike.position.z - 1.0){
+      var latDist = Math.abs(car.position.x - playerBike.position.x);
+      if(latDist > 1.2 && latDist < 2.5){
+        car.userData.passed = true;
+        state.nearMissCount++;
+        state.score += 600;
+        AudioEngine.playNearMiss();
+      }
+    }
+
+    // Collision check
+    if(Math.abs(car.position.z - playerBike.position.z) < 2.4 && Math.abs(car.position.x - playerBike.position.x) < 1.3){
+      triggerGameOver();
+      return;
+    }
+
+    if(car.position.z < playerBike.position.z - 25){
+      scene.remove(car);
+      trafficCars.splice(i, 1);
+    }
+  }
+
+  if(trafficCars.length < 7 && state.playing){
+    spawnTrafficCar(playerBike.position.z + 130 + Math.random() * 50);
+  }
+}
+
+/* ==================================================
+   5. GAME LOOP & BIKE PHYSICS
+   ================================================== */
+var lastTime = performance.now();
+
+function gameLoop(now){
+  requestAnimationFrame(gameLoop);
+  var dt = Math.min((now - lastTime) / 1000, 0.1);
+  lastTime = now;
+
+  if(!state.playing || state.paused){
+    renderer.render(scene, camera);
+    return;
+  }
+
+  var bikeDef = BIKES_DATA[selectedBikeIndex];
+
+  // Acceleration & Braking
+  if(state.gasInput > 0){
+    state.speed = Math.min(state.speed + dt * bikeDef.accel * state.gasInput, bikeDef.topSpeed);
+  } else if(state.brakeInput > 0){
+    state.speed = Math.max(0, state.speed - dt * 50 * state.brakeInput);
+  } else {
+    state.speed = Math.max(0, state.speed - dt * 10);
+  }
+
+  var speedMps = state.speed / 3.6;
+  state.gear = Math.min(6, Math.max(1, Math.floor((state.speed / bikeDef.topSpeed) * 5.8) + 1));
+
+  // Steering & Dynamic Leaning
+  state.laneX += state.steerInput * bikeDef.leanRate * dt;
+  state.laneX = Math.max(-ROAD_WIDTH/2 + 0.8, Math.min(ROAD_WIDTH/2 - 0.8, state.laneX));
+
+  playerBike.position.x += (state.laneX - playerBike.position.x) * 0.22;
+  
+  // Banking / Leaning rotation
+  var targetRoll = -state.steerInput * 0.45; // Bank angle
+  playerBike.rotation.z += (targetRoll - playerBike.rotation.z) * 0.2;
+  playerBike.rotation.y = -state.steerInput * 0.15;
+
+  // Wheelie Physics
+  var targetPitch = state.isWheelie && state.speed > 50 ? 0.42 : 0;
+  state.wheelieAngle += (targetPitch - state.wheelieAngle) * 0.15;
+  playerBike.rotation.x = state.wheelieAngle;
+
+  var wheelieEl = document.getElementById('wheelie-badge');
+  if(state.isWheelie && state.speed > 60){
+    state.score += Math.floor(speedMps * dt * 3);
+    wheelieEl.classList.add('show');
+  } else {
+    wheelieEl.classList.remove('show');
+  }
+
+  // Wheel spin
+  if(playerBike.userData.wheels){
+    playerBike.userData.wheels.forEach(function(w){ w.rotation.x += speedMps * dt * 4; });
+  }
+
+  // Distance & Audio
+  state.distance += (speedMps * dt) / 1000;
+  state.score += Math.floor(speedMps * dt);
+  AudioEngine.updateRPM(state.speed, bikeDef.topSpeed, state.isWheelie);
+
+  // Infinite Road
+  roadSegments.forEach(function(seg){
+    seg.position.z -= speedMps * dt;
+    if(seg.position.z < -SEGMENT_LENGTH) seg.position.z += NUM_SEGMENTS * SEGMENT_LENGTH;
+  });
+
+  // Traffic
+  updateTraffic(dt, speedMps);
+
+  // Dynamic Camera Views
+  if(state.cameraMode === 'third'){
+    var targetCamX = playerBike.position.x * 0.6;
+    var targetCamY = 2.2 + state.wheelieAngle * 0.5;
+    var targetCamZ = -4.5;
+    camera.position.x += (targetCamX - camera.position.x) * 0.15;
+    camera.position.y += (targetCamY - camera.position.y) * 0.15;
+    camera.position.z += (targetCamZ - camera.position.z) * 0.15;
+    camera.lookAt(playerBike.position.x * 0.7, 1.2, playerBike.position.z + 10);
+  } else {
+    // First-Person Cockpit
+    camera.position.set(playerBike.position.x, 1.4 + state.wheelieAngle * 0.6, playerBike.position.z + 0.3);
+    camera.lookAt(playerBike.position.x, 1.3, playerBike.position.z + 25);
+  }
+
+  updateHUD();
+  renderer.render(scene, camera);
+}
+
+function updateHUD(){
+  document.getElementById('hud-speed').textContent = Math.round(state.speed);
+  document.getElementById('hud-score').textContent = state.score.toLocaleString();
+  document.getElementById('hud-distance').textContent = state.distance.toFixed(1) + ' km';
+  document.getElementById('hud-gear').textContent = 'GEAR ' + state.gear;
+}
+
+/* ==================================================
+   6. CONTROLS & BINDINGS
+   ================================================== */
+var keys = {};
+
+function initControls(){
+  window.addEventListener('keydown', function(e){
+    AudioEngine.init();
+    keys[e.code] = true;
+    if(e.code === 'ArrowUp' || e.code === 'KeyW') state.gasInput = 1;
+    if(e.code === 'ArrowDown' || e.code === 'KeyS') state.brakeInput = 1;
+    if(e.code === 'ArrowLeft' || e.code === 'KeyA') state.steerInput = -1;
+    if(e.code === 'ArrowRight' || e.code === 'KeyD') state.steerInput = 1;
+    if(e.code === 'Space') state.isWheelie = true;
+    if(e.code === 'KeyC') toggleCamera();
+  });
+
+  window.addEventListener('keyup', function(e){
+    keys[e.code] = false;
+    if(e.code === 'ArrowUp' || e.code === 'KeyW') state.gasInput = 0;
+    if(e.code === 'ArrowDown' || e.code === 'KeyS') state.brakeInput = 0;
+    if((e.code === 'ArrowLeft' || e.code === 'KeyA') && state.steerInput === -1) state.steerInput = (keys['ArrowRight'] || keys['KeyD']) ? 1 : 0;
+    if((e.code === 'ArrowRight' || e.code === 'KeyD') && state.steerInput === 1) state.steerInput = (keys['ArrowLeft'] || keys['KeyA']) ? -1 : 0;
+    if(e.code === 'Space') state.isWheelie = false;
+  });
+
+  bindTouchBtn('touch-left', function(down){ state.steerInput = down ? -1 : 0; });
+  bindTouchBtn('touch-right', function(down){ state.steerInput = down ? 1 : 0; });
+  bindTouchBtn('touch-gas', function(down){ state.gasInput = down ? 1 : 0; });
+  bindTouchBtn('touch-brake', function(down){ state.brakeInput = down ? 1 : 0; });
+  bindTouchBtn('touch-wheelie', function(down){ state.isWheelie = down; });
+}
+
+function bindTouchBtn(id, callback){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener('touchstart', function(e){ e.preventDefault(); AudioEngine.init(); el.classList.add('pressed'); callback(true); });
+  el.addEventListener('touchend', function(e){ e.preventDefault(); el.classList.remove('pressed'); callback(false); });
+  el.addEventListener('mousedown', function(e){ AudioEngine.init(); el.classList.add('pressed'); callback(true); });
+  el.addEventListener('mouseup', function(e){ el.classList.remove('pressed'); callback(false); });
+}
+
+function toggleCamera(){
+  state.cameraMode = state.cameraMode === 'third' ? 'first' : 'third';
+}
+
+/* ==================================================
+   7. STATE CONTROLLERS & MENU EVENTS
+   ================================================== */
+function startRace(){
+  AudioEngine.init();
+  AudioEngine.startEngine();
+
+  state.score = 0;
+  state.distance = 0;
+  state.speed = 35;
+  state.nearMissCount = 0;
+  state.laneX = 0;
+  state.playing = true;
+  state.paused = false;
+
+  trafficCars.forEach(function(c){ scene.remove(c); });
+  trafficCars = [];
+
+  document.getElementById('menu-screen').classList.add('hidden');
+  document.getElementById('garage-screen').classList.add('hidden');
+  document.getElementById('game-over-modal').classList.add('hidden');
+  document.getElementById('hud-overlay').classList.remove('hidden');
+
+  for(var i = 1; i <= 5; i++) spawnTrafficCar(playerBike.position.z + i * 45);
+}
+
+function triggerGameOver(){
+  state.playing = false;
+  AudioEngine.stopEngine();
+  AudioEngine.playCrash();
+
+  if(state.score > state.highScore){
+    state.highScore = state.score;
+    localStorage.setItem('moto_high_score', state.highScore);
+  }
+  state.coins += Math.floor(state.score / 100);
+  localStorage.setItem('moto_coins', state.coins);
+
+  document.getElementById('modal-score').textContent = state.score.toLocaleString();
+  document.getElementById('modal-distance').textContent = state.distance.toFixed(1) + ' km';
+  document.getElementById('modal-max-speed').textContent = Math.round(BIKES_DATA[selectedBikeIndex].topSpeed) + ' km/h';
+  document.getElementById('modal-near-miss').textContent = state.nearMissCount;
+
+  document.getElementById('game-over-modal').classList.remove('hidden');
+}
+
+function updateGarageUI(){
+  var bike = BIKES_DATA[selectedBikeIndex];
+  document.getElementById('garage-bike-name').textContent = bike.name;
+  document.getElementById('stat-speed-fill').style.width = (bike.topSpeed / 330 * 100) + '%';
+  document.getElementById('stat-accel-fill').style.width = (bike.accel * 4.5) + '%';
+  document.getElementById('stat-lean-fill').style.width = (bike.leanRate * 8) + '%';
+
+  if(playerBike){
+    scene.remove(playerBike);
+    playerBike = buildSuperbikeMesh(selectedBikeColor);
+    scene.add(playerBike);
+  }
+}
+
+function bindMenuEvents(){
+  document.getElementById('btn-play-traffic').addEventListener('click', startRace);
+  document.getElementById('btn-restart-game').addEventListener('click', startRace);
+
+  document.getElementById('btn-open-garage').addEventListener('click', function(){
+    document.getElementById('menu-screen').classList.add('hidden');
+    document.getElementById('garage-screen').classList.remove('hidden');
+    updateGarageUI();
+  });
+
+  document.getElementById('btn-garage-back').addEventListener('click', function(){
+    document.getElementById('garage-screen').classList.add('hidden');
+    document.getElementById('menu-screen').classList.remove('hidden');
+  });
+
+  document.getElementById('btn-return-menu').addEventListener('click', function(){
+    document.getElementById('game-over-modal').classList.add('hidden');
+    document.getElementById('hud-overlay').classList.add('hidden');
+    document.getElementById('menu-screen').classList.remove('hidden');
+    document.getElementById('menu-high-score').textContent = state.highScore.toLocaleString();
+    document.getElementById('menu-coins').textContent = state.coins.toLocaleString();
+  });
+
+  document.getElementById('btn-bike-next').addEventListener('click', function(){
+    selectedBikeIndex = (selectedBikeIndex + 1) % BIKES_DATA.length;
+    updateGarageUI();
+  });
+  document.getElementById('btn-bike-prev').addEventListener('click', function(){
+    selectedBikeIndex = (selectedBikeIndex - 1 + BIKES_DATA.length) % BIKES_DATA.length;
+    updateGarageUI();
+  });
+
+  document.querySelectorAll('.color-swatch').forEach(function(swatch){
+    swatch.addEventListener('click', function(){
+      document.querySelectorAll('.color-swatch').forEach(function(s){ s.classList.remove('active'); });
+      swatch.classList.add('active');
+      selectedBikeColor = swatch.dataset.color;
+      updateGarageUI();
+    });
+  });
+
+  document.getElementById('btn-garage-select').addEventListener('click', function(){
+    document.getElementById('garage-screen').classList.add('hidden');
+    startRace();
+  });
+
+  document.getElementById('btn-cam-toggle').addEventListener('click', toggleCamera);
+
+  document.getElementById('btn-open-settings').addEventListener('click', function(){
+    document.getElementById('settings-modal').classList.remove('hidden');
+  });
+  document.getElementById('btn-close-settings').addEventListener('click', function(){
+    document.getElementById('settings-modal').classList.add('hidden');
+  });
+  document.getElementById('toggle-sound').addEventListener('change', function(e){
+    AudioEngine.setSound(e.target.checked);
+  });
+
+  document.getElementById('menu-high-score').textContent = state.highScore.toLocaleString();
+  document.getElementById('menu-coins').textContent = state.coins.toLocaleString();
+}
+
+/* ==================================================
+   8. INITIALIZATION
+   ================================================== */
+window.addEventListener('DOMContentLoaded', function(){
+  initThreeScene();
+  initControls();
+  bindMenuEvents();
+  requestAnimationFrame(gameLoop);
+});
+
+})();
+</script>
+</body>
+</html>

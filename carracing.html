@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Apex Nitro 3D — Supercar Racing Championship</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* ==================================================
+   1. RESET & THEME VARIABLES
+   ================================================== */
+:root {
+  --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', system-ui, sans-serif;
+  --font-mono: 'Space Grotesk', monospace;
+  --dur-fast: 0.16s;
+  --dur-med: 0.3s;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --bg: #07090e;
+  --panel-bg: rgba(11, 16, 28, 0.88);
+  --surface: rgba(255, 255, 255, 0.08);
+  --surface-hover: rgba(255, 255, 255, 0.15);
+  --border: rgba(255, 255, 255, 0.14);
+  --border-active: rgba(0, 240, 255, 0.6);
+  --text: #f1f5f9;
+  --text-dim: #94a3b8;
+  --accent: #00f0ff;
+  --accent-glow: rgba(0, 240, 255, 0.5);
+  --accent2: #ff0055;
+  --nitro: #00e5ff;
+  --gold: #ffb703;
+  --danger: #ef4444;
+  --success: #10b981;
+}
+
+*, *::before, *::after {
+  margin: 0; padding: 0; box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  font-family: var(--font-main);
+  background: var(--bg);
+  color: var(--text);
+}
+
+#app {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+/* 3D Canvas */
+#canvas-container {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  overflow: hidden; z-index: 1;
+}
+#three-canvas {
+  width: 100%; height: 100%;
+  display: block; outline: none;
+}
+
+/* Speed lines & Nitro FX overlay */
+#speed-fx {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 2;
+  opacity: 0; transition: opacity 0.2s ease;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 240, 255, 0.2) 100%);
+}
+#speed-fx.active { opacity: 1; }
+
+/* ==================================================
+   2. SCREEN STACK & MODALS
+   ================================================== */
+.screen {
+  position: absolute; inset: 0;
+  z-index: 10; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 20px; pointer-events: auto;
+  opacity: 1; transform: scale(1);
+  transition: opacity var(--dur-med) var(--ease), transform var(--dur-med) var(--ease), visibility var(--dur-med);
+}
+.screen.hidden {
+  opacity: 0; transform: scale(1.03);
+  pointer-events: none; visibility: hidden;
+}
+
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 28px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.7), 0 0 30px rgba(0, 240, 255, 0.1);
+  max-width: 480px; width: 100%;
+  text-align: center;
+  position: relative;
+}
+
+.brand-title {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 7vw, 48px);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #ffffff 0%, var(--accent) 60%, var(--accent2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2px;
+}
+.brand-sub {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 24px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 14px 24px;
+  border-radius: 14px;
+  font-family: var(--font-display);
+  font-size: 15px; font-weight: 800;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer; outline: none;
+  transition: transform var(--dur-fast) var(--ease), background var(--dur-fast), border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+.btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 240, 255, 0.25);
+}
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent) 0%, #0099ff 100%);
+  border: none;
+  color: #030813;
+  box-shadow: 0 10px 30px var(--accent-glow);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #4df5ff 0%, #33adff 100%);
+  box-shadow: 0 14px 38px rgba(0, 240, 255, 0.5);
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-dim);
+}
+.btn-ghost:hover {
+  background: var(--surface);
+  color: #ffffff;
+}
+
+.icon-btn {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer; outline: none;
+  transition: all var(--dur-fast);
+}
+.icon-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: scale(1.05);
+}
+.icon-btn svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+/* Garage */
+.garage-carousel {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; margin: 16px 0;
+}
+.car-stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  width: 100%; margin: 16px 0 20px 0; text-align: left;
+}
+.stat-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.stat-lbl {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--text-dim); margin-bottom: 4px;
+}
+.stat-bar-bg {
+  width: 100%; height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 99px; overflow: hidden;
+}
+.stat-bar-fill {
+  height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 99px; transition: width 0.35s var(--ease);
+}
+
+.color-swatch-row {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin-bottom: 18px;
+}
+.color-swatch {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 2px solid transparent; cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.color-swatch.active {
+  border-color: #ffffff;
+  transform: scale(1.15);
+  box-shadow: 0 0 12px currentColor;
+}
+
+/* ==================================================
+   3. IN-GAME HUD
+   ================================================== */
+#hud-overlay {
+  position: absolute; inset: 0;
+  z-index: 5; pointer-events: none;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+}
+#hud-overlay.hidden { display: none !important; }
+
+.hud-top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  width: 100%;
+}
+.hud-card {
+  background: rgba(11, 16, 28, 0.78);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 10px 18px;
+  display: flex; flex-direction: column;
+}
+.hud-val {
+  font-family: var(--font-mono);
+  font-size: 22px; font-weight: 700;
+  color: #ffffff;
+}
+.hud-lbl {
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--text-dim);
+}
+
+/* Speedometer Cluster */
+.cluster-container {
+  display: flex; flex-direction: column; align-items: flex-end;
+}
+.speed-digital {
+  font-family: var(--font-display);
+  font-size: clamp(50px, 9vw, 70px);
+  font-weight: 900;
+  line-height: 1;
+  color: #ffffff;
+  text-shadow: 0 0 24px rgba(0, 240, 255, 0.4);
+}
+.speed-unit {
+  font-size: 14px; font-weight: 800;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--accent); margin-top: -4px;
+}
+.gear-badge {
+  font-family: var(--font-mono);
+  font-size: 16px; font-weight: 800;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 2px 10px; border-radius: 8px;
+  color: var(--gold); margin-top: 4px;
+}
+
+/* Nitro Gauge */
+.nitro-gauge-wrap {
+  width: 180px; height: 10px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--border);
+  border-radius: 99px; overflow: hidden;
+  margin-top: 8px; position: relative;
+}
+.nitro-gauge-fill {
+  height: 100%; width: 100%;
+  background: linear-gradient(90deg, #0099ff, var(--nitro));
+  border-radius: 99px; transition: width 0.1s linear;
+  box-shadow: 0 0 14px var(--nitro);
+}
+
+/* Floating Near Miss Popup */
+#combo-popup {
+  position: absolute; top: 35%; left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  font-family: var(--font-display);
+  font-size: 32px; font-weight: 900;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(255, 183, 3, 0.8);
+  text-transform: uppercase;
+  opacity: 0; pointer-events: none;
+  transition: transform 0.2s var(--ease-bounce), opacity 0.2s;
+  text-align: center;
+}
+#combo-popup.show {
+  opacity: 1; transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* ==================================================
+   4. TOUCH CONTROLS (Mobile)
+   ================================================== */
+#touch-controls {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 6;
+  display: none; justify-content: space-between; align-items: flex-end;
+  padding: 24px;
+}
+.touch-zone {
+  display: flex; gap: 14px; pointer-events: auto;
+}
+.touch-btn {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: rgba(11, 16, 28, 0.75);
+  border: 2px solid var(--border);
+  backdrop-filter: blur(10px);
+  color: #ffffff; font-size: 24px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: none; user-select: none;
+  transition: transform 0.1s, border-color 0.1s, background 0.1s;
+}
+.touch-btn:active, .touch-btn.pressed {
+  transform: scale(0.92);
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+.touch-btn.nitro-touch {
+  background: rgba(255, 0, 85, 0.35);
+  border-color: var(--accent2);
+  width: 78px; height: 78px;
+}
+.touch-btn.nitro-touch:active, .touch-btn.nitro-touch.pressed {
+  background: var(--accent2);
+}
+
+@media (pointer: coarse), (max-width: 900px) {
+  #touch-controls { display: flex; }
+}
+
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(12px);
+  z-index: 50; display: flex; align-items: center; justify-content: center;
+  padding: 20px; opacity: 1; transition: opacity var(--dur-med);
+}
+.modal-backdrop.hidden { opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- 3D Canvas -->
+  <div id="canvas-container">
+    <canvas id="three-canvas"></canvas>
+    <div id="speed-fx"></div>
+  </div>
+
+  <!-- MAIN MENU SCREEN -->
+  <div id="menu-screen" class="screen">
+    <div class="panel">
+      <div class="brand-title">Apex Nitro 3D</div>
+      <div class="brand-sub">Championship Edition</div>
+
+      <div style="display:flex; flex-direction:column; gap:12px; width:100%;">
+        <button class="btn btn-primary" id="btn-play-rush">
+          <svg viewBox="0 0 24 24" style="width:20px; height:20px; stroke:currentColor; stroke-width:2.5; fill:none;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Start Highway Race
+        </button>
+        <button class="btn" id="btn-open-garage">
+          <svg viewBox="0 0 24 24" style="width:20px; height:20px; stroke:currentColor; stroke-width:2; fill:none;"><path d="M3 13h18M5 10l2-5h10l2 5M5 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm14 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"></path></svg>
+          Supercar Garage
+        </button>
+        <button class="btn btn-ghost" id="btn-open-settings">Settings &amp; Audio</button>
+      </div>
+
+      <div style="margin-top:20px; display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); font-weight:600;">
+        <div>Best Record: <span id="menu-high-score" style="color:#ffffff; font-family:var(--font-mono);">0</span> pts</div>
+        <div>Credits: <span id="menu-coins" style="color:var(--gold); font-family:var(--font-mono);">0</span> 🪙</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GARAGE SCREEN -->
+  <div id="garage-screen" class="screen hidden">
+    <div class="panel" style="max-width:520px;">
+      <div class="brand-title" style="font-size:28px;">Supercar Garage</div>
+      
+      <div class="garage-carousel">
+        <button class="icon-btn" id="btn-car-prev">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <div id="garage-car-name" style="font-family:var(--font-display); font-size:22px; font-weight:800; color:var(--accent);">Venom GT</div>
+        <button class="icon-btn" id="btn-car-next">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+
+      <div class="color-swatch-row">
+        <div class="color-swatch active" style="background:#00f0ff; color:#00f0ff;" data-color="#00f0ff"></div>
+        <div class="color-swatch" style="background:#ff0055; color:#ff0055;" data-color="#ff0055"></div>
+        <div class="color-swatch" style="background:#ffb703; color:#ffb703;" data-color="#ffb703"></div>
+        <div class="color-swatch" style="background:#10b981; color:#10b981;" data-color="#10b981"></div>
+        <div class="color-swatch" style="background:#8b5cf6; color:#8b5cf6;" data-color="#8b5cf6"></div>
+        <div class="color-swatch" style="background:#ffffff; color:#ffffff;" data-color="#ffffff"></div>
+      </div>
+
+      <div class="car-stats-grid">
+        <div class="stat-box">
+          <div class="stat-lbl">Top Speed</div>
+          <div class="stat-bar-bg"><div class="stat-bar-fill" id="stat-speed-fill" style="width:85%;"></div></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">Handling &amp; Grip</div>
+          <div class="stat-bar-bg"><div class="stat-bar-fill" id="stat-handling-fill" style="width:88%;"></div></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">Acceleration</div>
+          <div class="stat-bar-bg"><div class="stat-bar-fill" id="stat-accel-fill" style="width:90%;"></div></div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">Nitro Boost</div>
+          <div class="stat-bar-bg"><div class="stat-bar-fill" id="stat-nitro-fill" style="width:80%;"></div></div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <button class="btn btn-primary" id="btn-garage-select">Drive Supercar</button>
+        <button class="btn btn-ghost" id="btn-garage-back">Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IN-GAME HUD -->
+  <div id="hud-overlay" class="hidden">
+    <div class="hud-top">
+      <div class="hud-card">
+        <div class="hud-lbl">Score</div>
+        <div class="hud-val" id="hud-score">0</div>
+      </div>
+      <div class="hud-card">
+        <div class="hud-lbl">Distance</div>
+        <div class="hud-val" id="hud-distance">0.0 km</div>
+      </div>
+      <button class="icon-btn" id="btn-cam-toggle" style="pointer-events:auto;" aria-label="Toggle Camera">
+        <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+      </button>
+    </div>
+
+    <div id="combo-popup">+500 NEAR MISS! 🔥</div>
+
+    <div style="display:flex; justify-content:space-between; align-items:flex-end; width:100%;">
+      <div>
+        <div class="hud-lbl" style="color:var(--nitro); margin-bottom:2px;">NOS NITRO [SHIFT / SPACE]</div>
+        <div class="nitro-gauge-wrap">
+          <div class="nitro-gauge-fill" id="hud-nitro-fill"></div>
+        </div>
+      </div>
+
+      <div class="cluster-container">
+        <div class="gear-badge" id="hud-gear">GEAR 1</div>
+        <div class="speed-digital" id="hud-speed">0</div>
+        <div class="speed-unit">KM / H</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOUCH CONTROLS -->
+  <div id="touch-controls">
+    <div class="touch-zone">
+      <div class="touch-btn" id="touch-left">◀</div>
+      <div class="touch-btn" id="touch-right">▶</div>
+    </div>
+    <div class="touch-zone">
+      <div class="touch-btn" id="touch-brake">🛑</div>
+      <div class="touch-btn" id="touch-gas">⚡</div>
+      <div class="touch-btn nitro-touch" id="touch-nitro">🔥</div>
+    </div>
+  </div>
+
+  <!-- GAME OVER / RECAP MODAL -->
+  <div id="game-over-modal" class="modal-backdrop hidden">
+    <div class="panel">
+      <div class="brand-title" style="font-size:32px; color:var(--danger); -webkit-text-fill-color:initial; background:none;">CRASHED!</div>
+      <div style="font-size:14px; color:var(--text-dim); margin-bottom:20px;">High-speed impact! Watch out for oncoming traffic.</div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:24px;">
+        <div class="stat-box">
+          <div class="stat-lbl">Final Score</div>
+          <div class="hud-val" id="modal-score" style="color:var(--accent);">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">Distance</div>
+          <div class="hud-val" id="modal-distance" style="color:#ffffff;">0.0 km</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">Top Velocity</div>
+          <div class="hud-val" id="modal-max-speed" style="color:var(--gold);">0 km/h</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-lbl">Near Misses</div>
+          <div class="hud-val" id="modal-near-miss" style="color:var(--accent2);">0</div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button class="btn btn-primary" id="btn-restart-game">Race Again</button>
+        <button class="btn btn-ghost" id="btn-return-menu">Main Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settings-modal" class="modal-backdrop hidden">
+    <div class="panel">
+      <div class="brand-title" style="font-size:26px;">Settings</div>
+      <div style="display:flex; flex-direction:column; gap:14px; margin:20px 0; text-align:left;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div><div style="font-weight:700;">Engine Sound</div><div style="font-size:12px; color:var(--text-dim);">Procedural V8 Synthesizer</div></div>
+          <input type="checkbox" id="toggle-sound" checked style="width:20px; height:20px; cursor:pointer;">
+        </div>
+      </div>
+      <button class="btn btn-primary" id="btn-close-settings">Done</button>
+    </div>
+  </div>
+
+</div><!-- /#app -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+"use strict";
+
+/* ==================================================
+   1. PROCEDURAL WEB AUDIO ENGINE SYNTHESIZER
+   ================================================== */
+var AudioEngine = (function(){
+  var ctx = null;
+  var oscEngine1 = null, oscEngine2 = null, engineGain = null, engineFilter = null;
+  var noiseNode = null, noiseGain = null;
+  var soundEnabled = true;
+
+  function init(){
+    if(ctx) return;
+    try {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e){ ctx = null; }
+  }
+
+  function startEngine(){
+    if(!ctx || !soundEnabled || oscEngine1) return;
+    try {
+      oscEngine1 = ctx.createOscillator();
+      oscEngine2 = ctx.createOscillator();
+      oscEngine1.type = 'sawtooth';
+      oscEngine2.type = 'triangle';
+
+      engineFilter = ctx.createBiquadFilter();
+      engineFilter.type = 'lowpass';
+      engineFilter.frequency.setValueAtTime(450, ctx.currentTime);
+
+      engineGain = ctx.createGain();
+      engineGain.gain.setValueAtTime(0.08, ctx.currentTime);
+
+      oscEngine1.connect(engineFilter);
+      oscEngine2.connect(engineFilter);
+      engineFilter.connect(engineGain);
+      engineGain.connect(ctx.destination);
+
+      oscEngine1.start();
+      oscEngine2.start();
+
+      // Road wind noise
+      var bufSize = ctx.sampleRate * 2;
+      var buffer = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      var data = buffer.getChannelData(0);
+      for(var i=0; i<bufSize; i++) data[i] = Math.random() * 2 - 1;
+
+      noiseNode = ctx.createBufferSource();
+      noiseNode.buffer = buffer;
+      noiseNode.loop = true;
+      var noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.value = 750;
+      noiseGain = ctx.createGain();
+      noiseGain.gain.value = 0.01;
+
+      noiseNode.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(ctx.destination);
+      noiseNode.start();
+    } catch(e){}
+  }
+
+  function updateRPM(speedKmh, maxSpeed, isNitro){
+    if(!ctx || !oscEngine1) return;
+    var normSpeed = Math.min(speedKmh / maxSpeed, 1.25);
+    var baseFreq = 50 + normSpeed * 195 + (isNitro ? 45 : 0);
+    var targetCutoff = 380 + normSpeed * 1300 + (isNitro ? 650 : 0);
+
+    oscEngine1.frequency.setTargetAtTime(baseFreq, ctx.currentTime, 0.04);
+    oscEngine2.frequency.setTargetAtTime(baseFreq * 1.5, ctx.currentTime, 0.04);
+    engineFilter.frequency.setTargetAtTime(targetCutoff, ctx.currentTime, 0.04);
+    if(noiseGain) noiseGain.gain.setTargetAtTime(0.01 + normSpeed * 0.04, ctx.currentTime, 0.06);
+  }
+
+  function stopEngine(){
+    try {
+      if(oscEngine1) { oscEngine1.stop(); oscEngine1 = null; }
+      if(oscEngine2) { oscEngine2.stop(); oscEngine2 = null; }
+      if(noiseNode) { noiseNode.stop(); noiseNode = null; }
+    } catch(e){}
+  }
+
+  function playTurboBlowoff(){
+    if(!ctx || !soundEnabled) return;
+    try {
+      var osc = ctx.createOscillator();
+      var g = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1400, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(280, ctx.currentTime + 0.25);
+      g.gain.setValueAtTime(0.12, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.26);
+    } catch(e){}
+  }
+
+  function playCrash(){
+    if(!ctx || !soundEnabled) return;
+    try {
+      var osc = ctx.createOscillator();
+      var g = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(130, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(25, ctx.currentTime + 0.6);
+      g.gain.setValueAtTime(0.35, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.65);
+    } catch(e){}
+  }
+
+  function playNearMiss(){
+    if(!ctx || !soundEnabled) return;
+    try {
+      var osc = ctx.createOscillator();
+      var g = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(587, ctx.currentTime);
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.08);
+      g.gain.setValueAtTime(0.15, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.32);
+    } catch(e){}
+  }
+
+  return {
+    init: init,
+    startEngine: startEngine,
+    updateRPM: updateRPM,
+    stopEngine: stopEngine,
+    playTurboBlowoff: playTurboBlowoff,
+    playCrash: playCrash,
+    playNearMiss: playNearMiss,
+    setSound: function(v){ soundEnabled = v; if(!v) stopEngine(); }
+  };
+})();
+
+/* ==================================================
+   2. SHARED MATERIALS & 3D MODEL BUILDERS
+   ================================================== */
+var CARS_DATA = [
+  { id: 'venom', name: 'Venom GT', topSpeed: 310, accel: 20, handling: 16, nitroRate: 22, defaultColor: '#00f0ff' },
+  { id: 'phantom', name: 'Cyber Phantom', topSpeed: 335, accel: 22, handling: 15.5, nitroRate: 26, defaultColor: '#ff0055' },
+  { id: 'apex', name: 'Apex Turbo', topSpeed: 320, accel: 21, handling: 17, nitroRate: 24, defaultColor: '#ffb703' },
+  { id: 'thunder', name: 'Thunder R8', topSpeed: 345, accel: 24, handling: 16.5, nitroRate: 28, defaultColor: '#8b5cf6' }
+];
+var selectedCarIndex = 0;
+var selectedColor = '#00f0ff';
+
+// Shared Materials (Cached to ensure 0 lag)
+var MatCache = {
+  carbon: new THREE.MeshStandardMaterial({ color: 0x111317, roughness: 0.35, metalness: 0.7 }),
+  glass: new THREE.MeshStandardMaterial({ color: 0x0a121e, roughness: 0.05, metalness: 0.9, transparent: true, opacity: 0.88 }),
+  tire: new THREE.MeshStandardMaterial({ color: 0x18181a, roughness: 0.85 }),
+  alloy: new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.95, roughness: 0.1 }),
+  headlight: new THREE.MeshBasicMaterial({ color: 0xffffff }),
+  taillight: new THREE.MeshBasicMaterial({ color: 0xff0044 }),
+  policeBlue: new THREE.MeshBasicMaterial({ color: 0x0066ff }),
+  policeRed: new THREE.MeshBasicMaterial({ color: 0xff0033 })
+};
+
+// Player Supercar Builder
+function buildSupercarMesh(colorHex){
+  var carGroup = new THREE.Group();
+  var matPaint = new THREE.MeshStandardMaterial({ color: colorHex, metalness: 0.85, roughness: 0.15 });
+
+  // Chassis & Underbody
+  var underMesh = new THREE.Mesh(new THREE.BoxGeometry(1.68, 0.22, 4.4), MatCache.carbon);
+  underMesh.position.y = 0.24; carGroup.add(underMesh);
+
+  var mainBody = new THREE.Mesh(new THREE.BoxGeometry(1.64, 0.32, 4.2), matPaint);
+  mainBody.position.y = 0.44; carGroup.add(mainBody);
+
+  // Fenders
+  var fenderGeo = new THREE.BoxGeometry(0.18, 0.36, 0.95);
+  var fFL = new THREE.Mesh(fenderGeo, matPaint); fFL.position.set(-0.84, 0.46, 1.25); carGroup.add(fFL);
+  var fFR = new THREE.Mesh(fenderGeo, matPaint); fFR.position.set( 0.84, 0.46, 1.25); carGroup.add(fFR);
+  var fRL = new THREE.Mesh(fenderGeo, matPaint); fRL.position.set(-0.86, 0.48, -1.25); carGroup.add(fRL);
+  var fRR = new THREE.Mesh(fenderGeo, matPaint); fRR.position.set( 0.86, 0.48, -1.25); carGroup.add(fRR);
+
+  // Sloped Hood & Front Splitter
+  var hoodMesh = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.16, 1.3), matPaint);
+  hoodMesh.rotation.x = 0.12; hoodMesh.position.set(0, 0.52, 1.45); carGroup.add(hoodMesh);
+
+  var splitter = new THREE.Mesh(new THREE.BoxGeometry(1.72, 0.05, 0.6), MatCache.carbon);
+  splitter.position.set(0, 0.15, 2.05); carGroup.add(splitter);
+
+  // Cabin
+  var cabinMesh = new THREE.Mesh(new THREE.BoxGeometry(1.24, 0.44, 2.1), MatCache.glass);
+  cabinMesh.position.set(0, 0.74, -0.15); carGroup.add(cabinMesh);
+
+  var roofMesh = new THREE.Mesh(new THREE.BoxGeometry(1.16, 0.06, 1.2), matPaint);
+  roofMesh.position.set(0, 0.98, -0.2); carGroup.add(roofMesh);
+
+  // Side Mirrors
+  var mirL = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.1, 0.08), matPaint);
+  mirL.position.set(-0.75, 0.82, 0.55); carGroup.add(mirL);
+  var mirR = mirL.clone(); mirR.position.x = 0.75; carGroup.add(mirR);
+
+  // GT Wing Spoiler
+  var wingBlade = new THREE.Mesh(new THREE.BoxGeometry(1.82, 0.05, 0.44), MatCache.carbon);
+  wingBlade.position.set(0, 1.05, -1.95); carGroup.add(wingBlade);
+  var strutL = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.38, 0.08), MatCache.carbon);
+  strutL.position.set(-0.55, 0.88, -1.9); carGroup.add(strutL);
+  var strutR = strutL.clone(); strutR.position.x = 0.55; carGroup.add(strutR);
+
+  // Rear Diffuser
+  var diffuser = new THREE.Mesh(new THREE.BoxGeometry(1.65, 0.18, 0.4), MatCache.carbon);
+  diffuser.position.set(0, 0.22, -2.12); carGroup.add(diffuser);
+
+  // Lights
+  var headL = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.1, 0.12), MatCache.headlight);
+  headL.position.set(-0.62, 0.46, 2.05); carGroup.add(headL);
+  var headR = headL.clone(); headR.position.x = 0.62; carGroup.add(headR);
+
+  var tailBar = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.07, 0.08), MatCache.taillight);
+  tailBar.position.set(0, 0.52, -2.16); carGroup.add(tailBar);
+
+  // Wheels
+  var tireGeo = new THREE.CylinderGeometry(0.36, 0.36, 0.28, 16);
+  tireGeo.rotateZ(Math.PI / 2);
+  var rimGeo = new THREE.CylinderGeometry(0.24, 0.24, 0.29, 12);
+  rimGeo.rotateZ(Math.PI / 2);
+
+  var wheels = [];
+  var wheelPositions = [
+    [-0.88, 0.36,  1.32], // 0: Front Left
+    [ 0.88, 0.36,  1.32], // 1: Front Right
+    [-0.90, 0.38, -1.32], // 2: Rear Left
+    [ 0.90, 0.38, -1.32]  // 3: Rear Right
+  ];
+
+  wheelPositions.forEach(function(pos){
+    var wGroup = new THREE.Group();
+    wGroup.add(new THREE.Mesh(tireGeo, MatCache.tire));
+    wGroup.add(new THREE.Mesh(rimGeo, MatCache.alloy));
+    wGroup.position.set(pos[0], pos[1], pos[2]);
+    carGroup.add(wGroup);
+    wheels.push(wGroup);
+  });
+
+  // Neon Underglow
+  var neonGeo = new THREE.PlaneGeometry(1.6, 3.8);
+  var neonMat = new THREE.MeshBasicMaterial({ color: colorHex, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+  var neonMesh = new THREE.Mesh(neonGeo, neonMat);
+  neonMesh.rotation.x = Math.PI / 2;
+  neonMesh.position.y = 0.08;
+  carGroup.add(neonMesh);
+
+  carGroup.userData = { wheels: wheels, bodyMaterial: matPaint, neonMaterial: neonMat };
+  return carGroup;
+}
+
+// 4 Distinct Realistic Traffic Vehicles
+function buildTrafficSedan(colorHex){
+  var grp = new THREE.Group();
+  var mat = new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.3, metalness: 0.5 });
+  
+  var body = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.45, 4.0), mat);
+  body.position.y = 0.4; grp.add(body);
+  var cabin = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.42, 2.2), MatCache.glass);
+  cabin.position.set(0, 0.76, -0.1); grp.add(cabin);
+
+  // Lights
+  var hL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.1, 0.1), MatCache.headlight);
+  hL.position.set(-0.6, 0.45, 2.02); grp.add(hL);
+  var hR = hL.clone(); hR.position.x = 0.6; grp.add(hR);
+  var tL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.1, 0.1), MatCache.taillight);
+  tL.position.set(-0.6, 0.45, -2.02); grp.add(tL);
+  var tR = tL.clone(); tR.position.x = 0.6; grp.add(tR);
+
+  // Wheels
+  var wGeo = new THREE.CylinderGeometry(0.34, 0.34, 0.24, 10);
+  wGeo.rotateZ(Math.PI / 2);
+  [[-0.85, 0.34, 1.2], [0.85, 0.34, 1.2], [-0.85, 0.34, -1.2], [0.85, 0.34, -1.2]].forEach(function(pos){
+    var w = new THREE.Mesh(wGeo, MatCache.tire);
+    w.position.set(pos[0], pos[1], pos[2]); grp.add(w);
+  });
+  return grp;
+}
+
+function buildTrafficSUV(colorHex){
+  var grp = new THREE.Group();
+  var mat = new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.4, metalness: 0.4 });
+
+  var body = new THREE.Mesh(new THREE.BoxGeometry(1.85, 0.6, 4.3), mat);
+  body.position.y = 0.55; grp.add(body);
+  var cabin = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.55, 2.8), MatCache.glass);
+  cabin.position.set(0, 1.05, -0.2); grp.add(cabin);
+
+  // Wheels
+  var wGeo = new THREE.CylinderGeometry(0.42, 0.42, 0.3, 10);
+  wGeo.rotateZ(Math.PI / 2);
+  [[-0.95, 0.42, 1.3], [0.95, 0.42, 1.3], [-0.95, 0.42, -1.3], [0.95, 0.42, -1.3]].forEach(function(pos){
+    var w = new THREE.Mesh(wGeo, MatCache.tire);
+    w.position.set(pos[0], pos[1], pos[2]); grp.add(w);
+  });
+  return grp;
+}
+
+function buildTrafficSemiTruck(){
+  var grp = new THREE.Group();
+  var matCab = new THREE.MeshStandardMaterial({ color: 0xef4444, metalness: 0.7, roughness: 0.2 });
+  var matTrailer = new THREE.MeshStandardMaterial({ color: 0xdde3ea, roughness: 0.6 });
+
+  var cab = new THREE.Mesh(new THREE.BoxGeometry(2.1, 1.6, 2.4), matCab);
+  cab.position.set(0, 1.1, 3.2); grp.add(cab);
+
+  var trailer = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.9, 7.5), matTrailer);
+  trailer.position.set(0, 1.35, -1.8); grp.add(trailer);
+
+  var wGeo = new THREE.CylinderGeometry(0.44, 0.44, 0.32, 10);
+  wGeo.rotateZ(Math.PI / 2);
+  [[-1.0, 0.44, 3.4], [1.0, 0.44, 3.4], [-1.05, 0.44, -3.8], [1.05, 0.44, -3.8]].forEach(function(pos){
+    var w = new THREE.Mesh(wGeo, MatCache.tire);
+    w.position.set(pos[0], pos[1], pos[2]); grp.add(w);
+  });
+  return grp;
+}
+
+function buildTrafficPoliceCar(){
+  var grp = new THREE.Group();
+  var matBlack = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3 });
+  var matWhite = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
+
+  var body = new THREE.Mesh(new THREE.BoxGeometry(1.75, 0.46, 4.2), matBlack);
+  body.position.y = 0.42; grp.add(body);
+  var doorWhite = new THREE.Mesh(new THREE.BoxGeometry(1.77, 0.38, 1.6), matWhite);
+  doorWhite.position.set(0, 0.44, 0); grp.add(doorWhite);
+
+  var cabin = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.44, 2.2), MatCache.glass);
+  cabin.position.set(0, 0.78, -0.1); grp.add(cabin);
+
+  // Strobe Lightbar
+  var redStrobe = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.09, 0.17), MatCache.policeRed);
+  redStrobe.position.set(-0.25, 1.05, -0.1); grp.add(redStrobe);
+  var blueStrobe = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.09, 0.17), MatCache.policeBlue);
+  blueStrobe.position.set(0.25, 1.05, -0.1); grp.add(blueStrobe);
+
+  var wGeo = new THREE.CylinderGeometry(0.36, 0.36, 0.26, 10);
+  wGeo.rotateZ(Math.PI / 2);
+  [[-0.88, 0.36, 1.25], [0.88, 0.36, 1.25], [-0.88, 0.36, -1.25], [0.88, 0.36, -1.25]].forEach(function(pos){
+    var w = new THREE.Mesh(wGeo, MatCache.tire);
+    w.position.set(pos[0], pos[1], pos[2]); grp.add(w);
+  });
+  return grp;
+}
+
+/* ==================================================
+   3. GAME STATE & THREE.JS INITIALIZATION
+   ================================================== */
+var state = {
+  score: 0,
+  highScore: parseInt(localStorage.getItem('apex_high_score')||'0', 10),
+  coins: parseInt(localStorage.getItem('apex_coins')||'0', 10),
+  distance: 0,
+  speed: 0,
+  gear: 1,
+  nitro: 100,
+  isNitro: false,
+  nearMissCount: 0,
+  playing: false,
+  paused: false,
+  cameraMode: 'chase',
+  steerInput: 0,
+  gasInput: 0,
+  brakeInput: 0
+};
+
+var scene, camera, renderer, playerCar;
+var roadSegments = [];
+var trafficPool = []; // Pre-allocated Zero-GC Traffic Pool
+var ROAD_WIDTH = 16;
+var NUM_SEGMENTS = 14;
+var SEGMENT_LENGTH = 32;
+var LANE_CENTERS = [-6, -2, 2, 6]; // 4 distinct highway lanes
+
+function initThreeScene(){
+  var container = document.getElementById('canvas-container');
+  var canvas = document.getElementById('three-canvas');
+
+  scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x07090e, 0.007);
+
+  camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 450);
+  camera.position.set(0, 2.9, -6.2);
+
+  renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+  // Balanced Lighting
+  var ambient = new THREE.AmbientLight(0xffffff, 0.6);
+  scene.add(ambient);
+
+  var dirLight = new THREE.DirectionalLight(0xffffff, 0.85);
+  dirLight.position.set(20, 40, -30);
+  scene.add(dirLight);
+
+  // Player Car
+  playerCar = buildSupercarMesh(selectedColor);
+  scene.add(playerCar);
+
+  // 4-Lane Wide Highway & City
+  buildInfiniteHighway();
+  buildCyberCityScenery();
+
+  // Create Zero-Allocation Pre-pooled Traffic
+  initTrafficPool();
+
+  window.addEventListener('resize', onWindowResize);
+}
+
+function onWindowResize(){
+  if(!camera || !renderer) return;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+/* ==================================================
+   4. HIGHWAY GENERATION
+   ================================================== */
+function buildInfiniteHighway(){
+  var roadMat = new THREE.MeshStandardMaterial({ color: 0x131720, roughness: 0.85 });
+  var lineMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  var yellowLineMat = new THREE.MeshBasicMaterial({ color: 0xffb703 });
+  var railMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.55 });
+
+  for(var i = 0; i < NUM_SEGMENTS; i++){
+    var group = new THREE.Group();
+
+    // Road Surface
+    var roadMesh = new THREE.Mesh(new THREE.PlaneGeometry(ROAD_WIDTH, SEGMENT_LENGTH), roadMat);
+    roadMesh.rotation.x = -Math.PI / 2;
+    group.add(roadMesh);
+
+    // Cyan Guard Rails
+    var railL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.65, SEGMENT_LENGTH), railMat);
+    railL.position.set(-ROAD_WIDTH/2 - 0.15, 0.32, 0);
+    group.add(railL);
+    var railR = railL.clone();
+    railR.position.x = ROAD_WIDTH/2 + 0.15;
+    group.add(railR);
+
+    // Lane Dividers
+    var dividers = [-4, 0, 4];
+    dividers.forEach(function(lx){
+      for(var d = -SEGMENT_LENGTH/2; d < SEGMENT_LENGTH/2; d += 6){
+        var dash = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 3.2), (lx === 0 ? yellowLineMat : lineMat));
+        dash.rotation.x = -Math.PI / 2;
+        dash.position.set(lx, 0.02, d);
+        group.add(dash);
+      }
+    });
+
+    group.position.z = i * SEGMENT_LENGTH;
+    scene.add(group);
+    roadSegments.push(group);
+  }
+}
+
+function buildCyberCityScenery(){
+  var buildingMat = new THREE.MeshStandardMaterial({ color: 0x090c14, roughness: 0.6 });
+  for(var i = -4; i < 20; i++){
+    var bL = new THREE.Mesh(new THREE.BoxGeometry(12, 40, 16), buildingMat);
+    var hL = 20 + Math.random() * 38;
+    bL.scale.y = hL / 40;
+    bL.position.set(-ROAD_WIDTH/2 - 16 - Math.random()*8, hL/2, i * 28);
+    scene.add(bL);
+
+    var bR = bL.clone();
+    var hR = 20 + Math.random() * 38;
+    bR.scale.y = hR / 40;
+    bR.position.set(ROAD_WIDTH/2 + 16 + Math.random()*8, hR/2, i * 28);
+    scene.add(bR);
+  }
+}
+
+/* ==================================================
+   5. ZERO-ALLOCATION TWO-WAY TRAFFIC POOL
+   ================================================== */
+function initTrafficPool(){
+  var palette = [0x3b82f6, 0xef4444, 0x10b981, 0xf59e0b, 0x8b5cf6, 0xffffff, 0x0f172a];
+  
+  for(var i = 0; i < 12; i++){
+    var mesh;
+    var mod = i % 4;
+    if(mod === 0) mesh = buildTrafficSedan(palette[i % palette.length]);
+    else if(mod === 1) mesh = buildTrafficSUV(palette[(i+2) % palette.length]);
+    else if(mod === 2) mesh = buildTrafficSemiTruck();
+    else mesh = buildTrafficPoliceCar();
+
+    mesh.position.set(0, -100, 0); // Hide initially
+    mesh.visible = false;
+    scene.add(mesh);
+    trafficPool.push(mesh);
+  }
+}
+
+function resetTrafficPool(){
+  trafficPool.forEach(function(car, idx){
+    var laneIdx = idx % 4; // 0,1 = Oncoming (Left lanes); 2,3 = Same direction (Right lanes)
+    var isOncoming = (laneIdx < 2);
+
+    car.userData.laneIdx = laneIdx;
+    car.userData.isOncoming = isOncoming;
+    car.userData.speed = isOncoming ? 70 : 80 + Math.random() * 30; // km/h
+    car.userData.passed = false;
+    car.userData.isTruck = (idx % 4 === 2);
+
+    // Rotate oncoming traffic 180 degrees so headlights face player
+    car.rotation.y = isOncoming ? Math.PI : 0;
+
+    // Generous spawn buffer so player starts with open highway
+    car.position.set(LANE_CENTERS[laneIdx], 0, playerCar.position.z + 90 + idx * 35);
+    car.visible = true;
+  });
+}
+
+function updateTraffic(dt, playerSpeedMps){
+  trafficPool.forEach(function(car){
+    if(!car.visible) return;
+
+    var civSpeedMps = car.userData.speed / 3.6;
+    
+    if(car.userData.isOncoming){
+      // Oncoming traffic
+      car.position.z -= (civSpeedMps + playerSpeedMps) * dt;
+    } else {
+      // Same direction traffic
+      car.position.z += (civSpeedMps - playerSpeedMps) * dt;
+    }
+
+    // Near-Miss Proximity Detection
+    if(!car.userData.passed && car.position.z < playerCar.position.z + 1.2 && car.position.z > playerCar.position.z - 1.2){
+      var distLat = Math.abs(car.position.x - playerCar.position.x);
+      if(distLat > 1.8 && distLat < 3.4){
+        car.userData.passed = true;
+        triggerNearMiss(car.userData.isOncoming);
+      }
+    }
+
+    // Precise Box Hitbox Collision Check
+    var hitZ = car.userData.isTruck ? 5.2 : 3.4;
+    var hitX = car.userData.isTruck ? 2.1 : 1.7;
+    if(Math.abs(car.position.z - playerCar.position.z) < hitZ && Math.abs(car.position.x - playerCar.position.x) < hitX){
+      triggerGameOver();
+      return;
+    }
+
+    // Recycle and Respawn Ahead (Zero allocations!)
+    if(car.position.z < playerCar.position.z - 30){
+      var newLaneIdx = Math.floor(Math.random() * 4);
+      var isOncoming = (newLaneIdx < 2);
+
+      car.userData.laneIdx = newLaneIdx;
+      car.userData.isOncoming = isOncoming;
+      car.userData.speed = isOncoming ? 70 : 80 + Math.random() * 30;
+      car.userData.passed = false;
+      car.rotation.y = isOncoming ? Math.PI : 0;
+
+      car.position.set(LANE_CENTERS[newLaneIdx], 0, playerCar.position.z + 180 + Math.random() * 90);
+    }
+  });
+}
+
+function triggerNearMiss(isOncoming){
+  var bonus = isOncoming ? 1000 : 500;
+  state.score += bonus;
+  state.nearMissCount++;
+  state.nitro = Math.min(100, state.nitro + (isOncoming ? 30 : 18));
+  AudioEngine.playNearMiss();
+
+  var popup = document.getElementById('combo-popup');
+  if(popup){
+    popup.textContent = (isOncoming ? '+1000 HEAD-ON DODGE! 🔥' : '+500 NEAR MISS! 🔥');
+    popup.classList.add('show');
+    setTimeout(function(){ popup.classList.remove('show'); }, 550);
+  }
+}
+
+/* ==================================================
+   6. RESPONSIVE NON-INVERTED VEHICLE PHYSICS
+   ================================================== */
+var lastTime = performance.now();
+
+function gameLoop(now){
+  requestAnimationFrame(gameLoop);
+  var dt = Math.min((now - lastTime) / 1000, 0.05); // Fixed Delta-time clamp
+  lastTime = now;
+
+  if(!state.playing || state.paused){
+    renderer.render(scene, camera);
+    return;
+  }
+
+  var carDef = CARS_DATA[selectedCarIndex];
+
+  // 1. Acceleration & Top Speed
+  if(state.isNitro && state.nitro > 0){
+    state.nitro = Math.max(0, state.nitro - dt * carDef.nitroRate);
+    state.speed = Math.min(state.speed + dt * carDef.accel * 2.5, carDef.topSpeed * 1.15);
+    document.getElementById('speed-fx').classList.add('active');
+  } else {
+    state.isNitro = false;
+    document.getElementById('speed-fx').classList.remove('active');
+
+    if(state.gasInput > 0){
+      state.speed = Math.min(state.speed + dt * carDef.accel * state.gasInput, carDef.topSpeed);
+    } else if(state.brakeInput > 0){
+      state.speed = Math.max(0, state.speed - dt * 55 * state.brakeInput);
+    } else {
+      state.speed = Math.max(0, state.speed - dt * 8); // Natural road friction
+    }
+  }
+
+  var speedMps = state.speed / 3.6;
+  state.gear = Math.min(6, Math.max(1, Math.floor((state.speed / carDef.topSpeed) * 5.8) + 1));
+
+  // 2. Corrected Steering — Left key (-1) moves car LEFT (-X), Right key (+1) moves RIGHT (+X)
+  // The camera looks in +Z direction, so -X = screen left, +X = screen right
+  // IMPORTANT: must negate steerInput because camera sits at negative Z behind car,
+  // which flips the apparent left/right unless we compensate here.
+  var steerSpeed = carDef.handling * (0.8 + 0.2 * Math.min(state.speed / 100, 1.0));
+  playerCar.position.x -= state.steerInput * steerSpeed * dt; // negated — fixes inversion
+  playerCar.position.x = Math.max(-ROAD_WIDTH/2 + 1.2, Math.min(ROAD_WIDTH/2 - 1.2, playerCar.position.x));
+
+  // 3. Dynamic Wheel Turn Angle & Body Yaw (matching corrected direction)
+  if(playerCar.userData.wheels){
+    playerCar.userData.wheels[0].rotation.y = state.steerInput * 0.38;
+    playerCar.userData.wheels[1].rotation.y = state.steerInput * 0.38;
+    playerCar.userData.wheels.forEach(function(w){ w.rotation.x += speedMps * dt * 3.5; });
+  }
+
+  // Car Yaw & Roll — body leans opposite to steer (correct G-force feel)
+  playerCar.rotation.y = state.steerInput * 0.18;
+  playerCar.rotation.z = -state.steerInput * 0.07;
+
+  // 4. Infinite Highway Progression
+  roadSegments.forEach(function(seg){
+    seg.position.z -= speedMps * dt;
+    if(seg.position.z < -SEGMENT_LENGTH){
+      seg.position.z += NUM_SEGMENTS * SEGMENT_LENGTH;
+    }
+  });
+
+  // Traffic & Audio Update
+  updateTraffic(dt, speedMps);
+  AudioEngine.updateRPM(state.speed, carDef.topSpeed, state.isNitro);
+
+  state.distance += (speedMps * dt) / 1000;
+  state.score += Math.floor(speedMps * dt * (state.isNitro ? 2.5 : 1));
+
+  // 5. Camera tracks player X instantly with no lag, stays fixed offset behind
+  if(state.cameraMode === 'chase'){
+    camera.position.x = playerCar.position.x; // Instant X tracking — zero lag
+    camera.position.y = 2.8;
+    camera.position.z = playerCar.position.z - 6.2; // Always directly behind player
+    camera.lookAt(playerCar.position.x, 1.1, playerCar.position.z + 18);
+  } else {
+    // Hood Camera
+    camera.position.set(playerCar.position.x, 1.15, playerCar.position.z + 1.2);
+    camera.lookAt(playerCar.position.x, 1.05, playerCar.position.z + 30);
+  }
+
+  updateHUD();
+  renderer.render(scene, camera);
+}
+
+function updateHUD(){
+  document.getElementById('hud-speed').textContent = Math.round(state.speed);
+  document.getElementById('hud-score').textContent = state.score.toLocaleString();
+  document.getElementById('hud-distance').textContent = state.distance.toFixed(1) + ' km';
+  document.getElementById('hud-gear').textContent = 'GEAR ' + state.gear;
+  document.getElementById('hud-nitro-fill').style.width = state.nitro + '%';
+}
+
+/* ==================================================
+   7. DIRECT KEYBOARD & TOUCH CONTROLS (Zero Lag)
+   ================================================== */
+var keys = {};
+
+function initControls(){
+  window.addEventListener('keydown', function(e){
+    AudioEngine.init();
+    keys[e.code] = true;
+    updateKeyInputs();
+    if(e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'Space') {
+      if(state.nitro > 10) state.isNitro = true;
+    }
+    if(e.code === 'KeyC') toggleCamera();
+  });
+
+  window.addEventListener('keyup', function(e){
+    keys[e.code] = false;
+    updateKeyInputs();
+    if(e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'Space') {
+      state.isNitro = false;
+      AudioEngine.playTurboBlowoff();
+    }
+  });
+
+  // Touch button setup
+  bindTouchBtn('touch-left', function(down){ state.steerInput = down ? -1 : 0; });
+  bindTouchBtn('touch-right', function(down){ state.steerInput = down ? 1 : 0; });
+  bindTouchBtn('touch-gas', function(down){ state.gasInput = down ? 1 : 0; });
+  bindTouchBtn('touch-brake', function(down){ state.brakeInput = down ? 1 : 0; });
+  bindTouchBtn('touch-nitro', function(down){
+    state.isNitro = down && state.nitro > 10;
+    if(!down) AudioEngine.playTurboBlowoff();
+  });
+}
+
+function updateKeyInputs(){
+  state.gasInput = (keys['ArrowUp'] || keys['KeyW']) ? 1 : 0;
+  state.brakeInput = (keys['ArrowDown'] || keys['KeyS']) ? 1 : 0;
+  
+  var left = (keys['ArrowLeft'] || keys['KeyA']);
+  var right = (keys['ArrowRight'] || keys['KeyD']);
+  if(left && !right) state.steerInput = -1; // Exact Left
+  else if(right && !left) state.steerInput = 1;  // Exact Right
+  else state.steerInput = 0;
+}
+
+function bindTouchBtn(id, callback){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener('touchstart', function(e){ e.preventDefault(); AudioEngine.init(); el.classList.add('pressed'); callback(true); });
+  el.addEventListener('touchend', function(e){ e.preventDefault(); el.classList.remove('pressed'); callback(false); });
+  el.addEventListener('mousedown', function(e){ AudioEngine.init(); el.classList.add('pressed'); callback(true); });
+  el.addEventListener('mouseup', function(e){ el.classList.remove('pressed'); callback(false); });
+  el.addEventListener('mouseleave', function(e){ el.classList.remove('pressed'); callback(false); });
+}
+
+function toggleCamera(){
+  state.cameraMode = (state.cameraMode === 'chase') ? 'hood' : 'chase';
+}
+
+/* ==================================================
+   8. GAME FLOW & GARAGE
+   ================================================== */
+function startRace(){
+  AudioEngine.init();
+  AudioEngine.startEngine();
+
+  state.score = 0;
+  state.distance = 0;
+  state.speed = 80;        // Start at speed so game feels alive immediately
+  state.gasInput = 1;      // Auto-gas — no need to hold Up arrow
+  state.nitro = 100;
+  state.nearMissCount = 0;
+  state.playing = true;
+  state.paused = false;
+  playerCar.position.x = 0; // Start in center
+  playerCar.position.z = 0;
+
+  resetTrafficPool();
+
+  document.getElementById('menu-screen').classList.add('hidden');
+  document.getElementById('garage-screen').classList.add('hidden');
+  document.getElementById('game-over-modal').classList.add('hidden');
+  document.getElementById('hud-overlay').classList.remove('hidden');
+}
+
+function triggerGameOver(){
+  state.playing = false;
+  AudioEngine.stopEngine();
+  AudioEngine.playCrash();
+
+  if(state.score > state.highScore){
+    state.highScore = state.score;
+    localStorage.setItem('apex_high_score', state.highScore);
+  }
+  state.coins += Math.floor(state.score / 100);
+  localStorage.setItem('apex_coins', state.coins);
+
+  document.getElementById('modal-score').textContent = state.score.toLocaleString();
+  document.getElementById('modal-distance').textContent = state.distance.toFixed(1) + ' km';
+  document.getElementById('modal-max-speed').textContent = Math.round(CARS_DATA[selectedCarIndex].topSpeed) + ' km/h';
+  document.getElementById('modal-near-miss').textContent = state.nearMissCount;
+
+  document.getElementById('game-over-modal').classList.remove('hidden');
+}
+
+function updateGarageUI(){
+  var car = CARS_DATA[selectedCarIndex];
+  document.getElementById('garage-car-name').textContent = car.name;
+  document.getElementById('stat-speed-fill').style.width = (car.topSpeed / 360 * 100) + '%';
+  document.getElementById('stat-handling-fill').style.width = (car.handling * 5.8) + '%';
+  document.getElementById('stat-accel-fill').style.width = (car.accel * 4.2) + '%';
+  document.getElementById('stat-nitro-fill').style.width = (car.nitroRate * 3.4) + '%';
+
+  if(playerCar){
+    scene.remove(playerCar);
+    playerCar = buildSupercarMesh(selectedColor);
+    scene.add(playerCar);
+  }
+}
+
+function bindMenuEvents(){
+  document.getElementById('btn-play-rush').addEventListener('click', startRace);
+  document.getElementById('btn-restart-game').addEventListener('click', startRace);
+
+  document.getElementById('btn-open-garage').addEventListener('click', function(){
+    document.getElementById('menu-screen').classList.add('hidden');
+    document.getElementById('garage-screen').classList.remove('hidden');
+    updateGarageUI();
+  });
+
+  document.getElementById('btn-garage-back').addEventListener('click', function(){
+    document.getElementById('garage-screen').classList.add('hidden');
+    document.getElementById('menu-screen').classList.remove('hidden');
+  });
+
+  document.getElementById('btn-return-menu').addEventListener('click', function(){
+    document.getElementById('game-over-modal').classList.add('hidden');
+    document.getElementById('hud-overlay').classList.add('hidden');
+    document.getElementById('menu-screen').classList.remove('hidden');
+    document.getElementById('menu-high-score').textContent = state.highScore.toLocaleString();
+    document.getElementById('menu-coins').textContent = state.coins.toLocaleString();
+  });
+
+  document.getElementById('btn-car-next').addEventListener('click', function(){
+    selectedCarIndex = (selectedCarIndex + 1) % CARS_DATA.length;
+    updateGarageUI();
+  });
+  document.getElementById('btn-car-prev').addEventListener('click', function(){
+    selectedCarIndex = (selectedCarIndex - 1 + CARS_DATA.length) % CARS_DATA.length;
+    updateGarageUI();
+  });
+
+  document.querySelectorAll('.color-swatch').forEach(function(swatch){
+    swatch.addEventListener('click', function(){
+      document.querySelectorAll('.color-swatch').forEach(function(s){ s.classList.remove('active'); });
+      swatch.classList.add('active');
+      selectedColor = swatch.dataset.color;
+      updateGarageUI();
+    });
+  });
+
+  document.getElementById('btn-garage-select').addEventListener('click', function(){
+    document.getElementById('garage-screen').classList.add('hidden');
+    startRace();
+  });
+
+  document.getElementById('btn-cam-toggle').addEventListener('click', toggleCamera);
+
+  document.getElementById('btn-open-settings').addEventListener('click', function(){
+    document.getElementById('settings-modal').classList.remove('hidden');
+  });
+  document.getElementById('btn-close-settings').addEventListener('click', function(){
+    document.getElementById('settings-modal').classList.add('hidden');
+  });
+  document.getElementById('toggle-sound').addEventListener('change', function(e){
+    AudioEngine.setSound(e.target.checked);
+  });
+
+  document.getElementById('menu-high-score').textContent = state.highScore.toLocaleString();
+  document.getElementById('menu-coins').textContent = state.coins.toLocaleString();
+}
+
+window.addEventListener('DOMContentLoaded', function(){
+  initThreeScene();
+  initControls();
+  bindMenuEvents();
+  requestAnimationFrame(gameLoop);
+});
+
+})();
+</script>
+</body>
+</html>

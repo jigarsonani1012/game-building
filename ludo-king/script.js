@@ -192,9 +192,9 @@ var YARD_COORDS = {
   blue:   [{r:11, c:11},{r:11, c:12},{r:12, c:11},{r:12, c:12}]
 };
 var PLAYER_COLORS_HEX = {
-  red:    0xef4444,
-  green:  0x16a34a,
-  yellow: 0xeab308,
+  red:    0xff5252,
+  green:  0x22c55e,
+  yellow: 0xffcc00,
   blue:   0x3b82f6
 };
 var darkHighlightColors = {
@@ -590,8 +590,8 @@ function build3DBoard(){
       
       var ringGeo = new THREE.CylinderGeometry(cellSize * 0.68, cellSize * 0.68, 0.02, 48);
       var ringMat = new THREE.MeshStandardMaterial({
-        color: isLight ? 0xe2e8f0 : 0x1e293b,
-        roughness: isLight ? 0.35 : 0.25,
+        color: isLight ? 0xcbd5e1 : 0x1e293b,
+        roughness: isLight ? 0.30 : 0.25,
         metalness: isLight ? 0.05 : 0.05,
         emissive: 0x000000,
         emissiveIntensity: 0
@@ -599,6 +599,18 @@ function build3DBoard(){
       var ringMesh = new THREE.Mesh(ringGeo, ringMat);
       ringMesh.position.set(nx, 0.176, nz);
       boardGroup.add(ringMesh);
+      
+      var outerRingShadowGeo = new THREE.TorusGeometry(cellSize * 0.68, 0.008, 12, 48);
+      var outerRingShadowMat = new THREE.MeshStandardMaterial({
+        color: isLight ? 0x64748b : 0x0f172a,
+        roughness: 0.8,
+        opacity: isLight ? 0.45 : 0.30,
+        transparent: true
+      });
+      var outerRingShadowMesh = new THREE.Mesh(outerRingShadowGeo, outerRingShadowMat);
+      outerRingShadowMesh.rotation.x = Math.PI / 2;
+      outerRingShadowMesh.position.set(nx, 0.177, nz);
+      boardGroup.add(outerRingShadowMesh);
       
       var discGeo = new THREE.CylinderGeometry(cellSize * 0.52, cellSize * 0.52, 0.025, 48);
       var discMat = new THREE.MeshStandardMaterial({ color: yd.color, roughness: 0.35, metalness: 0.15 });
@@ -1356,7 +1368,7 @@ function positionCornerDiceUIs(){
   var w = (container && container.clientWidth) || window.innerWidth;
   var h = (container && container.clientHeight) || (window.innerHeight - 50);
   var minDim = Math.min(w, h);
-  var cardScale = Math.max(0.45, Math.min(0.88, minDim / 750));
+  var cardScale = Math.max(0.60, Math.min(1.0, minDim / 600));
   boardGroup.updateMatrixWorld(true);
   PLAYERS.forEach(function(pColor){
     var el = document.getElementById('dice-ui-' + pColor);
@@ -1372,6 +1384,10 @@ function positionCornerDiceUIs(){
     
     var isLeft = px < w / 2;
     var isTop  = py < (h / 2 + 50);
+
+    var vGap = Math.round(5 * cardScale);
+    py += isTop  ? -vGap : vGap;
+    
     var transX = isLeft ? '0%' : '-100%';
     var transY = isTop  ? '-100%' : '0%';
     var originX = isLeft ? 'left' : 'right';
@@ -1388,6 +1404,25 @@ function positionCornerDiceUIs(){
     var av = el.querySelector('.avatar-area');
     if (av) {
       av.style.borderRadius = isLeft ? '4px 0 0 4px' : '0 4px 4px 0';
+    }
+    var badge = document.getElementById('arrow-badge-' + pColor);
+    if (badge) {
+      var pathEl = badge.querySelector('path');
+      if (isLeft) {
+        badge.classList.remove('arrow-side-left');
+        badge.classList.add('arrow-side-right');
+        if (pathEl) {
+          pathEl.setAttribute('d', 'M 4 12 L 16 4 L 16 9 L 22 9 L 22 15 L 16 15 L 16 20 Z');
+          pathEl.setAttribute('fill', 'var(--' + pColor + ')');
+        }
+      } else {
+        badge.classList.remove('arrow-side-right');
+        badge.classList.add('arrow-side-left');
+        if (pathEl) {
+          pathEl.setAttribute('d', 'M 20 12 L 8 4 L 8 9 L 2 9 L 2 15 L 8 15 L 8 20 Z');
+          pathEl.setAttribute('fill', 'var(--' + pColor + ')');
+        }
+      }
     }
   });
   position2DLockBadges();
@@ -1463,10 +1498,10 @@ function animate(){
       var h = (container && container.clientHeight) || (window.innerHeight - 50);
       var asp = camera.aspect;
       
-      var vertReserve = Math.max(12, Math.min(48, h * 0.08));
+      var vertReserve = Math.max(54, Math.min(82, h * 0.10));
       var boardHeightFit = Math.max(0.35, (h - vertReserve) / h);
       
-      var horizReserve = w < 600 ? 0 : 16;
+      var horizReserve = w < 600 ? 12 : 28;
       var boardWidthFit = Math.max(0.35, (w - horizReserve) / w);
       var fitRatio = Math.min(boardHeightFit, boardWidthFit);
       var z = 10.0 / (12.2772 * fitRatio);
@@ -1840,55 +1875,20 @@ function rollDice(){
     if(gameState.rollHistory[active].length > 6) gameState.rollHistory[active].shift();
   }
 
-  // Only lift to body in 3D mode — in 2D mode the layout handles z-index fine
   var diceBox = cubeEl.parentElement;
   var diceCard = diceBox ? diceBox.parentElement : null;
-  var liftEl = (!gameState.is2DMode && diceCard && (diceCard.classList.contains('corner-dice-ui') || diceCard.classList.contains('player-corner'))) ? diceCard : null;
-  var liftPlaceholder = null;
-  var liftSavedTransform = '';
-  if (liftEl) {
-    var liftRect = liftEl.getBoundingClientRect();
-    liftSavedTransform = liftEl.style.transform || '';
-    liftPlaceholder = document.createElement('div');
-    liftPlaceholder.style.cssText = 'width:' + liftRect.width + 'px;height:' + liftRect.height + 'px;visibility:hidden;flex-shrink:0;position:absolute;';
-    liftEl.parentElement.insertBefore(liftPlaceholder, liftEl);
-    // Use actual bounding rect (already accounts for existing transforms)
-    // and clear transform so fixed position is accurate
-    liftEl.style.position = 'fixed';
-    liftEl.style.left = liftRect.left + 'px';
-    liftEl.style.top = liftRect.top + 'px';
-    liftEl.style.width = liftRect.width + 'px';
-    liftEl.style.height = liftRect.height + 'px';
-    liftEl.style.transform = 'none';
-    liftEl.style.transformOrigin = 'top left';
-    liftEl.style.zIndex = '2147483647';
-    liftEl.style.pointerEvents = 'auto';
-    window._liftedRollEl = liftEl;
-    document.body.appendChild(liftEl);
-  }
+  if (diceCard) diceCard.classList.add('dice-rolling-card');
 
   animateDiceRollTo(cubeEl, val, function(){
-    // Return card to original parent and restore its styles
-    window._liftedRollEl = null;
-    if (liftEl && liftPlaceholder && liftPlaceholder.parentElement) {
-      liftEl.style.position = '';
-      liftEl.style.left = '';
-      liftEl.style.top = '';
-      liftEl.style.width = '';
-      liftEl.style.height = '';
-      liftEl.style.transform = liftSavedTransform;
-      liftEl.style.transformOrigin = '';
-      liftEl.style.zIndex = '';
-      liftEl.style.pointerEvents = '';
-      liftPlaceholder.parentElement.insertBefore(liftEl, liftPlaceholder);
-      liftPlaceholder.parentElement.removeChild(liftPlaceholder);
-    }
+    if (diceCard) diceCard.classList.remove('dice-rolling-card');
     cubeEl.classList.remove('dice-rolling');
     gameState.hasRolled = true;
     gameState.isRolling = false; 
     updateTurnDisplay();
     if(val === 6){
-      if(gameState.mode === 'ai' && active !== gameState.humanColor){
+      if(active === (gameState && gameState.humanColor) || (gameState && gameState.mode === 'pass' && active === gameState.activePlayers[0])){
+        recordComputerStat('humanSixes', 1);
+      } else {
         recordComputerStat('computerSixes', 1);
       }
       gameState.consecutiveSixes++;
@@ -2339,7 +2339,9 @@ function postMoveCheck(color, tokIdx, wasSpawn){
     AudioEngine.enterHome();
     extraRoll = true;
     updateStatus("Pawn reached HOME! 🎉 Bonus Roll!");
-    if(gameState.mode === 'ai' && color !== gameState.humanColor){
+    if(color === (gameState && gameState.humanColor) || (gameState && gameState.mode === 'pass' && color === gameState.activePlayers[0])){
+      recordComputerStat('humanPawnsHome', 1);
+    } else {
       recordComputerStat('computerPawnsHome', 1);
     }
   }
@@ -2368,7 +2370,9 @@ function postMoveCheck(color, tokIdx, wasSpawn){
                   updateStatus("Captured " + capitalize(oppColor) + "! Bonus roll awarded ⚔️");
                 }
                 updateTurnDisplay();
-                if(gameState.mode === 'ai' && color !== gameState.humanColor){
+                if(color === (gameState && gameState.humanColor) || (gameState && gameState.mode === 'pass' && color === gameState.activePlayers[0])){
+                  recordComputerStat('humanCaptures', 1);
+                } else {
                   recordComputerStat('computerCaptures', 1);
                 }
                 
@@ -2866,12 +2870,15 @@ function endMatch(){
 }
 
 function recordMatchResult(){
-  if(!gameState || gameState.mode !== 'ai' || gameState.statsRecorded) return;
+  if(!gameState || gameState.statsRecorded) return;
   gameState.statsRecorded = true;
   var s = getComputerStats();
   s.matchesPlayed = (s.matchesPlayed || 0) + 1;
   var winner = (gameState.winners && gameState.winners.length > 0) ? gameState.winners[0] : null;
-  if(winner && winner === gameState.humanColor){
+  var isHumanWin = (gameState.mode === 'pass')
+    ? (winner === (gameState.activePlayers && gameState.activePlayers[0]))
+    : (winner === gameState.humanColor);
+  if(winner && isHumanWin){
     s.humanWins = (s.humanWins || 0) + 1;
   } else if(winner) {
     s.computerWins = (s.computerWins || 0) + 1;
@@ -2887,15 +2894,28 @@ function getComputerStats(){
       var p = JSON.parse(raw);
       return {
         matchesPlayed: p.matchesPlayed || 0,
-        humanWins: p.humanWins || 0,
+        humanWins: p.humanWins || p.userWins || 0,
         computerWins: p.computerWins || p.botWins || 0,
+        humanCaptures: p.humanCaptures || p.userCaptures || 0,
         computerCaptures: p.computerCaptures || p.botCaptures || 0,
+        humanPawnsHome: p.humanPawnsHome || p.userPawnsHome || 0,
         computerPawnsHome: p.computerPawnsHome || p.botPawnsHome || 0,
+        humanSixes: p.humanSixes || p.userSixes || 0,
         computerSixes: p.computerSixes || p.botSixes || 0
       };
     }
   } catch(e){}
-  return { matchesPlayed: 0, humanWins: 0, computerWins: 0, computerCaptures: 0, computerPawnsHome: 0, computerSixes: 0 };
+  return {
+    matchesPlayed: 0,
+    humanWins: 0,
+    computerWins: 0,
+    humanCaptures: 0,
+    computerCaptures: 0,
+    humanPawnsHome: 0,
+    computerPawnsHome: 0,
+    humanSixes: 0,
+    computerSixes: 0
+  };
 }
 function saveComputerStats(stats){
   try {
@@ -2903,29 +2923,41 @@ function saveComputerStats(stats){
   } catch(e){}
 }
 function recordComputerStat(key, amount){
-  if(gameState.mode !== 'ai') return;
   var s = getComputerStats();
   s[key] = (s[key] || 0) + (amount || 1);
   saveComputerStats(s);
 }
 function updateComputerStatsDisplay(){
   var s = getComputerStats();
-  var totalRecorded = (s.matchesPlayed || 0) + (s.computerCaptures || 0) + (s.computerPawnsHome || 0);
+  var humanWins = s.humanWins || 0;
+  var matchesPlayed = s.matchesPlayed || 0;
+  var humanCaptures = s.humanCaptures || 0;
+  var humanHome = s.humanPawnsHome || 0;
+  var humanSixes = s.humanSixes || 0;
+
+  var totalRecorded = matchesPlayed + humanWins + humanCaptures + humanHome + (s.computerWins || 0) + (s.computerCaptures || 0);
+
   var matchesEl = document.getElementById('stat-matches');
-  if(matchesEl) matchesEl.textContent = s.matchesPlayed || 0;
+  if(matchesEl) matchesEl.textContent = matchesPlayed;
+
   var winrateEl = document.getElementById('stat-winrate');
   if(winrateEl){
-    var rate = s.matchesPlayed > 0 ? Math.round((s.computerWins / s.matchesPlayed) * 100) : 0;
+    var rate = matchesPlayed > 0 ? Math.round((humanWins / matchesPlayed) * 100) : 0;
     winrateEl.textContent = rate + '%';
   }
+
   var winsEl = document.getElementById('stat-bot-wins');
-  if(winsEl) winsEl.textContent = s.computerWins || 0;
+  if(winsEl) winsEl.textContent = humanWins;
+
   var capsEl = document.getElementById('stat-bot-captures');
-  if(capsEl) capsEl.textContent = s.computerCaptures || 0;
+  if(capsEl) capsEl.textContent = humanCaptures;
+
   var homeEl = document.getElementById('stat-bot-home');
-  if(homeEl) homeEl.textContent = s.computerPawnsHome || 0;
+  if(homeEl) homeEl.textContent = humanHome;
+
   var sixesEl = document.getElementById('stat-bot-sixes');
-  if(sixesEl) sixesEl.textContent = s.computerSixes || 0;
+  if(sixesEl) sixesEl.textContent = humanSixes;
+
   var resetBtn = document.getElementById('btn-reset-stats');
   if(resetBtn){
     if(totalRecorded === 0){
@@ -3841,6 +3873,27 @@ function bindEvents(){
   }
   if(soundBtn) soundBtn.addEventListener('click', toggleSound);
   if(soundChip) soundChip.addEventListener('click', toggleSound);
+  var themeBtn = document.getElementById('btn-game-theme');
+  function updateThemeUI(){
+    var isLight = isLightTheme();
+    var themeBtnText = document.getElementById('theme-btn-text');
+    var themeIconSpan = document.getElementById('theme-icon-span');
+    if (themeBtnText) {
+      themeBtnText.textContent = isLight ? 'Theme: Light ' : 'Theme: Dark ';
+    }
+    if (themeIconSpan) {
+      themeIconSpan.innerHTML = isLight
+        ? '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>'
+        : '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+    }
+  }
+  function toggleTheme(){
+    var isLight = isLightTheme();
+    var newTheme = isLight ? 'theme-dark' : 'theme-light';
+    applyTheme(newTheme);
+  }
+  if(themeBtn) themeBtn.addEventListener('click', toggleTheme);
+
   function applyTheme(themeName){
     if (!themeName) return;
     document.body.className = themeName;
@@ -3875,8 +3928,13 @@ function bindEvents(){
       starParticles.visible = true;
       starParticles.material.needsUpdate = true;
     }
+    updateThemeUI();
+    if (typeof updateTurnDisplay === 'function') {
+      updateTurnDisplay();
+    }
   }
   window.applyTheme = applyTheme;
+  window.updateThemeUI = updateThemeUI;
 
   document.querySelectorAll('[data-theme]').forEach(function(chip){
     chip.addEventListener('click', function(){

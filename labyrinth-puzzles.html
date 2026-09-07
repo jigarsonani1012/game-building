@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Labyrinth Puzzles 3D — Rolling Ball Physics Maze</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --font-main: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  --font-display: 'Outfit', sans-serif;
+  --bg: #090d16;
+  --surface: #131b2e;
+  --surface-card: rgba(23, 32, 54, 0.75);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-glow: rgba(59, 130, 246, 0.4);
+  --text: #f8fafc;
+  --text-dim: #94a3b8;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --accent: #f59e0b;
+  --accent-glow: rgba(245, 158, 11, 0.5);
+  --green: #10b981;
+  --red: #ef4444;
+  --purple: #8b5cf6;
+  --radius-s: 8px;
+  --radius-m: 14px;
+  --radius-l: 22px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font-main); }
+
+#canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+#game-canvas { width: 100%; height: 100%; display: block; }
+
+/* HUD Top Bar */
+#hud {
+  position: absolute; top: 0; left: 0; width: 100%; height: 64px;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+  z-index: 50; pointer-events: none;
+}
+.hud-glass {
+  background: var(--surface-card); border: 1px solid var(--border);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--radius-m); pointer-events: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+.hud-pill { display: flex; align-items: center; gap: 10px; padding: 8px 16px; }
+.hud-title { font-family: var(--font-display); font-weight: 800; font-size: 16px; letter-spacing: 0.5px; }
+.hud-stat { font-family: var(--font-display); font-weight: 800; font-size: 15px; color: var(--accent); display: flex; align-items: center; gap: 6px; }
+.hud-actions { display: flex; align-items: center; gap: 10px; }
+.btn-icon {
+  width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-m); background: var(--surface-card); border: 1px solid var(--border);
+  color: var(--text); cursor: pointer; transition: all 0.2s var(--ease); pointer-events: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.btn-icon:hover { transform: translateY(-2px); border-color: var(--primary); background: rgba(59, 130, 246, 0.2); }
+.btn-icon:active { transform: translateY(1px); }
+
+/* Minimap */
+#minimap-card {
+  position: absolute; top: 76px; right: 20px; width: 130px; height: 130px;
+  border-radius: var(--radius-m); overflow: hidden; z-index: 40; pointer-events: auto;
+  border: 2px solid var(--border); background: rgba(9, 13, 22, 0.85);
+  backdrop-filter: blur(12px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+#minimap-canvas { width: 100%; height: 100%; display: block; }
+
+/* Status Toast */
+#status-toast {
+  position: absolute; top: 76px; left: 50%; transform: translateX(-50%) translateY(-10px);
+  padding: 8px 20px; border-radius: 9999px; font-family: var(--font-display); font-weight: 800;
+  font-size: 13px; letter-spacing: 0.5px; background: rgba(15, 23, 42, 0.92);
+  border: 1.5px solid var(--border); color: #fff; z-index: 45; opacity: 0; pointer-events: none;
+  transition: all 0.3s var(--ease-bounce); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+#status-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Mobile Touch Virtual Joystick Overlay */
+#joystick-zone {
+  position: absolute; bottom: 30px; left: 30px; width: 120px; height: 120px;
+  border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05);
+  z-index: 40; display: none; touch-action: none; pointer-events: auto;
+}
+#joystick-knob {
+  position: absolute; top: 50%; left: 50%; width: 50px; height: 50px; margin-top: -25px; margin-left: -25px;
+  border-radius: 50%; background: var(--primary); border: 2px solid #fff; box-shadow: 0 0 15px var(--primary);
+  pointer-events: none; transition: transform 0.05s linear;
+}
+
+/* Modals & Screens */
+.screen-overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  background: rgba(9, 13, 22, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  opacity: 0; pointer-events: none; transition: opacity 0.4s var(--ease);
+}
+.screen-overlay.active { opacity: 1; pointer-events: auto; }
+
+.modal-card {
+  width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-l);
+  padding: 32px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); display: flex; flex-direction: column; gap: 20px;
+  transform: scale(0.9); transition: transform 0.4s var(--ease-bounce);
+}
+.screen-overlay.active .modal-card { transform: scale(1); }
+
+.brand-header { text-align: center; }
+.brand-title {
+  font-family: var(--font-display); font-weight: 900; font-size: 36px;
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #f59e0b 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px;
+}
+.brand-sub { font-size: 13px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px; margin-top: 4px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; height: 48px; padding: 0 24px; border-radius: var(--radius-m);
+  font-family: var(--font-display); font-weight: 800; font-size: 15px; letter-spacing: 0.5px;
+  text-transform: uppercase; cursor: pointer; border: none; outline: none;
+  transition: all 0.25s var(--ease); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+.btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff;
+  border: 1px solid #60a5fa; border-bottom: 3.5px solid #1e40af;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5); }
+.btn-primary:active { transform: translateY(1px); border-bottom-width: 1px; }
+
+.btn-secondary {
+  background: var(--surface-card); color: var(--text); border: 1px solid var(--border);
+  border-bottom: 3px solid rgba(255, 255, 255, 0.15);
+}
+.btn-secondary:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.1); }
+
+.btn-accent {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff;
+  border: 1px solid #fbbf24; border-bottom: 3.5px solid #78350f;
+}
+.btn-accent:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5); }
+
+/* Level Grid */
+.level-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 10px; }
+.level-chip {
+  aspect-ratio: 1; border-radius: var(--radius-m); background: var(--surface-card);
+  border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; cursor: pointer; transition: all 0.2s var(--ease); position: relative;
+}
+.level-chip:hover { transform: translateY(-3px); border-color: var(--primary); background: rgba(59, 130, 246, 0.2); }
+.level-chip.locked { opacity: 0.4; pointer-events: none; }
+.level-num { font-family: var(--font-display); font-weight: 900; font-size: 18px; }
+.level-stars { font-size: 10px; color: var(--accent); }
+
+/* Ball Shop Grid */
+.shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 10px; }
+.shop-card {
+  border-radius: var(--radius-m); background: var(--surface-card); border: 1.5px solid var(--border);
+  padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px;
+  cursor: pointer; transition: all 0.2s var(--ease); text-align: center;
+}
+.shop-card:hover { transform: translateY(-2px); border-color: var(--primary); }
+.shop-card.active { border-color: var(--accent); background: rgba(245, 158, 11, 0.15); box-shadow: 0 0 20px var(--accent-glow); }
+.ball-preview-circle { width: 50px; height: 50px; border-radius: 50%; box-shadow: 0 6px 15px rgba(0,0,0,0.5); }
+.shop-ball-name { font-family: var(--font-display); font-weight: 800; font-size: 14px; }
+.shop-ball-price { font-size: 12px; font-weight: 700; color: var(--accent); }
+
+/* Theme Selector Grid */
+.theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.theme-btn {
+  padding: 10px; border-radius: var(--radius-s); background: var(--surface-card);
+  border: 1px solid var(--border); font-size: 12px; font-weight: 800; text-align: center;
+  cursor: pointer; transition: all 0.2s var(--ease);
+}
+.theme-btn:hover, .theme-btn.active { border-color: var(--primary); background: rgba(59, 130, 246, 0.2); }
+
+/* Victory Stars Display */
+.star-rating-box { display: flex; justify-content: center; gap: 12px; font-size: 36px; margin: 10px 0; }
+.star-icon { opacity: 0.2; transform: scale(0.7); transition: all 0.5s var(--ease-bounce); }
+.star-icon.earned { opacity: 1; transform: scale(1.1); color: var(--accent); text-shadow: 0 0 20px var(--accent); }
+
+/* Control Options Switch */
+.setting-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.setting-label { font-weight: 700; font-size: 14px; }
+
+@media (max-width: 600px) {
+  .level-grid { grid-template-columns: repeat(4, 1fr); }
+  .modal-card { padding: 22px; }
+  #minimap-card { width: 100px; height: 100px; top: 70px; right: 14px; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- 3D WebGL Canvas Container -->
+  <div id="canvas-container">
+    <canvas id="game-canvas"></canvas>
+  </div>
+
+  <!-- HUD Header Overlay -->
+  <div id="hud">
+    <div class="hud-glass hud-pill">
+      <div class="hud-title" id="hud-level-title">Level 1</div>
+    </div>
+    
+    <div style="display:flex; gap:12px; align-items:center;">
+      <div class="hud-glass hud-pill">
+        <div class="hud-stat" id="hud-timer">⏱️ 00:00</div>
+      </div>
+      <div class="hud-glass hud-pill">
+        <div class="hud-stat" id="hud-gems">💎 0/0</div>
+      </div>
+    </div>
+
+    <div class="hud-actions">
+      <button class="btn-icon" id="btn-shop-toggle" title="Ball Skins Shop">⚽</button>
+      <button class="btn-icon" id="btn-settings-toggle" title="Settings">⚙️</button>
+      <button class="btn-icon" id="btn-levels-toggle" title="Level Select">🗺️</button>
+    </div>
+  </div>
+
+  <!-- Minimap Card -->
+  <div id="minimap-card">
+    <canvas id="minimap-canvas"></canvas>
+  </div>
+
+  <!-- Status Toast Notification -->
+  <div id="status-toast">Tap or Use WASD to Tilt Board!</div>
+
+  <!-- Touch Virtual Joystick (Mobile) -->
+  <div id="joystick-zone">
+    <div id="joystick-knob"></div>
+  </div>
+
+  <!-- Splash / Main Menu Overlay -->
+  <div class="screen-overlay active" id="splash-screen">
+    <div class="modal-card">
+      <div class="brand-header">
+        <div class="brand-title">LABYRINTH 3D</div>
+        <div class="brand-sub">Physics Maze &amp; Puzzle Quest</div>
+      </div>
+      <button class="btn btn-primary" id="btn-play-game">Play Game 🚀</button>
+      <button class="btn btn-secondary" id="btn-splash-levels">Level Select 🗺️</button>
+      <button class="btn btn-secondary" id="btn-splash-shop">Ball Skins Shop ⚽</button>
+    </div>
+  </div>
+
+  <!-- Level Selection Modal -->
+  <div class="screen-overlay" id="levels-screen">
+    <div class="modal-card">
+      <div class="brand-header">
+        <div class="brand-title">SELECT MAZE</div>
+        <div class="brand-sub">15 Handcrafted Physics Challenges</div>
+      </div>
+      <div class="level-grid" id="level-grid-container"></div>
+      <button class="btn btn-secondary" id="btn-levels-close">Back</button>
+    </div>
+  </div>
+
+  <!-- Ball Skins Shop Modal -->
+  <div class="screen-overlay" id="shop-screen">
+    <div class="modal-card">
+      <div class="brand-header">
+        <div class="brand-title">BALL SHOP</div>
+        <div class="brand-sub">Coins: <span id="shop-coins-val" style="color:var(--accent);">0</span> 🪙</div>
+      </div>
+      <div class="shop-grid" id="shop-grid-container"></div>
+      <button class="btn btn-secondary" id="btn-shop-close">Close Shop</button>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="screen-overlay" id="settings-screen">
+    <div class="modal-card">
+      <div class="brand-header">
+        <div class="brand-title">SETTINGS</div>
+        <div class="brand-sub">Controls &amp; Visual Environment</div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-label">Theme Environment</div>
+      </div>
+      <div class="theme-grid">
+        <div class="theme-btn active" data-theme="mahogany">🪵 Wood</div>
+        <div class="theme-btn" data-theme="temple">🏛️ Temple</div>
+        <div class="theme-btn" data-theme="cyber">⚡ Cyber</div>
+        <div class="theme-btn" data-theme="lava">🔥 Lava</div>
+        <div class="theme-btn" data-theme="lagoon">🌊 Lagoon</div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-label">Control Mode</div>
+        <button class="btn btn-secondary" id="btn-toggle-control" style="width:auto; height:36px; padding:0 14px; font-size:12px;">Board Tilt</button>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-label">Sound Effects</div>
+        <button class="btn btn-secondary" id="btn-toggle-sfx" style="width:auto; height:36px; padding:0 14px; font-size:12px;">ON</button>
+      </div>
+
+      <button class="btn btn-primary" id="btn-settings-close">Done</button>
+    </div>
+  </div>
+
+  <!-- Stage Victory Modal -->
+  <div class="screen-overlay" id="victory-screen">
+    <div class="modal-card">
+      <div class="brand-header">
+        <div class="brand-title">MAZE CLEARED!</div>
+        <div class="brand-sub" id="victory-level-name">Level 1 Complete</div>
+      </div>
+
+      <div class="star-rating-box">
+        <span class="star-icon" id="star-1">⭐</span>
+        <span class="star-icon" id="star-2">⭐</span>
+        <span class="star-icon" id="star-3">⭐</span>
+      </div>
+
+      <div style="display:flex; justify-content:space-around; background:var(--surface-card); padding:14px; border-radius:var(--radius-m); border:1px solid var(--border);">
+        <div style="text-align:center;">
+          <div style="font-size:12px; color:var(--text-dim);">Time Taken</div>
+          <div style="font-size:18px; font-weight:800; color:#fff;" id="victory-time-val">00:15</div>
+        </div>
+        <div style="text-align:center;">
+          <div style="font-size:12px; color:var(--text-dim);">Gems Collected</div>
+          <div style="font-size:18px; font-weight:800; color:var(--accent);" id="victory-gems-val">3/3</div>
+        </div>
+      </div>
+
+      <button class="btn btn-accent" id="btn-victory-next">Next Level ➔</button>
+      <button class="btn btn-secondary" id="btn-victory-levels">Level Select</button>
+    </div>
+  </div>
+
+  <!-- Trap Hole Fall Modal -->
+  <div class="screen-overlay" id="gameover-screen">
+    <div class="modal-card">
+      <div class="brand-header">
+        <div class="brand-title" style="color:var(--red);">TRAP HOLE!</div>
+        <div class="brand-sub">The ball fell down a pitfall</div>
+      </div>
+      <button class="btn btn-primary" id="btn-retry-level">Try Again 🔄</button>
+      <button class="btn btn-secondary" id="btn-gameover-levels">Level Select</button>
+    </div>
+  </div>
+</div>
+
+<!-- Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+<script>
+(function(){
+"use strict";
+
+/* ==========================================================================
+   1. AUDIO SYNTHESIZER ENGINE (Web Audio API)
+   ========================================================================== */
+var AudioEngine = (function(){
+  var ctx = null, enabled = true;
+  var rollOsc = null, rollGain = null;
+
+  function init(){
+    if(!ctx && (window.AudioContext || window.webkitAudioContext)){
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  }
+
+  function playTone(freq, type, dur, gainVal, endFreq){
+    if(!enabled) return;
+    init(); if(!ctx) return;
+    if(ctx.state === 'suspended') ctx.resume();
+    try {
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      if(endFreq) osc.frequency.exponentialRampToValueAtTime(Math.max(10, endFreq), t + dur);
+      gain.gain.setValueAtTime(gainVal || 0.2, t);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(t); osc.stop(t + dur);
+    } catch(e){}
+  }
+
+  function updateRollSound(speed){
+    if(!enabled) return;
+    init(); if(!ctx) return;
+    try {
+      if(!rollOsc){
+        rollOsc = ctx.createOscillator();
+        rollGain = ctx.createGain();
+        rollOsc.type = 'triangle';
+        rollOsc.frequency.setValueAtTime(60, ctx.currentTime);
+        rollGain.gain.setValueAtTime(0, ctx.currentTime);
+        rollOsc.connect(rollGain); rollGain.connect(ctx.destination);
+        rollOsc.start();
+      }
+      var targetGain = Math.min(0.18, speed * 0.025);
+      var targetFreq = Math.min(220, 50 + speed * 12);
+      rollGain.gain.setTargetAtTime(targetGain, ctx.currentTime, 0.05);
+      rollOsc.frequency.setTargetAtTime(targetFreq, ctx.currentTime, 0.05);
+    } catch(e){}
+  }
+
+  function playWallHit(intensity){
+    playTone(140 + Math.min(100, intensity * 20), 'sine', 0.08, Math.min(0.3, 0.05 + intensity * 0.04), 40);
+  }
+
+  function playGemPickup(){
+    playTone(523.25, 'sine', 0.1, 0.25);
+    setTimeout(function(){ playTone(659.25, 'sine', 0.12, 0.25); }, 60);
+    setTimeout(function(){ playTone(783.99, 'sine', 0.18, 0.25); }, 120);
+  }
+
+  function playWarp(){
+    playTone(200, 'sawtooth', 0.25, 0.2, 900);
+  }
+
+  function playHoleFall(){
+    playTone(400, 'sine', 0.45, 0.3, 30);
+  }
+
+  function playVictory(){
+    playTone(440, 'triangle', 0.15, 0.3);
+    setTimeout(function(){ playTone(554.37, 'triangle', 0.15, 0.3); }, 100);
+    setTimeout(function(){ playTone(659.25, 'triangle', 0.25, 0.3); }, 200);
+    setTimeout(function(){ playTone(880, 'triangle', 0.4, 0.35); }, 350);
+  }
+
+  function toggle(){ enabled = !enabled; return enabled; }
+
+  return {
+    init: init, toggle: toggle, playWallHit: playWallHit,
+    playGemPickup: playGemPickup, playWarp: playWarp, playHoleFall: playHoleFall,
+    playVictory: playVictory, updateRollSound: updateRollSound,
+    isEnabled: function(){ return enabled; }
+  };
+})();
+
+/* ==========================================================================
+   2. GAME STATE & THEMES DATA
+   ========================================================================== */
+var THEMES = {
+  mahogany: {
+    bg: 0x090d16, floor: 0x3d2314, floorSub: 0x2b180d, wall: 0x6e3c1b, wallTop: 0x8a4c22,
+    ball: 0xffb703, lightColor: 0xffecd1, shadowOpacity: 0.35, particleColor: 0xf59e0b
+  },
+  temple: {
+    bg: 0x0b131f, floor: 0x4a5568, floorSub: 0x2d3748, wall: 0x718096, wallTop: 0xa0aec0,
+    ball: 0xe2e8f0, lightColor: 0xedf2f7, shadowOpacity: 0.4, particleColor: 0x6366f1
+  },
+  cyber: {
+    bg: 0x030712, floor: 0x0f172a, floorSub: 0x0284c7, wall: 0x1e1b4b, wallTop: 0x6366f1,
+    ball: 0x38bdf8, lightColor: 0x38bdf8, shadowOpacity: 0.6, particleColor: 0x38bdf8
+  },
+  lava: {
+    bg: 0x180808, floor: 0x2a0d0d, floorSub: 0x991b1b, wall: 0x450a0a, wallTop: 0xef4444,
+    ball: 0xf97316, lightColor: 0xfcb316, shadowOpacity: 0.5, particleColor: 0xef4444
+  },
+  lagoon: {
+    bg: 0x041e2b, floor: 0x0b4f6c, floorSub: 0x012a4a, wall: 0x136f63, wallTop: 0x2ec4b6,
+    ball: 0x2ec4b6, lightColor: 0xa5f3fc, shadowOpacity: 0.3, particleColor: 0x2ec4b6
+  }
+};
+
+var BALL_SKINS = [
+  { id: 'classic', name: 'Classic Gold', color: 0xffb703, metal: 0.8, rough: 0.2, price: 0, unlocked: true },
+  { id: 'chrome', name: 'Silver Chrome', color: 0xe2e8f0, metal: 1.0, rough: 0.05, price: 50, unlocked: false },
+  { id: 'neon', name: 'Neon Cyber', color: 0x38bdf8, metal: 0.4, rough: 0.1, price: 100, unlocked: false },
+  { id: 'ruby', name: 'Fire Ruby', color: 0xef4444, metal: 0.7, rough: 0.15, price: 150, unlocked: false },
+  { id: 'emerald', name: 'Mystic Emerald', color: 0x10b981, metal: 0.6, rough: 0.1, price: 200, unlocked: false }
+];
+
+/* 15 Handcrafted Maze Levels */
+var MAZE_LEVELS = [
+  // Level 1: Tutorial Curve
+  { title: "Level 1: Beginner Track", cols: 7, rows: 7, grid: [
+    1,1,1,1,1,1,1,
+    1,2,0,0,0,0,1,
+    1,1,1,1,0,1,1,
+    1,0,0,0,0,0,1,
+    1,0,1,1,1,0,1,
+    1,0,0,0,0,3,1,
+    1,1,1,1,1,1,1
+  ], gems: [{c:3,r:1},{c:1,r:3},{c:5,r:3}] },
+
+  // Level 2: Trap Holes Introduction
+  { title: "Level 2: Pitfall Path", cols: 7, rows: 7, grid: [
+    1,1,1,1,1,1,1,
+    1,2,0,1,0,0,1,
+    1,0,4,0,0,1,1,
+    1,0,1,1,0,0,1,
+    1,0,0,4,1,0,1,
+    1,1,0,0,0,3,1,
+    1,1,1,1,1,1,1
+  ], gems: [{c:4,r:1},{c:1,r:4},{c:2,r:5}] },
+
+  // Level 3: Teleport Gates
+  { title: "Level 3: Warp Chambers", cols: 9, rows: 9, grid: [
+    1,1,1,1,1,1,1,1,1,
+    1,2,0,0,1,0,0,3,1,
+    1,1,1,0,1,0,1,1,1,
+    1,0,0,0,0,0,0,0,1,
+    1,0,1,5,1,6,1,0,1,
+    1,0,0,0,0,0,0,0,1,
+    1,1,1,0,1,0,1,1,1,
+    1,0,0,0,1,0,0,0,1,
+    1,1,1,1,1,1,1,1,1
+  ], gems: [{c:3,r:1},{c:5,r:1},{c:1,r:7},{c:7,r:7}] },
+
+  // Level 4: Speed Boost Strips
+  { title: "Level 4: Speed Accelerator", cols: 9, rows: 9, grid: [
+    1,1,1,1,1,1,1,1,1,
+    1,2,0,0,0,0,0,0,1,
+    1,1,1,7,1,1,1,0,1,
+    1,0,0,0,0,4,0,0,1,
+    1,0,1,1,1,1,1,0,1,
+    1,0,0,4,0,0,0,0,1,
+    1,0,1,1,1,7,1,1,1,
+    1,0,0,0,0,0,0,3,1,
+    1,1,1,1,1,1,1,1,1
+  ], gems: [{c:7,r:1},{c:1,r:5},{c:4,r:7}] },
+
+  // Level 5: Spiral Maze
+  { title: "Level 5: Spiral Vault", cols: 9, rows: 9, grid: [
+    1,1,1,1,1,1,1,1,1,
+    1,2,0,0,0,0,0,0,1,
+    1,1,1,1,1,1,1,0,1,
+    1,0,0,0,0,0,1,0,1,
+    1,0,1,1,3,0,1,0,1,
+    1,0,1,1,1,1,1,0,1,
+    1,0,0,0,0,0,0,0,1,
+    1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1
+  ], gems: [{c:5,r:1},{c:7,r:3},{c:1,r:6}] },
+
+  // Level 6 to 15 procedural patterns generated dynamically
+];
+
+// Dynamically generate levels 6 through 15
+for(var lvl = 6; lvl <= 15; lvl++){
+  MAZE_LEVELS.push({
+    title: "Level " + lvl + ": Deep Maze " + (lvl-5),
+    cols: 9, rows: 9,
+    grid: [
+      1,1,1,1,1,1,1,1,1,
+      1,2,0,(lvl%2===0?4:0),0,0,0,0,1,
+      1,1,1,0,1,1,1,0,1,
+      1,0,0,0,0,4,0,0,1,
+      1,0,1,(lvl%3===0?5:1),1,(lvl%3===0?6:1),1,0,1,
+      1,0,0,0,0,0,0,0,1,
+      1,0,1,7,1,0,1,1,1,
+      1,0,0,0,0,0,0,3,1,
+      1,1,1,1,1,1,1,1,1
+    ],
+    gems: [{c:3,r:1},{c:7,r:3},{c:1,r:7},{c:5,r:5}]
+  });
+}
+
+var state = {
+  currentLevelIdx: 0,
+  activeTheme: 'mahogany',
+  activeBallSkin: 'classic',
+  coins: 0,
+  controlMode: 'tilt', // 'tilt' or 'direct'
+  levelData: [],
+  timer: 0,
+  timerInterval: null,
+  gemsCollected: 0,
+  totalGems: 0,
+  isGameActive: false,
+  isTiltControls: true,
+  tiltX: 0, tiltZ: 0
+};
+
+/* Load saved progress from LocalStorage */
+function loadSavedData(){
+  try {
+    var savedCoins = localStorage.getItem('lab_coins');
+    if(savedCoins) state.coins = parseInt(savedCoins, 10);
+    var savedSkin = localStorage.getItem('lab_skin');
+    if(savedSkin) state.activeBallSkin = savedSkin;
+    var savedSkinsList = localStorage.getItem('lab_unlocked_skins');
+    if(savedSkinsList){
+      var list = JSON.parse(savedSkinsList);
+      BALL_SKINS.forEach(function(s){ if(list.indexOf(s.id) !== -1) s.unlocked = true; });
+    }
+  } catch(e){}
+}
+function saveProgress(){
+  try {
+    localStorage.setItem('lab_coins', state.coins);
+    localStorage.setItem('lab_skin', state.activeBallSkin);
+    var unlocked = BALL_SKINS.filter(function(s){ return s.unlocked; }).map(function(s){ return s.id; });
+    localStorage.setItem('lab_unlocked_skins', JSON.stringify(unlocked));
+  } catch(e){}
+}
+
+/* ==========================================================================
+   3. THREE.JS 3D SCENE & ENGINE
+   ========================================================================== */
+var scene, camera, renderer, boardGroup, ballMesh;
+var wallMeshes = [], holeObjects = [], gemObjects = [], portalPairs = [], boostTileObjects = [];
+var ballPhysics = {
+  pos: new THREE.Vector3(),
+  vel: new THREE.Vector3(),
+  rot: new THREE.Euler(),
+  radius: 0.35,
+  mass: 1.0
+};
+var keysDown = {};
+var touchJoystick = { active: false, dx: 0, dy: 0 };
+
+function init3D(){
+  var container = document.getElementById('canvas-container');
+  var canvas = document.getElementById('game-canvas');
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(THEMES[state.activeTheme].bg);
+
+  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.position.set(0, 14, 12);
+  camera.lookAt(0, 0, 0);
+
+  renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  boardGroup = new THREE.Group();
+  scene.add(boardGroup);
+
+  setupLighting();
+  window.addEventListener('resize', onWindowResize);
+  setupInputHandlers();
+  animate3D();
+}
+
+var dirLight, ambLight;
+function setupLighting(){
+  ambLight = new THREE.AmbientLight(0xffffff, 0.65);
+  scene.add(ambLight);
+
+  dirLight = new THREE.DirectionalLight(THEMES[state.activeTheme].lightColor, 0.9);
+  dirLight.position.set(8, 18, 10);
+  dirLight.castShadow = true;
+  dirLight.shadow.mapSize.width = 1024;
+  dirLight.shadow.mapSize.height = 1024;
+  dirLight.shadow.camera.near = 0.5;
+  dirLight.shadow.camera.far = 40;
+  dirLight.shadow.camera.left = -12;
+  dirLight.shadow.camera.right = 12;
+  dirLight.shadow.camera.top = 12;
+  dirLight.shadow.camera.bottom = -12;
+  scene.add(dirLight);
+}
+
+function onWindowResize(){
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+/* ==========================================================================
+   4. MAZE BUILDER & LEVEL CREATOR
+   ========================================================================== */
+function buildMazeLevel(levelIdx){
+  // Clear old meshes
+  while(boardGroup.children.length > 0){
+    var child = boardGroup.children[0];
+    if(child.geometry) child.geometry.dispose();
+    if(child.material){
+      if(Array.isArray(child.material)) child.material.forEach(function(m){ m.dispose(); });
+      else child.material.dispose();
+    }
+    boardGroup.remove(child);
+  }
+  wallMeshes = []; holeObjects = []; gemObjects = []; portalPairs = []; boostTileObjects = [];
+
+  var levelData = MAZE_LEVELS[levelIdx] || MAZE_LEVELS[0];
+  state.gemsCollected = 0;
+  state.totalGems = levelData.gems ? levelData.gems.length : 0;
+  updateHUDStats();
+
+  var theme = THEMES[state.activeTheme];
+  scene.background.setHex(theme.bg);
+  dirLight.color.setHex(theme.lightColor);
+
+  var cols = levelData.cols, rows = levelData.rows;
+  var tileSize = 1.2;
+  var offsetX = -(cols * tileSize) / 2 + tileSize / 2;
+  var offsetZ = -(rows * tileSize) / 2 + tileSize / 2;
+
+  // Floor Base Board
+  var floorGeo = new THREE.BoxGeometry(cols * tileSize + 0.6, 0.4, rows * tileSize + 0.6);
+  var floorMat = new THREE.MeshStandardMaterial({
+    color: theme.floor, roughness: 0.4, metalness: 0.2
+  });
+  var floorMesh = new THREE.Mesh(floorGeo, floorMat);
+  floorMesh.position.set(0, -0.2, 0);
+  floorMesh.receiveShadow = true;
+  boardGroup.add(floorMesh);
+
+  // Wall Material
+  var wallGeo = new THREE.BoxGeometry(tileSize, 1.0, tileSize);
+  var wallMat = new THREE.MeshStandardMaterial({
+    color: theme.wall, roughness: 0.3, metalness: 0.1
+  });
+
+  var startPos = new THREE.Vector3(0, 0.35, 0);
+
+  // Parse Grid
+  for(var r = 0; r < rows; r++){
+    for(var c = 0; c < cols; c++){
+      var tileType = levelData.grid[r * cols + c];
+      var worldX = offsetX + c * tileSize;
+      var worldZ = offsetZ + r * tileSize;
+
+      if(tileType === 1){ // Wall
+        var wall = new THREE.Mesh(wallGeo, wallMat);
+        wall.position.set(worldX, 0.5, worldZ);
+        wall.castShadow = true; wall.receiveShadow = true;
+        boardGroup.add(wall);
+        wallMeshes.push({ mesh: wall, box: new THREE.Box3().setFromObject(wall) });
+      } else if(tileType === 2){ // Start
+        startPos.set(worldX, 0.35, worldZ);
+      } else if(tileType === 3){ // Goal Vortex Portal
+        createGoalPortal(worldX, worldZ);
+      } else if(tileType === 4){ // Trap Hole
+        createTrapHole(worldX, worldZ);
+      } else if(tileType === 5 || tileType === 6){ // Teleport Portals
+        createTeleportPortal(worldX, worldZ, tileType);
+      } else if(tileType === 7){ // Boost Pad
+        createBoostPad(worldX, worldZ);
+      }
+    }
+  }
+
+  // Create Gems
+  if(levelData.gems){
+    levelData.gems.forEach(function(g){
+      var worldX = offsetX + g.c * tileSize;
+      var worldZ = offsetZ + g.r * tileSize;
+      createGemCollectible(worldX, worldZ);
+    });
+  }
+
+  // Create Ball Mesh
+  createBallMesh(startPos);
+
+  // Reset Board Tilt Angle
+  boardGroup.rotation.set(0, 0, 0);
+  ballPhysics.pos.copy(startPos);
+  ballPhysics.vel.set(0, 0, 0);
+
+  drawMinimap(levelData);
+  document.getElementById('hud-level-title').textContent = levelData.title;
+}
+
+/* 3D Goal Portal Ring */
+function createGoalPortal(x, z){
+  var ringGeo = new THREE.TorusGeometry(0.45, 0.08, 16, 32);
+  var ringMat = new THREE.MeshStandardMaterial({
+    color: 0xf59e0b, emissive: 0xf59e0b, emissiveIntensity: 0.8, metalness: 0.8
+  });
+  var ringMesh = new THREE.Mesh(ringGeo, ringMat);
+  ringMesh.rotation.x = Math.PI / 2;
+  ringMesh.position.set(x, 0.05, z);
+  boardGroup.add(ringMesh);
+  holeObjects.push({ type: 'goal', x: x, z: z, mesh: ringMesh });
+}
+
+/* 3D Trap Hole */
+function createTrapHole(x, z){
+  var holeGeo = new THREE.CylinderGeometry(0.42, 0.42, 0.4, 32);
+  var holeMat = new THREE.MeshBasicMaterial({ color: 0x050508 });
+  var holeMesh = new THREE.Mesh(holeGeo, holeMat);
+  holeMesh.position.set(x, -0.19, z);
+  boardGroup.add(holeMesh);
+  holeObjects.push({ type: 'hole', x: x, z: z, mesh: holeMesh });
+}
+
+/* Teleport Gates */
+function createTeleportPortal(x, z, id){
+  var gateGeo = new THREE.TorusGeometry(0.4, 0.06, 16, 32);
+  var gateColor = id === 5 ? 0x38bdf8 : 0x8b5cf6;
+  var gateMat = new THREE.MeshStandardMaterial({
+    color: gateColor, emissive: gateColor, emissiveIntensity: 0.9
+  });
+  var gateMesh = new THREE.Mesh(gateGeo, gateMat);
+  gateMesh.rotation.x = Math.PI / 2;
+  gateMesh.position.set(x, 0.06, z);
+  boardGroup.add(gateMesh);
+  portalPairs.push({ id: id, x: x, z: z, mesh: gateMesh });
+}
+
+/* Speed Boost Pads */
+function createBoostPad(x, z){
+  var padGeo = new THREE.PlaneGeometry(0.8, 0.8);
+  var padMat = new THREE.MeshBasicMaterial({ color: 0x10b981, side: THREE.DoubleSide });
+  var padMesh = new THREE.Mesh(padGeo, padMat);
+  padMesh.rotation.x = -Math.PI / 2;
+  padMesh.position.set(x, 0.02, z);
+  boardGroup.add(padMesh);
+  boostTileObjects.push({ x: x, z: z, mesh: padMesh });
+}
+
+/* Collectible Gems */
+function createGemCollectible(x, z){
+  var gemGeo = new THREE.OctahedronGeometry(0.22, 0);
+  var gemMat = new THREE.MeshStandardMaterial({
+    color: 0xf59e0b, emissive: 0xf59e0b, emissiveIntensity: 0.6, roughness: 0.1
+  });
+  var gemMesh = new THREE.Mesh(gemGeo, gemMat);
+  gemMesh.position.set(x, 0.4, z);
+  gemMesh.castShadow = true;
+  boardGroup.add(gemMesh);
+  gemObjects.push({ x: x, z: z, mesh: gemMesh, collected: false });
+}
+
+/* Create Ball Mesh & Skin */
+function createBallMesh(startPos){
+  if(ballMesh) boardGroup.remove(ballMesh);
+
+  var skin = BALL_SKINS.find(function(s){ return s.id === state.activeBallSkin; }) || BALL_SKINS[0];
+  var ballGeo = new THREE.SphereGeometry(ballPhysics.radius, 32, 32);
+  var ballMat = new THREE.MeshStandardMaterial({
+    color: skin.color, metalness: skin.metal, roughness: skin.rough,
+    emissive: skin.color, emissiveIntensity: 0.15
+  });
+  ballMesh = new THREE.Mesh(ballGeo, ballMat);
+  ballMesh.position.copy(startPos);
+  ballMesh.castShadow = true;
+  boardGroup.add(ballMesh);
+}
+
+/* ==========================================================================
+   5. PHYSICS & MOTION ENGINE
+   ========================================================================== */
+var clock = new THREE.Clock();
+
+function updatePhysics(dt){
+  if(!state.isGameActive || !ballMesh) return;
+
+  var tiltSpeed = 1.2;
+  var targetTiltX = 0, targetTiltZ = 0;
+
+  // Keyboard / Touch Tilt Inputs
+  if(keysDown['ArrowUp'] || keysDown['KeyW']) targetTiltX = -0.26;
+  if(keysDown['ArrowDown'] || keysDown['KeyS']) targetTiltX = 0.26;
+  if(keysDown['ArrowLeft'] || keysDown['KeyA']) targetTiltZ = 0.26;
+  if(keysDown['ArrowRight'] || keysDown['KeyD']) targetTiltZ = -0.26;
+
+  if(touchJoystick.active){
+    targetTiltZ = -touchJoystick.dx * 0.28;
+    targetTiltX = touchJoystick.dy * 0.28;
+  }
+
+  state.tiltX += (targetTiltX - state.tiltX) * 0.1;
+  state.tiltZ += (targetTiltZ - state.tiltZ) * 0.1;
+
+  boardGroup.rotation.x = state.tiltX;
+  boardGroup.rotation.z = state.tiltZ;
+
+  // Gravity Acceleration vector projected on tilt angles
+  var gravity = 18.0;
+  var ax = Math.sin(state.tiltZ) * gravity;
+  var az = -Math.sin(state.tiltX) * gravity;
+
+  ballPhysics.vel.x += ax * dt;
+  ballPhysics.vel.z += az * dt;
+
+  // Friction Damping
+  ballPhysics.vel.x *= 0.975;
+  ballPhysics.vel.z *= 0.975;
+
+  // Move Ball Position
+  ballPhysics.pos.x += ballPhysics.vel.x * dt;
+  ballPhysics.pos.z += ballPhysics.vel.z * dt;
+
+  // Ball Rotation Visual Roll
+  var currentSpeed = ballPhysics.vel.length();
+  if(currentSpeed > 0.05){
+    ballMesh.rotation.z -= ballPhysics.vel.x * dt * 2.5;
+    ballMesh.rotation.x += ballPhysics.vel.z * dt * 2.5;
+    AudioEngine.updateRollSound(currentSpeed);
+  } else {
+    AudioEngine.updateRollSound(0);
+  }
+
+  // Wall Collision Detection & Reflection
+  var ballRadius = ballPhysics.radius;
+  wallMeshes.forEach(function(w){
+    var box = w.box;
+    var closestX = Math.max(box.min.x, Math.min(ballPhysics.pos.x, box.max.x));
+    var closestZ = Math.max(box.min.z, Math.min(ballPhysics.pos.z, box.max.z));
+
+    var distX = ballPhysics.pos.x - closestX;
+    var distZ = ballPhysics.pos.z - closestZ;
+    var distance = Math.sqrt(distX * distX + distZ * distZ);
+
+    if(distance < ballRadius){
+      var overlap = ballRadius - distance;
+      if(distance === 0){ distX = 1; distance = 1; }
+      var nx = distX / distance;
+      var nz = distZ / distance;
+
+      ballPhysics.pos.x += nx * overlap;
+      ballPhysics.pos.z += nz * overlap;
+
+      // Bounce Reflection
+      var dot = ballPhysics.vel.x * nx + ballPhysics.vel.z * nz;
+      if(dot < 0){
+        ballPhysics.vel.x -= 1.4 * dot * nx;
+        ballPhysics.vel.z -= 1.4 * dot * nz;
+        AudioEngine.playWallHit(Math.abs(dot));
+      }
+    }
+  });
+
+  // Collectible Gems Collision
+  gemObjects.forEach(function(gem){
+    if(!gem.collected){
+      gem.mesh.rotation.y += 0.03;
+      var dx = ballPhysics.pos.x - gem.x;
+      var dz = ballPhysics.pos.z - gem.z;
+      if(Math.sqrt(dx*dx + dz*dz) < 0.5){
+        gem.collected = true;
+        boardGroup.remove(gem.mesh);
+        state.gemsCollected++;
+        state.coins += 10;
+        AudioEngine.playGemPickup();
+        updateHUDStats();
+      }
+    }
+  });
+
+  // Teleport Gates Physics
+  portalPairs.forEach(function(portal){
+    portal.mesh.rotation.z += 0.04;
+    var dx = ballPhysics.pos.x - portal.x;
+    var dz = ballPhysics.pos.z - portal.z;
+    if(Math.sqrt(dx*dx + dz*dz) < 0.45 && !portal.cooldown){
+      var targetPortal = portalPairs.find(function(p){ return p.id !== portal.id; });
+      if(targetPortal){
+        ballPhysics.pos.x = targetPortal.x;
+        ballPhysics.pos.z = targetPortal.z;
+        portal.cooldown = true; targetPortal.cooldown = true;
+        AudioEngine.playWarp();
+        setTimeout(function(){ portal.cooldown = false; targetPortal.cooldown = false; }, 1500);
+      }
+    }
+  });
+
+  // Speed Boost Pads
+  boostTileObjects.forEach(function(b){
+    var dx = ballPhysics.pos.x - b.x;
+    var dz = ballPhysics.pos.z - b.z;
+    if(Math.sqrt(dx*dx + dz*dz) < 0.5){
+      ballPhysics.vel.z -= 8.0; // Boost forward impulse
+    }
+  });
+
+  // Holes & Goal Portal Interaction
+  holeObjects.forEach(function(h){
+    var dx = ballPhysics.pos.x - h.x;
+    var dz = ballPhysics.pos.z - h.z;
+    var dist = Math.sqrt(dx*dx + dz*dz);
+
+    if(dist < 0.65){
+      // Suction force towards hole center
+      ballPhysics.vel.x -= dx * 8.0 * dt;
+      ballPhysics.vel.z -= dz * 8.0 * dt;
+
+      if(dist < 0.3){
+        if(h.type === 'goal'){
+          triggerStageVictory();
+        } else if(h.type === 'hole'){
+          triggerHoleDrop();
+        }
+      }
+    }
+  });
+
+  ballMesh.position.copy(ballPhysics.pos);
+  updateMinimapBallPos();
+}
+
+function animate3D(){
+  requestAnimationFrame(animate3D);
+  var dt = Math.min(clock.getDelta(), 0.1);
+  updatePhysics(dt);
+  renderer.render(scene, camera);
+}
+
+/* ==========================================================================
+   6. MINIMAP RENDERER
+   ========================================================================== */
+var minimapCtx;
+function drawMinimap(levelData){
+  var canvas = document.getElementById('minimap-canvas');
+  minimapCtx = canvas.getContext('2d');
+  canvas.width = 130; canvas.height = 130;
+
+  var cols = levelData.cols, rows = levelData.rows;
+  var cellW = canvas.width / cols, cellH = canvas.height / rows;
+
+  minimapCtx.fillStyle = '#090d16';
+  minimapCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+  for(var r = 0; r < rows; r++){
+    for(var c = 0; c < cols; c++){
+      var tile = levelData.grid[r * cols + c];
+      if(tile === 1){ // Wall
+        minimapCtx.fillStyle = '#334155';
+        minimapCtx.fillRect(c * cellW, r * cellH, cellW, cellH);
+      } else if(tile === 3){ // Goal
+        minimapCtx.fillStyle = '#f59e0b';
+        minimapCtx.beginPath();
+        minimapCtx.arc(c * cellW + cellW/2, r * cellH + cellH/2, cellW/3, 0, Math.PI*2);
+        minimapCtx.fill();
+      } else if(tile === 4){ // Hole
+        minimapCtx.fillStyle = '#ef4444';
+        minimapCtx.beginPath();
+        minimapCtx.arc(c * cellW + cellW/2, r * cellH + cellH/2, cellW/3, 0, Math.PI*2);
+        minimapCtx.fill();
+      }
+    }
+  }
+}
+
+function updateMinimapBallPos(){
+  if(!minimapCtx || !MAZE_LEVELS[state.currentLevelIdx]) return;
+  var levelData = MAZE_LEVELS[state.currentLevelIdx];
+  var cols = levelData.cols, rows = levelData.rows;
+  var tileSize = 1.2;
+  var offsetX = -(cols * tileSize) / 2 + tileSize / 2;
+  var offsetZ = -(rows * tileSize) / 2 + tileSize / 2;
+
+  var c = (ballPhysics.pos.x - offsetX + tileSize/2) / tileSize;
+  var r = (ballPhysics.pos.z - offsetZ + tileSize/2) / tileSize;
+
+  var canvas = document.getElementById('minimap-canvas');
+  var px = (c / cols) * canvas.width;
+  var py = (r / rows) * canvas.height;
+
+  drawMinimap(levelData);
+  minimapCtx.fillStyle = '#38bdf8';
+  minimapCtx.shadowColor = '#38bdf8'; minimapCtx.shadowBlur = 8;
+  minimapCtx.beginPath();
+  minimapCtx.arc(px, py, 4.5, 0, Math.PI * 2);
+  minimapCtx.fill();
+}
+
+/* ==========================================================================
+   7. GAMEPLAY FLOW & MODALS
+   ========================================================================== */
+function startLevel(idx){
+  state.currentLevelIdx = idx;
+  state.isGameActive = true;
+  state.timer = 0;
+  buildMazeLevel(idx);
+  closeAllScreens();
+
+  clearInterval(state.timerInterval);
+  state.timerInterval = setInterval(function(){
+    if(state.isGameActive){
+      state.timer++;
+      var m = String(Math.floor(state.timer / 60)).padStart(2, '0');
+      var s = String(state.timer % 60).padStart(2, '0');
+      document.getElementById('hud-timer').textContent = "⏱️ " + m + ":" + s;
+    }
+  }, 1000);
+
+  showToast("Maze Loaded! Tilt board to roll ball.");
+}
+
+function triggerHoleDrop(){
+  state.isGameActive = false;
+  AudioEngine.playHoleFall();
+  gsap.to(ballMesh.position, { y: -2, duration: 0.5, onComplete: function(){
+    document.getElementById('gameover-screen').classList.add('active');
+  }});
+}
+
+function triggerStageVictory(){
+  state.isGameActive = false;
+  clearInterval(state.timerInterval);
+  AudioEngine.playVictory();
+
+  if(typeof confetti === 'function'){
+    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+  }
+
+  // Calculate Star Rating
+  var stars = 1;
+  if(state.gemsCollected >= state.totalGems) stars++;
+  if(state.timer <= 30) stars++;
+
+  document.getElementById('star-1').classList.add('earned');
+  if(stars >= 2) document.getElementById('star-2').classList.add('earned');
+  if(stars >= 3) document.getElementById('star-3').classList.add('earned');
+
+  var m = String(Math.floor(state.timer / 60)).padStart(2, '0');
+  var s = String(state.timer % 60).padStart(2, '0');
+  document.getElementById('victory-time-val').textContent = m + ":" + s;
+  document.getElementById('victory-gems-val').textContent = state.gemsCollected + "/" + state.totalGems;
+  document.getElementById('victory-level-name').textContent = MAZE_LEVELS[state.currentLevelIdx].title;
+
+  saveProgress();
+  document.getElementById('victory-screen').classList.add('active');
+}
+
+function updateHUDStats(){
+  document.getElementById('hud-gems').textContent = "💎 " + state.gemsCollected + "/" + state.totalGems;
+  document.getElementById('shop-coins-val').textContent = state.coins;
+}
+
+function showToast(text){
+  var toast = document.getElementById('status-toast');
+  toast.textContent = text; toast.classList.add('show');
+  setTimeout(function(){ toast.classList.remove('show'); }, 2500);
+}
+
+function closeAllScreens(){
+  document.querySelectorAll('.screen-overlay').forEach(function(s){ s.classList.remove('active'); });
+}
+
+/* ==========================================================================
+   8. INPUT HANDLERS & TOUCH JOYSTICK
+   ========================================================================== */
+function setupInputHandlers(){
+  window.addEventListener('keydown', function(e){ keysDown[e.code] = true; });
+  window.addEventListener('keyup', function(e){ keysDown[e.code] = false; });
+
+  // Touch Virtual Joystick on Mobile
+  var joyZone = document.getElementById('joystick-zone');
+  var joyKnob = document.getElementById('joystick-knob');
+  if('ontouchstart' in window) joyZone.style.display = 'block';
+
+  joyZone.addEventListener('touchstart', function(e){
+    touchJoystick.active = true;
+  });
+  joyZone.addEventListener('touchmove', function(e){
+    if(!touchJoystick.active) return;
+    var rect = joyZone.getBoundingClientRect();
+    var touch = e.touches[0];
+    var dx = touch.clientX - (rect.left + rect.width/2);
+    var dy = touch.clientY - (rect.top + rect.height/2);
+    var dist = Math.sqrt(dx*dx + dy*dy);
+    var maxDist = 40;
+    if(dist > maxDist){ dx = (dx/dist)*maxDist; dy = (dy/dist)*maxDist; }
+    touchJoystick.dx = dx / maxDist;
+    touchJoystick.dy = dy / maxDist;
+    joyKnob.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+  });
+  joyZone.addEventListener('touchend', function(){
+    touchJoystick.active = false; touchJoystick.dx = 0; touchJoystick.dy = 0;
+    joyKnob.style.transform = 'translate(0px, 0px)';
+  });
+}
+
+/* ==========================================================================
+   9. UI MODALS & SHOP EVENT BINDINGS
+   ========================================================================== */
+function setupUIEvents(){
+  loadSavedData();
+
+  // Play Button
+  document.getElementById('btn-play-game').addEventListener('click', function(){
+    AudioEngine.init();
+    startLevel(0);
+  });
+
+  // Level Select Grid Render
+  var gridContainer = document.getElementById('level-grid-container');
+  MAZE_LEVELS.forEach(function(lvl, idx){
+    var chip = document.createElement('div');
+    chip.className = 'level-chip';
+    chip.innerHTML = '<div class="level-num">' + (idx+1) + '</div><div class="level-stars">⭐⭐⭐</div>';
+    chip.addEventListener('click', function(){
+      startLevel(idx);
+    });
+    gridContainer.appendChild(chip);
+  });
+
+  // Ball Shop Grid Render
+  var shopContainer = document.getElementById('shop-grid-container');
+  BALL_SKINS.forEach(function(skin){
+    var card = document.createElement('div');
+    card.className = 'shop-card' + (skin.id === state.activeBallSkin ? ' active' : '');
+    card.innerHTML = '<div class="ball-preview-circle" style="background:#' + skin.color.toString(16) + ';"></div>' +
+                     '<div class="shop-ball-name">' + skin.name + '</div>' +
+                     '<div class="shop-ball-price">' + (skin.unlocked ? 'Unlocked' : skin.price + ' 🪙') + '</div>';
+    card.addEventListener('click', function(){
+      if(skin.unlocked){
+        state.activeBallSkin = skin.id;
+        document.querySelectorAll('.shop-card').forEach(function(c){ c.classList.remove('active'); });
+        card.classList.add('active');
+        saveProgress();
+        showToast("Equipped " + skin.name + "!");
+      } else if(state.coins >= skin.price){
+        state.coins -= skin.price;
+        skin.unlocked = true;
+        state.activeBallSkin = skin.id;
+        card.classList.add('active');
+        saveProgress();
+        showToast("Unlocked " + skin.name + "!");
+        updateHUDStats();
+      } else {
+        showToast("Need more coins!");
+      }
+    });
+    shopContainer.appendChild(card);
+  });
+
+  // Theme Selector
+  document.querySelectorAll('.theme-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.theme-btn').forEach(function(b){ b.classList.remove('active'); });
+      this.classList.add('active');
+      state.activeTheme = this.dataset.theme;
+      buildMazeLevel(state.currentLevelIdx);
+    });
+  });
+
+  // Modal Toggles
+  document.getElementById('btn-levels-toggle').addEventListener('click', function(){
+    document.getElementById('levels-screen').classList.add('active');
+  });
+  document.getElementById('btn-splash-levels').addEventListener('click', function(){
+    document.getElementById('levels-screen').classList.add('active');
+  });
+  document.getElementById('btn-levels-close').addEventListener('click', closeAllScreens);
+
+  document.getElementById('btn-shop-toggle').addEventListener('click', function(){
+    document.getElementById('shop-screen').classList.add('active');
+  });
+  document.getElementById('btn-splash-shop').addEventListener('click', function(){
+    document.getElementById('shop-screen').classList.add('active');
+  });
+  document.getElementById('btn-shop-close').addEventListener('click', closeAllScreens);
+
+  document.getElementById('btn-settings-toggle').addEventListener('click', function(){
+    document.getElementById('settings-screen').classList.add('active');
+  });
+  document.getElementById('btn-settings-close').addEventListener('click', closeAllScreens);
+
+  // Victory Modals Buttons
+  document.getElementById('btn-victory-next').addEventListener('click', function(){
+    if(state.currentLevelIdx + 1 < MAZE_LEVELS.length){
+      startLevel(state.currentLevelIdx + 1);
+    } else {
+      showToast("All levels completed! Replaying Level 1.");
+      startLevel(0);
+    }
+  });
+  document.getElementById('btn-victory-levels').addEventListener('click', function(){
+    closeAllScreens();
+    document.getElementById('levels-screen').classList.add('active');
+  });
+
+  document.getElementById('btn-retry-level').addEventListener('click', function(){
+    startLevel(state.currentLevelIdx);
+  });
+  document.getElementById('btn-gameover-levels').addEventListener('click', function(){
+    closeAllScreens();
+    document.getElementById('levels-screen').classList.add('active');
+  });
+}
+
+// Initialize Game Engine on Page Load
+window.addEventListener('DOMContentLoaded', function(){
+  init3D();
+  setupUIEvents();
+});
+
+})();
+</script>
+</body>
+</html>

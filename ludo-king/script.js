@@ -13,6 +13,7 @@ var AudioEngine = (function(){
 
   var soundPools = {};
   var POOL_SIZE = 5;
+  var _activeSounds = [];
 
   function playFile(filename, vol, rate){
     if(!enabled) return;
@@ -39,9 +40,33 @@ var AudioEngine = (function(){
       snd.currentTime = 0;
       snd.volume = (vol !== undefined) ? vol : 1.0;
       if (rate !== undefined) snd.playbackRate = rate;
+      if (_activeSounds.indexOf(snd) === -1) _activeSounds.push(snd);
       var p = snd.play();
       if(p && p.catch) p.catch(function(){});
     } catch(e) {  }
+  }
+
+  function stopAll(){
+    try {
+      _activeSounds.forEach(function(s){
+        if(s){
+          s.pause();
+          s.currentTime = 0;
+        }
+      });
+      _activeSounds = [];
+      Object.keys(soundPools).forEach(function(key){
+        soundPools[key].forEach(function(s){
+          if(s){
+            s.pause();
+            s.currentTime = 0;
+          }
+        });
+      });
+      if(ctx && ctx.state === 'running'){
+        ctx.suspend();
+      }
+    } catch(e){}
   }
 
   function playTone(freq, type, duration, gainVal){
@@ -82,6 +107,7 @@ var AudioEngine = (function(){
   return {
     toggle: function(){ enabled = !enabled; return enabled; },
     isEnabled: function(){ return enabled; },
+    stopAll: stopAll,
 
     // Authentic Ludo King Audio FX
     diceRoll: function(){
@@ -101,7 +127,7 @@ var AudioEngine = (function(){
     },
 
     enterHome: function(){
-      playFile('home.mp3', 1.0);
+      playFile('home_win.mp3', 1.0);
     },
 
     homeWin: function(){
@@ -125,16 +151,8 @@ var AudioEngine = (function(){
     },
 
     playStyleSound: function(styleName){
-      if(!enabled) return;
-      if(styleName === 'teleport'){
-        playFile('safe_spot.mp3', 1.0);
-      } else if(styleName === 'surf'){
-        playFile('home.mp3', 0.8);
-      } else if(styleName === 'meteor'){
-        playFile('collide.mp3', 1.0);
-      } else {
-        playFile('ui.mp3', 0.8);
-      }
+      // Use default arcade hop step audio for all movement styles
+      return;
     }
   };
 })();
@@ -572,11 +590,11 @@ function build3DBoard(){
       
       var ringGeo = new THREE.CylinderGeometry(cellSize * 0.68, cellSize * 0.68, 0.02, 48);
       var ringMat = new THREE.MeshStandardMaterial({
-        color: isLight ? 0xffffff : 0x1e293b,
-        roughness: isLight ? 0.20 : 0.25,
-        metalness: isLight ? 0.0 : 0.05,
-        emissive: isLight ? 0xffffff : 0x000000,
-        emissiveIntensity: isLight ? 0.03 : 0
+        color: isLight ? 0xe2e8f0 : 0x1e293b,
+        roughness: isLight ? 0.35 : 0.25,
+        metalness: isLight ? 0.05 : 0.05,
+        emissive: 0x000000,
+        emissiveIntensity: 0
       });
       var ringMesh = new THREE.Mesh(ringGeo, ringMat);
       ringMesh.position.set(nx, 0.176, nz);
@@ -588,11 +606,11 @@ function build3DBoard(){
       discMesh.position.set(nx, 0.182, nz);
       boardGroup.add(discMesh);
       
-      var shadowGeo = new THREE.TorusGeometry(cellSize * 0.52, 0.008, 12, 48);
+      var shadowGeo = new THREE.TorusGeometry(cellSize * 0.52, 0.009, 12, 48);
       var shadowMat = new THREE.MeshStandardMaterial({
-        color: isLight ? 0x64748b : 0x000000,
-        roughness: 0.9,
-        opacity: isLight ? 0.12 : 0.25,
+        color: isLight ? 0x475569 : 0x000000,
+        roughness: 0.8,
+        opacity: isLight ? 0.32 : 0.25,
         transparent: true
       });
       var shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
@@ -1507,8 +1525,78 @@ function animate(){
     });
   }
   updateYardBaseHighlight(now);
+  updateDestinationTileGlows();
   update3DPawnPositions();
   renderer.render(scene, camera);
+}
+
+var _glowTextureCache = {};
+function getPawnGlowTexture(colorName){
+  if (_glowTextureCache[colorName]) return _glowTextureCache[colorName];
+  
+  var hexMap = {
+    red:    '#ff2222',
+    green:  '#00ff44',
+    yellow: '#ffcc00',
+    blue:   '#0088ff'
+  };
+  var hexStr = hexMap[colorName] || '#00ff44';
+  
+  var canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 256;
+  var ctx = canvas.getContext('2d');
+  
+  var cObj = new THREE.Color(hexStr);
+  var r = Math.round(cObj.r * 255);
+  var g = Math.round(cObj.g * 255);
+  var b = Math.round(cObj.b * 255);
+  
+  var grad = ctx.createRadialGradient(128, 128, 0, 128, 128, 120);
+  grad.addColorStop(0.0, 'rgba(' + r + ',' + g + ',' + b + ', 1.0)');
+  grad.addColorStop(0.2, 'rgba(' + r + ',' + g + ',' + b + ', 0.95)');
+  grad.addColorStop(0.5, 'rgba(' + r + ',' + g + ',' + b + ', 0.50)');
+  grad.addColorStop(0.8, 'rgba(' + r + ',' + g + ',' + b + ', 0.15)');
+  grad.addColorStop(1.0, 'rgba(' + r + ',' + g + ',' + b + ', 0.0)');
+  
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 256, 256);
+  
+  var texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  _glowTextureCache[colorName] = texture;
+  return texture;
+}
+
+var _targetTileGlowMeshes = [];
+function initTargetTileGlowMeshes(){
+  if (!boardGroup || _targetTileGlowMeshes.length > 0) return;
+  PLAYERS.forEach(function(color){
+    var tex = getPawnGlowTexture(color);
+    var geo = new THREE.PlaneGeometry(0.56, 0.56);
+    var mat = new THREE.MeshBasicMaterial({
+      map: tex,
+      transparent: true,
+      opacity: 0.85,
+      depthWrite: false,
+      depthTest: true,
+      side: THREE.DoubleSide
+    });
+    var glowMesh = new THREE.Mesh(geo, mat);
+    glowMesh.rotation.x = -Math.PI / 2;
+    glowMesh.visible = false;
+    glowMesh.name = "targetGlow_" + color;
+    boardGroup.add(glowMesh);
+    _targetTileGlowMeshes.push(glowMesh);
+  });
+}
+
+function updateDestinationTileGlows(){
+  if (_targetTileGlowMeshes && _targetTileGlowMeshes.length > 0) {
+    _targetTileGlowMeshes.forEach(function(glowMesh){
+      if (glowMesh) glowMesh.visible = false;
+    });
+  }
 }
 
 var PLAYERS = ['red', 'green', 'yellow', 'blue'];
@@ -1896,14 +1984,7 @@ function walkPieceHome(vm, color, tokIdx, currentStep, onDone){
     requestAnimationFrame(spin);
   })();
   
-  var audioTicks = pts.map(function(pt, idx){
-    return {
-      atT: idx / Math.max(1, pts.length - 1),
-      fn: function(){
-        AudioEngine.step(idx + 1);
-      }
-    };
-  });
+  var audioTicks = [];
   animatePieceAlongPath(pts, vm, totalMs, 0.12, audioTicks, function(){
     spinId.active = false;
     vm.rotation.y = 0;
@@ -1977,6 +2058,9 @@ function getStepCoord(color, step){
   return null;
 }
 function trigger3DTileBounce(coord, colorHex, isFinal) {
+  // Whole square tile highlighting animation commented out per user request
+  return;
+  /*
   if (!coord) return;
   var key = coord.r + '_' + coord.c;
   var tileMesh = _tileMeshMap[key];
@@ -2040,7 +2124,46 @@ function trigger3DTileBounce(coord, colorHex, isFinal) {
     }
   }
   requestAnimationFrame(animTile);
+  */
 }
+function showStartTileGlow(coord, colorName, totalMoveDuration){
+  if (!coord || !boardGroup) return;
+  var worldPos = gridToWorld(coord.r, coord.c);
+  var tex = getPawnGlowTexture(colorName);
+  var geo = new THREE.PlaneGeometry(0.58, 0.58);
+  var mat = new THREE.MeshBasicMaterial({
+    map: tex,
+    transparent: true,
+    opacity: 0.95,
+    depthWrite: false,
+    depthTest: true,
+    side: THREE.DoubleSide
+  });
+  var glowMesh = new THREE.Mesh(geo, mat);
+  glowMesh.rotation.x = -Math.PI / 2;
+  glowMesh.position.set(worldPos.x, 0.084, worldPos.z);
+  glowMesh.scale.set(0.9, 0.9, 1.0);
+  boardGroup.add(glowMesh);
+
+  var t0 = performance.now();
+  var dur = totalMoveDuration || 650;
+  function anim(now){
+    var progress = Math.min((now - t0) / dur, 1.0);
+    var pulse = (Math.sin(progress * Math.PI * 2) + 1) / 2;
+    var s = 0.85 + pulse * 0.20;
+    glowMesh.scale.set(s, s, 1.0);
+    mat.opacity = 0.95 * (1.0 - Math.pow(progress, 2));
+    if (progress < 1.0){
+      requestAnimationFrame(anim);
+    } else {
+      boardGroup.remove(glowMesh);
+      geo.dispose();
+      mat.dispose();
+    }
+  }
+  requestAnimationFrame(anim);
+}
+
 function executeMove(color, tokIdx){
   if(gameState.isMoving) return;
   gameState.isMoving = true;
@@ -2049,23 +2172,20 @@ function executeMove(color, tokIdx){
   var roll = gameState.diceValue;
   var mesh = tokenMeshes[color][tokIdx];
   
+  var currentStepDur = Math.max(15, Math.round(260 / (window.gameSpeedMultiplier || 1))); 
+  var colorHex  = PLAYER_COLORS_HEX[color] || 0xffffff;
+
   if(tok.step === -1 && roll === 6){
     tok.step = 0;
     AudioEngine.step(1);
+    var dest = getWorldForStep(color, 0);
+
     if(mesh){
-      var startPos = { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z };
-      var endPos   = getWorldForStep(color, 0);
-      var stepCoord = getStepCoord(color, 0);
-      var colorHex  = PLAYER_COLORS_HEX[color] || 0xffffff;
-      var highlightTile = function(){
-        trigger3DTileBounce(stepCoord, colorHex, true);
-      };
-      animatePieceTo(mesh, endPos.x, endPos.y, endPos.z, 520, 0.9, highlightTile, function(){
+      animatePieceTo(mesh, dest.x, dest.y, dest.z, 480, 0.8, null, function(){
         gameState.isMoving = false;
         postMoveCheck(color, tokIdx, true);
       });
     } else {
-      trigger3DTileBounce(getStepCoord(color, 0), PLAYER_COLORS_HEX[color] || 0xffffff, true);
       gameState.isMoving = false;
       postMoveCheck(color, tokIdx, true);
     }
@@ -2073,7 +2193,6 @@ function executeMove(color, tokIdx){
   }
   
   var stepsLeft = roll;
-  var currentStepDur = Math.max(15, Math.round(260 / (window.gameSpeedMultiplier || 1))); 
   var HOP_H     = 0.20;
   function doNextStep(){
     if(stepsLeft <= 0){
@@ -2081,23 +2200,27 @@ function executeMove(color, tokIdx){
       postMoveCheck(color, tokIdx, false);
       return;
     }
+
+    // Capture the tile where the piece WAS standing BEFORE this hop step
+    var fromCoord = getStepCoord(color, tok.step);
+
     tok.step++;
     stepsLeft--;
     AudioEngine.step(tok.step);
     var dest = getWorldForStep(color, tok.step);
     var isFinal = (stepsLeft === 0);
-    var stepCoord = getStepCoord(color, tok.step);
-    var colorHex  = PLAYER_COLORS_HEX[color] || 0xffffff;
 
-    var highlightTile = function(){
-      trigger3DTileBounce(stepCoord, colorHex, isFinal);
-    };
+    // Show glow & bounce ONLY on fromCoord (the tile where the piece USED TO BE)!
+    if (fromCoord) {
+      showStartTileGlow(fromCoord, color, currentStepDur + 350);
+      trigger3DTileBounce(fromCoord, colorHex, true);
+    }
 
     if(mesh){
       var hop = isFinal ? HOP_H * 2.0 : HOP_H;
-      animatePieceTo(mesh, dest.x, dest.y, dest.z, currentStepDur, hop, highlightTile, doNextStep);
+      // Landing / future tiles get null (NO bounce / highlight on landing tiles)
+      animatePieceTo(mesh, dest.x, dest.y, dest.z, currentStepDur, hop, null, doNextStep);
     } else {
-      highlightTile();
       setTimeout(doNextStep, currentStepDur);
     }
   }
@@ -2268,6 +2391,7 @@ function postMoveCheck(color, tokIdx, wasSpawn){
   if(checkPlayerWin(color)){
     if(gameState.winners.indexOf(color) === -1){
       gameState.winners.push(color);
+      recordMatchResult();
       triggerGrandVictoryCelebration(color);
 
       if(gameState.ruleType === 'quick'){
@@ -2390,6 +2514,24 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(function(s){ s.classList.add('hidden'); });
   var target = document.getElementById(id);
   if(target) target.classList.remove('hidden');
+
+  if (id === 'stats-screen' || id === 'main-menu') {
+    updateComputerStatsDisplay();
+  }
+
+  if (id !== 'game-screen') {
+    if (AudioEngine && AudioEngine.stopAll) {
+      AudioEngine.stopAll();
+    }
+    if (gameState) {
+      gameState.gameOver = true;
+      gameState.isMoving = false;
+      gameState.isRolling = false;
+    }
+    if (typeof stopVictoryBoardSpotlight === 'function') {
+      stopVictoryBoardSpotlight();
+    }
+  }
 }
 var _statusTimeout = null;
 function updateStatus(text){
@@ -2576,15 +2718,37 @@ function updateTurnDisplay(){
   }
 }
 function startMatch(){
+  if (AudioEngine && AudioEngine.stopAll) {
+    AudioEngine.stopAll();
+  }
   AudioEngine.gameStart();
   stopVictoryBoardSpotlight();
   gameState.winners = [];
   gameState.gameOver = false;
+  gameState.isMoving = false;
+  gameState.isRolling = false;
   gameState.hasKilled = { red: false, green: false, yellow: false, blue: false };
   gameState.currentTurnIdx = 0;
   gameState.hasRolled = false;
+  gameState.diceValue = 1;
   gameState.consecutiveSixes = 0;
+  gameState.statsRecorded = false;
   gameState.rollHistory = { red: [], green: [], yellow: [], blue: [] };
+
+  PLAYERS.forEach(function(p){
+    var el = document.getElementById('dice-cube-' + p);
+    if(el) {
+      el.classList.remove('dice-rolling');
+      el.style.transition = 'none';
+      setDiceFace(el, 1);
+    }
+  });
+  var centralEl = document.getElementById('dice-cube-central');
+  if(centralEl) {
+    centralEl.classList.remove('dice-rolling');
+    centralEl.style.transition = 'none';
+    setDiceFace(centralEl, 1);
+  }
   function setEndMatchButtonVisible(visible) {
     var endTopBtn = document.getElementById('btn-end-match-now');
     var menuEndBtn = document.getElementById('btn-menu-end-now');
@@ -2601,9 +2765,9 @@ function startMatch(){
   if(promptModal) promptModal.classList.add('hidden');
   var restartBtn = document.getElementById('btn-game-restart');
   if (restartBtn) {
-    restartBtn.disabled = true;
-    restartBtn.style.opacity = '0.3';
-    restartBtn.style.pointerEvents = 'none';
+    restartBtn.disabled = false;
+    restartBtn.style.opacity = '1';
+    restartBtn.style.pointerEvents = 'auto';
   }
   if (!gameState.humanColor) gameState.humanColor = 'red';
   gameState.activePlayers = getActiveColors();
@@ -2697,18 +2861,23 @@ function endMatch(){
     podium.appendChild(row);
   });
   
-  if(gameState.mode === 'ai'){
-    var s = getComputerStats();
-    s.matchesPlayed = (s.matchesPlayed || 0) + 1;
-    var champ = finalOrder[0];
-    if(champ && champ !== gameState.humanColor){
-      s.computerWins = (s.computerWins || 0) + 1;
-    } else {
-      s.humanWins = (s.humanWins || 0) + 1;
-    }
-    saveComputerStats(s);
-  }
+  recordMatchResult();
   modal.classList.remove('hidden');
+}
+
+function recordMatchResult(){
+  if(!gameState || gameState.mode !== 'ai' || gameState.statsRecorded) return;
+  gameState.statsRecorded = true;
+  var s = getComputerStats();
+  s.matchesPlayed = (s.matchesPlayed || 0) + 1;
+  var winner = (gameState.winners && gameState.winners.length > 0) ? gameState.winners[0] : null;
+  if(winner && winner === gameState.humanColor){
+    s.humanWins = (s.humanWins || 0) + 1;
+  } else if(winner) {
+    s.computerWins = (s.computerWins || 0) + 1;
+  }
+  saveComputerStats(s);
+  updateComputerStatsDisplay();
 }
 
 function getComputerStats(){
@@ -2969,7 +3138,7 @@ function toggle2D3DView(force) {
   
   boardRotX = gameState.is2DMode ? (Math.PI / 2) : 0.55;
   updateViewModeUI();
-  updateTurnDisplay();
+  startMatch();
   updateStatus(gameState.is2DMode ? "Switched to 2D Top-Down View 📐" : "Switched to 3D Perspective View 🎲");
 }
 
@@ -3595,22 +3764,24 @@ function bindEvents(){
     }
     startMatch();
   });
-  var centralBox = document.getElementById('dice-box-central');
-  if(centralBox){
-    centralBox.addEventListener('click', function(){
+  var centralUi = document.getElementById('central-dice-ui');
+  if(centralUi){
+    centralUi.addEventListener('click', function(){
       var current = getCurrentPlayer();
       if(gameState.mode === 'ai' && current !== gameState.humanColor) return;
-      if (!gameState.is2DMode) rollDice();
+      rollDice();
     });
   }
   
   ['red', 'green', 'yellow', 'blue'].forEach(function(color) {
-    var box = document.getElementById('dice-box-' + color);
-    if (box) {
-      box.addEventListener('click', function(){
+    var ui = document.getElementById('dice-ui-' + color);
+    if (ui) {
+      ui.addEventListener('click', function(){
         var current = getCurrentPlayer();
         if(gameState.mode === 'ai' && current !== gameState.humanColor) return;
-        if (gameState.is2DMode && current === color) rollDice();
+        if (current === color || !gameState.is2DMode) {
+          rollDice();
+        }
       });
     }
   });

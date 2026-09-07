@@ -639,6 +639,7 @@ body.theme-dark #hamburger-dropdown .btn-ghost:hover {
   border: 2px solid #334155;
   box-shadow: 0 4px 12px rgba(0,0,0,0.6);
   z-index: 90 !important; pointer-events: auto;
+  cursor: pointer;
   transition: opacity var(--dur-med) var(--ease), border-color var(--dur-med) var(--ease), box-shadow var(--dur-med) var(--ease);
   overflow: visible !important;
   opacity: 1;

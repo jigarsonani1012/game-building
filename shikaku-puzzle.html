@@ -508,6 +508,85 @@
         min-width: 30px;
         min-height: 30px;
       }
+      .howto-hero {
+        background: linear-gradient(135deg, var(--surface-2), var(--surface));
+        border-color: var(--accent);
+      }
+      .howto-step {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 1rem;
+        align-items: center;
+      }
+      .howto-step-number {
+        display: grid;
+        place-items: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 999px;
+        background: var(--accent);
+        color: var(--accent-text);
+        font-weight: 800;
+        font-size: 0.85rem;
+      }
+      .howto-step-content {
+        display: grid;
+        grid-template-columns: minmax(120px, auto) minmax(0, 1fr);
+        gap: 1rem;
+        align-items: center;
+      }
+      .howto-rules {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.75rem;
+      }
+      .howto-rule {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.85rem;
+      }
+      .howto-rule-label {
+        color: var(--accent);
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .howto-rule .howto-grid {
+        align-self: center;
+      }
+      .howto-move {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.65rem;
+      }
+      .howto-move-item {
+        min-height: 92px;
+        padding: 0.8rem;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+      }
+      .howto-move-item strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: var(--accent);
+        font-size: 0.78rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      @media (max-width: 640px) {
+        .howto-rules {
+          grid-template-columns: 1fr;
+        }
+        .howto-step-content {
+          grid-template-columns: 1fr;
+        }
+        .howto-move {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
       #debugOverlay {
         position: fixed;
         bottom: 8px;
@@ -550,16 +629,6 @@
       .reduced-motion * {
         animation-duration: 0.01ms !important;
         transition-duration: 0.01ms !important;
-      }
-      .coach {
-        position: fixed;
-        z-index: 70;
-        background: var(--surface);
-        border: 2px solid var(--accent);
-        border-radius: 16px;
-        padding: 1rem 1.2rem;
-        box-shadow: var(--shadow);
-        max-width: 320px;
       }
       .pulse-ring {
         animation: pring 1.6s ease-in-out infinite;
@@ -1161,29 +1230,7 @@
               ></canvas>
             </div>
 
-            <div class="grid grid-cols-5 gap-2 mt-2 w-full max-w-xl">
-              <button id="btnUndo" class="icon-btn" aria-label="Undo (Ctrl Z)">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M9 14 4 9l5-5" />
-                  <path d="M4 9h10a6 6 0 0 1 0 12h-3" /></svg
-                >UNDO
-              </button>
-              <button id="btnRedo" class="icon-btn" aria-label="Redo">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="m15 14 5-5-5-5" />
-                  <path d="M20 9H10a6 6 0 0 0 0 12h3" /></svg
-                >REDO
-              </button>
+            <div class="grid grid-cols-2 gap-2 mt-2 w-full max-w-xl">
               <button id="btnHint" class="icon-btn" aria-label="Hint (H)">
                 <svg
                   viewBox="0 0 24 24"
@@ -1196,21 +1243,6 @@
                     d="M12 3a6 6 0 0 0-4 10.5c.8.7 1 1.5 1 2.5h6c0-1 .2-1.8 1-2.5A6 6 0 0 0 12 3z"
                   /></svg
                 >HINT
-              </button>
-              <button
-                id="btnErase"
-                class="icon-btn"
-                aria-label="Erase selected (Delete)"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="m7 21-4-4 10-10 4 4L7 21z" />
-                  <path d="M13 7l4 4" /></svg
-                >ERASE
               </button>
               <button id="btnReset" class="icon-btn" aria-label="Reset (R)">
                 <svg
@@ -1383,14 +1415,35 @@
 
       <!-- HOWTO -->
       <section id="view-howto" class="view">
-        <div class="max-w-2xl mx-auto space-y-4">
-          <div class="card p-6 text-center">
-            <div class="chip mb-2">Rules in 30 seconds</div>
-            <h2 class="font-display text-3xl font-bold">
-              Draw rectangles.<br />Respect the numbers.
-            </h2>
+        <div class="max-w-3xl mx-auto space-y-4">
+          <div class="card howto-hero p-6 sm:p-8">
+            <div class="flex items-start justify-between gap-4 flex-wrap">
+              <div>
+                <div class="chip mb-3">Quick guide</div>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold">
+                  Solve the grid<br />one certainty at a time.
+                </h2>
+                <p class="mt-3 max-w-xl" style="color: var(--text-muted)">
+                  Turn every clue into one rectangle, then fit the whole board
+                  together without gaps or overlaps.
+                </p>
+              </div>
+              <div class="text-right text-sm" style="color: var(--text-muted)">
+                <div class="font-bold" style="color: var(--text)">Goal</div>
+                <div>One complete parcel map</div>
+              </div>
+            </div>
           </div>
-          <div class="card p-5 flex gap-4 items-center">
+          <div class="flex items-end justify-between gap-3 pt-1">
+            <div>
+              <div class="chip mb-2">The rules</div>
+              <h3 class="font-display text-xl font-bold">Three things to remember</h3>
+            </div>
+            <span class="text-xs font-bold" style="color: var(--text-muted)">01 — 03</span>
+          </div>
+          <div class="howto-rules">
+          <div class="card howto-rule p-5">
+            <div class="howto-rule-label">Rule 01 · Count</div>
             <div
               class="howto-grid"
               style="grid-template-columns: repeat(4, 30px)"
@@ -1420,14 +1473,15 @@
               <div></div>
             </div>
             <div>
-              <b>1 · The number is the area.</b>
+              <b>The number is the area.</b>
               <p class="text-sm" style="color: var(--text-muted)">
                 A clue “4” must live inside a rectangle of exactly 4 cells —
                 1×4, 4×1 or 2×2.
               </p>
             </div>
           </div>
-          <div class="card p-5 flex gap-4 items-center">
+          <div class="card howto-rule p-5">
+            <div class="howto-rule-label">Rule 02 · Contain</div>
             <div
               class="howto-grid"
               style="grid-template-columns: repeat(4, 30px)"
@@ -1458,14 +1512,15 @@
               <div></div>
             </div>
             <div>
-              <b>2 · Exactly one clue per rectangle.</b>
+              <b>Exactly one clue per rectangle.</b>
               <p class="text-sm" style="color: var(--text-muted)">
                 This 3×2 rectangle holds one “6”. Two clues inside? Invalid.
                 Zero? Invalid.
               </p>
             </div>
           </div>
-          <div class="card p-5 flex gap-4 items-center">
+          <div class="card howto-rule p-5">
+            <div class="howto-rule-label">Rule 03 · Cover</div>
             <div
               class="howto-grid"
               style="grid-template-columns: repeat(4, 30px)"
@@ -1495,11 +1550,22 @@
               <div></div>
             </div>
             <div>
-              <b>3 · No gaps, no overlaps.</b>
+              <b>No gaps, no overlaps.</b>
               <p class="text-sm" style="color: var(--text-muted)">
                 Every cell belongs to exactly one rectangle. The whole grid
                 becomes a clean parcel map.
               </p>
+            </div>
+          </div>
+          </div>
+          <div class="card p-5">
+            <div class="chip mb-2">A reliable rhythm</div>
+            <h3 class="font-display text-xl font-bold mb-4">How to make a move</h3>
+            <div class="howto-move">
+              <div class="howto-move-item"><strong>01 · Scan</strong><span class="text-sm" style="color: var(--text-muted)">Start at corners and edges. Walls remove impossible shapes.</span></div>
+              <div class="howto-move-item"><strong>02 · Count</strong><span class="text-sm" style="color: var(--text-muted)">List the factor pairs for the clue’s area.</span></div>
+              <div class="howto-move-item"><strong>03 · Draw</strong><span class="text-sm" style="color: var(--text-muted)">Drag across cells, or tap two opposite corners.</span></div>
+              <div class="howto-move-item"><strong>04 · Check</strong><span class="text-sm" style="color: var(--text-muted)">Keep one clue inside and leave no cell uncovered.</span></div>
             </div>
           </div>
           <div class="card p-5">
@@ -1510,20 +1576,10 @@
               Experts read the walls before they draw.
             </p>
             <div class="flex gap-2 mt-3 flex-wrap">
-              <button class="btn btn-primary" id="btnHowtoTutorial">
-                ✦ Play interactive tutorial</button
-              ><button class="btn" data-mode="practice">
+              <button class="btn btn-primary" data-mode="practice">
                 Try an easy board
               </button>
             </div>
-          </div>
-          <div class="card p-5 text-sm" style="color: var(--text-muted)">
-            <b style="color: var(--text)">Controls.</b> Drag across cells, or
-            tap two opposite corners. Tap a placed rectangle to select it, then
-            <span class="kbd">Delete</span> or Erase.
-            <span class="kbd">Ctrl Z</span> undo ·
-            <span class="kbd">H</span> hint · <span class="kbd">R</span> reset ·
-            <span class="kbd">Esc</span> cancel.
           </div>
         </div>
       </section>
@@ -1740,7 +1796,6 @@
     </div>
 
 
-    <div id="coachBox" class="coach hidden"></div>
     <div id="toastBox" class="fixed bottom-5 right-4 z-[80] space-y-2"></div>
     <div id="debugOverlay"></div>
 
@@ -1750,7 +1805,7 @@
    Sections: CONFIG / UTILS / AUDIO / STATE / SAVE / THEMES /
    RNG+GEN / CANDIDATES / SOLVER / DIFFICULTY / VALIDATION /
    HISTORY / TIMER / HINTS / BOARD / INPUT / UI / MODALS /
-   MODES / STATS+ACH / DAILY+SHARE / TUTORIAL / DEBUG / INIT
+  MODES / STATS+ACH / DAILY+SHARE / DEBUG / INIT
 ================================================================ */
       /* ---------- CONFIG ---------- */
       const DIFFS = ["Beginner", "Easy", "Medium", "Hard", "Expert", "Master"];
@@ -2076,12 +2131,6 @@
             case "delete":
               this.tone(330, 0.08, "sine", 0.14, -120);
               break;
-            case "undo":
-              this.tone(500, 0.06, "sine", 0.12, -80);
-              break;
-            case "redo":
-              this.tone(500, 0.06, "sine", 0.12, 80);
-              break;
             case "hint":
               this.tone(740, 0.14, "sine", 0.14, 160);
               this.tone(990, 0.12, "sine", 0.08, 0, 0.08);
@@ -2111,8 +2160,6 @@
         mode: null,
         puzzle: null,
         playerRects: [],
-        history: [],
-        future: [],
         selectedId: null,
         anchor: null,
         draft: null,
@@ -2137,7 +2184,6 @@
         timerStart: 0,
         rectId: 1,
         winShown: false,
-        tutorial: null,
         genToken: 0,
         save: null,
         boardGeom: { cell: 30, ox: 0, oy: 0, w: 0, h: 0, dpr: 1 },
@@ -2755,37 +2801,6 @@
           invalidRectangles: invalid,
         };
       }
-      /* ---------- HISTORY ---------- */
-      function snap() {
-        return JSON.parse(JSON.stringify(S.playerRects));
-      }
-      function pushHistory() {
-        S.history.push(snap());
-        if (S.history.length > 500) S.history.shift();
-        S.future.length = 0;
-        updateUndoBtns();
-      }
-      function doUndo() {
-        if (S.completed || S.paused || !S.history.length) return;
-        S.future.push(snap());
-        S.playerRects = S.history.pop();
-        S.selectedId = null;
-        S.anchor = null;
-        AudioSys.play("undo");
-        afterChange("undo");
-      }
-      function doRedo() {
-        if (S.completed || S.paused || !S.future.length) return;
-        S.history.push(snap());
-        S.playerRects = S.future.pop();
-        S.selectedId = null;
-        AudioSys.play("redo");
-        afterChange("redo");
-      }
-      function updateUndoBtns() {
-        $("#btnUndo").style.opacity = S.history.length ? 0.9 : 0.4;
-        $("#btnRedo").style.opacity = S.future.length ? 0.9 : 0.4;
-      }
       /* ---------- TIMER ---------- */
       let tickInt = null;
       function timerStart() {
@@ -2900,7 +2915,6 @@
         const now = performance.now();
         if (t.kind === "wrong") {
           if (level === 3) {
-            pushHistory();
             S.playerRects = S.playerRects.filter((r) => r.id !== t.rect.id);
             S.selectedId = null;
             toast(
@@ -2947,7 +2961,6 @@
             S.hintFx = { rect: s, mode: "exact", until: now + 4200 };
             toast("Trace the glowing outline exactly.", "◈");
           } else {
-            pushHistory();
             S.playerRects.push({
               x: s.x,
               y: s.y,
@@ -3393,9 +3406,8 @@
       }
       function eraseRectangles(rectList, reason) {
         if (!rectList || !rectList.length) return;
-        if (!S.hasPushedDragHistory) {
-          pushHistory();
-          S.hasPushedDragHistory = true;
+        if (!S.hasModifiedDrag) {
+          S.hasModifiedDrag = true;
         }
         S.erasingRects = S.erasingRects || [];
         const now = performance.now();
@@ -3466,7 +3478,7 @@
           S.dragStart = c;
           pressMoved = false;
           S.dragging = true;
-          S.hasPushedDragHistory = false;
+          S.hasModifiedDrag = false;
           S.dragInitialRects = [...S.playerRects];
           S.draft = null;
           S.hoverCell = null;
@@ -3594,7 +3606,7 @@
         board.addEventListener("pointerup", up);
         board.addEventListener("pointercancel", () => {
           clearTimeout(longPressT);
-          if (S.dragInitialRects && !S.hasPushedDragHistory)
+          if (S.dragInitialRects && !S.hasModifiedDrag)
             S.playerRects = [...S.dragInitialRects];
           S.dragging = false;
           S.draft = null;
@@ -3703,7 +3715,6 @@
         if (!v.valid) {
           toast(v.reason, "⚠");
         }
-        pushHistory();
         const placedColorIdx =
           S.draftColorIdx !== undefined && S.draftColorIdx !== null
             ? S.draftColorIdx
@@ -3732,7 +3743,6 @@
         drawBoard();
         autosaveCurrent();
         const cov = coverage();
-        if (S.tutorial) ctrlTutorial(why);
         if (cov.pct === 100) {
           const res = validateCompleteBoard(S.puzzle, S.playerRects);
           if (res.solved) {
@@ -4083,8 +4093,6 @@
         S.levelIndex = o.levelIndex ?? null;
         S.dailyKey = o.dailyKey || null;
         S.playerRects = [];
-        S.history = [];
-        S.future = [];
         S.selectedId = null;
         S.anchor = null;
         S.draft = null;
@@ -4095,7 +4103,6 @@
         S.hintsUsed = 0;
         S.mistakes = 0;
         S.rectId = 1;
-        S.tutorial = null;
         S.hintFx = null;
         S.assistCands = [];
         S.cursorOn = false;
@@ -4150,7 +4157,6 @@
             $("#" + id).classList.remove("open");
           } catch (e) {}
         });
-        $("#coachBox").classList.add("hidden");
         try {
           $("#btnSoundQuick").textContent = S.save.settings.sound
             ? "🔊 Sound"
@@ -4159,7 +4165,6 @@
         showView("play");
         resizeBoard();
         updateSide();
-        updateUndoBtns();
         updateDrawInfo(null);
         timerStart();
         timerTick();
@@ -4434,109 +4439,6 @@
         }
       }
 
-      /* ---------- TUTORIAL ---------- */
-      const TUT_PUZZLE = () => fallbackPuzzle(5, 5);
-      function startTutorial() {
-        startPuzzle({
-          mode: "tutorial",
-          puzzle: Object.assign(TUT_PUZZLE(), { difficulty: 0 }),
-          title: "Tutorial · 5×5",
-        });
-        S.tutorial = { step: 0 };
-        coach(
-          `<b>Step 1 · Meet a clue.</b><br>Every number is a promise: <b>“my rectangle covers exactly this many cells.”</b> Tap the glowing <b>5</b> in the middle column.`,
-          ["Next"],
-        );
-        S.hintFx = {
-          rect: { x: 2, y: 0, w: 1, h: 1 },
-          mode: "clue",
-          until: performance.now() + 60000,
-        };
-        drawBoard();
-      }
-      function coach(html, btns) {
-        const c = $("#coachBox");
-        c.classList.remove("hidden");
-        c.innerHTML = `<div class="text-sm leading-relaxed">${html}</div><div class="flex gap-2 mt-3">${btns.map((b, i) => `<button class="btn btn-sm ${i === 0 ? "btn-primary" : ""}" data-ci="${i}">${b}</button>`).join("")}<div class="flex-1"></div><button class="btn btn-sm" data-ci="skip">Skip</button></div>`;
-        c.style.left = "50%";
-        c.style.transform = "translateX(-50%)";
-        c.style.bottom = "18px";
-        c.style.top = "auto";
-        c.querySelectorAll("[data-ci]").forEach(
-          (b) =>
-            (b.onclick = () => {
-              const v = b.dataset.ci;
-              if (v === "skip") endTutorial();
-              else tutNext();
-            }),
-        );
-      }
-      function endTutorial() {
-        S.tutorial = null;
-        $("#coachBox").classList.add("hidden");
-        S.hintFx = null;
-        drawBoard();
-      }
-      function tutNext() {
-        if (!S.tutorial) return;
-        const t = S.tutorial;
-        t.step++;
-        if (t.step === 1) {
-          coach(
-            `<b>Step 2 · Area.</b><br>That <b>5</b> could be <b>1×5</b> or <b>5×1</b>. Walls decide. This board is 5 wide — a full row is exactly 5 cells.`,
-            ["Show me"],
-          );
-          S.hintFx = {
-            rect: { x: 0, y: 0, w: 5, h: 1 },
-            mode: "exact",
-            until: performance.now() + 8000,
-          };
-          drawBoard();
-        } else if (t.step === 2) {
-          S.hintFx = null;
-          drawBoard();
-          coach(
-            `<b>Step 3 · Draw it.</b><br><b>Drag</b> across the entire top row — or <b>tap</b> the left end, then the right end. Watch the live <b>AREA</b> readout hit 5.`,
-            ["I drew it ✓"],
-          );
-        } else if (t.step === 3) {
-          coach(
-            `<b>Step 4 · One clue only.</b><br>Try dragging a rectangle that covers <b>two 5s</b>. Parcel will refuse — politely — and tell you why. Then press Next.`,
-            ["Next"],
-          );
-        } else if (t.step === 4) {
-          coach(
-            `<b>Step 5 · Finish the map.</b><br>Cover every row the same way. No gaps, no overlaps. I'll celebrate when the board is complete.`,
-            ["Keep going"],
-          );
-        }
-      }
-      function ctrlTutorial(why) {
-        const t = S.tutorial;
-        if (!t) return;
-        if (t.step === 2 && S.playerRects.length >= 1) {
-          tutNext();
-        }
-        if (S.completed) {
-          setTimeout(() => {
-            if (S.view === "play")
-              coach(
-                `<b>🎉 Solved!</b><br>You just used <b>edge logic</b>: the wall forced the 5 sideways. Real puzzles chain hundreds of these tiny certainties. Ready for Level 1?`,
-                ["Finish"],
-              );
-            const cb = $("#coachBox");
-            const b = document.createElement("button");
-            b.className = "btn btn-sm btn-primary mt-2 w-full";
-            b.textContent = "Start Level 1 →";
-            b.onclick = () => {
-              endTutorial();
-              loadCampaignLevel(0);
-            };
-            cb.appendChild(b);
-            S.tutorial.done = true;
-          }, 800);
-        }
-      }
       /* ---------- DEBUG ---------- */
       let fpsFrames = 0,
         fpsLast = performance.now(),
@@ -4569,7 +4471,6 @@
           s.onclick = () => {
             const sol = trueSolution();
             if (sol) {
-              pushHistory();
               S.playerRects = sol.map((r) => ({
                 ...r,
                 id: S.rectId++,
@@ -4839,8 +4740,6 @@
         if ($("#filterChapter")) $("#filterChapter").onchange = renderLevels;
         if ($("#filterStatus")) $("#filterStatus").onchange = renderLevels;
         if ($("#sortLevels")) $("#sortLevels").onchange = renderLevels;
-        if ($("#btnTutorialHome")) $("#btnTutorialHome").onclick = startTutorial;
-        if ($("#btnHowtoTutorial")) $("#btnHowtoTutorial").onclick = startTutorial;
         // play buttons
         $("#btnPause").onclick = pauseGame;
         $("#btnResume").onclick = resumeGame;
@@ -4860,8 +4759,6 @@
           saveCurrent();
           showView("home");
         };
-        $("#btnUndo").onclick = doUndo;
-        $("#btnRedo").onclick = doRedo;
         $("#btnHint").onclick = () => {
           $("#modal-hint").classList.add("open");
           AudioSys.play("click");
@@ -4871,22 +4768,6 @@
         $$("[data-hint]").forEach(
           (b) => (b.onclick = () => applyHint(+b.dataset.hint)),
         );
-        $("#btnErase").onclick = () => {
-          if (S.completed || S.paused) return;
-          if (S.selectedId != null) {
-            pushHistory();
-            S.playerRects = S.playerRects.filter((r) => r.id !== S.selectedId);
-            S.selectedId = null;
-            AudioSys.play("delete");
-            afterChange("erase");
-          } else if (S.playerRects.length) {
-            pushHistory();
-            S.playerRects.pop();
-            AudioSys.play("delete");
-            afterChange("erase-last");
-            toast("Removed the most recent region.", "⌫");
-          } else toast("Nothing to erase — tap a region first.", "⌫");
-        };
         $("#btnReset").onclick = resetPuzzle;
         if ($("#chkStrict2")) {
           $("#chkStrict2").onchange = (e) => {
@@ -5068,35 +4949,8 @@
               resumeGame();
             return;
           }
-          if (
-            (e.ctrlKey || e.metaKey) &&
-            e.key.toLowerCase() === "z" &&
-            !e.shiftKey
-          ) {
-            e.preventDefault();
-            if (S.view === "play") doUndo();
-            return;
-          }
-          if (
-            ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") ||
-            ((e.ctrlKey || e.metaKey) &&
-              e.shiftKey &&
-              e.key.toLowerCase() === "z")
-          ) {
-            e.preventDefault();
-            if (S.view === "play") doRedo();
-            return;
-          }
           if (S.view !== "play") return;
-          if (e.key === "Delete" || e.key === "Backspace") {
-            if (
-              document.activeElement === board ||
-              document.activeElement === document.body
-            ) {
-              e.preventDefault();
-              $("#btnErase").click();
-            }
-          } else if (e.key.toLowerCase() === "r") {
+          if (e.key.toLowerCase() === "r") {
             $("#btnReset").click();
           } else if (e.key.toLowerCase() === "h") {
             $("#modal-hint").classList.add("open");
@@ -5140,7 +4994,6 @@
       function resetPuzzle() {
         if (!S.puzzle || S.completed) return;
         const go = () => {
-          pushHistory();
           S.playerRects = [];
           S.selectedId = null;
           S.anchor = null;

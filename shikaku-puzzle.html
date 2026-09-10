@@ -9,7 +9,6 @@
     <meta name="theme-color" content="#F6F1E7" />
     <title>PARCEL — A Shikaku Study</title>
     <meta
-      name="description"
       content="PARCEL — an elegant Shikaku rectangle logic puzzle. Divide the grid into rectangles. One clue, one area, zero gaps."
     />
     <!-- Tailwind CDN removed: utilities defined below in <style> -->
@@ -82,7 +81,7 @@
           background 0.5s ease,
           color 0.5s ease;
         overscroll-behavior: none;
-        overflow-x: hidden;
+        overflow-x: clip;
       }
       .font-display {
         font-family: var(--font-d);
@@ -93,9 +92,11 @@
         z-index: 0;
         pointer-events: none;
         overflow: hidden;
+        height: 100dvh;
+        contain: paint;
       }
       .bg-ambient .blob {
-        position: absolute;
+        position: fixed;
         border-radius: 50%;
         opacity: 0.4;
         transition: opacity 0.6s;
@@ -150,6 +151,15 @@
         font-size: 0.8rem;
         border-radius: 10px;
       }
+      /* #btnBack {
+        align-items: center;
+        line-height: 1;
+      }
+      #btnBack svg {
+        display: inline-block;
+        vertical-align: middle;
+        flex-shrink: 0;
+      } */
       .btn-icon {
         width: 44px;
         height: 44px;
@@ -162,6 +172,7 @@
         transform: none;
       }
       .icon-btn {
+        position: relative;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -182,17 +193,52 @@
         width: 20px;
         height: 20px;
       }
-      .icon-btn:hover {
+      .icon-btn:hover:not(:disabled):not(.is-disabled) {
         color: var(--text);
         border-color: var(--accent);
       }
-      .icon-btn:active {
+      .icon-btn:active:not(:disabled):not(.is-disabled) {
         transform: scale(0.94);
       }
       .icon-btn.on {
         color: var(--accent);
         border-color: var(--accent);
         background: var(--accent-soft);
+      }
+      .icon-btn:disabled,
+      .icon-btn.is-disabled {
+        opacity: 0.35 !important;
+        cursor: not-allowed !important;
+        pointer-events: none !important;
+        transform: none !important;
+        border-color: var(--border) !important;
+        box-shadow: none !important;
+      }
+      .hint-badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 4px;
+        border-radius: 999px;
+        background: var(--accent);
+        color: var(--accent-text);
+        font-size: 0.68rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        border: 2px solid var(--surface);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease;
+        pointer-events: none;
+      }
+      .hint-badge.empty {
+        background: var(--text-faint);
+        color: var(--surface);
+        opacity: 0.7;
       }
       .hidden {
         display: none !important;
@@ -210,16 +256,176 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        min-height: calc(100vh - 140px);
+        min-height: calc(100dvh - 140px);
       }
-      #boardWrap {
-        position: relative;
+      body.in-game {
+        overflow: hidden !important;
+        height: 100dvh !important;
+        touch-action: none;
+      }
+      body.in-game main {
+        height: calc(100dvh - 56px);
         display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        padding-top: 0.35rem;
+        padding-bottom: 0.35rem;
+      }
+      body.in-game #logoBtn,
+      body.in-game #saveDot {
+        display: none;
+      }
+      #gameHeaderTitle,
+      #gameHeaderTimer,
+      #gameHeaderPause {
+        display: none;
+      }
+      body.in-game #gameHeaderTitle,
+      body.in-game #gameHeaderTimer,
+      body.in-game #gameHeaderPause {
+        display: inline-flex;
+      }
+      body.in-game #gameHeaderTitle {
+        min-width: 0;
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+      #gameHeaderPause {
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        touch-action: none;
+        gap: 0.3rem;
+        padding: 0.3rem 0.65rem;
+        border-radius: 999px;
+        background: var(--accent);
+        color: var(--accent-text);
+        border: none;
+        cursor: pointer;
+        flex-shrink: 0;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        transition: filter 0.15s, transform 0.12s;
         user-select: none;
-        -webkit-user-select: none;
+      }
+      #gameHeaderPause:hover {
+        filter: brightness(1.12);
+        transform: translateY(-1px);
+      }
+      #gameHeaderPause:active {
+        transform: scale(0.94);
+        filter: brightness(0.92);
+      }
+      /* In-game header responsive layout */
+      body.in-game header > div {
+        gap: 0.5rem;
+      }
+      body.in-game #gameHeaderTitle {
+        min-width: 0;
+        flex: 1 1 0%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.9rem;
+      }
+      /* Hide the flex-1 spacer in game mode so title fills available space */
+      body.in-game header > div > .flex-1 {
+        display: none;
+      }
+      #gameHeaderTimer {
+        flex-shrink: 0;
+      }
+      #gameHeaderPause {
+        flex-shrink: 0;
+      }
+      #btnSettings {
+        flex-shrink: 0;
+      }
+      #view-play.active {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      body.in-game #view-play.active {
+        flex: 1 1 0%;
+        min-height: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      #view-play > .play-board-area {
+        flex: 1 1 0%;
+        min-height: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      #view-play .play-board-content {
+        flex: 1 1 0%;
+        min-height: 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+      #view-play .play-board-content > #board {
+        margin: 0 auto;
+        display: block;
+      }
+      #play-actions-bar {
+        position: relative;
+        z-index: 10;
+        width: 100%;
+        margin-top: 0.25rem;
+        margin-bottom: 0.25rem;
+      }
+      body.in-game #play-actions-bar {
+        display: flex;
+        justify-content: center;
+        flex: 0 0 auto;
+        width: 100%;
+      }
+      body:not(.in-game) #play-actions-bar {
+        display: none !important;
+      }
+      .play-actions {
+        width: 100%;
+        max-width: 380px;
+        transition: width 0.15s ease;
+      }
+      .play-actions .icon-btn {
+        min-height: clamp(34px, 5vh, 44px);
+        padding: clamp(0.2rem, 0.8vh, 0.35rem) clamp(0.3rem, 1vw, 0.6rem);
+        font-size: clamp(0.64rem, 1.1vh, 0.72rem);
+        flex-direction: row;
+        gap: 0.35rem;
+        justify-content: center;
+        align-items: center;
+      }
+      .play-actions .icon-btn svg {
+        width: clamp(14px, 2vh, 18px);
+        height: clamp(14px, 2vh, 18px);
+        flex-shrink: 0;
+      }
+      .play-actions #btnHint {
+        color: var(--accent);
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+      .play-actions #btnReset:hover {
+        color: var(--danger);
+        border-color: var(--danger);
       }
       #board {
         touch-action: none;
@@ -260,6 +466,19 @@
       .modal-backdrop.open {
         display: flex;
       }
+      #modal-confirm {
+        z-index: 100;
+      }
+      @keyframes shakeInput {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-6px); }
+        40%, 80% { transform: translateX(6px); }
+      }
+      .shake-input {
+        animation: shakeInput 0.38s ease-in-out;
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25) !important;
+      }
       .modal {
         background: var(--surface);
         border: 1px solid var(--border);
@@ -267,7 +486,7 @@
         box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.4);
         max-width: 480px;
         width: 100%;
-        max-height: 90vh;
+        max-height: 90dvh;
         overflow-y: auto;
         padding: 1.5rem;
         position: relative;
@@ -304,18 +523,6 @@
       .level-tile.current {
         border-color: var(--accent);
         box-shadow: 0 0 0 3px var(--accent-soft);
-      }
-      .toast {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-left: 4px solid var(--accent);
-        border-radius: 12px;
-        padding: 0.8rem 1rem;
-        box-shadow: var(--shadow);
-        display: flex;
-        gap: 0.7rem;
-        align-items: center;
-        max-width: 340px;
       }
       input[type="text"],
       input[type="number"],
@@ -605,7 +812,7 @@
       #fx {
         position: fixed;
         inset: 0;
-        z-index: 50;
+        z-index: 70;
         pointer-events: none;
       }
       .sr-only {
@@ -696,6 +903,196 @@
         .icon-btn {
           min-width: 56px;
           font-size: 0.62rem;
+        }
+        header > div {
+          gap: 0.4rem;
+          padding-left: 0.65rem;
+          padding-right: 0.65rem;
+        }
+        body.in-game main {
+          height: calc(100dvh - 61px);
+        }
+        #logoBtn > span:last-child {
+          display: none;
+        }
+        #logoMark {
+          width: 28px !important;
+          height: 28px !important;
+        }
+        #gameHeaderTitle {
+          font-size: 0.82rem;
+        }
+        #gameHeaderTimer {
+          font-size: 0.68rem;
+          padding: 0.25rem 0.5rem;
+        }
+        #gameHeaderPause {
+          width: 32px;
+          height: 32px;
+          padding: 0;
+          border-radius: 50%;
+          gap: 0;
+        }
+        #gameHeaderPause .pause-label {
+          display: none;
+        }
+        #view-home.view-centered {
+          justify-content: center;
+          min-height: calc(100dvh - 96px);
+        }
+        #btnSettings {
+          width: 32px;
+          height: 32px;
+          padding: 0;
+          flex-shrink: 0;
+        }
+        #btnBack {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 32px;
+          height: 32px;
+          padding: 0;
+          font-size: 1rem;
+          flex-shrink: 0;
+        }
+        #btnBack .back-label {
+          display: none;
+        }
+      }
+
+      /* ── Landscape / short-height: compact header ── */
+      @media (max-height: 500px) and (orientation: landscape) {
+        header > div {
+          padding-top: 0.35rem;
+          padding-bottom: 0.35rem;
+          gap: 0.4rem;
+        }
+        body.in-game main {
+          height: calc(100dvh - 44px);
+        }
+        #logoMark {
+          width: 26px !important;
+          height: 26px !important;
+        }
+        #logoBtn > span:last-child {
+          display: none;
+        }
+        #gameHeaderTitle {
+          font-size: 0.8rem;
+        }
+        #gameHeaderTimer {
+          font-size: 0.66rem;
+          padding: 0.2rem 0.45rem;
+        }
+        #gameHeaderPause {
+          padding: 0.2rem 0.5rem;
+          font-size: 0.68rem;
+        }
+        #btnSettings {
+          width: 28px;
+          height: 28px;
+          padding: 0;
+          flex-shrink: 0;
+        }
+        #btnBack {
+          padding: 0.25rem 0.5rem;
+          font-size: 0.75rem;
+        }
+        .chip {
+          font-size: 0.65rem;
+          padding: 0.2rem 0.5rem;
+        }
+      }
+
+      @media (max-width: 380px) {
+        #view-home > div {
+          gap: 0.75rem;
+          padding-top: 0;
+          padding-bottom: 0;
+        }
+        #view-home > div > div:first-child {
+          transform: scale(0.86);
+          transform-origin: center top;
+          margin-bottom: -0.9rem;
+        }
+        #view-home > div > .card {
+          padding: 0.75rem;
+        }
+        #view-home > div > .card > [data-go] {
+          padding: 0.75rem;
+          gap: 0.5rem;
+        }
+        #view-home [data-go] {
+          align-items: center;
+          flex-direction: row;
+        }
+        #view-home [data-go] > div:first-child .text-xs {
+          display: none;
+        }
+        #view-home [data-go] > div:first-child .text-base {
+          font-size: 0.8rem;
+          line-height: 1.1rem;
+        }
+        #view-home [data-go] > div:first-child {
+          min-width: 0;
+        }
+        #view-home [data-go] > div:last-child {
+          align-self: auto;
+          flex-shrink: 0;
+        }
+      }
+      @media (max-height: 640px) {
+        .view.active.view-centered {
+          justify-content: center;
+          min-height: auto;
+        }
+        #view-play.active {
+          justify-content: flex-start;
+          min-height: calc(100dvh - 80px);
+        }
+        #view-play > .play-board-area {
+          justify-content: center;
+        }
+        .play-actions .icon-btn {
+          min-height: 36px;
+          padding: 0.2rem 0.4rem;
+          font-size: 0.64rem;
+          gap: 0.25rem;
+        }
+        .play-actions .icon-btn svg {
+          width: 15px;
+          height: 15px;
+        }
+        main {
+          padding-top: 0.25rem;
+          padding-bottom: 0.25rem;
+        }
+        #view-home > div {
+          padding-top: 0;
+          padding-bottom: 0;
+        }
+        #view-home .space-y-6 > * + * {
+          margin-top: 0.75rem;
+        }
+        .modal {
+          padding: 1rem;
+        }
+      }
+      @media (max-height: 520px) {
+        .play-actions .icon-btn {
+          min-height: 30px;
+          padding: 0.15rem 0.3rem;
+          font-size: 0.58rem;
+          gap: 0.2rem;
+        }
+        .play-actions .icon-btn svg {
+          width: 13px;
+          height: 13px;
+        }
+        #play-actions-bar {
+          margin-top: 0.1rem;
+          margin-bottom: 0.1rem;
         }
       }
 
@@ -975,7 +1372,7 @@
           class="btn btn-sm btn-ghost hidden"
           aria-label="Back"
         >
-          ← Back
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="10,3 5,8 10,13"/></svg><span class="back-label">Back</span>
         </button>
         <button
           id="logoBtn"
@@ -1027,15 +1424,8 @@
             ></span
           >
         </button>
+        <div id="gameHeaderTitle" class="truncate">Level 1</div>
         <div class="flex-1"></div>
-        <button
-          id="streakPill"
-          class="chip"
-          title="Daily streak"
-          aria-label="Daily streak"
-        >
-          🔥 <span id="streakNum">0</span>
-        </button>
         <button
           id="saveDot"
           class="chip hidden sm:inline-flex"
@@ -1043,20 +1433,23 @@
         >
           <span class="dot"></span><span id="saveTxt">Saved</span>
         </button>
-        <button
-          id="btnFullscreen"
-          class="btn btn-sm btn-ghost"
-          aria-label="Fullscreen"
+        <span
+          id="gameHeaderTimer"
+          class="chip font-mono"
+          style="font-variant-numeric: tabular-nums"
+          >00:00</span
         >
-          ⛶
+        <button id="gameHeaderPause" aria-label="Pause game">
+          <svg width="11" height="13" viewBox="0 0 10 12" fill="currentColor" aria-hidden="true"><rect x="0" y="0" width="3.5" height="12" rx="1.2"/><rect x="6.5" y="0" width="3.5" height="12" rx="1.2"/></svg>
+          <span class="pause-label">Pause</span>
         </button>
-        <button
-          id="btnSettings"
-          class="btn btn-sm btn-ghost"
-          aria-label="Settings"
-        >
-          ⚙
-        </button>
+          <button
+            id="btnSettings"
+            class="btn btn-sm btn-ghost"
+            aria-label="Settings"
+          >
+            ⚙
+          </button>
       </div>
     </header>
 
@@ -1113,10 +1506,7 @@
               style="background: var(--surface-2); border-color: var(--accent);"
             >
               <div>
-                <div class="flex items-center gap-2">
-                  <span class="font-bold text-base">☀ Daily Challenge</span>
-                  <span class="chip !text-[9px] !py-0.5">TODAY</span>
-                </div>
+                <span class="font-bold text-base">☀ Daily Challenge</span>
                 <div class="text-xs mt-0.5" style="color: var(--text-muted)" id="homeDailySub">
                   Today's puzzle
                 </div>
@@ -1132,8 +1522,14 @@
               data-go="levels"
             >
               <div>
-                <div class="font-bold text-base flex items-center gap-2">
-                  <span>▦ Levels</span>
+                <div class="font-bold text-base flex items-center gap-1.5">
+                  <svg style="width: 17px; height: 17px; display: inline-block; vertical-align: -2px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="9" rx="1.5"></rect>
+                    <rect x="14" y="3" width="7" height="5" rx="1.5"></rect>
+                    <rect x="14" y="12" width="7" height="9" rx="1.5"></rect>
+                    <rect x="3" y="16" width="7" height="5" rx="1.5"></rect>
+                  </svg>
+                  <span>Levels</span>
                 </div>
                 <div class="text-xs mt-0.5" style="color: var(--text-muted)" id="homeLevelsSub">
                   Auto-expanding level progression
@@ -1200,73 +1596,55 @@
 
       <!-- PLAY -->
       <section id="view-play" class="view">
-        <div class="card px-4 py-2 mb-2 flex flex-wrap items-center gap-2.5">
-          <div class="min-w-0">
-            <div id="playTitle" class="font-bold text-sm truncate">
-              Level 1
-            </div>
-            <div id="playSub" class="text-xs" style="color: var(--text-muted)">
-              5×5 · Beginner
-            </div>
-          </div>
-          <div class="flex-1"></div>
-          <span id="playProgress" class="chip">0% covered</span>
-          <span
-            id="playTimer"
-            class="chip font-mono"
-            style="font-variant-numeric: tabular-nums"
-            >00:00</span
-          >
-          <button id="btnPause" class="btn btn-sm">⏸ Pause</button>
-        </div>
-        <div class="max-w-3xl mx-auto flex flex-col items-center w-full">
-          <div class="w-full flex flex-col items-center">
-            <div id="boardWrap" class="card p-2 sm:p-3 flex justify-center items-center w-full">
-              <canvas
-                id="board"
-                role="application"
-                aria-label="Shikaku puzzle board. Use arrow keys to move, Enter to place corners."
-                tabindex="0"
-              ></canvas>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2 mt-2 w-full max-w-xl">
-              <button id="btnHint" class="icon-btn" aria-label="Hint (H)">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M9 18h6M10 21h4" />
-                  <path
-                    d="M12 3a6 6 0 0 0-4 10.5c.8.7 1 1.5 1 2.5h6c0-1 .2-1.8 1-2.5A6 6 0 0 0 12 3z"
-                  /></svg
-                >HINT
-              </button>
-              <button id="btnReset" class="icon-btn" aria-label="Reset (R)">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M3 12a9 9 0 1 0 3-6.7" />
-                  <path d="M3 4v5h5" /></svg
-                >RESET
-              </button>
-            </div>
-
+        <div class="play-board-area max-w-3xl mx-auto flex flex-col items-center w-full">
+          <div class="play-board-content w-full flex flex-col items-center">
+            <canvas
+              id="board"
+              role="application"
+              aria-label="Shikaku puzzle board. Use arrow keys to move, Enter to place corners."
+              tabindex="0"
+            ></canvas>
           </div>
         </div>
       </section>
+
+      <!-- PLAY ACTIONS BAR (Separated from view-play) -->
+      <div id="play-actions-bar" class="play-actions-bar">
+        <div class="play-actions grid grid-cols-2 gap-2 w-full">
+          <button id="btnHint" class="icon-btn" aria-label="Hint (H)">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M9 18h6M10 21h4" />
+              <path
+                d="M12 3a6 6 0 0 0-4 10.5c.8.7 1 1.5 1 2.5h6c0-1 .2-1.8 1-2.5A6 6 0 0 0 12 3z"
+              /></svg
+            ><span id="btnHintLabel">HINT</span>
+            <span id="hintBadge" class="hint-badge">3</span>
+          </button>
+          <button id="btnReset" class="icon-btn" aria-label="Reset (R)">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M3 12a9 9 0 1 0 3-6.7" />
+              <path d="M3 4v5h5" /></svg
+            >RESET
+          </button>
+        </div>
+      </div>
 
       <!-- DAILY -->
       <section id="view-daily" class="view view-centered py-2">
         <div class="card p-6 sm:p-8 text-center w-full max-w-xl mx-auto">
           <div class="chip mb-3">☀ Daily Challenge</div>
           <h2 class="font-display text-3xl font-bold" id="dailyTitle">
-            Daily #1
+            Daily Challenge
           </h2>
           <p
             class="text-sm mt-1"
@@ -1403,11 +1781,6 @@
               Generate & Play →</button
             ><button id="btnRandomSeed" class="btn">🎲</button>
           </div>
-          <div
-            id="fpStatus"
-            class="text-xs mt-2"
-            style="color: var(--text-muted)"
-          ></div>
         </div>
       </section>
 
@@ -1645,22 +2018,13 @@
         >
           00:00
         </div>
-        <div
-          id="winNewBest"
-          class="chip mx-auto mb-2 hidden"
-          style="border-color: var(--success); color: var(--success)"
-        >
-          ★ New best
-        </div>
-        <div
-          class="grid grid-cols-3 gap-2 my-4 text-center text-xs"
-          id="winStats"
-        ></div>
+
+
         <div class="grid grid-cols-2 gap-2">
           <button id="btnWinNext" class="btn btn-primary col-span-2 py-3">
             Next puzzle →</button
           ><button id="btnWinReplay" class="btn">↻ Replay</button
-          ><button id="btnWinLevels" class="btn">▦ Levels</button>
+          ><button id="btnWinLevels" class="btn">Levels</button>
         </div>
       </div>
     </div>
@@ -1676,12 +2040,22 @@
           style="color: var(--text-muted)"
           id="confirmMsg"
         ></p>
-        <input
-          type="text"
-          id="confirmInput"
-          class="hidden mb-3 text-center font-mono"
-          placeholder="Type RESET to confirm"
-        />
+        <div class="mb-3">
+          <input
+            type="text"
+            id="confirmInput"
+            class="hidden w-full text-center font-mono py-2.5 px-3 rounded-xl border border-[var(--border)] transition-all uppercase tracking-wider"
+            placeholder="Type RESET to confirm"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <div
+            id="confirmError"
+            class="hidden text-xs text-red-500 font-semibold mt-1.5 transition-all text-center"
+          >
+            ⚠ Please type RESET to confirm
+          </div>
+        </div>
         <div class="grid grid-cols-2 gap-2">
           <button id="btnConfirmNo" class="btn">Cancel</button
           ><button id="btnConfirmYes" class="btn btn-primary">Confirm</button>
@@ -1689,31 +2063,6 @@
       </div>
     </div>
 
-    <!-- HINT -->
-    <div id="modal-hint" class="modal-backdrop">
-      <div class="modal">
-        <h3 class="font-display text-xl font-bold mb-1">Request guidance</h3>
-        <p class="text-sm mb-4" style="color: var(--text-muted)">
-          Hints are drawn from real logic — forced cells first. Escalate only if
-          stuck.
-        </p>
-        <div class="space-y-2">
-          <button class="btn w-full justify-start" data-hint="0">
-            🌱 <b>Gentle</b>&nbsp;· highlight a clue worth studying
-          </button>
-          <button class="btn w-full justify-start" data-hint="1">
-            🧭 <b>Directional</b>&nbsp;· shade its neighbourhood
-          </button>
-          <button class="btn w-full justify-start" data-hint="2">
-            ◈ <b>Strong</b>&nbsp;· outline the exact rectangle
-          </button>
-          <button class="btn w-full justify-start" data-hint="3">
-            ✦ <b>Reveal</b>&nbsp;· place it for me
-          </button>
-        </div>
-        <button id="btnHintClose" class="btn w-full mt-3">Not now</button>
-      </div>
-    </div>
 
     <!-- SETTINGS MODAL -->
     <div id="modal-settings" class="modal-backdrop">
@@ -1796,7 +2145,6 @@
     </div>
 
 
-    <div id="toastBox" class="fixed bottom-5 right-4 z-[80] space-y-2"></div>
     <div id="debugOverlay"></div>
 
     <script>
@@ -2837,24 +3185,26 @@
         );
       }
       function timerTick() {
-        const el = $("#playTimer");
+        const el = $("#gameHeaderTimer");
         if (!el) return;
         if (S.mode === "zen" && !S.showZenTimer) {
           el.textContent = "☾ zen";
+          el.style.borderColor = "";
           return;
         }
         if (S.countdownOn) {
           const left = S.countdownMs - activeMs();
           if (left <= 0) {
             el.textContent = "00:00";
+            el.style.borderColor = "var(--danger)";
             onTimeUp();
             return;
           }
           el.textContent = "⏱ " + fmtTime(left);
-          el.style.borderColor =
-            left < 60000 ? "var(--danger)" : "var(--border)";
+          el.style.borderColor = left < 60000 ? "var(--danger)" : "";
           return;
         }
+        el.style.borderColor = "";
         el.textContent = fmtTime(activeMs());
       }
       document.addEventListener("visibilitychange", () => {
@@ -2894,89 +3244,80 @@
         }
         return null;
       }
-      function applyHint(level) {
-        if (S.completed || S.paused) return;
-        if (
-          (S.mode === "timetrial" || S.mode === "streak") &&
-          !S.save.settings.hintsInChallenge
-        ) {
-          toast("Hints are disabled in this challenge.", "🧭");
+      function getMaxHints() {
+        if (!S.puzzle) return 3;
+        // Campaign levels
+        if (S.mode === "campaign" && S.levelIndex != null) {
+          if (S.levelIndex === 0) return 3; // First level (Level 1): 3 hints
+          if (S.levelIndex < 5) return 2;  // Early levels (Level 2-5): 2 hints
+          return 1;                        // Harder / advanced levels (Level 6+): 1 hint
+        }
+        // General / Difficulty-based (Custom, Daily, Time Trial, etc.)
+        const diff = S.puzzle.difficulty != null ? S.puzzle.difficulty : 0;
+        if (diff === 0) return 3; // Beginner: 3 hints
+        if (diff === 1) return 2; // Easy: 2 hints
+        return 1;                 // Medium, Hard, Expert, Master: 1 hint
+      }
+
+      function updateHintUI() {
+        const btn = $("#btnHint");
+        if (!btn) return;
+        const maxHints = getMaxHints();
+        const used = S.hintsUsed || 0;
+        const remaining = Math.max(0, maxHints - used);
+        const lbl = $("#btnHintLabel");
+        if (lbl) {
+          lbl.textContent = "HINT";
+        }
+        const badge = $("#hintBadge");
+        if (badge) {
+          badge.textContent = remaining;
+          badge.classList.toggle("empty", remaining <= 0);
+        }
+        const isOutOfHints = remaining <= 0;
+        btn.disabled = isOutOfHints || S.completed || S.paused;
+        btn.classList.toggle("is-disabled", isOutOfHints);
+        btn.title =
+          remaining > 0
+            ? `Reveal next rectangle (${remaining} left)`
+            : "No hints remaining for this puzzle";
+      }
+
+      function applyHint() {
+        if (S.completed || S.paused || !S.puzzle) return;
+        const maxHints = getMaxHints();
+        if ((S.hintsUsed || 0) >= maxHints) {
+          AudioSys.play("invalid");
           return;
         }
         const t = findHintTarget();
         if (!t) {
-          toast("Board already matches the solution.", "✓");
+          AudioSys.play("invalid");
           return;
         }
-        S.hintsUsed++;
-        S.save.stats.hints++;
+        S.hintsUsed = (S.hintsUsed || 0) + 1;
+        S.save.stats.hints = (S.save.stats.hints || 0) + 1;
         persist();
         AudioSys.play("hint");
         const now = performance.now();
         if (t.kind === "wrong") {
-          if (level === 3) {
-            S.playerRects = S.playerRects.filter((r) => r.id !== t.rect.id);
-            S.selectedId = null;
-            toast(
-              "Removed a region that couldn't be part of the solution.",
-              "✦",
-            );
-            afterChange("hint-remove");
-          } else {
-            S.hintFx = { rect: t.rect, mode: "wrong", until: now + 2600 };
-            toast(
-              level === 0
-                ? "One region can't belong — study the highlighted outline."
-                : level === 1
-                  ? "This region conflicts with the true tiling."
-                  : "Remove this region, then rebuild.",
-              "🧭",
-            );
-            drawBoard();
-            setTimeout(drawBoard, 2700);
-          }
+          S.playerRects = S.playerRects.filter((r) => r.id !== t.rect.id);
+          S.selectedId = null;
+          afterChange("hint-remove");
         } else {
           const s = t.rect;
-          if (level === 0) {
-            S.hintFx = {
-              rect: { x: t.clue.x, y: t.clue.y, w: 1, h: 1 },
-              mode: "clue",
-              until: now + 2600,
-            };
-            toast(`Study the “${t.clue.value}” — it has a forced idea.`, "🌱");
-          } else if (level === 1) {
-            S.hintFx = {
-              rect: {
-                x: Math.max(0, s.x - 1),
-                y: Math.max(0, s.y - 1),
-                w: Math.min(S.puzzle.w, s.w + 2),
-                h: Math.min(S.puzzle.h, s.h + 2),
-              },
-              inner: s,
-              mode: "area",
-              until: now + 3000,
-            };
-            toast("The answer lives inside the shaded neighbourhood.", "🧭");
-          } else if (level === 2) {
-            S.hintFx = { rect: s, mode: "exact", until: now + 4200 };
-            toast("Trace the glowing outline exactly.", "◈");
-          } else {
-            S.playerRects.push({
-              x: s.x,
-              y: s.y,
-              w: s.w,
-              h: s.h,
-              clue: s.clue,
-              id: S.rectId++,
-              born: now,
-            });
-            toast("Placed for you — notice *why* it had to go there.", "✦");
-            afterChange("hint-reveal");
-          }
-          drawBoard();
-          setTimeout(drawBoard, 4300);
+          S.playerRects.push({
+            x: s.x,
+            y: s.y,
+            w: s.w,
+            h: s.h,
+            clue: s.clue,
+            id: S.rectId++,
+            born: now,
+          });
+          afterChange("hint-reveal");
         }
-        $("#modal-hint").classList.remove("open");
+        drawBoard();
         updateSide();
       }
       /* ---------- BOARD RENDERER ---------- */
@@ -3029,26 +3370,30 @@
       }
       function resizeBoard() {
         if (!S.puzzle) return;
-        const wrap = $("#boardWrap");
-        const wrapW = (wrap && wrap.clientWidth > 30) ? wrap.clientWidth : (window.innerWidth < 760 ? window.innerWidth - 32 : 760);
-        const availW = Math.max(200, Math.min(wrapW - 16, 760));
-        
-        // Dynamically measure fixed vertical space required by header, top play card, toolbar buttons, and hints
-        const headerH = document.querySelector("header")?.offsetHeight || 56;
-        const playCardH = (document.querySelector("#view-play > div:first-child")?.offsetHeight || 48) + 8;
-        const controlsH = (document.querySelector("#view-play .grid-cols-5")?.offsetHeight || 52) + 8;
+        const playAreaEl = document.querySelector("#view-play .play-board-area") || document.querySelector("#view-play");
+        const areaH = playAreaEl ? playAreaEl.clientHeight : 0;
+        const areaW = playAreaEl ? playAreaEl.clientWidth : 0;
+
+        const headerEl = document.querySelector("header");
+        const headerH = headerEl && headerEl.style.display !== "none" ? headerEl.offsetHeight : 0;
+        const mainEl = document.querySelector("main");
+        const mainStyle = mainEl ? window.getComputedStyle(mainEl) : null;
+        const mainPad = mainStyle ? (parseFloat(mainStyle.paddingTop || "4") + parseFloat(mainStyle.paddingBottom || "4")) : 8;
+        const controlsEl = document.querySelector("#play-actions-bar .play-actions") || document.querySelector(".play-actions");
+        const controlsH = controlsEl ? controlsEl.offsetHeight : 52;
         const hintEl = document.querySelector("#view-play p.text-\\[11px\\]");
-        const hintH = hintEl ? hintEl.offsetHeight + 8 : 0;
+        const hintH = hintEl ? hintEl.offsetHeight : 0;
         
-        const reservedH = headerH + playCardH + controlsH + hintH + 30;
-        const availH = Math.max(160, Math.min(window.innerHeight - reservedH, 650));
+        const calcH = window.innerHeight - headerH - mainPad - controlsH - hintH - 12;
+        const availH = Math.max(120, Math.min(areaH > 50 ? areaH - 6 : calcH, 850));
+        const availW = Math.max(160, areaW > 50 ? areaW - 12 : (window.innerWidth - 32));
 
         let cell = Math.floor(
-          Math.min(availW / (S.puzzle.w + 0.3), availH / (S.puzzle.h + 0.3)),
+          Math.min(availW / (S.puzzle.w + 0.15), availH / (S.puzzle.h + 0.15)),
         );
-        cell = clamp(cell, 18, 76);
-        const gap = clamp(Math.round(cell * 0.1), 2, 7);
-        const pad = Math.max(4, gap * 2);
+        cell = clamp(cell, 14, 150);
+        const gap = clamp(Math.round(cell * 0.09), 2, 7);
+        const pad = Math.max(4, gap);
         const cw = S.puzzle.w * cell + pad * 2,
           ch = S.puzzle.h * cell + pad * 2;
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -3059,6 +3404,12 @@
         board.height = Math.round(ch * dpr);
         bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         bctx.imageSmoothingEnabled = true;
+
+        // Dynamically align HINT and RESET buttons width with board width (cw)
+        if (controlsEl) {
+          controlsEl.style.width = Math.max(160, Math.min(cw, 380)) + "px";
+        }
+
         drawBoard();
       }
       let drawFramePending = false;
@@ -3500,6 +3851,7 @@
           }, 650);
         });
         board.addEventListener("pointermove", (e) => {
+          if (S.dragging) e.preventDefault();
           const c = cellFromEvent(e);
           if (!S.dragging) {
             const newHover =
@@ -3660,6 +4012,15 @@
             drawBoard();
           }
         });
+        document.addEventListener(
+          "touchmove",
+          (e) => {
+            if (S.view === "play" && S.dragging) {
+              e.preventDefault();
+            }
+          },
+          { passive: false }
+        );
       }
       function handleTap(c) {
         const existing = rectAt(c.x, c.y);
@@ -3742,27 +4103,12 @@
         updateDrawInfo(null);
         drawBoard();
         autosaveCurrent();
-        const cov = coverage();
-        if (cov.pct === 100) {
-          const res = validateCompleteBoard(S.puzzle, S.playerRects);
-          if (res.solved) {
-            onSolved();
-          } else if (why.startsWith("place")) {
-            /* full but wrong (free mode) */ toast(
-              `Board full, but ${describeProblems(res)}`,
-              "⚠",
-            );
-          }
+        const res = validateCompleteBoard(S.puzzle, S.playerRects);
+        if (res.solved) {
+          onSolved();
+        } else if (res.uncoveredCells === 0 && why.startsWith("place")) {
+          toast(`Board full, but ${describeProblems(res)}`, "⚠");
         }
-      }
-      function coverage() {
-        if (!S.puzzle) return { pct: 0, filled: 0 };
-        let f = 0;
-        for (const r of S.playerRects) f += r.w * r.h;
-        return {
-          filled: f,
-          pct: Math.round((f / (S.puzzle.w * S.puzzle.h)) * 100),
-        };
       }
       function describeProblems(res) {
         const p = [];
@@ -3781,13 +4127,11 @@
       }
       function updateSide() {
         if (!S.puzzle) return;
-        const cov = coverage();
         if ($("#sideRects")) $("#sideRects").textContent = S.playerRects.length;
         if ($("#sideRectsTotal")) $("#sideRectsTotal").textContent = "/ " + S.puzzle.clues.length;
-        if ($("#sideBar")) $("#sideBar").style.width = cov.pct + "%";
-        if ($("#playProgress")) $("#playProgress").textContent = cov.pct + "% covered";
         if ($("#sideHints")) $("#sideHints").textContent = S.hintsUsed;
         if ($("#sideMist")) $("#sideMist").textContent = S.mistakes;
+        updateHintUI();
       }
       /* clue inspector */
       function inspectClue(i) {
@@ -3827,6 +4171,7 @@
         if (m) m.classList.add("open");
       }
       function showView(v) {
+        document.body.classList.toggle("in-game", v === "play");
         const hdr = $("header");
         if (hdr) hdr.style.display = v === "home" ? "none" : "block";
         const prev = S.view;
@@ -3851,8 +4196,8 @@
           if (showBack)
             btnBack.innerHTML =
               S.returnTo === "play" && S.puzzle && !S.completed
-                ? "← Resume"
-                : "← Back";
+                ? `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="10,3 5,8 10,13"/></svg><span class="back-label">Resume</span>`
+                : `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="10,3 5,8 10,13"/></svg><span class="back-label">Back</span>`;
         }
         window.scrollTo({ top: 0 });
         if (v === "home") renderHome();
@@ -3868,33 +4213,18 @@
         }
         AudioSys.play("click");
       }
-      function toast(msg, icon = "ℹ") {
-        const box = $("#toastBox");
-        const t = document.createElement("div");
-        t.className = "toast";
-        t.innerHTML = `<span class="text-lg">${icon}</span><span class="text-sm font-medium">${msg}</span>`;
-        box.appendChild(t);
-        animateFrom(t, { opacity: 0, x: 40, duration: 0.3 });
-        setTimeout(() => {
-          animate(t, {
-            opacity: 0,
-            x: 40,
-            duration: 0.3,
-            onComplete: () => t.remove(),
-          });
-        }, 3400);
-        while (box.children.length > 4) box.firstChild.remove();
+      function toast() {
+        /* toasts disabled */
       }
       /* ---------- RENDER: HOME/LEVELS/etc ---------- */
 
       function renderHome() {
-        $("#streakNum").textContent = S.save.daily.streak;
         $$(".homeStreakNum").forEach((el) => (el.textContent = S.save.daily.streak));
         const dk = dateKey();
         if ($("#homeDailySub")) {
           $("#homeDailySub").textContent = S.save.daily.solved[dk]
             ? "✓ Solved " + fmtTime(S.save.daily.solved[dk])
-            : "Daily #" + dayNum(dk);
+            : "Daily Challenge";
         }
         const doneCount = (S.save.campaign.completed || []).length;
         if ($("#homeLevelsSub")) {
@@ -3950,7 +4280,7 @@
       function renderThemes() {}
       function renderDaily() {
         const dk = dateKey();
-        $("#dailyTitle").textContent = "Daily #" + dayNum(dk);
+        $("#dailyTitle").textContent = "Daily Challenge";
         $("#dailyDate").textContent = new Date().toLocaleDateString(undefined, {
           weekday: "long",
           month: "long",
@@ -4065,7 +4395,7 @@
         startPuzzle({
           mode: dk === dateKey() ? "daily" : "archive",
           puzzle: pz,
-          title: `Daily #${dayNum(dk)}`,
+          title: `Daily Challenge`,
           dailyKey: dk,
         });
       }
@@ -4111,9 +4441,15 @@
         S.timerRunning = false;
         S.countdownOn = false;
         S.showZenTimer = false;
-        if (o.mode === "timetrial" || (o.timeLimitMinutes && o.timeLimitMinutes > 0)) {
+        S.timeLimitMinutes =
+          o.timeLimitMinutes !== undefined
+            ? o.timeLimitMinutes
+            : o.mode === "timetrial"
+              ? 5
+              : null;
+        if (o.mode === "timetrial" || (S.timeLimitMinutes && S.timeLimitMinutes > 0)) {
           S.countdownOn = true;
-          S.countdownMs = (o.timeLimitMinutes || 5) * 60 * 1000;
+          S.countdownMs = (S.timeLimitMinutes || 5) * 60 * 1000;
         }
         if (o.assist !== undefined) {
           /* per-game assist override */
@@ -4126,8 +4462,9 @@
           persist();
         }
         S.returnTo = null;
-        $("#playTitle").textContent = o.title || "Puzzle";
-        $("#playSub").textContent =
+        $("#gameHeaderTitle").textContent = o.title || "Puzzle";
+        if ($("#playSub"))
+          $("#playSub").textContent =
           `${S.puzzle.w}×${S.puzzle.h} · ${DIFFS[S.puzzle.difficulty] ?? "Custom"} · ${S.puzzle.clues.length} clues` +
           (S.mode === "zen" ? " · zen" : "");
         if ($("#sideBest")) $("#sideBest").textContent = bestForCurrent() || "—";
@@ -4150,7 +4487,6 @@
           "loadingOverlay",
           "modal-pause",
           "modal-win",
-          "modal-hint",
           "modal-confirm",
         ].forEach((id) => {
           try {
@@ -4296,7 +4632,7 @@
         if (S.winShown) return;
         S.winShown = true;
         $("#winTime").textContent = fmtTime(ms);
-        $("#winNewBest").classList.toggle("hidden", !isBest);
+
         const titles = [
           "Beautifully divided.",
           "Quietly perfect.",
@@ -4306,20 +4642,7 @@
         ];
         $("#winTitle").textContent =
           titles[Math.floor(Math.random() * titles.length)];
-        const avg = S.save.stats.solved
-          ? fmtTime(S.save.stats.totalMs / S.save.stats.solved)
-          : "—";
-        $("#winStats").innerHTML = [
-          ["Best", bestForCurrent() || fmtTime(ms)],
-          ["Average", avg],
-          ["Grid", S.puzzle.w + "×" + S.puzzle.h],
-          ["Level", DIFFS[S.puzzle.difficulty] || "—"],
-        ]
-          .map(
-            ([k, v]) =>
-              `<div class="rounded-lg p-2" style="background:var(--surface-2)"><div class="font-bold">${v}</div><div style="color:var(--text-muted)">${k}</div></div>`,
-          )
-          .join("");
+
         $("#modal-win").classList.add("open");
         $("#btnWinNext").style.display =
           S.mode === "campaign" && S.levelIndex != null
@@ -4336,39 +4659,179 @@
       function winParticles() {
         if (S.save.settings.reducedMotion) return;
         try {
-          const cv = $("#fx"),
-            ctx = cv.getContext("2d");
-          cv.width = innerWidth;
-          cv.height = innerHeight;
-          const cols = [S.pal.accent, "#22C55E", "#EAB308", "#60A5FA"];
-          const ps = [];
-          for (let i = 0; i < 70; i++)
-            ps.push({
-              x: innerWidth / 2 + (Math.random() - 0.5) * 240,
-              y: innerHeight / 2 + (Math.random() - 0.5) * 160,
-              vx: (Math.random() - 0.5) * 4,
-              vy: -2 - Math.random() * 3,
-              s: 2 + Math.random() * 4,
-              c: cols[i % 4],
-              l: 1,
+          const cv = $("#fx");
+          if (!cv) return;
+          const ctx = cv.getContext("2d");
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          const W = window.innerWidth;
+          const H = window.innerHeight;
+          cv.width = W * dpr;
+          cv.height = H * dpr;
+          cv.style.width = W + "px";
+          cv.style.height = H + "px";
+          ctx.scale(dpr, dpr);
+
+          const colors = [
+            "#F59E0B", "#FBBF24", // Vibrant Gold / Amber
+            "#10B981", "#34D399", // Emerald
+            "#3B82F6", "#60A5FA", // Electric Blue
+            "#EC4899", "#F472B6", // Bright Rose / Pink
+            "#8B5CF6", "#A78BFA", // Violet
+            "#EF4444", "#F87171", // Coral
+            S.pal && S.pal.accent ? S.pal.accent : "#F59E0B",
+          ];
+
+          const particles = [];
+
+          // 1. Center radial burst
+          const centerCount = 65;
+          for (let i = 0; i < centerCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 4 + Math.random() * 9;
+            particles.push({
+              x: W / 2,
+              y: H * 0.45,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed - 2.5,
+              size: 6 + Math.random() * 8,
+              color: colors[Math.floor(Math.random() * colors.length)],
+              tilt: Math.random() * 360,
+              tiltSpeed: (Math.random() - 0.5) * 12,
+              wobble: Math.random() * Math.PI * 2,
+              wobbleSpeed: 0.08 + Math.random() * 0.08,
+              shape: Math.random() > 0.35 ? "rect" : (Math.random() > 0.5 ? "circle" : "star"),
+              alpha: 1,
+              decay: 0.005 + Math.random() * 0.004,
+              gravity: 0.16 + Math.random() * 0.06,
+              drag: 0.985,
             });
-          let f = 0;
+          }
+
+          // 2. Left corner cannon (shoots up and right)
+          const leftCannonCount = 55;
+          for (let i = 0; i < leftCannonCount; i++) {
+            const angle = -Math.PI * 0.18 - Math.random() * Math.PI * 0.22;
+            const speed = 13 + Math.random() * 11;
+            particles.push({
+              x: W * 0.06,
+              y: H * 0.94,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+              size: 7 + Math.random() * 9,
+              color: colors[Math.floor(Math.random() * colors.length)],
+              tilt: Math.random() * 360,
+              tiltSpeed: (Math.random() - 0.5) * 14,
+              wobble: Math.random() * Math.PI * 2,
+              wobbleSpeed: 0.06 + Math.random() * 0.08,
+              shape: Math.random() > 0.35 ? "rect" : (Math.random() > 0.5 ? "circle" : "star"),
+              alpha: 1,
+              decay: 0.004 + Math.random() * 0.003,
+              gravity: 0.20 + Math.random() * 0.06,
+              drag: 0.982,
+            });
+          }
+
+          // 3. Right corner cannon (shoots up and left)
+          const rightCannonCount = 55;
+          for (let i = 0; i < rightCannonCount; i++) {
+            const angle = -Math.PI * 0.60 - Math.random() * Math.PI * 0.22;
+            const speed = 13 + Math.random() * 11;
+            particles.push({
+              x: W * 0.94,
+              y: H * 0.94,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+              size: 7 + Math.random() * 9,
+              color: colors[Math.floor(Math.random() * colors.length)],
+              tilt: Math.random() * 360,
+              tiltSpeed: (Math.random() - 0.5) * 14,
+              wobble: Math.random() * Math.PI * 2,
+              wobbleSpeed: 0.06 + Math.random() * 0.08,
+              shape: Math.random() > 0.35 ? "rect" : (Math.random() > 0.5 ? "circle" : "star"),
+              alpha: 1,
+              decay: 0.004 + Math.random() * 0.003,
+              gravity: 0.20 + Math.random() * 0.06,
+              drag: 0.982,
+            });
+          }
+
+          let frame = 0;
+          const maxFrames = 240;
+
+          function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+            let rot = (Math.PI / 2) * 3;
+            let x = cx;
+            let y = cy;
+            const step = Math.PI / spikes;
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - outerRadius);
+            for (let i = 0; i < spikes; i++) {
+              x = cx + Math.cos(rot) * outerRadius;
+              y = cy + Math.sin(rot) * outerRadius;
+              ctx.lineTo(x, y);
+              rot += step;
+              x = cx + Math.cos(rot) * innerRadius;
+              y = cy + Math.sin(rot) * innerRadius;
+              ctx.lineTo(x, y);
+              rot += step;
+            }
+            ctx.lineTo(cx, cy - outerRadius);
+            ctx.closePath();
+            ctx.fill();
+          }
+
           (function tick() {
-            ctx.clearRect(0, 0, cv.width, cv.height);
-            f++;
-            ps.forEach((p) => {
+            frame++;
+            ctx.clearRect(0, 0, W, H);
+            let alive = 0;
+
+            for (let i = 0; i < particles.length; i++) {
+              const p = particles[i];
+              if (p.alpha <= 0.01) continue;
+              alive++;
+
               p.x += p.vx;
               p.y += p.vy;
-              p.vy += 0.08;
-              p.l -= 0.012;
-              ctx.globalAlpha = Math.max(0, p.l);
-              ctx.fillStyle = p.c;
-              ctx.fillRect(p.x, p.y, p.s, p.s);
-            });
-            if (f < 160) requestAnimationFrame(tick);
-            else ctx.clearRect(0, 0, cv.width, cv.height);
+              p.vx *= p.drag;
+              p.vy = p.vy * p.drag + p.gravity;
+              p.tilt += p.tiltSpeed;
+              p.wobble += p.wobbleSpeed;
+              p.alpha -= p.decay;
+
+              const xWobble = p.x + Math.sin(p.wobble) * 8;
+              const tiltCos = Math.cos((p.tilt * Math.PI) / 180);
+
+              ctx.save();
+              ctx.globalAlpha = Math.max(0, Math.min(1, p.alpha));
+              ctx.fillStyle = p.color;
+              ctx.translate(xWobble, p.y);
+
+              if (p.shape === "circle") {
+                ctx.beginPath();
+                ctx.arc(0, 0, p.size * 0.45, 0, Math.PI * 2);
+                ctx.fill();
+              } else if (p.shape === "star") {
+                ctx.rotate((p.tilt * Math.PI) / 180);
+                drawStar(ctx, 0, 0, 5, p.size * 0.7, p.size * 0.35);
+              } else {
+                // 3D Fluttering Rectangle / Ribbon
+                ctx.scale(1, tiltCos);
+                ctx.rotate(((p.tilt * 0.5) * Math.PI) / 180);
+                ctx.fillRect(-p.size * 0.6, -p.size * 0.3, p.size * 1.2, p.size * 0.6);
+              }
+
+              ctx.restore();
+            }
+
+            if (alive > 0 && frame < maxFrames) {
+              requestAnimationFrame(tick);
+            } else {
+              ctx.clearRect(0, 0, W, H);
+            }
           })();
-        } catch (e) {}
+        } catch (e) {
+          console.warn("Celebration fx error:", e);
+        }
       }
       /* ---------- ACHIEVEMENTS ---------- */
       function unlock(id) {}
@@ -4386,9 +4849,19 @@
         $("#btnConfirmNo").textContent = noLabel || "Cancel";
         $("#confirmInput").classList.add("hidden");
         $("#confirmInput").value = "";
+        $("#confirmInput").classList.remove("shake-input");
+        const confirmErr = $("#confirmError");
+        if (confirmErr) confirmErr.classList.add("hidden");
         confirmCb = onYes;
         confirmAlt = onAlt;
         $("#modal-confirm").classList.add("open");
+        animateFrom("#modal-confirm .modal", {
+          opacity: 0,
+          scale: 0.94,
+          y: 10,
+          duration: 0.3,
+          ease: "power2.out",
+        });
       }
       function pauseGame() {
         if (S.completed || S.view !== "play") return;
@@ -4400,11 +4873,40 @@
         $("#modal-pause").classList.add("open");
         AudioSys.play("click");
       }
+      function requestExitPuzzle() {
+        if (S.completed || S.view !== "play") return;
+        const wasPaused = S.paused;
+        if (!wasPaused) timerPause();
+        S.paused = true;
+        confirmBox(
+          "Exit puzzle?",
+          "Your current progress will be saved on this device.",
+          () => {
+            timerStop();
+            S.paused = false;
+            saveCurrent();
+            showView("home");
+          },
+          () => {
+            if (!wasPaused) {
+              S.paused = false;
+              timerResume();
+            }
+          },
+          "Exit puzzle",
+          "Stay",
+        );
+      }
       function resumeGame() {
         S.paused = false;
         $("#modal-pause").classList.remove("open");
         timerResume();
         AudioSys.play("click");
+      }
+      function continueFromPause() {
+        S.paused = false;
+        $("#modal-pause").classList.remove("open");
+        if (S.view === "play" && !S.completed) timerResume();
       }
       /* ---------- SHARE / ENCODING ---------- */
       function encodePuzzle(p) {
@@ -4634,6 +5136,36 @@
           updateRangeFill($("#setAmb"));
 
           if ($("#btnSoundQuick")) $("#btnSoundQuick").textContent = s.sound ? "🔊 Sound" : "🔇 Muted";
+
+          const hasCampaignProgress =
+            (S.save.campaign?.completed || []).length > 0 ||
+            Object.keys(S.save.campaign?.best || {}).length > 0;
+          const btnResetCamp = $("#btnResetCampaign");
+          if (btnResetCamp) {
+            btnResetCamp.disabled = !hasCampaignProgress;
+            btnResetCamp.classList.toggle("opacity-40", !hasCampaignProgress);
+            btnResetCamp.classList.toggle("cursor-not-allowed", !hasCampaignProgress);
+            btnResetCamp.title = hasCampaignProgress
+              ? "Clear level completions & best times"
+              : "No level progress to reset";
+          }
+
+          const hasAnyData =
+            hasCampaignProgress ||
+            (S.save.stats && S.save.stats.solved > 0) ||
+            (S.save.daily &&
+              (S.save.daily.streak > 0 ||
+                Object.keys(S.save.daily.solved || {}).length > 0)) ||
+            S.save.current != null;
+          const btnClear = $("#btnClearData");
+          if (btnClear) {
+            btnClear.disabled = !hasAnyData;
+            btnClear.classList.toggle("opacity-40", !hasAnyData);
+            btnClear.classList.toggle("cursor-not-allowed", !hasAnyData);
+            btnClear.title = hasAnyData
+              ? "Wipe puzzles, streaks, and settings"
+              : "Already fresh — no data to clear";
+          }
         } catch (e) {}
         painters.forEach((p) => {
           try {
@@ -4702,7 +5234,7 @@
         };
         $("#btnBack").onclick = () => {
           if (S.view === "play") {
-            pauseGame();
+            requestExitPuzzle();
           } else if (S.returnTo === "play" && S.puzzle && !S.completed) {
             resumePlayView();
           } else {
@@ -4728,28 +5260,18 @@
         };
         if ($("#btnCloseSettingsModal")) $("#btnCloseSettingsModal").onclick = closeSettingsModal;
         if ($("#btnSaveSettingsModal")) $("#btnSaveSettingsModal").onclick = closeSettingsModal;
-        $("#streakPill").onclick = () => showView("daily");
-        $("#btnFullscreen").onclick = () => {
-          try {
-            if (document.fullscreenElement) document.exitFullscreen();
-            else document.documentElement.requestFullscreen();
-          } catch (e) {
-            toast("Fullscreen not supported here.", "⛶");
-          }
-        };
         if ($("#filterChapter")) $("#filterChapter").onchange = renderLevels;
         if ($("#filterStatus")) $("#filterStatus").onchange = renderLevels;
         if ($("#sortLevels")) $("#sortLevels").onchange = renderLevels;
         // play buttons
-        $("#btnPause").onclick = pauseGame;
+        $("#gameHeaderPause").onclick = pauseGame;
         $("#btnResume").onclick = resumeGame;
         $("#btnPauseReset").onclick = () => {
-          $("#modal-pause").classList.remove("open");
-          S.paused = false;
+          continueFromPause();
           resetPuzzle();
         };
         $("#btnPauseSettings").onclick = () => {
-          $("#modal-pause").classList.remove("open");
+          continueFromPause();
           openSettingsModal();
         };
         $("#btnPauseExit").onclick = () => {
@@ -4760,14 +5282,8 @@
           showView("home");
         };
         $("#btnHint").onclick = () => {
-          $("#modal-hint").classList.add("open");
-          AudioSys.play("click");
+          applyHint();
         };
-        $("#btnHintClose").onclick = () =>
-          $("#modal-hint").classList.remove("open");
-        $$("[data-hint]").forEach(
-          (b) => (b.onclick = () => applyHint(+b.dataset.hint)),
-        );
         $("#btnReset").onclick = resetPuzzle;
         if ($("#chkStrict2")) {
           $("#chkStrict2").onchange = (e) => {
@@ -4828,17 +5344,46 @@
         };
         $("#btnConfirmYes").onclick = () => {
           const inp = $("#confirmInput");
-          if (
-            !inp.classList.contains("hidden") &&
-            inp.value.trim().toUpperCase() !== "RESET"
-          ) {
-            toast("Type RESET to confirm.", "⚠");
-            return;
+          const err = $("#confirmError");
+          if (!inp.classList.contains("hidden")) {
+            const val = inp.value.trim().toUpperCase();
+            if (val !== "RESET") {
+              inp.classList.remove("shake-input");
+              void inp.offsetWidth; // trigger reflow for re-animation
+              inp.classList.add("shake-input");
+              if (err) {
+                err.classList.remove("hidden");
+                err.textContent = "⚠ Please type RESET to confirm";
+              }
+              inp.focus();
+              AudioSys.play("invalid");
+              toast("Type RESET to confirm.", "⚠");
+              return;
+            }
           }
+          if (err) err.classList.add("hidden");
+          inp.classList.remove("shake-input");
           $("#modal-confirm").classList.remove("open");
           if (confirmCb) confirmCb();
           confirmCb = confirmAlt = null;
         };
+
+        const confirmInp = $("#confirmInput");
+        if (confirmInp) {
+          confirmInp.addEventListener("input", (e) => {
+            const err = $("#confirmError");
+            if (e.target.value.trim().toUpperCase() === "RESET") {
+              if (err) err.classList.add("hidden");
+              e.target.classList.remove("shake-input");
+            }
+          });
+          confirmInp.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              $("#btnConfirmYes").click();
+            }
+          });
+        }
         // daily
         $("#btnDailyStart").onclick = () => loadDaily(dateKey());
         // custom
@@ -4871,11 +5416,17 @@
                 timeLimitMinutes: timerMins,
               },
             );
-            if ($("#fpStatus")) $("#fpStatus").textContent = "Seed " + seed + " · verified unique ✓";
           };
         }
         // destructive
-        $("#btnResetCampaign").onclick = () =>
+        $("#btnResetCampaign").onclick = () => {
+          const hasCampaignProgress =
+            (S.save.campaign.completed || []).length > 0 ||
+            Object.keys(S.save.campaign.best || {}).length > 0;
+          if (!hasCampaignProgress) {
+            toast("Nothing to reset — no level progress saved.", "ℹ");
+            return;
+          }
           confirmBox(
             "Reset Level Progress?",
             "All level completions, best times, and progress will be erased. Daily streaks stay.",
@@ -4888,16 +5439,43 @@
               };
               persist(true);
               renderLevels();
+              renderHome();
+              refreshSettingsUI();
               toast("Level progress reset.", "↺");
             },
           );
+        };
         $("#btnClearData").onclick = () => {
+          const hasCampaignProgress =
+            (S.save.campaign?.completed || []).length > 0 ||
+            Object.keys(S.save.campaign?.best || {}).length > 0;
+          const hasAnyData =
+            hasCampaignProgress ||
+            (S.save.stats && S.save.stats.solved > 0) ||
+            (S.save.daily &&
+              (S.save.daily.streak > 0 ||
+                Object.keys(S.save.daily.solved || {}).length > 0)) ||
+            S.save.current != null;
+          if (!hasAnyData) {
+            toast("Nothing to clear — data is already fresh.", "ℹ");
+            return;
+          }
           $("#confirmTitle").textContent = "Erase everything?";
           $("#confirmMsg").textContent =
             "This wipes puzzles, stats, streaks and settings on this device. There is no undo.";
           $("#confirmInput").classList.remove("hidden");
           $("#confirmInput").value = "";
+          $("#confirmInput").classList.remove("shake-input");
+          const confirmErr = $("#confirmError");
+          if (confirmErr) confirmErr.classList.add("hidden");
           $("#modal-confirm").classList.add("open");
+          animateFrom("#modal-confirm .modal", {
+            opacity: 0,
+            scale: 0.94,
+            y: 10,
+            duration: 0.3,
+            ease: "power2.out",
+          });
           confirmCb = () => {
             try {
               localStorage.removeItem(LS_KEY);
@@ -4908,6 +5486,9 @@
             applyTheme("paper", false);
             refreshSettingsUI();
             renderHome();
+            renderLevels();
+            const m = $("#modal-settings");
+            if (m) m.classList.remove("open");
             toast("All local data cleared.", "🗑");
           };
         };
@@ -4917,9 +5498,11 @@
             if (
               e.target === m &&
               m.id !== "loadingOverlay" &&
-              m.id !== "modal-win"
-            )
+              m.id !== "modal-win" &&
+              m.id !== "modal-pause"
+            ) {
               m.classList.remove("open");
+            }
           }),
         );
         // keyboard
@@ -4932,7 +5515,7 @@
             return;
           }
           if (e.key === "Escape") {
-            ["modal-hint", "modal-confirm", "modal-settings"].forEach((id) =>
+            ["modal-confirm", "modal-settings"].forEach((id) =>
               $("#" + id).classList.remove("open"),
             );
             if (
@@ -4953,7 +5536,7 @@
           if (e.key.toLowerCase() === "r") {
             $("#btnReset").click();
           } else if (e.key.toLowerCase() === "h") {
-            $("#modal-hint").classList.add("open");
+            applyHint();
           }
         });
         let rz;
@@ -4997,17 +5580,29 @@
           S.playerRects = [];
           S.selectedId = null;
           S.anchor = null;
+          S.draft = null;
+          S.draftColorIdx = null;
           S.colorCounter = 0;
           S.hintsUsed = 0;
           S.mistakes = 0;
+          S.timerAccum = 0;
+          S.timerStart = performance.now();
+          S._timeUpShown = false;
+          S.paused = false;
+          if (S.view === "play" && !S.completed) {
+            timerStart();
+          }
           AudioSys.play("delete");
           afterChange("reset");
-          toast("Board cleared — fresh eyes.", "↺");
+          timerTick();
+          drawBoard();
+          updateSide();
+          toast("Puzzle reset — fresh start.", "↺");
         };
         if (S.save.settings.confirmReset)
           confirmBox(
             "Reset this puzzle?",
-            "All placed regions will be removed. The timer keeps running.",
+            "All placed regions and timer will be reset.",
             go,
           );
         else go();
@@ -5017,9 +5612,10 @@
         const o = {
           mode: S.mode,
           puzzle: S.puzzle,
-          title: $("#playTitle").textContent,
+          title: $("#gameHeaderTitle").textContent,
           levelIndex: S.levelIndex,
           dailyKey: S.dailyKey,
+          timeLimitMinutes: S.timeLimitMinutes,
         };
         startPuzzle(o);
       }

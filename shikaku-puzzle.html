@@ -7,9 +7,9 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
     <meta name="theme-color" content="#F6F1E7" />
-    <title>PARCEL — A Shikaku Study</title>
+    <title>SHAPEBOUND — The Art of Perfect Shapes</title>
     <meta
-      content="PARCEL — an elegant Shikaku rectangle logic puzzle. Divide the grid into rectangles. One clue, one area, zero gaps."
+      content="SHAPEBOUND — an elegant Shikaku rectangle logic puzzle. Divide the grid into rectangles. One clue, one area, zero gaps."
     />
     <!-- Tailwind CDN removed: utilities defined below in <style> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -271,14 +271,14 @@
         padding-top: 0.35rem;
         padding-bottom: 0.35rem;
       }
-      body.in-game #logoBtn,
-      body.in-game #saveDot {
-        display: none;
+      body.in-game #logoBtn {
+        display: none !important;
       }
-      #gameHeaderTitle,
-      #gameHeaderTimer,
-      #gameHeaderPause {
-        display: none;
+      body:not(.in-game) #gameHeaderTitle,
+      body:not(.in-game) #gameHeaderTimer,
+      body:not(.in-game) #gameHeaderPause,
+      body:not(.in-game) #saveDot {
+        display: none !important;
       }
       body.in-game #gameHeaderTitle,
       body.in-game #gameHeaderTimer,
@@ -291,7 +291,6 @@
         font-size: 0.9rem;
       }
       #gameHeaderPause {
-        display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 0.3rem;
@@ -438,13 +437,65 @@
         gap: 0.35rem;
         font-size: 0.72rem;
         font-weight: 700;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.04em;
         text-transform: uppercase;
-        padding: 0.3rem 0.7rem;
+        padding: 0.25rem 0.65rem;
         border-radius: 999px;
         background: var(--surface-2);
         border: 1px solid var(--border);
         color: var(--text-muted);
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .levels-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+      }
+      .levels-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+      }
+      @media (min-width: 640px) {
+        .levels-grid {
+          grid-template-columns: repeat(6, 1fr);
+        }
+      }
+      @media (min-width: 768px) {
+        .levels-grid {
+          grid-template-columns: repeat(8, 1fr);
+        }
+      }
+      @media (min-width: 1024px) {
+        .levels-grid {
+          grid-template-columns: repeat(10, 1fr);
+        }
+      }
+      @media (max-width: 380px) {
+        .levels-header {
+          gap: 0.35rem;
+        }
+        .levels-header h2 {
+          font-size: 1.35rem;
+        }
+        .chip {
+          font-size: 0.64rem;
+          padding: 0.2rem 0.5rem;
+          letter-spacing: 0.02em;
+        }
+        .levels-grid {
+          gap: 0.45rem;
+        }
+        .level-tile {
+          border-radius: 10px;
+        }
+        .level-tile .font-display {
+          font-size: 0.65rem;
+        }
       }
       .dot {
         width: 8px;
@@ -873,13 +924,87 @@
       .tabbar .btn {
         white-space: nowrap;
       }
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
       ::-webkit-scrollbar-thumb {
         background: var(--surface-3);
         border-radius: 99px;
+      }
+      .tutorial-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        width: 100%;
+        max-width: 480px;
+        margin: 0 auto 0.6rem auto;
+        padding: 0.45rem 0.75rem;
+        background: var(--surface);
+        border: 1.5px solid var(--accent);
+        border-radius: 12px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+        box-sizing: border-box;
+        transition: all 0.2s ease;
+      }
+      .tutorial-bar.hidden {
+        display: none !important;
+      }
+      .tutorial-content {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        min-width: 0;
+        flex: 1;
+      }
+      .tutorial-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--accent);
+        color: var(--accent-text);
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        flex-shrink: 0;
+        line-height: 1.1;
+      }
+      .tutorial-text {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text);
+        line-height: 1.3;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .tutorial-skip-btn {
+        background: var(--surface-2);
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 0.25rem 0.65rem;
+        border-radius: 8px;
+        cursor: pointer;
+        flex-shrink: 0;
+        line-height: 1.2;
+        transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      }
+      .tutorial-skip-btn:hover {
+        background: var(--surface-3);
+        color: var(--text);
+        border-color: var(--accent);
+      }
+      @media (max-width: 480px) {
+        .tutorial-bar {
+          padding: 0.35rem 0.55rem;
+          gap: 0.4rem;
+        }
+        .tutorial-text {
+          font-size: 0.72rem;
+        }
       }
       .kbd {
         font-family: monospace;
@@ -1416,11 +1541,11 @@
           <span
             ><span
               class="font-display font-bold text-lg leading-none tracking-tight block"
-              >PARCEL</span
+              >SHAPEBOUND</span
             ><span
               class="text-[10px] font-bold tracking-[.22em] uppercase"
               style="color: var(--text-muted)"
-              >A Shikaku Study</span
+              >The Art of Perfect Shapes</span
             ></span
           >
         </button>
@@ -1479,9 +1604,9 @@
               <span style="background: var(--accent-text); opacity: 0.55; border-radius: 3px"></span>
               <span style="background: var(--accent-text); border-radius: 3px"></span>
             </span>
-            <h1 class="font-display font-bold text-4xl sm:text-5xl tracking-tight leading-none">PARCEL</h1>
+            <h1 class="font-display font-bold text-4xl sm:text-5xl tracking-tight leading-none">SHAPEBOUND</h1>
             <p class="text-xs font-bold tracking-[.25em] uppercase mt-1.5" style="color: var(--text-muted)">
-              A Shikaku Study
+              The Art of Perfect Shapes
             </p>
           </div>
 
@@ -1576,7 +1701,7 @@
 
       <!-- LEVELS -->
       <section id="view-levels" class="view">
-        <div class="flex items-center justify-between mb-4">
+        <div class="levels-header flex items-center justify-between gap-2 flex-wrap mb-4">
           <div>
             <h2 class="font-display text-2xl font-bold">Levels</h2>
             <p
@@ -1588,7 +1713,7 @@
             </p>
           </div>
           <span class="chip text-xs" title="Auto-expanding level progression">
-            ✨ Auto-Expanding Levels
+            ✨ Auto-Expanding
           </span>
         </div>
         <div id="chapterList"></div>
@@ -1597,6 +1722,17 @@
       <!-- PLAY -->
       <section id="view-play" class="view">
         <div class="play-board-area max-w-3xl mx-auto flex flex-col items-center w-full">
+          <div id="tutorialBar" class="tutorial-bar hidden">
+            <div class="tutorial-content">
+              <span class="tutorial-badge">Tutorial</span>
+              <span id="tutorialText" class="tutorial-text"
+                >Drag across the highlighted cells to form a rectangle.</span
+              >
+            </div>
+            <button id="btnSkipTutorial" class="tutorial-skip-btn" type="button">
+              Skip
+            </button>
+          </div>
           <div class="play-board-content w-full flex flex-col items-center">
             <canvas
               id="board"
@@ -1803,7 +1939,7 @@
               </div>
               <div class="text-right text-sm" style="color: var(--text-muted)">
                 <div class="font-bold" style="color: var(--text)">Goal</div>
-                <div>One complete parcel map</div>
+                <div>One complete bounded map</div>
               </div>
             </div>
           </div>
@@ -1926,7 +2062,7 @@
               <b>No gaps, no overlaps.</b>
               <p class="text-sm" style="color: var(--text-muted)">
                 Every cell belongs to exactly one rectangle. The whole grid
-                becomes a clean parcel map.
+                becomes a clean bounded map.
               </p>
             </div>
           </div>
@@ -1949,8 +2085,11 @@
               Experts read the walls before they draw.
             </p>
             <div class="flex gap-2 mt-3 flex-wrap">
-              <button class="btn btn-primary" data-mode="practice">
-                Try an easy board
+              <button id="btnStartTutorialHowTo" class="btn btn-primary">
+                🎓 Interactive Demo (Level 1)
+              </button>
+              <button class="btn" data-mode="practice">
+                Try Free Practice
               </button>
             </div>
           </div>
@@ -2106,7 +2245,7 @@
           </label>
 
           <!-- DANGER / DATA RESET SECTION -->
-          <div class="pt-4 border-t border-[var(--border)] space-y-3">
+          <div id="settingsDataSection" class="pt-4 border-t border-[var(--border)] space-y-3">
             <div class="flex items-center justify-between">
               <span class="font-bold text-xs uppercase tracking-wider text-[var(--danger)] flex items-center gap-1.5">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -2149,7 +2288,7 @@
 
     <script>
       /* ================================================================
-   PARCEL — A Shikaku Study · single-file premium logic game
+   SHAPEBOUND — The Art of Perfect Shapes · single-file premium logic game
    Sections: CONFIG / UTILS / AUDIO / STATE / SAVE / THEMES /
    RNG+GEN / CANDIDATES / SOLVER / DIFFICULTY / VALIDATION /
    HISTORY / TIMER / HINTS / BOARD / INPUT / UI / MODALS /
@@ -2577,12 +2716,14 @@
         };
       }
       /* ---------- SAVE SYSTEM ---------- */
-      const LS_KEY = "parcel_save_v1";
+      const LS_KEY = "shapebound_save_v1";
+      const LEGACY_LS_KEY = "parcel_save_v1";
       let storageOK = true,
         saveTimer = null;
       function loadSave() {
         try {
-          const raw = localStorage.getItem(LS_KEY);
+          let raw = localStorage.getItem(LS_KEY);
+          if (!raw) raw = localStorage.getItem(LEGACY_LS_KEY);
           if (!raw) {
             S.save = defaultSave();
             return;
@@ -2665,9 +2806,9 @@
         return out;
       }
       function generatePartition(W, H, rng, opts = {}) {
-        const maxArea = opts.maxArea || 12,
+        const maxArea = opts.maxArea || 8,
           minKeep =
-            opts.minCount || Math.max(3, Math.round((W * H) / (opts.avg || 8)));
+            opts.minCount || Math.max(3, Math.round((W * H) / (opts.avg || 4.5)));
         let rects = [{ x: 0, y: 0, w: W, h: H }];
         let guard = 0;
         const needSplit = (r) => r.w * r.h > maxArea;
@@ -2933,21 +3074,21 @@
         const avg = total / Math.max(1, n),
           area = puzzle.w * puzzle.h;
         const score =
-          avg * 1.25 +
-          area * 0.075 +
-          Math.log10((solverNodes || 10) + 1) * 2.1 -
-          forced * 0.85;
+          avg * 1.35 +
+          area * 0.08 +
+          Math.log10((solverNodes || 10) + 1) * 2.2 -
+          forced * 1.1;
         let tier = 0;
-        if (score < 3.6) tier = 0;
-        else if (score < 5.4) tier = 1;
-        else if (score < 7.4) tier = 2;
-        else if (score < 10.2) tier = 3;
-        else if (score < 13.5) tier = 4;
+        if (score < 4.0) tier = 0;
+        else if (score < 6.2) tier = 1;
+        else if (score < 8.8) tier = 2;
+        else if (score < 12.0) tier = 3;
+        else if (score < 15.5) tier = 4;
         else tier = 5;
         return { tier, score, avg, forced, total, nodes: solverNodes || 0 };
       }
-      const MAXAREA_BY_DIFF = [8, 10, 12, 16, 20, 24],
-        AVG_BY_DIFF = [5.5, 6.5, 7.5, 8.5, 9.5, 10.5];
+      const MAXAREA_BY_DIFF = [6, 8, 10, 12, 15, 16],
+        AVG_BY_DIFF = [4.2, 4.8, 5.2, 5.8, 6.2, 6.8];
       function fallbackPuzzle(W, H, seed) {
         const cx = Math.floor(W / 2);
         const clues = [];
@@ -2973,10 +3114,10 @@
         seed = seed >>> 0 || 1;
         const token = ++S.genToken;
         let best = null,
-          bestGap = 99;
+          bestGap = 999;
         const td = targetDiff < 0 ? -1 : targetDiff;
-        const maxArea = td >= 0 ? MAXAREA_BY_DIFF[td] : 14,
-          avg = td >= 0 ? AVG_BY_DIFF[td] : 8;
+        const maxArea = td >= 0 ? MAXAREA_BY_DIFF[td] : 10,
+          avg = td >= 0 ? AVG_BY_DIFF[td] : 5.5;
         const outerAttempts = W * H > 120 ? 14 : 22;
         for (let a = 0; a < outerAttempts; a++) {
           if (token !== S.genToken) return null;
@@ -2996,7 +3137,8 @@
             const res = countSolutions(pz, 2, 22000);
             if (res.aborted || res.count !== 1) continue;
             const est = estimateDifficulty(pz, res.nodes);
-            const gap = td < 0 ? 0 : Math.abs(est.tier - td);
+            // Search for matching tier and minimize forced initial placements
+            const gap = td < 0 ? 0 : Math.abs(est.tier - td) * 10 + est.forced;
             const cand = {
               w: W,
               h: H,
@@ -3013,10 +3155,10 @@
               est,
               verified: true,
             };
-            if (td < 0 || gap === 0) return cand;
             if (gap < bestGap) {
               bestGap = gap;
               best = cand;
+              if (td >= 0 && est.tier === td && est.forced <= 1) return cand;
             }
             if (onTick && (a * inner + b) % 4 === 0) {
               onTick(a * inner + b);
@@ -3320,6 +3462,58 @@
         drawBoard();
         updateSide();
       }
+
+      /* ---------- TUTORIAL LOGIC ---------- */
+      function updateTutorialUI() {
+        const bar = $("#tutorialBar");
+        const wasHidden = !bar || bar.classList.contains("hidden");
+        if (!S.tutorial || !S.tutorial.active || !S.puzzle) {
+          if (bar && !wasHidden) {
+            bar.classList.add("hidden");
+            if (S.view === "play") resizeBoard();
+          }
+          return;
+        }
+        const sol = trueSolution();
+        if (!sol) {
+          if (bar && !wasHidden) {
+            bar.classList.add("hidden");
+            if (S.view === "play") resizeBoard();
+          }
+          return;
+        }
+        const missing = sol.find(
+          (s) =>
+            !S.playerRects.some(
+              (r) => r.x === s.x && r.y === s.y && r.w === s.w && r.h === s.h,
+            ),
+        );
+        if (!missing) {
+          S.tutorial.active = false;
+          if (bar && !wasHidden) {
+            bar.classList.add("hidden");
+            if (S.view === "play") resizeBoard();
+          }
+          return;
+        }
+        const clue = S.puzzle.clues[missing.clue];
+        const clueVal = clue ? clue.value : missing.w * missing.h;
+        S.tutorial.target = {
+          ...missing,
+          clueVal,
+        };
+        if (bar) {
+          bar.classList.remove("hidden");
+          if (wasHidden && S.view === "play") {
+            resizeBoard();
+          }
+        }
+        const txt = $("#tutorialText");
+        if (txt) {
+          txt.textContent = `Enclose clue ${clueVal} · drag ${missing.w}×${missing.h} area`;
+        }
+      }
+
       /* ---------- BOARD RENDERER ---------- */
       const board = $("#board"),
         bctx = board.getContext("2d");
@@ -3383,9 +3577,11 @@
         const controlsH = controlsEl ? controlsEl.offsetHeight : 52;
         const hintEl = document.querySelector("#view-play p.text-\\[11px\\]");
         const hintH = hintEl ? hintEl.offsetHeight : 0;
+        const tutorialBarEl = document.querySelector("#tutorialBar");
+        const tutorialH = (tutorialBarEl && !tutorialBarEl.classList.contains("hidden")) ? (tutorialBarEl.offsetHeight + 12) : 0;
         
-        const calcH = window.innerHeight - headerH - mainPad - controlsH - hintH - 12;
-        const availH = Math.max(120, Math.min(areaH > 50 ? areaH - 6 : calcH, 850));
+        const calcH = window.innerHeight - headerH - mainPad - controlsH - hintH - tutorialH - 12;
+        const availH = Math.max(120, Math.min(areaH > 50 ? (areaH - tutorialH - 6) : calcH, 850));
         const availW = Math.max(160, areaW > 50 ? areaW - 12 : (window.innerWidth - 32));
 
         let cell = Math.floor(
@@ -3728,6 +3924,98 @@
           drawRoundRect(bctx, kx, ky, kw, kh, radius);
           bctx.stroke();
           bctx.restore();
+        }
+
+        /* Tutorial Guide & Animated Drag Pointer */
+        if (
+          S.tutorial &&
+          S.tutorial.active &&
+          S.tutorial.target &&
+          !S.draft &&
+          S.view === "play"
+        ) {
+          const tg = S.tutorial.target;
+          const hx = pad + tg.x * cell + gap / 2;
+          const hy = pad + tg.y * cell + gap / 2;
+          const hw = tg.w * cell - gap;
+          const hh = tg.h * cell - gap;
+
+          // 1. Pulsing glowing dashed guide rectangle
+          bctx.save();
+          const pulse = (Math.sin(now / 220) + 1) / 2;
+          bctx.strokeStyle = pal.accent || "#1E6B52";
+          bctx.lineWidth = 3 + pulse * 1.5;
+          bctx.setLineDash([8, 6]);
+          bctx.lineDashOffset = -(now / 35);
+          bctx.fillStyle = "rgba(30, 107, 82, " + (0.08 + pulse * 0.08) + ")";
+          drawRoundRect(bctx, hx, hy, hw, hh, radius);
+          bctx.fill();
+          bctx.stroke();
+          bctx.restore();
+
+          // 2. Animated finger / touch drag indicator
+          const cycle = 2000;
+          const t = (now % cycle) / cycle;
+          const startX = pad + (tg.x + 0.5) * cell;
+          const startY = pad + (tg.y + 0.5) * cell;
+          const endX = pad + (tg.x + tg.w - 0.5) * cell;
+          const endY = pad + (tg.y + tg.h - 0.5) * cell;
+
+          let cx,
+            cy,
+            isPressing = false;
+          if (t < 0.18) {
+            cx = startX;
+            cy = startY;
+            isPressing = false;
+          } else if (t < 0.82) {
+            const ease = (t - 0.18) / 0.64;
+            const eased =
+              ease < 0.5 ? 2 * ease * ease : -1 + (4 - 2 * ease) * ease;
+            cx = startX + (endX - startX) * eased;
+            cy = startY + (endY - startY) * eased;
+            isPressing = true;
+          } else {
+            cx = endX;
+            cy = endY;
+            isPressing = false;
+          }
+
+          // Drag trail
+          if (isPressing) {
+            bctx.save();
+            bctx.strokeStyle = "rgba(30, 107, 82, 0.45)";
+            bctx.lineWidth = 2.5;
+            bctx.setLineDash([4, 4]);
+            bctx.beginPath();
+            bctx.moveTo(startX, startY);
+            bctx.lineTo(cx, cy);
+            bctx.stroke();
+            bctx.restore();
+          }
+
+          // Touch pointer circle
+          bctx.save();
+          bctx.shadowColor = "rgba(0, 0, 0, 0.35)";
+          bctx.shadowBlur = 8;
+          bctx.shadowOffsetY = 3;
+          bctx.fillStyle = isPressing ? pal.accent || "#1E6B52" : "#FFFFFF";
+          bctx.strokeStyle = "#FFFFFF";
+          bctx.lineWidth = 2.5;
+          bctx.beginPath();
+          bctx.arc(cx, cy, isPressing ? 13 : 11, 0, Math.PI * 2);
+          bctx.fill();
+          bctx.stroke();
+          // Inner dot
+          bctx.fillStyle = isPressing ? "#FFFFFF" : pal.accent || "#1E6B52";
+          bctx.beginPath();
+          bctx.arc(cx, cy, 4, 0, Math.PI * 2);
+          bctx.fill();
+          bctx.restore();
+
+          if (!S.save.settings.reducedMotion) {
+            requestDrawBoard();
+          }
         }
       }
       function cellFromEvent(e) {
@@ -4099,6 +4387,7 @@
       }
       function afterChange(why) {
         S.assistCands = [];
+        updateTutorialUI();
         updateSide();
         updateDrawInfo(null);
         drawBoard();
@@ -4167,6 +4456,10 @@
       ];
       function openSettingsModal() {
         refreshSettingsUI();
+        const dataSec = $("#settingsDataSection");
+        if (dataSec) {
+          dataSec.classList.toggle("hidden", S.view !== "home");
+        }
         const m = $("#modal-settings");
         if (m) m.classList.add("open");
       }
@@ -4246,7 +4539,7 @@
         box.innerHTML = "";
 
         const grid = document.createElement("div");
-        grid.className = "grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3";
+        grid.className = "levels-grid";
 
         for (let i = 0; i < visibleMax; i++) {
           const solved = completed.includes(i);
@@ -4307,14 +4600,14 @@
         $("#loadingOverlay").classList.toggle("open", on);
         if (sub) $("#loadingSub").textContent = sub;
       }
-      async function loadCampaignLevel(i) {
+      async function loadCampaignLevel(i, forceTutorial = false) {
         showView("play");
         showLoading(true, "Verifying a unique solution");
         const key = "camp-" + i;
         let pz = S.save.cache[key];
         if (!pz || !pz.clues) {
           const sp = campaignSpec(i);
-          const seed = hashStr("PARCEL-campaign-v1-" + i);
+          const seed = hashStr("SHAPEBOUND-campaign-v1-" + i);
           pz = await generatePuzzle(sp.w, sp.h, seed, sp.diff);
           if (!pz) {
             showLoading(false);
@@ -4344,6 +4637,7 @@
           puzzle: pz,
           title: `Level ${i + 1}`,
           levelIndex: i,
+          forceTutorial,
         });
       }
       function dailySpec(dk) {
@@ -4367,12 +4661,12 @@
       async function loadDaily(dk) {
         dk = dk || dateKey();
         showView("play");
-        showLoading(true, "Unsealing today's parcel");
+        showLoading(true, "Unsealing today's challenge");
         const key = "daily-" + dk;
         let pz = S.save.cache[key];
         if (!pz || !pz.clues) {
           const spec = dailySpec(dk);
-          const seed = hashStr("PARCEL-DAILY-v1-" + dk);
+          const seed = hashStr("SHAPEBOUND-DAILY-v1-" + dk);
           pz = await generatePuzzle(spec.w, spec.h, seed, spec.diff);
           if (!pz) {
             showLoading(false);
@@ -4461,6 +4755,16 @@
           S.save.stats.attempted++;
           persist();
         }
+        const shouldShowTutorial =
+          Boolean(o.forceTutorial) ||
+          (o.mode === "campaign" &&
+            o.levelIndex === 0 &&
+            !(S.save.campaign.completed || []).includes(0));
+        S.tutorial = {
+          active: shouldShowTutorial,
+          target: null,
+        };
+        updateTutorialUI();
         S.returnTo = null;
         $("#gameHeaderTitle").textContent = o.title || "Puzzle";
         if ($("#playSub"))
@@ -4636,7 +4940,7 @@
         const titles = [
           "Beautifully divided.",
           "Quietly perfect.",
-          "Every parcel home.",
+          "Every shape bounded.",
           "A clean map.",
           "Logic, settled.",
         ];
@@ -5285,6 +5589,18 @@
           applyHint();
         };
         $("#btnReset").onclick = resetPuzzle;
+        if ($("#btnSkipTutorial")) {
+          $("#btnSkipTutorial").onclick = () => {
+            if (S.tutorial) S.tutorial.active = false;
+            if ($("#tutorialBar")) $("#tutorialBar").classList.add("hidden");
+            if (S.view === "play") resizeBoard();
+          };
+        }
+        if ($("#btnStartTutorialHowTo")) {
+          $("#btnStartTutorialHowTo").onclick = () => {
+            loadCampaignLevel(0, true);
+          };
+        }
         if ($("#chkStrict2")) {
           $("#chkStrict2").onchange = (e) => {
             S.save.settings.strict = e.target.checked;
@@ -5557,7 +5873,7 @@
 
         showView("home");
         renderHome();
-        announce("Parcel loaded. Choose Daily, Levels, or Learn.");
+        announce("Shapebound loaded. Choose Daily, Levels, or Learn.");
       }
       function quickMode(m) {
         if (m === "practice") {

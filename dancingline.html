@@ -204,15 +204,18 @@
       }
       #home::-webkit-scrollbar { display: none; }
       #home > * { flex: none; }
-      .homeTop { width: min(92vw, 420px); display: flex; align-items: center; justify-content: space-between; margin: 0 auto; }
       .wallet {
-        display: flex; align-items: center; gap: .4rem; padding: .38rem .85rem; border-radius: 999px;
-        background: rgba(0,0,0,.32); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.12);
-        font-weight: 800; font-size: .95rem;
+        display: inline-flex; align-items: center; gap: .45rem; padding: .38rem .85rem; border-radius: 999px;
+        background: rgba(10, 14, 38, .7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,.16); font-weight: 800; font-size: .95rem; color: #fff;
+        box-shadow: 0 4px 16px rgba(0,0,0,.35);
       }
-      .wallet svg { width: 1rem; height: 1rem; }
+      .wallet svg { width: 1.1rem; height: 1.1rem; fill: #5fd3ff; }
+      #homeWallet {
+        position: absolute; left: 1rem; top: calc(.7rem + var(--safe-top)); z-index: 20;
+      }
 
-      .homeCenter { width: min(92vw, 420px); margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+      .homeCenter { width: min(92vw, 420px); margin: auto auto; display: flex; flex-direction: column; align-items: center; }
       .logo { display: flex; flex-direction: column; align-items: center; gap: .15rem; margin-bottom: .4rem; }
       .logo svg { width: 2.7rem; height: 2.7rem; }
       .logo h1 {
@@ -461,10 +464,7 @@
 
       <!-- HOME (Authentic Cheetah Mobile Interface) -->
       <div id="home" class="screen">
-        <div class="homeTop">
-          <div class="wallet"><svg><use href="#i-gem"/></svg><span id="totalGems">0</span></div>
-          <div></div>
-        </div>
+        <div class="wallet" id="homeWallet"><svg><use href="#i-gem"/></svg><span id="totalGems">0</span></div>
 
         <div class="homeCenter">
           <div class="logo">
@@ -493,6 +493,7 @@
       <div id="skinScr" class="screen dim hidden">
         <div class="panel" style="max-width: 400px">
           <h2>Line Skins</h2>
+          <div class="wallet" style="margin: .6rem auto 0; width: fit-content; background: rgba(0,0,0,.35)"><svg><use href="#i-gem"/></svg><span id="skinTotalGems">0</span></div>
           <div class="skinGrid" id="skinGrid"></div>
           <div class="note" id="skinNote">Collect diamonds in levels to unlock new lines.</div>
           <div class="btns" style="margin-top: 1rem">
@@ -2588,7 +2589,10 @@
         },
         updateWallet() {
           // Currency is spendable; do not reconstruct it from lifetime records.
-          el.totalGems.textContent = game.save.totalGems || 0;
+          const g = game.save.totalGems || 0;
+          el.totalGems.textContent = g;
+          const sGems = $("skinTotalGems");
+          if (sGems) sGems.textContent = g;
         },
 
         /* Cheetah Mobile level card with 3-crown pedestal & Green START button */

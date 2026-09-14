@@ -225,16 +225,18 @@
       /* In-world carousel card — large hero banner */
       #carousel { position: relative; width: 100%; display: flex; align-items: center; justify-content: center; }
       .arrow {
-        position: absolute; top: 46%; transform: translateY(-50%) translateZ(0); z-index: 3;
-        width: 2.8rem; height: 2.8rem; border: 0; border-radius: 999px;
-        background: rgba(255,255,255,.2); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #fff;
+        position: absolute; top: 48%; transform: translateY(-50%) translateZ(0); z-index: 5;
+        width: 3rem; height: 3rem; border: 1.5px solid rgba(255,255,255,.25); border-radius: 999px;
+        background: rgba(12, 16, 44, 0.72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); color: #fff;
         cursor: pointer; display: flex; align-items: center; justify-content: center;
-        transition: transform .12s, background .2s; touch-action: manipulation;
+        box-shadow: 0 10px 24px rgba(0,0,0,.5);
+        transition: transform .12s, background .2s, border-color .2s; touch-action: manipulation;
       }
-      .arrow:active { transform: translateY(-50%) scale(.92) translateZ(0); }
-      .arrow svg { width: 1.2rem; height: 1.2rem; fill: #fff; }
-      .arrow:disabled { opacity: .2; cursor: default; }
-      #prevBtn { left: -.4rem; } #nextBtn { right: -.4rem; }
+      .arrow:hover:not(:disabled) { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.55); }
+      .arrow:active:not(:disabled) { transform: translateY(-50%) scale(.92) translateZ(0); }
+      .arrow svg { width: 1.3rem; height: 1.3rem; fill: #fff; }
+      .arrow:disabled { opacity: .12; cursor: default; }
+      #prevBtn { left: -1.1rem; } #nextBtn { right: -1.1rem; }
 
       #card {
         width: 100%; max-width: 350px; border-radius: 28px; overflow: hidden;
@@ -311,10 +313,26 @@
       .chip:disabled { opacity: .28; cursor: default; }
       .chip:not(:disabled):hover { background: rgba(255,255,255,.22); }
 
-      #dots { display: flex; gap: .45rem; margin-top: .8rem; }
-      #dots span { width: .45rem; height: .45rem; border-radius: 999px; background: rgba(255,255,255,.35); transition: transform .2s, background .2s; }
-      #dots span.on { background: #fff; transform: scale(1.3); }
-      #dots span.done { background: var(--gold); }
+      #dots {
+        display: flex; align-items: center; justify-content: center; gap: .5rem; margin-top: .85rem;
+        padding: .4rem .9rem; border-radius: 999px;
+        background: rgba(0, 0, 0, 0.38); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      #dots span {
+        width: .5rem; height: .5rem; border-radius: 999px;
+        background: rgba(255, 255, 255, 0.28); transition: all .25s cubic-bezier(.22,1,.36,1);
+        cursor: pointer;
+      }
+      #dots span:hover { background: rgba(255, 255, 255, 0.55); transform: scale(1.15); }
+      #dots span.on {
+        width: 1.4rem; height: .5rem; border-radius: 999px;
+        background: linear-gradient(90deg, #ffd166, #ff9f43);
+        box-shadow: 0 0 10px rgba(255, 209, 102, 0.7);
+      }
+      #dots span.done:not(.on) {
+        background: rgba(255, 209, 102, 0.55);
+      }
 
       /* Bottom navigation bar (Cheetah: Journey · Skin · Settings) */
       .bottomNav {
@@ -2556,7 +2574,16 @@
         },
         preview(i) { if (game.audio.ctx && game.settings.music) game.audio.start(LEVELS[i].song, 0, 0.3); },
         renderDots() {
-          el.dots.innerHTML = LEVELS.map((d, k) => `<span class="${k === home.idx ? "on" : recFor(game.save, d.id).done ? "done" : ""}"></span>`).join("");
+          el.dots.innerHTML = LEVELS.map((d, k) => `<span class="${k === home.idx ? "on" : recFor(game.save, d.id).done ? "done" : ""}" data-idx="${k}" title="${d.name}"></span>`).join("");
+          el.dots.querySelectorAll("span").forEach((s) => {
+            s.addEventListener("click", () => {
+              const target = Number(s.dataset.idx);
+              if (target !== home.idx) {
+                game.audio.uiClick();
+                ui.focusLevel(target, target > home.idx ? 1 : -1);
+              }
+            });
+          });
           el.prevBtn.disabled = home.idx === 0; el.nextBtn.disabled = home.idx === LEVELS.length - 1;
         },
         updateWallet() {

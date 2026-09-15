@@ -1,0 +1,2651 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#dcebf8" />
+<meta name="description" content="Nonogram Square — classic picture logic puzzles. Fill cells using number clues to reveal hidden pixel pictures." />
+<title>Nonogram Square — Picture Cross</title>
+<style>
+/* ============================================================
+   NONOGRAM SQUARE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:ui-monospace,'SF Mono','Cascadia Mono','JetBrains Mono',Menlo,Consolas,'Liberation Mono','Courier New',monospace;
+  color:var(--ink);background:var(--page);
+  overscroll-behavior:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  user-select:none;-webkit-user-select:none;-webkit-font-smoothing:antialiased;
+}
+:root{
+  --page:#d9e9f7;
+  --page2:#c9dff3;
+  --card:#ffffff; --card-2:#f2f6fa; --card-3:#e6edf4;
+  --ink:#202630; --ink-2:#576170; --muted:#93a0b0;
+  --line:#ccd6e1; --line-2:#a7b4c3;
+  --acc:#0e7cc4; --acc-d:#0b67a5; --acc-soft:#e2f0fa;
+  --teal:#2fae8e; --teal-soft:#dcf6ee; --teal-line:#33b79a;
+  --indigo:#39538f; --indigo-soft:#e3e9f6; --indigo-line:#3f5b98;
+  --x:#d4636f;
+  --fill:#2e2f39; --fill-2:#3a3c48;
+  --cell-bg:#fbfcfe; --clue-bg:#eef3f8;
+  --shadow:0 3px 0 rgba(28,52,84,.10),0 8px 22px -10px rgba(28,52,84,.28);
+  --shadow-card:0 2px 0 rgba(28,52,84,.08),0 10px 26px -12px rgba(28,52,84,.30);
+  --ease:cubic-bezier(.2,.8,.25,1);
+}
+html[data-theme="dark"]{
+  --page:#121826; --page2:#0d1320;
+  --card:#1c2333; --card-2:#232c3e; --card-3:#2c364b;
+  --ink:#e6ebf5; --ink-2:#a6b1c6; --muted:#6c7891;
+  --line:#2c364a; --line-2:#3d4861;
+  --acc:#4f9be0; --acc-d:#3b86cd; --acc-soft:#1f3047;
+  --teal:#37c3a1; --teal-soft:#173330; --teal-line:#2fa387;
+  --indigo:#7c96d8; --indigo-soft:#232c46; --indigo-line:#5470b0;
+  --x:#e07e8a;
+  --fill:#a9b9dd; --fill-2:#93a5d1;
+  --cell-bg:#232b3c; --clue-bg:#1a2130;
+  --shadow:0 3px 0 rgba(0,0,0,.3),0 10px 24px -12px rgba(0,0,0,.6);
+  --shadow-card:0 2px 0 rgba(0,0,0,.35),0 12px 28px -12px rgba(0,0,0,.65);
+}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+canvas{display:block}
+
+#page{position:fixed;inset:0;overflow:hidden;background:var(--page)}
+#stage{
+  position:absolute;inset:0;margin:auto;height:100dvh;width:min(100vw,540px);
+  display:flex;flex-direction:column;overflow:hidden;isolation:isolate;
+  background:linear-gradient(168deg,var(--page) 0%,var(--page2) 100%);
+}
+@media (min-width:600px){ #stage{height:min(100dvh - 30px,960px);border-radius:22px;box-shadow:0 30px 80px -30px rgba(10,30,60,.55)} }
+
+/* floating pastel squares */
+#confetti-bg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+#confetti-bg i{position:absolute;border-radius:3px;opacity:.65;animation:drift linear infinite}
+@keyframes drift{
+  0%{transform:translate3d(0,12vh,0) rotate(0deg)}
+  100%{transform:translate3d(var(--dx,20px),-115vh,0) rotate(var(--rot,220deg))}
+}
+
+#screens{position:relative;z-index:1;flex:1;min-height:0;display:block}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;transform:translateY(10px);
+  transition:opacity .24s var(--ease),transform .24s var(--ease)}
+.screen.on{opacity:1;pointer-events:auto;transform:none}
+
+/* ---------------- shared ---------------- */
+.sc-head{flex:0 0 auto;display:flex;align-items:center;gap:6px;padding:calc(env(safe-area-inset-top,0px) + 10px) 10px 6px}
+.sc-head h1{margin:0;font-size:17px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;flex:1;text-align:center;white-space:nowrap}
+.hicon{width:40px;height:40px;flex:0 0 auto;display:grid;place-items:center;border-radius:10px;color:var(--ink-2);
+  transition:background .15s,color .15s,transform .1s var(--ease)}
+.hicon:hover{background:rgba(255,255,255,.5);color:var(--ink)}
+html[data-theme="dark"] .hicon:hover{background:rgba(255,255,255,.08)}
+.hicon:active{transform:scale(.9)}
+.hicon svg{width:23px;height:23px}
+.sc-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:4px 16px calc(env(safe-area-inset-bottom,0px) + 20px);
+  -webkit-overflow-scrolling:touch;scrollbar-width:thin}
+
+/* ---------------- loading ---------------- */
+#scr-load{align-items:center;justify-content:center;gap:22px}
+.load-mark{display:grid;grid-template-columns:repeat(4,14px);gap:4px;width:84px}
+.load-mark i{width:14px;height:14px;border-radius:3px;background:var(--acc);animation:lp .9s var(--ease) infinite}
+.load-mark i:nth-child(2),.load-mark i:nth-child(7){background:var(--teal)}
+.load-mark i:nth-child(4),.load-mark i:nth-child(11){background:var(--indigo)}
+.load-mark i:nth-child(odd){animation-delay:.15s}
+.load-mark i:nth-child(3n){animation-delay:.3s}
+@keyframes lp{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+.load-bar{width:170px;height:5px;border-radius:9px;background:rgba(14,124,196,.18);overflow:hidden}
+.load-bar i{display:block;height:100%;width:0;background:var(--acc);transition:width .25s var(--ease)}
+.load-txt{font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
+
+/* ---------------- home ---------------- */
+#scr-home{display:block;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.home-in{min-height:100%;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 30px) 20px calc(env(safe-area-inset-bottom,0px) + 22px)}
+.home-cards{display:flex;flex-direction:column;gap:20px}
+.mode-card{
+  display:flex;align-items:center;gap:16px;width:100%;text-align:left;
+  background:var(--card);border-radius:16px;padding:16px 18px;position:relative;
+  border:3px solid var(--mc,var(--acc));box-shadow:var(--shadow-card);
+  transition:transform .12s var(--ease),box-shadow .2s}
+.mode-card:active{transform:scale(.975)}
+.mode-card .chip-ic{
+  width:74px;height:74px;flex:0 0 auto;border-radius:15px;background:var(--mc-soft,var(--acc-soft));
+  border:3px solid var(--mc,var(--acc));display:grid;place-items:center}
+.mode-card .chip-ic canvas{width:46px;height:46px;image-rendering:pixelated}
+.mode-card .mc-body{flex:1;min-width:0}
+.mode-card .mc-body b{display:block;font-size:19px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink);line-height:1.25}
+.mode-card .mc-body small{display:block;font-size:12.5px;letter-spacing:1px;color:var(--muted);margin-top:4px}
+.mc-bar{height:6px;border-radius:9px;background:var(--card-3);margin-top:10px;overflow:hidden}
+.mc-bar i{display:block;height:100%;background:var(--mc,var(--acc));border-radius:9px;width:0;transition:width .6s var(--ease)}
+.quick-wrap{margin-top:auto;padding-top:26px}
+.quick-btn{
+  width:100%;height:62px;border-radius:14px;background:linear-gradient(180deg,#1688d1,#0b6ea9);
+  color:#fff;font-size:20px;font-weight:700;letter-spacing:5px;text-transform:uppercase;
+  display:flex;align-items:center;justify-content:center;gap:14px;
+  box-shadow:0 3px 0 #085a8c,0 12px 24px -10px rgba(11,104,169,.75);
+  transition:transform .1s var(--ease),filter .15s}
+.quick-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #085a8c}
+.quick-btn svg{width:22px;height:22px}
+html[data-theme="dark"] .quick-btn{background:linear-gradient(180deg,#4f9be0,#3a82cb);box-shadow:0 3px 0 #2c669d,0 12px 24px -10px rgba(0,0,0,.6)}
+
+/* ---------------- tabs ---------------- */
+.tabs{display:flex;justify-content:center;gap:8px;padding:2px 10px 12px;flex:0 0 auto}
+.tab{
+  flex:1;max-width:150px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:7px;
+  font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted);
+  border-bottom:3px solid transparent;transition:color .15s,border-color .15s,background .15s}
+.tab svg{width:17px;height:17px}
+.tab.on{color:var(--acc);border-bottom-color:var(--acc);background:rgba(14,124,196,.08)}
+html[data-theme="dark"] .tab.on{background:rgba(79,155,224,.14)}
+
+/* ---------------- level tiles ---------------- */
+.lvl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tile{
+  position:relative;aspect-ratio:1;border-radius:9px;background:var(--card);overflow:hidden;
+  border:3px solid var(--line);box-shadow:0 2px 5px -2px rgba(20,40,70,.25);
+  transition:transform .1s var(--ease),border-color .15s}
+.tile:active{transform:scale(.93)}
+.tile:disabled,.mcell:disabled{opacity:1}
+.tile canvas{position:absolute;inset:5px;width:calc(100% - 10px);height:calc(100% - 10px);image-rendering:pixelated;opacity:0;transition:opacity .25s}
+.tile.shv canvas{opacity:1}
+.tile.next{background:#2b2d36;border-color:var(--acc);box-shadow:0 0 0 2px rgba(14,124,196,.25),0 4px 12px -4px rgba(14,124,196,.6)}
+html[data-theme="dark"] .tile.next{background:#101624}
+.tile.next::after{content:'';position:absolute;inset:0;margin:auto;width:46%;height:46%;background:#fff;border-radius:4px}
+html[data-theme="dark"] .tile.next::after{background:var(--fill)}
+.tile.lock{background:var(--card)}
+.tile.lock .q{position:absolute;inset:0;display:grid;place-items:center;font-size:clamp(30px,9vw,46px);font-weight:700;color:var(--ink);line-height:1;font-family:'IBM Plex Mono',monospace}
+.tile.done::before{content:'';position:absolute;right:4px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--teal);z-index:2;
+  box-shadow:0 0 0 2px var(--card)}
+
+/* ---------------- daily ---------------- */
+.day-hero{border:3px solid var(--teal-line);border-radius:16px;background:var(--card);padding:18px;box-shadow:var(--shadow-card);margin-bottom:18px}
+.day-hero .dh-k{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--teal);font-weight:700}
+.day-hero .dh-t{font-size:22px;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin:6px 0 14px}
+.day-hero .dh-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dh-tag{display:inline-flex;align-items:center;gap:7px;background:var(--card-2);border-radius:9px;padding:8px 11px;font-size:12px;font-weight:600;letter-spacing:1px}
+.dh-tag svg{width:15px;height:15px}
+.btn{
+  min-height:46px;padding:0 22px;border-radius:11px;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;color:#fff;
+  background:linear-gradient(180deg,#1688d1,#0b6ea9);box-shadow:0 2px 0 #085a8c,0 8px 16px -8px rgba(11,104,169,.7);
+  transition:transform .1s var(--ease),filter .15s}
+.btn:active{transform:translateY(2px)}
+.btn.ghost{background:var(--card);color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.btn.teal{background:linear-gradient(180deg,#37c3a1,#259d80);box-shadow:0 2px 0 #1c7d66,0 8px 16px -8px rgba(37,157,128,.6)}
+.btn svg{width:17px;height:17px}
+.btn[disabled]{filter:grayscale(.7) opacity(.5);pointer-events:none}
+.sect-k{font-size:11px;letter-spacing:2.4px;text-transform:uppercase;color:var(--muted);font-weight:700;margin:4px 2px 12px}
+
+/* draft progress dot */
+.tile .draft-dot{position:absolute;left:4px;top:4px;width:12px;height:12px;border-radius:50%;background:#f2b53b;z-index:2;box-shadow:0 0 0 2px var(--card)}
+.tile .draft-bar{position:absolute;left:0;right:0;bottom:0;height:5px;background:rgba(0,0,0,.12);z-index:2}
+.tile .draft-bar i{display:block;height:100%;background:#f2b53b}
+
+/* resume banner */
+.resume-banner{margin:0 0 14px;border:3px dashed var(--acc);border-radius:12px;background:var(--acc-soft);padding:10px 12px;
+  display:flex;align-items:center;gap:10px;font-size:11.5px;font-weight:600;letter-spacing:.5px;color:var(--acc-d,#0b67a5);text-align:left}
+.resume-banner svg{width:18px;height:18px;flex:0 0 auto}
+.resume-banner button{margin-left:auto;flex:0 0 auto;background:var(--acc);color:#fff;border-radius:8px;padding:6px 12px;
+  font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase}
+
+/* big picture */
+.mode-seg{display:flex;gap:4px;background:var(--card);border:3px solid var(--line);border-radius:11px;padding:4px;margin:0 0 12px}
+.mode-seg button{flex:1;height:34px;border-radius:8px;font-size:11.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted)}
+.mode-seg button.on{background:var(--fill);color:#fff}
+html[data-theme="dark"] .mode-seg button.on{color:#101622}
+.big-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none}
+.big-tabs::-webkit-scrollbar{display:none}
+.big-thumb{flex:0 0 auto;width:58px;height:58px;border-radius:10px;background:var(--card);border:3px solid var(--line);
+  position:relative;overflow:hidden;padding:5px}
+.big-thumb canvas{width:100%;height:100%;image-rendering:pixelated;opacity:.25}
+.big-thumb.on{border-color:var(--acc)}
+.big-thumb.on canvas{opacity:1}
+.big-thumb.fin::after{content:'';position:absolute;right:3px;top:3px;width:10px;height:10px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 2px var(--card)}
+.big-meta{display:flex;align-items:baseline;justify-content:space-between;margin:2px 2px 10px}
+.big-meta b{font-size:13px;letter-spacing:1.6px;text-transform:uppercase}
+.big-meta span{font-size:11px;color:var(--muted);font-weight:600}
+.mosaic{display:grid;gap:5px;background:var(--card);border:3px solid var(--line);border-radius:14px;padding:8px;box-shadow:var(--shadow-card)}
+.mosaic .mcell{position:relative;aspect-ratio:1;border-radius:7px;overflow:hidden;background:var(--card-3);border:2px solid transparent;
+  transition:transform .1s var(--ease)}
+.mosaic .mcell:active{transform:scale(.94)}
+.mosaic .mcell canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}
+.mosaic .mcell .q{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--muted)}
+.mosaic .mcell.cur{border-color:var(--acc);background:var(--acc-soft)}
+.mosaic .mcell.cur .q{color:var(--acc)}
+.mosaic .mcell.done{background:var(--card)}
+.mosaic .mcell:disabled .q{opacity:.45}
+.big-link{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 auto 12px;padding:9px 16px;border-radius:10px;
+  border:2px dashed var(--line-2);color:var(--ink-2);font-size:11.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;background:rgba(255,255,255,.45)}
+.big-link svg{width:15px;height:15px}
+html[data-theme="dark"] .big-link{background:rgba(255,255,255,.05)}
+.big-link:active{transform:scale(.97)}
+.big-complete{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+.big-complete .btn{min-height:40px;font-size:11.5px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cal .dow{text-align:center;font-size:10px;letter-spacing:1px;font-weight:700;color:var(--muted);padding-bottom:2px}
+.cal .d{aspect-ratio:1;border-radius:8px;background:var(--card-2);display:grid;place-items:center;font-size:12px;font-weight:600;position:relative;overflow:hidden;border:2px solid transparent}
+.cal .d.done{background:var(--fill);color:#fff}
+.cal .d.done canvas{position:absolute;inset:2px;width:calc(100% - 4px);height:calc(100% - 4px);image-rendering:pixelated}
+.cal .d.done span{display:none}
+.cal .d.today{border-color:var(--acc)}
+.cal .d.future{opacity:.4}
+
+/* ---------------- game ---------------- */
+#scr-game{background:linear-gradient(168deg,var(--page) 0%,var(--page2) 100%)}
+.g-top{flex:0 0 auto;display:flex;align-items:center;gap:4px;padding:calc(env(safe-area-inset-top,0px) + 8px) 8px 2px}
+.g-top .gt{flex:1;text-align:center;min-width:0}
+.g-top .gt b{display:block;font-size:14px;letter-spacing:2px;text-transform:uppercase;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.g-top .gt span{display:block;font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted);margin-top:1px}
+.g-stats{flex:0 0 auto;display:flex;justify-content:center;gap:7px;padding:4px 10px 6px}
+.gchip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:8px;background:var(--card);
+  border:2px solid var(--line);font-size:11.5px;font-weight:600;letter-spacing:.8px;color:var(--ink-2)}
+.gchip svg{width:13px;height:13px}
+.g-board-wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:2px 10px}
+.bv{width:100%;height:100%;overflow:auto;display:flex;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.binner{margin:auto;background:var(--card);border:3px solid var(--line);border-radius:14px;box-shadow:var(--shadow-card);padding:6px}
+.bin-grid{display:grid;position:relative}
+.cross{position:absolute;pointer-events:none;z-index:3;background:var(--acc);opacity:.10;border-radius:3px}
+#cells{box-shadow:inset 0 0 0 2px var(--line);border-radius:3px;z-index:2}
+.cell{position:relative;z-index:2;background:var(--cell-bg)}
+.cell.hl{background:var(--acc-soft)}
+.cell[data-s="1"]{background:linear-gradient(160deg,var(--fill),var(--fill-2));box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.cell[data-s="1"].hl{filter:brightness(1.12)}
+.cell[data-s="2"]{background:var(--cell-bg)}
+.cell[data-s="2"]::before,.cell[data-s="2"]::after{
+  content:'';position:absolute;left:50%;top:50%;width:56%;height:2.5px;border-radius:2px;background:var(--x);
+  transform:translate(-50%,-50%) rotate(45deg)}
+.cell[data-s="2"]::after{transform:translate(-50%,-50%) rotate(-45deg)}
+.cell.bad{box-shadow:inset 0 0 0 2px var(--x)}
+.cell.pop{animation:cp .18s var(--ease)}
+@keyframes cp{0%{transform:scale(.5)}55%{transform:scale(1.12)}100%{transform:scale(1)}}
+.cell.win{animation:cw .5s var(--ease) both}
+@keyframes cw{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+.gline{position:absolute;pointer-events:none;z-index:4;
+  background-image:
+    repeating-linear-gradient(to right,var(--line) 0 1px,transparent 1px var(--cs)),
+    repeating-linear-gradient(to bottom,var(--line) 0 1px,transparent 1px var(--cs)),
+    repeating-linear-gradient(to right,transparent 0 calc(var(--cs)*5 - 2px),var(--line-2) calc(var(--cs)*5 - 2px) calc(var(--cs)*5)),
+    repeating-linear-gradient(to bottom,transparent 0 calc(var(--cs)*5 - 2px),var(--line-2) calc(var(--cs)*5 - 2px) calc(var(--cs)*5));
+}
+.clue{display:flex;flex-direction:row-reverse;align-items:center;justify-content:center;font-weight:600;color:var(--ink-2);
+  background:var(--clue-bg);border-radius:4px;transition:color .15s,opacity .15s,background .15s;padding:1px}
+.clue.v{flex-direction:column-reverse}
+.clue .n{font-size:var(--cs-font);line-height:1.05}
+.clue .n + .n{margin-top:1px}
+.clue.hid .n{color:#c98a2b}
+.clue.done{color:var(--muted);opacity:.55}
+.clue.done .n{text-decoration:line-through}
+.clue.act{background:var(--acc-soft);color:var(--acc)}
+.clue.flash{animation:cf .4s var(--ease)}
+@keyframes cf{0%{background:var(--teal-soft);color:var(--teal)}100%{background:var(--clue-bg)}}
+.corner{background:var(--clue-bg);border-radius:6px}
+.g-tools{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:8px 12px calc(env(safe-area-inset-bottom,0px) + 12px)}
+.seg{flex:1;display:flex;gap:4px;background:var(--card);border:3px solid var(--line);border-radius:13px;padding:4px}
+.seg button{flex:1;height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;gap:7px;
+  font-size:12px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);transition:all .15s}
+.seg button svg{width:18px;height:18px}
+.seg button.on{background:var(--fill);color:#fff}
+html[data-theme="dark"] .seg button.on{background:var(--fill);color:#101622}
+.rnd-btn{width:46px;height:46px;flex:0 0 auto;border-radius:13px;background:var(--card);border:3px solid var(--line);
+  display:grid;place-items:center;color:var(--ink-2);transition:transform .1s var(--ease),opacity .15s}
+.rnd-btn:active{transform:scale(.9)}
+.rnd-btn[disabled]{opacity:.35;pointer-events:none}
+.rnd-btn svg{width:19px;height:19px}
+.hint-btn{width:52px;height:52px;flex:0 0 auto;border-radius:14px;background:linear-gradient(180deg,#ffc34d,#f29924);
+  display:grid;place-items:center;color:#fff;box-shadow:0 3px 0 #c67712,0 10px 18px -10px rgba(242,153,36,.8);position:relative;transition:transform .1s}
+.hint-btn:active{transform:translateY(2px)}
+.hint-btn svg{width:24px;height:24px}
+.hint-btn em{position:absolute;top:-5px;right:-5px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:var(--card);
+  color:#d9861b;font-size:11px;font-weight:700;font-style:normal;display:grid;place-items:center;border:2px solid var(--line)}
+.hint-btn[disabled]{filter:grayscale(.8) opacity(.55);pointer-events:none;box-shadow:none}
+.zoom-col{display:flex;flex-direction:column;gap:4px}
+.zoom-col .rnd-btn{width:36px;height:26px;border-width:2px;border-radius:9px}
+.zoom-col .rnd-btn svg{width:15px;height:15px}
+@media (max-width:370px){
+  .seg button span{display:none} .seg{flex:0 0 58px}
+  .g-tools{gap:6px;padding-left:8px;padding-right:8px}
+}
+
+/* ---------------- overlays ---------------- */
+#overlays{position:absolute;inset:0;z-index:20;pointer-events:none}
+.ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:22px;
+  background:rgba(18,28,46,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  opacity:0;pointer-events:none;transition:opacity .22s var(--ease)}
+.ov.on{opacity:1;pointer-events:auto}
+.sheet{width:100%;max-width:350px;max-height:calc(100dvh - 60px);overflow-y:auto;border-radius:18px;background:var(--card);
+  border:3px solid var(--line);box-shadow:var(--shadow-card);padding:22px;text-align:center;
+  transform:translateY(14px) scale(.97);transition:transform .26s var(--ease)}
+.ov.on .sheet{transform:none}
+.sheet h2{margin:0 0 4px;font-size:20px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase}
+.sheet p{margin:0;font-size:12.5px;letter-spacing:.6px;color:var(--ink-2);line-height:1.65;text-align:center}
+.sheet .row{display:flex;gap:9px;margin-top:16px}
+.sheet .row .btn{flex:1}
+.win-art{width:100%;max-width:230px;aspect-ratio:1;margin:6px auto 14px;border-radius:14px;background:var(--card-2);
+  border:3px solid var(--line);padding:12px;display:grid;place-items:center;position:relative;overflow:hidden}
+.win-art canvas{width:100%;height:100%;image-rendering:pixelated}
+.win-check{position:absolute;right:-6px;top:-6px;width:46px;height:46px;border-radius:50%;background:var(--teal);
+  display:grid;place-items:center;color:#fff;transform:scale(0);transition:transform .35s var(--ease) .25s;box-shadow:0 4px 10px -3px rgba(47,174,142,.7)}
+.ov.on .win-check{transform:scale(1)}
+.win-check svg{width:26px;height:26px}
+.win-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.win-stats div{background:var(--card-2);border-radius:10px;padding:9px 4px}
+.win-stats span{display:block;font-size:9.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);font-weight:700}
+.win-stats b{display:block;font-size:15px;font-weight:700;margin-top:2px}
+.set-row{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:2px solid var(--card-3);text-align:left}
+.set-row .st{flex:1;min-width:0}
+.set-row .st b{display:block;font-size:13px;letter-spacing:1.4px;text-transform:uppercase;font-weight:700}
+.set-row .st small{display:block;font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:.4px}
+.sw{width:50px;height:28px;border-radius:99px;background:var(--line-2);position:relative;flex:0 0 auto;transition:background .18s}
+.sw::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.25);transition:transform .2s var(--ease)}
+.sw.on{background:var(--acc)}
+.sw.on::after{transform:translateX(22px)}
+.seg2{display:flex;gap:4px;padding:3px;border-radius:10px;background:var(--card-2)}
+.seg2 button{height:28px;padding:0 12px;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+.seg2 button.on{background:var(--card);color:var(--acc);box-shadow:var(--shadow)}
+.tut-grid{display:grid;grid-template-columns:repeat(5,16px);gap:2px;padding:10px;border-radius:10px;background:var(--card-2);margin:0 auto}
+.tut-grid i{width:16px;height:16px;border-radius:2px;background:var(--card);position:relative;transition:background .2s}
+.tut-grid i.f{background:var(--fill)}
+.tut-grid i.x::before,.tut-grid i.x::after{content:'';position:absolute;left:50%;top:50%;width:9px;height:2px;background:var(--x);border-radius:2px;transform:translate(-50%,-50%) rotate(45deg)}
+.tut-grid i.x::after{transform:translate(-50%,-50%) rotate(-45deg)}
+.tut-step{display:flex;gap:11px;text-align:left;margin-top:13px;align-items:flex-start}
+.tut-step .n{width:24px;height:24px;flex:0 0 auto;border-radius:8px;background:var(--acc-soft);color:var(--acc);display:grid;place-items:center;font-size:12px;font-weight:700}
+.tut-step b{display:block;font-size:12.5px;letter-spacing:1px;text-transform:uppercase;font-weight:700;margin-bottom:2px}
+.tut-step p{margin:0;font-size:11.5px;text-align:left;line-height:1.55}
+.gen{display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px}
+.gen .load-bar{width:160px}
+
+#toast{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 96px);display:flex;justify-content:center;pointer-events:none;z-index:30;padding:0 24px}
+#toast .t{background:rgba(22,30,46,.94);color:#fff;font-size:12px;font-weight:600;letter-spacing:.8px;
+  padding:10px 16px;border-radius:10px;opacity:0;transform:translateY(8px);transition:all .22s var(--ease);text-align:center}
+#toast .t.on{opacity:1;transform:none}
+#fx{position:absolute;inset:0;pointer-events:none;z-index:15;overflow:hidden}
+</style>
+</head>
+<body>
+<div id="page"><div id="stage">
+  <div id="confetti-bg"></div>
+  <div id="screens">
+    <section class="screen on" id="scr-load">
+      <div class="load-mark" id="load-mark"></div>
+      <div class="load-bar"><i id="load-fill"></i></div>
+      <div class="load-txt" id="load-txt">Loading</div>
+    </section>
+    <section class="screen" id="scr-home"></section>
+    <section class="screen" id="scr-levels"></section>
+    <section class="screen" id="scr-daily"></section>
+    <section class="screen" id="scr-big"></section>
+    <section class="screen" id="scr-game"></section>
+  </div>
+  <div id="overlays"></div>
+  <div id="fx"></div>
+  <div id="toast"><div class="t" id="toast-inner"></div></div>
+</div></div>
+<script>
+"use strict";
+/* ============================================================
+   CORE — rng, pixel-art engine, recipes, solver
+   ============================================================ */
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const pad2 = n => (n < 10 ? '0' : '') + n;
+
+function hashStr(str) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function mulberry32(a) {
+  a = a >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function newGrid(n) { return { n, c: new Uint8Array(n * n) }; }
+function painter(g) {
+  const n = g.n, last = n - 1;
+  const X = t => clamp(Math.round(t * last), 0, last);
+  const px = i => i / last;
+  const set = (x, y, v) => { if (x >= 0 && y >= 0 && x < n && y < n) g.c[y * n + x] = v; };
+  const P = {
+    n, g, set,
+    rect(x0, y0, x1, y1, v) {
+      const a = X(Math.min(x0, x1)), b = X(Math.max(x0, x1));
+      const c = X(Math.min(y0, y1)), d = X(Math.max(y0, y1));
+      for (let y = c; y <= d; y++) for (let x = a; x <= b; x++) set(x, y, v === undefined ? 1 : v);
+    },
+    disc(cx, cy, r, v) {
+      for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+        const dx = px(x) - cx, dy = px(y) - cy;
+        if (dx * dx + dy * dy <= r * r) set(x, y, v === undefined ? 1 : v);
+      }
+    },
+    ellipse(cx, cy, rx, ry, v) {
+      for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+        const dx = (px(x) - cx) / rx, dy = (px(y) - cy) / ry;
+        if (dx * dx + dy * dy <= 1) set(x, y, v === undefined ? 1 : v);
+      }
+    },
+    ring(cx, cy, r, th, v) { P.arc(cx, cy, r, 0, Math.PI * 2, th, v); },
+    arc(cx, cy, r, a0, a1, th, v) {
+      const t = (th || 1) / last / 2;
+      for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+        const dx = px(x) - cx, dy = px(y) - cy;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d > r + t || d < r - t) continue;
+        let a = Math.atan2(dy, dx);
+        while (a < a0) a += Math.PI * 2;
+        if (a <= a1 + 1e-9) set(x, y, v === undefined ? 1 : v);
+      }
+    },
+    line(x0, y0, x1, y1, th, v) {
+      const ax = X(x0), ay = X(y0), bx = X(x1), by = X(y1);
+      const t = Math.max(1, th || 1);
+      const minx = Math.min(ax, bx) - t, maxx = Math.max(ax, bx) + t;
+      const miny = Math.min(ay, by) - t, maxy = Math.max(ay, by) + t;
+      const vx = bx - ax, vy = by - ay;
+      const len2 = vx * vx + vy * vy || 1;
+      for (let y = Math.max(0, miny); y <= Math.min(last, maxy); y++) {
+        for (let x = Math.max(0, minx); x <= Math.min(last, maxx); x++) {
+          let tp = ((x - ax) * vx + (y - ay) * vy) / len2;
+          tp = clamp(tp, 0, 1);
+          const cxp = ax + vx * tp, cyp = ay + vy * tp;
+          const dx = x - cxp, dy = y - cyp;
+          if (dx * dx + dy * dy <= t * t) set(x, y, v === undefined ? 1 : v);
+        }
+      }
+    },
+    poly(pts, v) {
+      const xs = pts.map(p => X(p[0])), ys = pts.map(p => X(p[1]));
+      const minx = Math.max(0, Math.min.apply(null, xs) - 1), maxx = Math.min(last, Math.max.apply(null, xs) + 1);
+      const miny = Math.max(0, Math.min.apply(null, ys) - 1), maxy = Math.min(last, Math.max.apply(null, ys) + 1);
+      for (let y = miny; y <= maxy; y++) for (let x = minx; x <= maxx; x++) {
+        let inside = false;
+        for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+          const xi = xs[i], yi = ys[i], xj = xs[j], yj = ys[j];
+          if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) inside = !inside;
+        }
+        if (inside) set(x, y, v === undefined ? 1 : v);
+      }
+    },
+    fn(test, v) {
+      for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+        if (test(px(x), px(y))) set(x, y, v === undefined ? 1 : v);
+      }
+    },
+    clear() { g.c.fill(0); }
+  };
+  return P;
+}
+
+function stampSym(P, x, y, r, fold) {
+  const pts = [[x, y], [1 - x, y], [x, 1 - y], [1 - x, 1 - y]];
+  if (fold >= 8) pts.push([y, x], [1 - y, x], [y, 1 - x], [1 - y, 1 - x]);
+  const seen = new Set();
+  pts.forEach(p => {
+    const k = p[0].toFixed(3) + ',' + p[1].toFixed(3);
+    if (seen.has(k)) return; seen.add(k);
+    P.disc(p[0], p[1], r);
+  });
+}
+
+/* ---------------- recipes (icons) ---------------- */
+const ICON_RECIPES = [
+  { name: 'Heart', cat: 'i', draw(P) {
+    P.fn((u, v) => { const x = (u - .5) * 2.3, y = (.44 - v) * 2.3;
+      const a = x * x + y * y - 1; return a * a * a - x * x * y * y * y <= 0; });
+  } },
+  { name: 'Star', cat: 'i', draw(P) {
+    const pts = [];
+    for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? .22 : .48;
+      pts.push([.5 + Math.cos(a) * r, .53 + Math.sin(a) * r]); }
+    P.poly(pts);
+  } },
+  { name: 'Smiley', cat: 'i', draw(P) {
+    P.disc(.5, .5, .47); P.disc(.33, .38, .075, 0); P.disc(.67, .38, .075, 0);
+    P.arc(.5, .5, .29, .35 * Math.PI, .65 * Math.PI, Math.max(1, P.n * .06));
+  } },
+  { name: 'Cat', cat: 'i', draw(P) {
+    P.poly([[.5, .04], [.78, .3], [.9, .16], [.86, .46], [.84, .62], [.5, .9], [.16, .62], [.14, .46], [.1, .16], [.22, .3]]);
+    P.disc(.34, .5, .06, 0); P.disc(.66, .5, .06, 0);
+    P.poly([[.44, .64], [.56, .64], [.5, .72]]);
+    if (P.n >= 15) { P.line(.06, .58, .32, .62, 1); P.line(.94, .58, .68, .62, 1); }
+  } },
+  { name: 'Fish', cat: 'i', draw(P) {
+    P.ellipse(.46, .5, .3, .2); P.poly([[.72, .5], [.95, .3], [.95, .7]]);
+    P.disc(.28, .44, .045, 0);
+  } },
+  { name: 'Butterfly', cat: 'i', draw(P) {
+    P.ellipse(.28, .34, .24, .22); P.ellipse(.72, .34, .24, .22);
+    P.ellipse(.3, .68, .2, .2); P.ellipse(.7, .68, .2, .2);
+    P.rect(.47, .2, .53, .88);
+    P.line(.47, .22, .3, .04, 1); P.line(.53, .22, .7, .04, 1);
+  } },
+  { name: 'Tree', cat: 'i', draw(P) {
+    P.rect(.44, .72, .56, .96);
+    P.poly([[.5, .02], [.84, .46], [.16, .46]]);
+    P.poly([[.5, .26], [.9, .66], [.1, .66]]);
+  } },
+  { name: 'Flower', cat: 'i', draw(P) {
+    for (let i = 0; i < 6; i++) { const a = -Math.PI / 2 + i * Math.PI / 3;
+      P.disc(.5 + Math.cos(a) * .26, .38 + Math.sin(a) * .26, .17); }
+    P.disc(.5, .38, .11);
+    P.rect(.47, .55, .53, .96);
+  } },
+  { name: 'House', cat: 'i', draw(P) {
+    P.rect(.18, .44, .82, .92); P.poly([[.5, .06], [.94, .48], [.06, .48]]);
+    P.rect(.42, .64, .58, .92, 0); P.rect(.24, .54, .36, .64, 0);
+  } },
+  { name: 'Car', cat: 'i', draw(P) {
+    P.rect(.08, .52, .92, .74); P.poly([[.24, .52], [.34, .28], [.68, .28], [.78, .52]]);
+    P.ring(.26, .78, .11, Math.max(1, P.n * .05)); P.ring(.74, .78, .11, Math.max(1, P.n * .05));
+  } },
+  { name: 'Rocket', cat: 'i', draw(P) {
+    P.poly([[.5, .02], [.68, .34], [.68, .72], [.32, .72], [.32, .34]]);
+    P.poly([[.32, .5], [.12, .84], [.32, .78]]);
+    P.poly([[.68, .5], [.88, .84], [.68, .78]]);
+    P.ring(.5, .42, .1, Math.max(1, P.n * .06));
+    P.poly([[.42, .76], [.58, .76], [.5, .98]]);
+  } },
+  { name: 'Key', cat: 'i', draw(P) {
+    P.ring(.28, .32, .19, Math.max(1, P.n * .07));
+    P.rect(.24, .48, .32, .94); P.rect(.32, .68, .48, .76); P.rect(.32, .86, .44, .92);
+  } },
+  { name: 'Crown', cat: 'i', draw(P) {
+    P.poly([[.08, .3], [.28, .6], [.5, .24], [.72, .6], [.92, .3], [.86, .82], [.14, .82]]);
+  } },
+  { name: 'Diamond', cat: 'i', draw(P) {
+    P.poly([[.5, .06], [.88, .4], [.5, .94], [.12, .4]]);
+  } },
+  { name: 'Bell', cat: 'i', draw(P) {
+    P.fn((u, v) => { const x = (u - .5) * 2.5, y = (.86 - v) * 2.2;
+      return x * x + y * y * y * .8 <= 1 && v < .8; });
+    P.rect(.14, .8, .86, .9); P.disc(.5, .95, .06);
+  } },
+  { name: 'Umbrella', cat: 'i', draw(P) {
+    P.fn((u, v) => { const x = (u - .5) * 2.3, y = (.5 - v) * 2.1;
+      return x * x + y * y <= 1 && v < .52; });
+    P.rect(.48, .5, .52, .82); P.arc(.6, .82, .12, 0, Math.PI, Math.max(1, P.n * .06));
+  } },
+  { name: 'Anchor', cat: 'i', draw(P) {
+    P.ring(.5, .16, .12, Math.max(1, P.n * .06));
+    P.rect(.47, .28, .53, .78); P.rect(.28, .32, .72, .38);
+    P.arc(.5, .56, .34, Math.PI * .18, Math.PI * .82, Math.max(1, P.n * .07));
+  } },
+  { name: 'Sun', cat: 'i', draw(P) {
+    P.disc(.5, .5, .27);
+    for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4;
+      P.line(.5 + Math.cos(a) * .35, .5 + Math.sin(a) * .35, .5 + Math.cos(a) * .48, .5 + Math.sin(a) * .48, Math.max(1, Math.round(P.n / 9))); }
+  } },
+  { name: 'Moon', cat: 'i', draw(P) {
+    P.disc(.5, .5, .42); P.disc(.74, .4, .34, 0);
+  } },
+  { name: 'Cloud', cat: 'i', draw(P) {
+    P.disc(.3, .48, .2); P.disc(.52, .36, .25); P.disc(.72, .5, .19);
+    P.rect(.14, .48, .86, .66);
+  } },
+  { name: 'Snowman', cat: 'i', draw(P) {
+    P.disc(.5, .7, .26); P.disc(.5, .34, .18);
+    P.rect(.32, .06, .68, .16);
+    P.disc(.44, .3, .035, 0); P.disc(.56, .3, .035, 0);
+  } },
+  { name: 'Ghost', cat: 'i', draw(P) {
+    P.fn((u, v) => { const x = (u - .5) * 2.4, y = (.2 - v) * 2.6;
+      return x * x + y * y <= 1 && v < .72; });
+    const k = Math.max(2, Math.round(P.n / 5));
+    P.rect(.08, .68, .92, .78);
+    for (let i = 0; i < k; i++) { const w = .84 / k; P.rect(.08 + i * w, .78, .08 + i * w + w * .55, .9, 0); }
+    P.disc(.38, .34, .07, 0); P.disc(.62, .34, .07, 0);
+  } },
+  { name: 'Gift', cat: 'i', draw(P) {
+    P.rect(.1, .36, .9, .92); P.rect(.06, .26, .94, .38);
+    P.rect(.44, .26, .56, .92, 0);
+  } },
+  { name: 'Balloon', cat: 'i', draw(P) {
+    P.ellipse(.5, .4, .3, .34); P.poly([[.44, .72], [.56, .72], [.5, .82]]);
+    P.arc(.58, .86, .1, 0, Math.PI * 1.4, 1);
+  } },
+  { name: 'Trophy', cat: 'i', draw(P) {
+    P.rect(.26, .06, .74, .26);
+    P.poly([[.26, .1], [.06, .34], [.26, .44]]);
+    P.poly([[.74, .1], [.94, .34], [.74, .44]]);
+    P.poly([[.32, .26], [.68, .26], [.6, .56], [.4, .56]]);
+    P.rect(.42, .56, .58, .72); P.rect(.3, .72, .7, .9);
+  } },
+  { name: 'Mushroom', cat: 'i', draw(P) {
+    P.fn((u, v) => { const x = (u - .5) * 2.4, y = (.42 - v) * 2.4;
+      return x * x + y * y <= 1 && v < .44; });
+    P.rect(.4, .44, .6, .92);
+    if (P.n >= 15) { P.disc(.38, .28, .07, 0); P.disc(.6, .34, .05, 0); }
+  } },
+  { name: 'Cherries', cat: 'i', draw(P) {
+    P.disc(.31, .68, .19); P.disc(.69, .72, .19);
+    P.line(.31, .5, .5, .12, 1); P.line(.69, .54, .5, .12, 1);
+  } },
+  { name: 'Light Bulb', cat: 'i', draw(P) {
+    P.disc(.5, .38, .3); P.rect(.36, .58, .64, .68);
+    P.rect(.38, .68, .62, .78); P.rect(.42, .78, .58, .88);
+  } }
+];
+
+/* ---------------- recipes (abstract geometric) ---------------- */
+const PAT_RECIPES = [
+  { name: 'Kaleidoscope', cat: 'p', draw(P, n, R) {
+    const k = 4 + Math.floor(R() * 3);
+    for (let i = 0; i < k; i++) {
+      const x = .06 + R() * .42, y = .06 + R() * .42, r = .05 + R() * .12;
+      stampSym(P, x, y, r, 8);
+    }
+    stampSym(P, .5, .5, .05 + R() * .06, 4);
+  } },
+  { name: 'Mandala', cat: 'p', draw(P, n, R) {
+    const k = 6;
+    for (let ring = 0; ring < 3; ring++) {
+      const rr = .14 + ring * .15, cnt = k + ring * 2;
+      for (let i = 0; i < cnt; i++) {
+        const a = (i / cnt) * Math.PI * 2 + ring * .3;
+        stampSym(P, .5 + Math.cos(a) * rr * .5, .5 + Math.sin(a) * rr * .5, .045 + R() * .02, 4);
+      }
+    }
+    P.disc(.5, .5, .08);
+  } },
+  { name: 'Diamonds', cat: 'p', draw(P) {
+    P.fn((u, v) => {
+      const d = Math.abs(u - .5) + Math.abs(v - .5);
+      return Math.floor(d * 9) % 2 === 0;
+    });
+  } },
+  { name: 'Argyle', cat: 'p', draw(P) {
+    P.fn((u, v) => {
+      const a = (u + v) * 4 % 1, b = ((u - v) + 1) * 4 % 1;
+      return (a < .16) || (b < .16);
+    });
+  } },
+  { name: 'Checker', cat: 'p', draw(P, n, R) {
+    const b = n < 12 ? 2 : (R() < .5 ? 2 : 3);
+    P.fn((u, v) => (Math.floor(u * n / b) + Math.floor(v * n / b)) % 2 === 0);
+  } },
+  { name: 'Woven', cat: 'p', draw(P, n) {
+    const b = Math.max(2, Math.round(n / 5));
+    P.fn((u, v) => {
+      const x = Math.floor(u * n) % (b * 2), y = Math.floor(v * n) % (b * 2);
+      return (x < b && y < b) || (x >= b && y >= b);
+    });
+  } },
+  { name: 'Crosshatch', cat: 'p', draw(P, n, R) {
+    const k = 3 + Math.floor(R() * 3);
+    for (let i = -1; i <= k + 1; i++) {
+      P.line(i / k, 0, i / k + 1, 1, Math.max(1, Math.round(n / 22)));
+      P.line(i / k, 1, i / k + 1, 0, Math.max(1, Math.round(n / 22)));
+    }
+  } },
+  { name: 'Waves', cat: 'p', draw(P, n, R) {
+    const k = 4 + Math.floor(R() * 3), ph = R() * Math.PI * 2;
+    P.fn((u, v) => Math.sin((v * k + Math.sin(u * 6 + ph) * .18) * Math.PI * 2) > .15);
+  } },
+  { name: 'Snowflake', cat: 'p', draw(P) {
+    for (let i = 0; i < 6; i++) {
+      const a = i * Math.PI / 3;
+      P.line(.5, .5, .5 + Math.cos(a) * .46, .5 + Math.sin(a) * .46, Math.max(1, Math.round(P.n / 14)));
+      for (let t = .2; t <= .4; t += .13) {
+        const bx = .5 + Math.cos(a) * t, by = .5 + Math.sin(a) * t;
+        P.line(bx, by, bx + Math.cos(a + .5) * .08, by + Math.sin(a + .5) * .08, Math.max(1, Math.round(P.n / 18)));
+        P.line(bx, by, bx + Math.cos(a - .5) * .08, by + Math.sin(a - .5) * .08, Math.max(1, Math.round(P.n / 18)));
+      }
+    }
+    P.disc(.5, .5, .06);
+  } },
+  { name: 'Rays', cat: 'p', draw(P, n, R) {
+    const k = 8 + Math.floor(R() * 5) * 2;
+    P.fn((u, v) => {
+      const a = Math.atan2(v - .5, u - .5);
+      return Math.floor(((a + Math.PI) / (Math.PI * 2)) * k) % 2 === 0 &&
+        Math.hypot(u - .5, v - .5) < .47;
+    });
+  } },
+  { name: 'Rings', cat: 'p', draw(P, n, R) {
+    const k = 3 + Math.floor(R() * 2);
+    for (let i = 0; i < k; i++) P.ring(.5, .5, .12 + i * .13, Math.max(1, Math.round(n / 12)));
+  } },
+  { name: 'Corners', cat: 'p', draw(P, n) {
+    const b = Math.max(2, Math.round(n / 4));
+    P.fn((u, v) => {
+      const x = Math.floor(u * n / b), y = Math.floor(v * n / b);
+      return (x + y) % 2 === 0 ? ((u * n) % b < b / 2) === ((v * n) % b < b / 2)
+        : ((u * n) % b < b / 2) !== ((v * n) % b < b / 2);
+    });
+  } },
+  { name: 'Zigzag', cat: 'p', draw(P, n, R) {
+    const k = 3 + Math.floor(R() * 3);
+    P.fn((u, v) => {
+      const z = Math.abs(((u * k * 2) % 2) - 1);
+      return v > z / (k * 1.4) + .12 && v < z / (k * 1.4) + .34;
+    });
+  } },
+  { name: 'Pluses', cat: 'p', draw(P, n) {
+    const b = Math.max(4, Math.round(n / 4));
+    P.fn((u, v) => {
+      const x = (u * n) % b, y = (v * n) % b;
+      return Math.abs(x - b / 2) < b / 5 || Math.abs(y - b / 2) < b / 5;
+    });
+  } },
+  { name: 'Triangles', cat: 'p', draw(P, n, R) {
+    const flip = R() < .5, k = 3.5;
+    P.fn((u, v) => {
+      const x = ((u * k) % 1), y = ((v * k) % 1);
+      const t = flip ? (y > x) : (y > 1 - x);
+      return (Math.floor(u * k) + Math.floor(v * k)) % 2 === 0 ? t : !t;
+    });
+  } },
+  { name: 'Squares', cat: 'p', draw(P) {
+    for (let r = .48; r > .05; r -= .11) {
+      const on = Math.round((.48 - r) * 30) % 2 === 0;
+      P.rect(.5 - r, .5 - r, .5 + r, .5 + r, on ? 1 : 0);
+    }
+  } }
+];
+const RECIPES = PAT_RECIPES.concat(ICON_RECIPES);
+
+const MINI5 = [
+  ['Cross', '..#..', '..#..', '#####', '..#..', '..#..'],
+  ['Corners', '#...#', '.....', '..#..', '.....', '#...#'],
+  ['Diamond', '..#..', '.###.', '#####', '.###.', '..#..'],
+  ['Smile', '#...#', '.....', '#...#', '.###.', '..#..'],
+  ['Arrow', '..#..', '.###.', '#####', '..#..', '..#..'],
+  ['Checker', '#.#.#', '.#.#.', '#.#.#', '.#.#.', '#.#.#'],
+  ['T', '#####', '..#..', '..#..', '..#..', '..#..'],
+  ['Z', '#####', '...#.', '..#..', '.#...', '#####'],
+  ['Frame', '#####', '#...#', '#.#.#', '#...#', '#####'],
+  ['Pyramid', '..#..', '.###.', '#####', '.....', '..#..'],
+  ['Diagonals', '#...#', '.#.#.', '..#..', '.#.#.', '#...#'],
+  ['Steps', '#....', '##...', '.##..', '..##.', '...##'],
+  ['Heart', '.#.#.', '#####', '#####', '.###.', '..#..'],
+  ['Box', '#####', '#...#', '#...#', '#...#', '#####'],
+  ['Plus', '..#..', '..#..', '#####', '..#..', '..#..'],
+  ['Halves', '####.', '##...', '###..', '.....', '#####']
+];
+function makeMini5(idx) {
+  const d = MINI5[idx % MINI5.length];
+  const g = newGrid(5);
+  for (let y = 0; y < 5; y++) for (let x = 0; x < 5; x++) g.c[y * 5 + x] = d[y + 1][x] === '#' ? 1 : 0;
+  return { grid: g, name: d[0] };
+}
+
+/* ---------------- clues + solver ---------------- */
+function lineClue(arr) {
+  const out = []; let run = 0;
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i]) run++; else if (run) { out.push(run); run = 0; }
+  }
+  if (run) out.push(run);
+  return out;
+}
+function cluesFor(g) {
+  const n = g.n, rows = [], cols = [];
+  for (let y = 0; y < n; y++) { const a = []; for (let x = 0; x < n; x++) a.push(g.c[y * n + x]); rows.push(lineClue(a)); }
+  for (let x = 0; x < n; x++) { const a = []; for (let y = 0; y < n; y++) a.push(g.c[y * n + x]); cols.push(lineClue(a)); }
+  return { rows, cols };
+}
+function solveLine(known, clue) {
+  const n = known.length, k = clue.length;
+  if (!k) { const o = new Array(n); for (let i = 0; i < n; i++) { if (known[i] === 1) return null; o[i] = 2; } return o; }
+  const feas = new Array(n + 1);
+  for (let i = 0; i <= n; i++) feas[i] = new Uint8Array(k + 1);
+  feas[n][k] = 1;
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = k; j >= 0; j--) {
+      let ok = 0;
+      if (known[i] !== 1 && feas[i + 1][j]) ok = 1;
+      if (!ok && j < k) {
+        const L = clue[j];
+        if (i + L <= n) {
+          let fits = 1;
+          for (let t = i; t < i + L; t++) if (known[t] === 2) { fits = 0; break; }
+          if (fits) {
+            const after = i + L;
+            if (after === n) { if (j === k - 1) ok = 1; }
+            else if (known[after] !== 1 && feas[after + 1][j + 1]) ok = 1;
+          }
+        }
+      }
+      feas[i][j] = ok;
+    }
+  }
+  if (!feas[0][0]) return null;
+  const canF = new Uint8Array(n), canE = new Uint8Array(n);
+  const reach = new Array(n + 1);
+  for (let i = 0; i <= n; i++) reach[i] = new Uint8Array(k + 1);
+  reach[0][0] = 1;
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j <= k; j++) {
+      if (!reach[i][j]) continue;
+      if (known[i] !== 1 && feas[i + 1][j]) { canE[i] = 1; reach[i + 1][j] = 1; }
+      if (j < k) {
+        const L = clue[j];
+        if (i + L <= n) {
+          let fits = 1;
+          for (let t = i; t < i + L; t++) if (known[t] === 2) { fits = 0; break; }
+          if (fits) {
+            const after = i + L;
+            let ok = 0;
+            if (after === n) { if (j === k - 1) ok = 1; }
+            else if (known[after] !== 1 && feas[after + 1][j + 1]) ok = 1;
+            if (ok) {
+              for (let t = i; t < i + L; t++) canF[t] = 1;
+              if (after < n) { canE[after] = 1; reach[after + 1][j + 1] = 1; }
+            }
+          }
+        }
+      }
+    }
+  }
+  const out = new Array(n);
+  for (let i = 0; i < n; i++) {
+    if (canF[i] && canE[i]) out[i] = 0;
+    else if (canF[i]) out[i] = 1;
+    else if (canE[i]) out[i] = 2;
+    else return null;
+  }
+  return out;
+}
+function solveGrid(rows, cols, n) {
+  const st = new Uint8Array(n * n);
+  let changed = true, guard = 0;
+  while (changed && guard++ < 60) {
+    changed = false;
+    for (let y = 0; y < n; y++) {
+      const kn = new Array(n);
+      for (let x = 0; x < n; x++) kn[x] = st[y * n + x];
+      const r = solveLine(kn, rows[y]);
+      if (!r) return -1;
+      for (let x = 0; x < n; x++) if (r[x] && st[y * n + x] !== r[x]) { st[y * n + x] = r[x]; changed = true; }
+    }
+    for (let x = 0; x < n; x++) {
+      const kn = new Array(n);
+      for (let y = 0; y < n; y++) kn[y] = st[y * n + x];
+      const r = solveLine(kn, cols[x]);
+      if (!r) return -1;
+      for (let y = 0; y < n; y++) if (r[y] && st[y * n + x] !== r[y]) { st[y * n + x] = r[y]; changed = true; }
+    }
+    let done = true;
+    for (let i = 0; i < n * n; i++) if (!st[i]) { done = false; break; }
+    if (done) return 1;
+  }
+  return 0;
+}
+function denoise(g) {
+  if (g.n <= 5) return;
+  const n = g.n, c = g.c, out = new Uint8Array(c);
+  const th = n >= 20 ? 2 : 1;
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    const i = y * n + x;
+    if (!c[i]) continue;
+    let nb = 0;
+    if (x > 0 && c[i - 1]) nb++;
+    if (x < n - 1 && c[i + 1]) nb++;
+    if (y > 0 && c[i - n]) nb++;
+    if (y < n - 1 && c[i + n]) nb++;
+    if (x > 0 && y > 0 && c[i - n - 1]) nb++;
+    if (x < n - 1 && y > 0 && c[i - n + 1]) nb++;
+    if (x > 0 && y < n - 1 && c[i + n - 1]) nb++;
+    if (x < n - 1 && y < n - 1 && c[i + n + 1]) nb++;
+    out[i] = nb >= th ? 1 : 0;
+  }
+  g.c = out;
+}
+function mirror(g, horiz) {
+  const n = g.n, o = newGrid(n);
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++)
+    o.c[y * n + x] = horiz ? g.c[y * n + (n - 1 - x)] : g.c[(n - 1 - y) * n + x];
+  return o;
+}
+function rotate(g, q) {
+  let cur = g;
+  for (let i = 0; i < q; i++) {
+    const n = cur.n, o = newGrid(n);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) o.c[x * n + (n - 1 - y)] = cur.c[y * n + x];
+    cur = o;
+  }
+  return cur;
+}
+const TRANSFORMS = [g => g, g => mirror(g, true), g => mirror(g, false), g => rotate(g, 1), g => rotate(g, 2),
+  g => rotate(mirror(g, true), 1)];
+function density(g) { let s = 0; for (let i = 0; i < g.c.length; i++) s += g.c[i]; return s / g.c.length; }
+
+function buildPuzzle(size, seed) {
+  const tries = size === 5 ? 500 : 200;
+  let fallback = null;
+  for (let t = 0; t < tries; t++) {
+    const rng = mulberry32(hashStr(seed + '#' + t));
+    let grid, name;
+    if (size === 5) {
+      const m = makeMini5(hashStr(seed + '#' + t) % MINI5.length);
+      grid = m.grid; name = m.name;
+    } else {
+      const usePattern = rng() < .58;
+      const pool = usePattern ? PAT_RECIPES : ICON_RECIPES;
+      const rec = pool[Math.floor(rng() * pool.length)];
+      const P = painter(newGrid(size));
+      rec.draw(P, size, rng);
+      grid = P.g; name = rec.name;
+      grid = TRANSFORMS[Math.floor(rng() * TRANSFORMS.length)](grid);
+    }
+    denoise(grid);
+    const d = density(grid);
+    if (d < .2 || d > .82) continue;
+    const clues = cluesFor(grid);
+    const res = solveGrid(clues.rows, clues.cols, size);
+    if (res === 1) return { grid, clues, name, size };
+    if (res === 0 && !fallback) fallback = { grid, clues, name, size };
+  }
+  if (fallback) return fallback;
+  const g = newGrid(size);
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+    const r = Math.min(x, y, size - 1 - x, size - 1 - y);
+    g.c[y * size + x] = (r % 2 === 0 && r < size / 2) ? 1 : 0;
+  }
+  return { grid: g, clues: cluesFor(g), name: 'Pattern', size };
+}
+
+function gridToCanvas(g, canvas, color, bg, scale) {
+  const n = g.n, scl = scale || 1, size = n * scl;
+  canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (bg) { ctx.fillStyle = bg; ctx.fillRect(0, 0, size, size); }
+  else ctx.clearRect(0, 0, size, size);
+  ctx.fillStyle = color || '#2e2f39';
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++)
+    if (g.c[y * n + x]) ctx.fillRect(x * scl, y * scl, scl, scl);
+  return canvas;
+}
+function cssVar(name) {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name);
+  return (v && v.trim()) || '#2e2f39';
+}
+
+/* ============================================================
+   ICONS
+   ============================================================ */
+const SVG = (p, f) => `<svg viewBox="0 0 24 24" fill="${f ? 'currentColor' : 'none'}" stroke="${f ? 'none' : 'currentColor'}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const IC = {
+  back: SVG('<path d="M15 5l-7 7 7 7"/>'),
+  gear: SVG('<circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-2.9 1.2V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-2.9-1.2l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.7 1.7 0 003 15a2 2 0 010-4 1.7 1.7 0 001.46-2.94l-.06-.06a2 2 0 112.83-2.83l.06.06A1.7 1.7 0 0011 4.6V4a2 2 0 114 0v.6a1.7 1.7 0 002.9 1.2l.06-.06a2 2 0 112.83 2.83l-.06.06A1.7 1.7 0 0021 11a2 2 0 010 4z"/>'),
+  moon: SVG('<path d="M20 14.5A8.5 8.5 0 019.5 4 7 7 0 1020 14.5z"/>'),
+  sun: SVG('<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5 5l1.7 1.7M17.3 17.3L19 19M19 5l-1.7 1.7M6.7 17.3L5 19"/>'),
+  help: SVG('<circle cx="12" cy="12" r="9"/><path d="M9.4 9.3a2.6 2.6 0 015.1.8c0 1.7-2.5 2-2.5 3.6"/><circle cx="12" cy="17.3" r=".6" fill="currentColor"/>'),
+  bulb: SVG('<path d="M9.2 17.5h5.6M10 21h4M12 3a6 6 0 00-3.6 10.8c.6.5 1 1.2 1 2h5.2c0-.8.4-1.5 1-2A6 6 0 0012 3z"/>'),
+  undo: SVG('<path d="M4 9h11a5 5 0 010 10H9"/><path d="M8 5L4 9l4 4"/>'),
+  redo: SVG('<path d="M20 9H9a5 5 0 000 10h6"/><path d="M16 5l4 4-4 4"/>'),
+  pen: SVG('<path d="M4 20h4L20.5 7.5a2.1 2.1 0 00-3-3L5 17z"/>'),
+  xmark: SVG('<path d="M6 6l12 12M18 6L6 18"/>'),
+  plus: SVG('<path d="M12 5v14M5 12h14"/>'),
+  minus: SVG('<path d="M5 12h14"/>'),
+  play: SVG('<path d="M7 4.8v14.4L20 12z"/>', 1),
+  clock: SVG('<circle cx="12" cy="12" r="9"/><path d="M12 7.4V12l3.3 2"/>'),
+  grid: SVG('<rect x="4" y="4" width="16" height="16" rx="2"/>'),
+  check: SVG('<path d="M4.5 12.8l4.6 4.4L19.5 6.8"/>'),
+  refresh: SVG('<path d="M20 11a8 8 0 10-2.6 6.4"/><path d="M20 5.5V11h-5.2"/>'),
+  home: SVG('<path d="M4 11l8-7 8 7v8a1.6 1.6 0 01-1.6 1.6h-3.2v-6H8.8v6H5.6A1.6 1.6 0 014 19z"/>'),
+  flame: SVG('<path d="M12 3c3 4 6 6 6 10a6 6 0 01-12 0c0-2 1-3.4 2.2-5C9 9.6 10.5 8 12 3z"/>')
+};
+const mosaicIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="1"/><rect x="3.5" y="13" width="7.5" height="7.5" rx="1"/><rect x="13" y="13" width="7.5" height="7.5" rx="1" fill="currentColor" stroke="none"/></svg>`;
+function tabIcon(kind) {
+  if (kind === 0) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5.5" y="5.5" width="13" height="13" rx="1.5"/></svg>`;
+  if (kind === 1) return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/></svg>`;
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="3.5" width="5.2" height="5.2" rx=".8"/><rect x="9.4" y="3.5" width="5.2" height="5.2" rx=".8"/><rect x="15.3" y="3.5" width="5.2" height="5.2" rx=".8"/><rect x="3.5" y="9.4" width="5.2" height="5.2" rx=".8"/><rect x="9.4" y="9.4" width="5.2" height="5.2" rx=".8"/><rect x="15.3" y="9.4" width="5.2" height="5.2" rx=".8"/><rect x="3.5" y="15.3" width="5.2" height="5.2" rx=".8"/><rect x="9.4" y="15.3" width="5.2" height="5.2" rx=".8"/><rect x="15.3" y="15.3" width="5.2" height="5.2" rx=".8"/></svg>`;
+}
+
+/* ============================================================
+   AUDIO
+   ============================================================ */
+const Snd = {
+  ctx: null, master: null, musicGain: null, on: true, musicOn: false, timer: null,
+  ensure() {
+    if (this.ctx) return this.ctx;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    this.ctx = new AC();
+    this.master = this.ctx.createGain(); this.master.gain.value = .45; this.master.connect(this.ctx.destination);
+    this.musicGain = this.ctx.createGain(); this.musicGain.gain.value = 0; this.musicGain.connect(this.master);
+    return this.ctx;
+  },
+  resume() { const c = this.ensure(); if (c && c.state === 'suspended') c.resume(); },
+  tone(f, dur, type, vol, delay) {
+    if (!this.on) return;
+    const c = this.ensure(); if (!c) return;
+    const t0 = c.currentTime + (delay || 0);
+    const o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine'; o.frequency.setValueAtTime(f, t0);
+    g.gain.setValueAtTime(.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol == null ? .14 : vol, t0 + .012);
+    g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+    o.connect(g); g.connect(this.master);
+    o.start(t0); o.stop(t0 + dur + .02);
+  },
+  fill() { this.tone(500, .07, 'sine', .12); this.tone(1000, .05, 'sine', .04); },
+  unfill() { this.tone(320, .06, 'sine', .06); },
+  mark() { this.tone(230, .05, 'triangle', .08); },
+  line() { this.tone(840, .12, 'sine', .09); this.tone(1260, .15, 'sine', .05, .04); },
+  hint() { this.tone(1120, .1, 'triangle', .09); this.tone(1500, .14, 'triangle', .06, .07); },
+  tap() { this.tone(640, .04, 'sine', .06); },
+  open() { [392, 523, 659].forEach((f, i) => this.tone(f, .2, 'sine', .07, i * .05)); },
+  win() {
+    [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) => this.tone(f, .4, 'sine', .12, i * .1));
+    this.tone(261.6, .9, 'sine', .07, 0);
+  },
+  startMusic() {
+    if (this.timer) return;
+    const c = this.ensure(); if (!c) return;
+    this.musicOn = true;
+    this.musicGain.gain.setTargetAtTime(.14, c.currentTime, 1.2);
+    const scale = [349.23, 392, 466.16, 523.25, 587.33, 698.46, 783.99];
+    let step = 0;
+    const play = () => {
+      if (!this.musicOn) return;
+      const t = this.ctx.currentTime;
+      const n = scale[(step * 3 + (step >> 2)) % scale.length];
+      const o = this.ctx.createOscillator(), g = this.ctx.createGain(), f = this.ctx.createBiquadFilter();
+      f.type = 'lowpass'; f.frequency.value = 1300;
+      o.type = 'triangle'; o.frequency.value = n;
+      g.gain.setValueAtTime(.0001, t);
+      g.gain.exponentialRampToValueAtTime(.2, t + .5);
+      g.gain.exponentialRampToValueAtTime(.0001, t + 2.6);
+      o.connect(f); f.connect(g); g.connect(this.musicGain);
+      o.start(t); o.stop(t + 2.8);
+      step++;
+    };
+    play(); this.timer = setInterval(play, 2400);
+  },
+  stopMusic() {
+    this.musicOn = false;
+    if (this.timer) { clearInterval(this.timer); this.timer = null; }
+    if (this.musicGain && this.ctx) this.musicGain.gain.setTargetAtTime(0, this.ctx.currentTime, .4);
+  }
+};
+
+/* ============================================================
+   PERSISTENCE
+   ============================================================ */
+const SAVE_KEY = 'nonogram-square.v2';
+const DEFAULT_SAVE = () => ({
+  settings: { sound: true, music: false, autoX: true, crosshair: true, timer: true, theme: 'light' },
+  classic: {}, expert: {},
+  daily: { days: {}, streak: 0, last: '' },
+  big: {},
+  drafts: {}, lastDraft: '',
+  tut: false
+});
+const Store = {
+  data: null,
+  load() {
+    try {
+      const raw = localStorage.getItem(SAVE_KEY);
+      if (raw) {
+        const p = JSON.parse(raw);
+        const d = DEFAULT_SAVE();
+        this.data = Object.assign(d, p);
+        this.data.settings = Object.assign(d.settings, p.settings || {});
+        this.data.daily = Object.assign({ days: {}, streak: 0, last: '' }, p.daily || {});
+        this.data.big = p.big || {};
+        this.data.drafts = p.drafts || {};
+        return this.data;
+      }
+    } catch (e) { }
+    this.data = DEFAULT_SAVE();
+    return this.data;
+  },
+  save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(this.data)); } catch (e) { } }
+};
+
+/* ---------- in-puzzle draft auto-save ---------- */
+const Draft = {
+  key(s) {
+    if (s.kind === 'daily') return 'd:' + dailySpec().key;
+    if (s.kind === 'big') return 'b:' + s.bigMode + ':' + s.bigIdx + ':' + s.block;
+    return (s.mode === 'expert' ? 'e:' : 'c:') + s.tab + ':' + s.idx;
+  },
+  pack(st) {
+    let bin = '';
+    for (let i = 0; i < st.length; i++) bin += (st[i] >>> 1).toString(2) + (st[i] & 1).toString(2);
+    let out = '';
+    for (let i = 0; i < bin.length; i += 6) {
+      let v = 0;
+      for (let j = 0; j < 6; j++) v = (v << 1) | (bin[i + j] === '1' ? 1 : 0);
+      out += 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'[v];
+    }
+    return out;
+  },
+  unpack(str, n) {
+    let bin = '';
+    const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+    for (let i = 0; i < str.length; i++) {
+      const v = alpha.indexOf(str[i]);
+      bin += (v >>> 5 & 1).toString() + (v >>> 4 & 1).toString() + (v >>> 3 & 1).toString() +
+        (v >>> 2 & 1).toString() + (v >>> 1 & 1).toString() + (v & 1).toString();
+    }
+    const st = new Uint8Array(n * n);
+    for (let i = 0; i < n * n; i++) st[i] = (bin[i * 2] === '1' ? 2 : 0) | (bin[i * 2 + 1] === '1' ? 1 : 0);
+    return st;
+  },
+  save(s) {
+    if (!s || Game.finished) return;
+    const k = this.key(s);
+    Store.data.drafts[k] = {
+      st: this.pack(s.st), elapsed: s.elapsed, hintsLeft: s.hintsLeft,
+      hintsUsed: s.hintsUsed, tool: s.tool, at: Date.now()
+    };
+    Store.data.lastDraft = k;
+    this.prune();
+    Store.save();
+  },
+  load(k, n) {
+    const d = Store.data.drafts[k];
+    if (!d) return null;
+    try {
+      return { st: this.unpack(d.st, n), elapsed: d.elapsed || 0, hintsLeft: d.hintsLeft == null ? 3 : d.hintsLeft,
+        hintsUsed: d.hintsUsed || 0, tool: d.tool || 'pen' };
+    } catch (e) { return null; }
+  },
+  clear(k) {
+    if (Store.data.drafts[k]) { delete Store.data.drafts[k]; if (Store.data.lastDraft === k) Store.data.lastDraft = ''; Store.save(); }
+  },
+  prune() {
+    const keys = Object.keys(Store.data.drafts);
+    if (keys.length <= 40) return;
+    keys.sort((a, b) => Store.data.drafts[a].at - Store.data.drafts[b].at);
+    keys.slice(0, keys.length - 40).forEach(k => delete Store.data.drafts[k]);
+  },
+  progress(s, st) {
+    let need = 0, have = 0;
+    for (let i = 0; i < s.st.length; i++) if (s.grid.c[i]) { need++; if ((st || s.st)[i] === 1) have++; }
+    return need ? have / need : 0;
+  }
+};
+
+/* ---------- big picture (mosaic) ---------- */
+const BIG_SPECS = [
+  { label: 'Kaleidoscope', n: 30, blocks: 3, sub: 10, recipe: 'Kaleidoscope' },
+  { label: 'Mandala', n: 30, blocks: 3, sub: 10, recipe: 'Mandala' },
+  { label: 'Snowflake', n: 30, blocks: 3, sub: 10, recipe: 'Snowflake' },
+  { label: 'Sunburst', n: 45, blocks: 3, sub: 15, recipe: 'Rays' },
+  { label: 'Garden', n: 45, blocks: 3, sub: 15, recipe: 'Flower' },
+  { label: 'Butterfly', n: 45, blocks: 3, sub: 15, recipe: 'Butterfly' }
+];
+const BIG_CACHE = new Map();
+function getBig(idx) {
+  if (BIG_CACHE.has(idx)) return BIG_CACHE.get(idx);
+  const spec = BIG_SPECS[idx], n = spec.n, sub = spec.sub, b = spec.blocks;
+  let best = null;
+  for (let t = 0; t < 70; t++) {
+    const rng = mulberry32(hashStr('big:' + idx + ':' + t));
+    const want = (RECIPES.find(r => r.name === spec.recipe) || PAT_RECIPES[0]);
+    const pool = t < 26 ? [want].concat(PAT_RECIPES) : RECIPES;
+    const rec = pool[t % pool.length];
+    const P = painter(newGrid(n));
+    rec.draw(P, n, rng);
+    const g = TRANSFORMS[t % TRANSFORMS.length](P.g);
+    denoise(g);
+    const dens = density(g);
+    if (dens < .24 || dens > .78) continue;
+    const blocks = [];
+    let ok = true;
+    for (let by = 0; by < b && ok; by++) for (let bx = 0; bx < b; bx++) {
+      const sg = newGrid(sub);
+      for (let y = 0; y < sub; y++) for (let x = 0; x < sub; x++)
+        sg.c[y * sub + x] = g.c[(by * sub + y) * n + (bx * sub + x)];
+      const cl = cluesFor(sg);
+      const r = solveGrid(cl.rows, cl.cols, sub);
+      if (r !== 1) { ok = false; break; }
+      blocks.push({ grid: sg, clues: cl });
+    }
+    if (ok) { best = { grid: g, blocks, name: rec.name }; break; }
+  }
+  if (!best) {
+    const g = newGrid(n);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const r = Math.min(x, y, n - 1 - x, n - 1 - y);
+      g.c[y * n + x] = (r % 2 === 0 && r < n / 2) ? 1 : 0;
+    }
+    const blocks = [];
+    for (let by = 0; by < b; by++) for (let bx = 0; bx < b; bx++) {
+      const sg = newGrid(sub);
+      for (let y = 0; y < sub; y++) for (let x = 0; x < sub; x++)
+        sg.c[y * sub + x] = g.c[(by * sub + y) * n + (bx * sub + x)];
+      blocks.push({ grid: sg, clues: cluesFor(sg) });
+    }
+    best = { grid: g, blocks, name: 'Pattern' };
+  }
+  BIG_CACHE.set(idx, best);
+  return best;
+}
+function bigDone(mode, idx) {
+  const d = Store.data.big[mode + ':' + idx];
+  return d ? d.blocks : {};
+}
+
+/* ============================================================
+   MODEL
+   ============================================================ */
+const TABS = [
+  { key: 'small', label: 'Small', sizes: [5, 10], split: 12 },
+  { key: 'medium', label: 'Medium', sizes: [15], split: 0 },
+  { key: 'large', label: 'Large', sizes: [20, 25], split: 18 }
+];
+const PER_TAB = 48;
+function sizeFor(tab, i) {
+  const t = TABS[tab];
+  if (t.sizes.length === 1) return t.sizes[0];
+  return i < t.split ? t.sizes[0] : t.sizes[1];
+}
+function puzzleSeed(mode, tab, i) { return mode + ':' + tab + ':' + i; }
+const PUZZLE_CACHE = new Map();
+function getPuzzle(size, seed) {
+  const key = size + '|' + seed;
+  if (PUZZLE_CACHE.has(key)) return PUZZLE_CACHE.get(key);
+  const p = buildPuzzle(size, seed);
+  PUZZLE_CACHE.set(key, p);
+  return p;
+}
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+function todayKey(d) { const x = d || new Date(); return x.getFullYear() + '-' + pad(x.getMonth() + 1) + '-' + pad(x.getDate()); }
+function dailySpec(date) {
+  const d = date || new Date();
+  const k = todayKey(d);
+  const size = [10, 15, 10, 20, 15, 10, 20][(d.getDate() + d.getMonth()) % 7];
+  return { key: k, size, seed: 'daily:' + k };
+}
+function doneCount(mode) { return Object.keys(Store.data[mode] || {}).length; }
+function firstUnsolved(mode, tab) {
+  for (let i = 0; i < PER_TAB; i++) if (!Store.data[mode][tab + ':' + i]) return i;
+  return -1;
+}
+function isUnlockedExpert(tab, i) {
+  if (i === 0) return true;
+  return !!Store.data.expert[tab + ':' + (i - 1)];
+}
+function fmtTime(sec) { return Math.floor(sec / 60) + ':' + pad(sec % 60); }
+
+/* ============================================================
+   FX
+   ============================================================ */
+let toastT = null;
+function toast(msg) {
+  const el = $('#toast-inner');
+  el.textContent = msg; el.classList.add('on');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('on'), 1900);
+}
+function pixelBurst(host) {
+  const r = host.getBoundingClientRect();
+  const colors = ['#2e2f39', '#0e7cc4', '#2fae8e', '#f29924', '#d4636f', '#39538f'];
+  for (let i = 0; i < 44; i++) {
+    const s = document.createElement('i');
+    const sz = 5 + Math.random() * 7;
+    s.style.cssText = `position:absolute;left:${r.width / 2}px;top:${r.height / 2}px;width:${sz}px;height:${sz}px;
+      border-radius:2px;background:${colors[i % colors.length]};pointer-events:none;will-change:transform,opacity;`;
+    host.appendChild(s);
+    const ang = Math.random() * Math.PI * 2, dist = 80 + Math.random() * 230;
+    const dx = Math.cos(ang) * dist, dy = Math.sin(ang) * dist - 50;
+    s.animate([
+      { transform: 'translate(-50%,-50%) rotate(0)', opacity: 1 },
+      { transform: `translate(calc(-50% + ${dx}px),calc(-50% + ${dy + 170}px)) rotate(${Math.random() * 540 - 270}deg)`, opacity: 0 }
+    ], { duration: 900 + Math.random() * 700, easing: 'cubic-bezier(.2,.7,.4,1)' }).onfinish = () => s.remove();
+  }
+}
+function makeFloatingSquares() {
+  const host = $('#confetti-bg'); if (!host || host.children.length) return;
+  const colors = ['#f7c6d9', '#b7efdc', '#d6c9f6', '#bcdcf7', '#fbe3b3', '#c6f0e4'];
+  for (let i = 0; i < 16; i++) {
+    const el = document.createElement('i');
+    const sz = 10 + Math.random() * 18, dur = 16 + Math.random() * 20, left = Math.random() * 100;
+    el.style.cssText = `left:${left}%;bottom:-40px;width:${sz}px;height:${sz}px;background:${colors[i % colors.length]};
+      animation-duration:${dur}s;animation-delay:${-Math.random() * dur}s;
+      --dx:${(Math.random() * 120 - 60).toFixed(0)}px;--rot:${(Math.random() * 360 + 180).toFixed(0)}deg;`;
+    host.appendChild(el);
+  }
+}
+
+/* ============================================================
+   GAME SESSION
+   ============================================================ */
+const Game = {
+  s: null, boardEl: null, cellsEl: null, cellEls: null, rowClues: null, colClues: null,
+  crossX: null, crossY: null, cs: 0, clueW: 0, clueH: 0,
+  drag: null, hover: { x: -1, y: -1 }, tick: null, finished: false, lastPt: 'mouse',
+
+  start(opts) {
+    let puzzle;
+    if (opts.gridOverride) puzzle = { grid: opts.gridOverride, clues: opts.cluesOverride || cluesFor(opts.gridOverride), size: opts.gridOverride.n, name: opts.name };
+    else puzzle = getPuzzle(opts.size, opts.seed);
+    const n = puzzle.size;
+    const s = {
+      kind: opts.kind, mode: opts.mode, tab: opts.tab, idx: opts.idx,
+      bigMode: opts.bigMode, bigIdx: opts.bigIdx, block: opts.block,
+      size: n, grid: puzzle.grid, clues: puzzle.clues, name: opts.name || puzzle.name,
+      title: opts.title, sub: opts.sub,
+      st: new Uint8Array(n * n), hist: [], future: [],
+      hintsLeft: 3, hintsUsed: 0, tool: 'pen',
+      elapsed: 0, running: true, t0: Date.now(),
+      hiddenRows: [], hiddenCols: [], zoom: opts.zoom || 1, pan: false, expert: !!opts.expert,
+      stars: 0, restored: false,
+      hideSeed: opts.seed || (opts.kind === 'big' ? 'big:' + opts.bigMode + ':' + opts.bigIdx + ':' + opts.block : null)
+    };
+    if (s.expert) this.hideClues(s);
+    this.s = s; this.finished = false;
+    this.drag = null; this.panning = false; this.lastMid = null; this.pinchD = 0; this.pts = new Map();
+    this._tick = 0;
+    /* auto-save: resume an unfinished puzzle */
+    if (!opts.fresh) {
+      const dk = Draft.key(s), d = Draft.load(dk, n);
+      if (d) {
+        s.st = d.st; s.elapsed = d.elapsed; s.hintsLeft = d.hintsLeft;
+        s.hintsUsed = d.hintsUsed; s.tool = d.tool || 'pen'; s.restored = true;
+      }
+    }
+    s.t0 = Date.now() - s.elapsed * 1000;
+    UI.show('game');
+    this.render();
+    this.startTimer();
+    if (s.restored) {
+      this.updateProgress(); this.updateClues(true);
+      toast('Puzzle restored');
+    }
+    if (!Store.data.tut && opts.kind === 'classic' && s.tab === 0 && s.idx === 0 && !s.restored)
+      setTimeout(() => UI.tutorial(true), 500);
+  },
+
+  hideClues(s) {
+    const n = s.size, rate = n <= 10 ? .22 : .2;
+    const seedStr = s.hideSeed || (s.kind + ':' + s.tab + ':' + s.idx);
+    const rng = mulberry32(hashStr('hid:' + seedStr + ':' + n));
+    s.hiddenRows = []; s.hiddenCols = [];
+    let hidden = 0, cap = Math.max(5, Math.round(n * 1.4));
+    const pass = (arr) => {
+      const sets = [];
+      for (let y = 0; y < n; y++) {
+        const set = [];
+        for (let j = 0; j < arr[y].length; j++)
+          if (arr[y].length > 1 && rng() < rate && hidden < cap) { set.push(j); hidden++; }
+        sets.push(set);
+      }
+      return sets;
+    };
+    s.hiddenRows = pass(s.clues.rows);
+    s.hiddenCols = pass(s.clues.cols);
+  },
+
+  render() {
+    const s = this.s, n = s.size;
+    $('#scr-game').innerHTML = `
+      <div class="g-top">
+        <button class="hicon" data-act="quit" aria-label="Back">${IC.back}</button>
+        <div class="gt"><b>${s.title}</b><span>${s.sub}</span></div>
+        <button class="hicon" data-act="help" aria-label="Help">${IC.help}</button>
+        <button class="hicon" data-act="settings" aria-label="Settings">${IC.gear}</button>
+      </div>
+      <div class="g-stats">
+        <span class="gchip">${IC.clock}<span id="txt-time">0:00</span></span>
+        <span class="gchip">${IC.grid}<span>${n}×${n}</span></span>
+        <span class="gchip">${IC.check}<span id="txt-progress">0/${s.grid.c.reduce((a, b) => a + b, 0)}</span></span>
+      </div>
+      <div class="g-board-wrap"><div class="bv" id="bv"><div class="binner"><div class="bin-grid" id="binner"></div></div></div></div>
+      <div class="g-tools">
+        <div class="zoom-col">
+          <button class="rnd-btn" data-act="zoomin" aria-label="Zoom in">${IC.plus}</button>
+          <button class="rnd-btn" data-act="zoomout" aria-label="Zoom out">${IC.minus}</button>
+        </div>
+        <button class="rnd-btn" data-act="undo" id="btn-undo" aria-label="Undo">${IC.undo}</button>
+        <div class="seg" id="tools">
+          <button data-tool="pen" class="on">${IC.pen}<span>Fill</span></button>
+          <button data-tool="x">${IC.xmark}<span>Mark</span></button>
+        </div>
+        <button class="rnd-btn" data-act="redo" id="btn-redo" aria-label="Redo">${IC.redo}</button>
+        <button class="hint-btn" data-act="hint" id="btn-hint" aria-label="Hint">${IC.bulb}<em id="hint-em">${s.hintsLeft}</em></button>
+      </div>`;
+    this.boardEl = $('#binner');
+    this.buildBoard();
+    this.updateClues(true);
+    this.updateUndo();
+    this.layout();
+    const hb = $('#btn-hint'); if (hb && s.hintsLeft <= 0) hb.toggleAttribute('disabled', true);
+    $$('#tools button').forEach(b => b.classList.toggle('on', b.dataset.tool === s.tool));
+    if (!this._bound) {
+      this._bound = true;
+      document.addEventListener('pointerdown', e => this.onDown(e), { passive: false });
+      document.addEventListener('pointermove', e => this.onMove(e), { passive: false });
+      document.addEventListener('pointerup', ev => this.onUp(ev));
+      document.addEventListener('pointercancel', ev => this.onUp(ev));
+      document.addEventListener('contextmenu', e => {
+        if (Game.s && e.target.closest && e.target.closest('#cells')) e.preventDefault();
+      });
+      window.addEventListener('resize', () => { if (Game.s) Game.layout(); });
+      window.addEventListener('orientationchange', () => setTimeout(() => Game.layout(), 200));
+    }
+  },
+
+  buildBoard() {
+    const s = this.s, n = s.size, host = this.boardEl;
+    host.innerHTML = '';
+    let mr = 1, mc = 1;
+    for (let y = 0; y < n; y++) mr = Math.max(mr, s.clues.rows[y].length);
+    for (let x = 0; x < n; x++) mc = Math.max(mc, s.clues.cols[x].length);
+    const unit = clamp(Math.round(Math.min(n * 2.2, 16)), 9, 15);
+    const clueW = mr * unit + 8, clueH = mc * unit + 8;
+    this.clueW = clueW; this.clueH = clueH;
+    const frag = document.createDocumentFragment();
+    const corner = document.createElement('div');
+    corner.className = 'corner'; corner.style.gridArea = '1 / 1';
+    frag.appendChild(corner);
+    this.colClues = []; this.rowClues = [];
+    for (let x = 0; x < n; x++) {
+      const c = document.createElement('div');
+      c.className = 'clue v'; c.style.gridArea = '1 / ' + (x + 2); c.dataset.x = x;
+      this.colClues.push(c); frag.appendChild(c);
+    }
+    for (let y = 0; y < n; y++) {
+      const c = document.createElement('div');
+      c.className = 'clue'; c.style.gridArea = (y + 2) + ' / 1'; c.dataset.y = y;
+      this.rowClues.push(c); frag.appendChild(c);
+    }
+    const cells = document.createElement('div');
+    cells.id = 'cells';
+    Object.assign(cells.style, {
+      gridArea: '2 / 2 / ' + (n + 2) + ' / ' + (n + 2), display: 'grid',
+      gridTemplateColumns: `repeat(${n},var(--cs))`, gridTemplateRows: `repeat(${n},var(--cs))`,
+      position: 'relative', touchAction: 'none'
+    });
+    this.cellEls = new Array(n * n);
+    for (let i = 0; i < n * n; i++) {
+      const d = document.createElement('div');
+      d.className = 'cell'; d.dataset.s = '0';
+      this.cellEls[i] = d; cells.appendChild(d);
+    }
+    const gl = document.createElement('div');
+    gl.className = 'gline'; cells.appendChild(gl); this.glineEl = gl;
+    const cx = document.createElement('div'); cx.className = 'cross'; cells.appendChild(cx);
+    const cy = document.createElement('div'); cy.className = 'cross'; cells.appendChild(cy);
+    this.crossX = cx; this.crossY = cy; this.cellsEl = cells;
+    frag.appendChild(cells);
+    host.appendChild(frag);
+  },
+
+  layout() {
+    const s = this.s, n = s.size;
+    const wrap = $('.g-board-wrap');
+    if (!wrap) return;
+    const availW = wrap.clientWidth - 30, availH = wrap.clientHeight - 14;
+    const clueW = this.clueW, clueH = this.clueH;
+    let cs = Math.floor(Math.min((availW - clueW) / n, (availH - clueH) / n));
+    const minCs = n <= 10 ? 26 : n <= 15 ? 20 : n <= 20 ? 14 : 12;
+    if (cs < minCs) cs = minCs;
+    cs = clamp(Math.round(cs * s.zoom), minCs, 64);
+    this.cs = cs;
+    const host = this.boardEl;
+    host.style.setProperty('--cs', cs + 'px');
+    host.style.setProperty('--cs-font', clamp(Math.round(cs * .42), 8, 15) + 'px');
+    host.style.gridTemplateColumns = clueW + 'px repeat(' + n + ',' + cs + 'px)';
+    host.style.gridTemplateRows = clueH + 'px repeat(' + n + ',' + cs + 'px)';
+    this.glineEl.style.left = '0'; this.glineEl.style.top = '0';
+    this.glineEl.style.width = n * cs + 'px'; this.glineEl.style.height = n * cs + 'px';
+    const totalW = clueW + n * cs, totalH = clueH + n * cs;
+    host.style.width = totalW + 'px'; host.style.height = totalH + 'px';
+    const bv = $('#bv');
+    bv.style.overflow = (totalW > availW || totalH > availH) ? 'auto' : 'hidden';
+    this.updateCross();
+  },
+
+  cellAt(ev) {
+    const r = this.cellsEl.getBoundingClientRect();
+    const x = Math.floor((ev.clientX - r.left) / this.cs);
+    const y = Math.floor((ev.clientY - r.top) / this.cs);
+    if (x < 0 || y < 0 || x >= this.s.size || y >= this.s.size) return null;
+    return { x, y };
+  },
+
+  cancelDrag() {
+    const d = this.drag;
+    if (!d) return;
+    const seen = new Map();
+    d.changes.forEach(ch => { if (!seen.has(ch[0])) seen.set(ch[0], ch[1]); });
+    seen.forEach((prev, i) => { this.s.st[i] = prev; this.paintCell(i, false); });
+    this.drag = null; this.updateClues(); this.updateProgress();
+  },
+  onDown(e) {
+    if (UI.cur !== 'game' || !this.s || this.finished || !this.cellsEl) return;
+    const t = e.target;
+    if (t && t.closest && (t.closest('.hicon') || t.closest('.seg') || t.closest('.rnd-btn') ||
+      t.closest('.hint-btn') || t.closest('.gchip') || t.closest('.ov'))) return;
+    /* multi-touch pan for large boards */
+    if (e.pointerType === 'touch' && t.closest && t.closest('.bv')) {
+      this.pts = this.pts || new Map();
+      this.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (this.pts.size >= 2) {
+        this.cancelDrag();
+        this.panning = true;
+        const v = [...this.pts.values()];
+        this.lastMid = { x: (v[0].x + v[1].x) / 2, y: (v[0].y + v[1].y) / 2 };
+        this.pinchD = Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y) || 1;
+        this.pinchZ = this.s.zoom;
+        return;
+      }
+    }
+    const c = this.cellAt(e);
+    if (!c) return;
+    e.preventDefault();
+    const s = this.s, i = c.y * s.size + c.x;
+    let tool = s.tool;
+    if (e.button === 2) tool = tool === 'pen' ? 'x' : 'pen';
+    if (e.button === 1) return;
+    const cur = s.st[i];
+    const target = tool === 'pen' ? (cur === 1 ? 0 : 1) : (cur === 2 ? 0 : 2);
+    this.drag = { start: c, axis: null, target, changes: [[i, cur, target]] };
+    s.st[i] = target;
+    this.paintCell(i, true);
+    Snd.resume();
+    if (target === 1) Snd.fill(); else if (target === 2) Snd.mark(); else Snd.unfill();
+    this.afterChange([i]);
+  },
+
+  onMove(e) {
+    if (!this.s || UI.cur !== 'game' || !this.cellsEl || !this.cellsEl.isConnected) return;
+    this.lastPt = e.pointerType;
+    if (e.pointerType === 'touch' && this.pts && this.pts.has(e.pointerId)) {
+      this.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (this.panning && this.pts.size >= 2) {
+        const v = [...this.pts.values()];
+        const mx = (v[0].x + v[1].x) / 2, my = (v[0].y + v[1].y) / 2;
+        if (this.lastMid) {
+          const bv = $('#bv');
+          bv.scrollLeft -= (mx - this.lastMid.x);
+          bv.scrollTop -= (my - this.lastMid.y);
+        }
+        this.lastMid = { x: mx, y: my };
+        /* pinch zoom */
+        const dist = Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y);
+        if (this.pinchD) {
+          const nz = clamp(this.pinchZ * dist / this.pinchD, .6, 2.6);
+          if (Math.abs(nz - this.s.zoom) > .01) { this.s.zoom = nz; this.layout(); }
+        }
+        return;
+      }
+    }
+    const c = this.cellAt(e);
+    if (!c) { if (!this.drag) this.setHover(-1, -1); return; }
+    if (this.hover.x !== c.x || this.hover.y !== c.y) this.setHover(c.x, c.y);
+    if (!this.drag || this.finished) return;
+    const d = this.drag, s = this.s;
+    if (d.start.x === c.x && d.start.y === c.y) return;
+    if (!d.axis) {
+      const dx = Math.abs(c.x - d.start.x), dy = Math.abs(c.y - d.start.y);
+      d.axis = dx >= dy ? 'h' : 'v';
+    }
+    const to = d.axis === 'h' ? c.x : c.y;
+    const fixed = d.axis === 'h' ? d.start.y : d.start.x;
+    const lo = Math.min(d.axis === 'h' ? d.start.x : d.start.y, to);
+    const hi = Math.max(d.axis === 'h' ? d.start.x : d.start.y, to);
+    const changed = [];
+    for (let k = lo; k <= hi; k++) {
+      const x = d.axis === 'h' ? k : fixed, y = d.axis === 'h' ? fixed : k;
+      const i = y * s.size + x;
+      if (s.st[i] !== d.target) {
+        const prev = s.st[i];
+        s.st[i] = d.target;
+        d.changes.push([i, prev, d.target]);
+        this.paintCell(i, true);
+        changed.push(i);
+      }
+    }
+    if (changed.length) {
+      if (d.target === 1) Snd.fill(); else if (d.target === 2) Snd.mark(); else Snd.unfill();
+      this.afterChange(changed);
+    }
+  },
+
+  onUp(e) {
+    if (this.pts && e && e.pointerId !== undefined) {
+      this.pts.delete(e.pointerId);
+      if (this.pts.size < 2) this.panning = false;
+      if (e.pointerType === 'touch') this.setHover(-1, -1);
+      if (this.pts.size === 0) { this.lastMid = null; }
+      if (this.panning || this.pts.size > 0) return;
+    }
+    if (this.lastPt === 'touch' && !this.drag) { this.setHover(-1, -1); return; }
+    if (!this.drag) return;
+    const d = this.drag;
+    this.drag = null;
+    if (this.lastPt === 'touch') this.setHover(-1, -1);
+    if (d.changes.length) {
+      const seen = new Map();
+      d.changes.forEach(ch => {
+        const ex = seen.get(ch[0]);
+        if (!ex) seen.set(ch[0], [ch[0], ch[1], ch[2]]);
+        else ex[2] = ch[2];
+      });
+      const list = []; seen.forEach(v => list.push(v));
+      this.s.hist.push(list);
+      if (this.s.hist.length > 400) this.s.hist.shift();
+      this.s.future.length = 0;
+      this.updateUndo();
+      if (!this.checkWin()) Draft.save(this.s);
+    }
+  },
+
+  setHover(x, y) {
+    this.hover = { x, y };
+    this.updateCross();
+    if (!this.rowClues) return;
+    for (let i = 0; i < this.s.size; i++) {
+      this.rowClues[i].classList.toggle('act', y === i);
+      this.colClues[i].classList.toggle('act', x === i);
+    }
+  },
+  updateCross() {
+    const s = this.s; if (!s || !this.crossX) return;
+    const on = Store.data.settings.crosshair && !this.finished && this.hover.x >= 0;
+    const cs = this.cs;
+    this.crossX.style.opacity = this.crossY.style.opacity = on ? '.6' : '0';
+    this.crossY.style.left = (this.hover.x * cs) + 'px'; this.crossY.style.top = '0';
+    this.crossY.style.width = cs + 'px'; this.crossY.style.height = s.size * cs + 'px';
+    this.crossX.style.top = (this.hover.y * cs) + 'px'; this.crossX.style.left = '0';
+    this.crossX.style.height = cs + 'px'; this.crossX.style.width = s.size * cs + 'px';
+    if (!this.cellEls) return;
+    for (let i = 0; i < s.size * s.size; i++) {
+      const yy = (i / s.size) | 0, xx = i % s.size;
+      this.cellEls[i].classList.toggle('hl', on && (xx === this.hover.x || yy === this.hover.y));
+    }
+  },
+  paintCell(i, pop) {
+    const el = this.cellEls[i];
+    el.dataset.s = this.s.st[i];
+    if (pop) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+  },
+  clueHTML(kind, idx) {
+    const s = this.s;
+    const list = kind === 'r' ? s.clues.rows[idx] : s.clues.cols[idx];
+    const hid = kind === 'r' ? s.hiddenRows[idx] : s.hiddenCols[idx];
+    let h = '';
+    for (let j = 0; j < list.length; j++)
+      h += `<span class="n${hid && hid.indexOf(j) >= 0 ? ' hid' : ''}">${hid && hid.indexOf(j) >= 0 ? '?' : list[j]}</span>`;
+    return h || '<span class="n">0</span>';
+  },
+  updateClues(init) {
+    const s = this.s, n = s.size;
+    for (let y = 0; y < n; y++) {
+      const el = this.rowClues[y];
+      if (init) el.innerHTML = this.clueHTML('r', y);
+      const st = this.lineState('r', y);
+      el.classList.toggle('done', st.done); el.classList.toggle('err', st.err);
+    }
+    for (let x = 0; x < n; x++) {
+      const el = this.colClues[x];
+      if (init) el.innerHTML = this.clueHTML('c', x);
+      const st = this.lineState('c', x);
+      el.classList.toggle('done', st.done); el.classList.toggle('err', st.err);
+    }
+  },
+  lineState(kind, idx) {
+    const s = this.s, n = s.size;
+    const hid = kind === 'r' ? s.hiddenRows[idx] : s.hiddenCols[idx];
+    const clue = kind === 'r' ? s.clues.rows[idx] : s.clues.cols[idx];
+    let sum = 0, runs = [], run = 0, filled = 0;
+    for (let k = 0; k < n; k++) {
+      const v = s.st[kind === 'r' ? idx * n + k : k * n + idx];
+      if (v === 1) { run++; filled++; } else { if (run) runs.push(run); run = 0; }
+    }
+    if (run) runs.push(run);
+    for (let j = 0; j < clue.length; j++) sum += clue[j];
+    if (hid && hid.length) return { done: false, err: false };
+    const same = runs.length === clue.length && runs.every((v, j) => v === clue[j]);
+    return { done: same, err: filled > sum, filled, sum };
+  },
+  afterChange(idxs) {
+    const s = this.s;
+    let extra = null;
+    if (Store.data.settings.autoX) {
+      const rows = new Set(), cols = new Set();
+      idxs.forEach(i => { rows.add((i / s.size) | 0); cols.add(i % s.size); });
+      rows.forEach(y => { const c = this.autoXLine('r', y); if (c.length) (extra = extra || []).push.apply(extra, c); });
+      cols.forEach(x => { const c = this.autoXLine('c', x); if (c.length) (extra = extra || []).push.apply(extra, c); });
+    }
+    if (extra && extra.length) {
+      if (this.drag) this.drag.changes.push.apply(this.drag.changes, extra);
+      else if (s.hist.length) {
+        const last = s.hist[s.hist.length - 1];
+        const seen = new Map(); last.forEach(c => seen.set(c[0], c));
+        extra.forEach(c => { if (!seen.has(c[0])) last.push(c); });
+      }
+    }
+    this.updateClues();
+    this.updateProgress();
+  },
+  autoXLine(kind, idx) {
+    const s = this.s, n = s.size;
+    const st = this.lineState(kind, idx);
+    if (!st.done) return [];
+    const hid = kind === 'r' ? s.hiddenRows[idx] : s.hiddenCols[idx];
+    if (hid && hid.length) return [];
+    const changed = [];
+    for (let k = 0; k < n; k++) {
+      const i = kind === 'r' ? idx * n + k : k * n + idx;
+      if (s.st[i] === 0) { s.st[i] = 2; changed.push([i, 0, 2]); this.paintCell(i, true); }
+    }
+    if (changed.length) {
+      Snd.line();
+      const el = kind === 'r' ? this.rowClues[idx] : this.colClues[idx];
+      el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+    }
+    return changed;
+  },
+  applyEntry(entry, dir) {
+    const s = this.s;
+    for (let k = 0; k < entry.length; k++) {
+      const ch = entry[k], i = ch[0], to = dir > 0 ? ch[2] : ch[1];
+      s.st[i] = to; this.paintCell(i, false);
+    }
+    this.updateClues(); this.updateProgress();
+  },
+  undo() {
+    const s = this.s; if (!s || !s.hist.length || this.finished) return;
+    const e = s.hist.pop(); s.future.push(e);
+    this.applyEntry(e, -1); this.updateUndo(); Snd.unfill();
+  },
+  redo() {
+    const s = this.s; if (!s || !s.future.length || this.finished) return;
+    const e = s.future.pop(); s.hist.push(e);
+    this.applyEntry(e, 1); this.updateUndo(); Snd.fill();
+    this.checkWin();
+  },
+  updateUndo() {
+    const u = $('#btn-undo'), r = $('#btn-redo');
+    if (!u || !r) return;
+    u.toggleAttribute('disabled', !this.s.hist.length);
+    r.toggleAttribute('disabled', !this.s.future.length);
+  },
+  updateProgress() {
+    const el = $('#txt-progress');
+    if (!el || !this.s) return;
+    const s = this.s; let total = 0, have = 0;
+    for (let i = 0; i < s.st.length; i++) { if (s.grid.c[i]) { total++; if (s.st[i] === 1) have++; } }
+    el.textContent = have + '/' + total;
+  },
+  setTool(t) { this.s.tool = t; $$('#tools button').forEach(b => b.classList.toggle('on', b.dataset.tool === t)); Snd.tap(); },
+  setZoom(z) { this.s.zoom = clamp(z, .6, 2.4); this.layout(); Snd.tap(); },
+  startTimer() {
+    this.stopTimer();
+    this.tick = setInterval(() => {
+      if (!this.s || this.finished) return;
+      if (this.s.running && !document.hidden) {
+        this.s.elapsed = Math.floor((Date.now() - this.s.t0) / 1000);
+        const t = $('#txt-time');
+        if (t) t.textContent = Store.data.settings.timer ? fmtTime(this.s.elapsed) : '--:--';
+        if (++this._tick % 8 === 0 && !this.finished) Draft.save(this.s);
+      }
+    }, 500);
+  },
+  stopTimer() { if (this.tick) { clearInterval(this.tick); this.tick = null; } },
+
+  hint() {
+    const s = this.s, n = s.size;
+    if (this.finished) return;
+    if (s.hintsLeft <= 0) { toast('No hints left for this puzzle'); return; }
+    let target = -1, to = 0;
+    for (let i = 0; i < n * n; i++) {
+      if (s.st[i] === 1 && !s.grid.c[i]) { target = i; to = 2; break; }
+    }
+    if (target < 0) {
+      const forced = [];
+      for (let y = 0; y < n; y++) {
+        const kn = new Array(n);
+        for (let x = 0; x < n; x++) kn[x] = s.st[y * n + x];
+        const r = solveLine(kn, s.clues.rows[y]);
+        if (r) for (let x = 0; x < n; x++) if (!kn[x] && r[x]) forced.push({ i: y * n + x, to: r[x] });
+      }
+      for (let x = 0; x < n; x++) {
+        const kn = new Array(n);
+        for (let y = 0; y < n; y++) kn[y] = s.st[y * n + x];
+        const r = solveLine(kn, s.clues.cols[x]);
+        if (r) for (let y = 0; y < n; y++) if (!kn[y] && r[y]) forced.push({ i: y * n + x, to: r[y] });
+      }
+      if (forced.length) {
+        const pick0 = forced[Math.floor(Math.random() * forced.length)];
+        target = pick0.i; to = pick0.to;
+      } else {
+        const open = [];
+        for (let i = 0; i < n * n; i++) {
+          const want = s.grid.c[i] ? 1 : 2;
+          if (s.st[i] !== want) open.push({ i, to: want });
+        }
+        if (!open.length) return;
+        const p = open[Math.floor(Math.random() * open.length)];
+        target = p.i; to = p.to;
+      }
+    }
+    const prev = s.st[target];
+    s.st[target] = to; s.hintsLeft--; s.hintsUsed++;
+    s.hist.push([[target, prev, to]]); s.future.length = 0;
+    this.paintCell(target, true);
+    Snd.hint();
+    const em = $('#hint-em'); if (em) em.textContent = s.hintsLeft;
+    $('#btn-hint').toggleAttribute('disabled', s.hintsLeft <= 0);
+    this.cellEls[target].animate(
+      [{ filter: 'brightness(1)' }, { filter: 'brightness(1.8)' }, { filter: 'brightness(1)' }],
+      { duration: 650 });
+    this.afterChange([target]);
+    this.updateUndo();
+    if (!this.checkWin()) Draft.save(this.s);
+  },
+
+  checkWin() {
+    const s = this.s, n = s.size;
+    for (let i = 0; i < n * n; i++) {
+      if (s.grid.c[i] && s.st[i] !== 1) return false;
+      if (!s.grid.c[i] && s.st[i] === 1) return false;
+    }
+    this.win(); return true;
+  },
+
+  win() {
+    const s = this.s;
+    if (this.finished) return;
+    this.finished = true; this.drag = null; s.running = false;
+    this.setHover(-1, -1); this.updateCross();
+    Draft.clear(Draft.key(s));
+    Snd.win();
+    const n = s.size;
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const i = y * n + x, el = this.cellEls[i];
+      if (s.grid.c[i]) { el.dataset.s = '1'; setTimeout(() => el.classList.add('win'), (x + y) * 20); }
+      else if (s.st[i] === 2) setTimeout(() => { el.style.transition = 'opacity .4s'; el.style.opacity = '.2'; }, (x + y) * 16);
+    }
+    setTimeout(() => pixelBurst($('#fx')), 240);
+    s.stars = s.hintsUsed === 0 ? 3 : s.hintsUsed <= 2 ? 2 : 1;
+    this.recordWin();
+    Store.save();
+    setTimeout(() => UI.winModal(), 900);
+  },
+
+  recordWin() {
+    const s = this.s, d = Store.data;
+    const rec = { t: s.elapsed, h: s.hintsUsed, s: s.stars, n: s.size };
+    if (s.kind === 'daily') {
+      const spec = dailySpec();
+      d.daily.days[spec.key] = rec;
+      const y = new Date(); y.setDate(y.getDate() - 1);
+      if (d.daily.last === todayKey(y)) d.daily.streak = (d.daily.streak || 0) + 1;
+      else if (d.daily.last !== spec.key) d.daily.streak = 1;
+      d.daily.last = spec.key;
+    } else if (s.mode === 'classic' || s.mode === 'expert') {
+      const k = s.tab + ':' + s.idx, bucket = d[s.mode], prev = bucket[k];
+      bucket[k] = prev ? { t: Math.min(prev.t, rec.t), h: rec.h, s: Math.max(prev.s, rec.s), n: rec.n } : rec;
+    }
+    if (s.kind === 'big') {
+      const bk = s.bigMode + ':' + s.bigIdx;
+      const b = d.big[bk] = d.big[bk] || { blocks: {} };
+      const prev = b.blocks[s.block];
+      b.blocks[s.block] = prev ? { t: Math.min(prev.t, rec.t), s: Math.max(prev.s, rec.s) } : rec;
+    }
+  },
+  quit() {
+    if (this.s && !this.finished) Draft.save(this.s);
+    this.stopTimer();
+  }
+};
+
+/* ============================================================
+   UI
+   ============================================================ */
+const UI = {
+  cur: 'load', mode: 'classic', tab: 0, io: null, tutTimer: null,
+  bigMode: 'classic', bigIdx: 0,
+
+  show(name) {
+    if (this.cur === name) return;
+    const prev = $('#scr-' + this.cur), next = $('#scr-' + name);
+    this.cur = name;
+    if (prev) prev.classList.remove('on');
+    if (next) next.classList.add('on');
+    if (name !== 'game' && Game.s) Game.stopTimer();
+  },
+
+  home() {
+    const d = Store.data;
+    const now = new Date(), dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const monthKey = now.getFullYear() + '-' + pad(now.getMonth() + 1);
+    const monthDone = Object.keys(d.daily.days).filter(k => k.startsWith(monthKey)).length;
+    const dailyPct = Math.round((monthDone / Math.min(dim, now.getDate())) * 100);
+    const classicPct = Math.round((doneCount('classic') / (TABS.length * PER_TAB)) * 100);
+    const expertPct = Math.round((doneCount('expert') / (TABS.length * PER_TAB)) * 100);
+    $('#scr-home').innerHTML = `
+      <div class="home-in">
+        <div class="home-cards">
+          <button class="mode-card" data-nav="daily" style="--mc:var(--teal-line);--mc-soft:var(--teal-soft)">
+            <span class="chip-ic"><canvas id="ic-daily" width="54" height="54"></canvas></span>
+            <span class="mc-body">
+              <b>Daily Challenge</b>
+              <small>New puzzle every day</small>
+              <span class="mc-bar"><i style="width:${dailyPct}%;background:var(--teal-line)"></i></span>
+            </span>
+          </button>
+          <button class="mode-card" data-nav="classic" style="--mc:var(--acc);--mc-soft:var(--acc-soft)">
+            <span class="chip-ic"><canvas id="ic-classic" width="54" height="54"></canvas></span>
+            <span class="mc-body">
+              <b>Classic Mode</b>
+              <small>Easy and fun play</small>
+              <span class="mc-bar"><i style="width:${classicPct}%"></i></span>
+            </span>
+          </button>
+          <button class="mode-card" data-nav="expert" style="--mc:var(--indigo-line);--mc-soft:var(--indigo-soft)">
+            <span class="chip-ic"><canvas id="ic-expert" width="54" height="54"></canvas></span>
+            <span class="mc-body">
+              <b>Expert Mode</b>
+              <small>Hidden hints, big challenge</small>
+              <span class="mc-bar"><i style="width:${expertPct}%;background:var(--indigo-line)"></i></span>
+            </span>
+          </button>
+        </div>
+        <button class="big-link" data-nav="big">${mosaicIcon}<span>Big Picture Mosaic</span>${IC.back.replace('<path d="M15 5l-7 7 7 7"/>', '<path d="M9 5l7 7-7 7"/>')}</button>
+        <div class="quick-wrap">
+          <button class="quick-btn" data-nav="quick">${IC.play}<span id="quick-label">Quick Start</span></button>
+        </div>
+      </div>`;
+    if (Store.data.lastDraft && Store.data.drafts[Store.data.lastDraft]) {
+      const ql = $('#quick-label'); if (ql) ql.textContent = 'Continue';
+    }
+    this.show('home');
+    drawChipIcon($('#ic-daily'), 'daily');
+    drawChipIcon($('#ic-classic'), 'classic');
+    drawChipIcon($('#ic-expert'), 'expert');
+    makeFloatingSquares();
+  },
+
+  levels(mode, tab) {
+    if (mode) this.mode = mode;
+    if (tab != null) this.tab = tab;
+    const m = this.mode;
+    const bucket = Store.data[m];
+    let tabsHtml = '';
+    TABS.forEach((t, i) => tabsHtml +=
+      `<button class="tab ${i === this.tab ? 'on' : ''}" data-tab="${i}">${tabIcon(i)}<span>${t.label}</span></button>`);
+    let tiles = '';
+    const next = firstUnsolved(m, this.tab);
+    for (let i = 0; i < PER_TAB; i++) {
+      const key = this.tab + ':' + i;
+      const done = !!bucket[key];
+      const locked = m === 'expert' && !isUnlockedExpert(this.tab, i);
+      const dk = (m === 'expert' ? 'e:' : 'c:') + this.tab + ':' + i;
+      const draft = Store.data.drafts[dk];
+      let cls = 'tile', inner = '<canvas></canvas>';
+      if (locked) { cls += ' lock shv'; inner = '<span class="q">?</span>'; }
+      else if (i === next) { cls += ' next'; inner = ''; }
+      else cls += ' shv' + (done ? ' done' : '');
+      if (draft && !locked) {
+        const size = sizeFor(this.tab, i);
+        const st = Draft.unpack(draft.st, size);
+        let need = 0, have = 0;
+        const pz = getPuzzle(size, puzzleSeed(m, this.tab, i));
+        for (let k = 0; k < st.length; k++) if (pz.grid.c[k]) { need++; if (st[k] === 1) have++; }
+        const pct = need ? Math.round(have / need * 100) : 0;
+        inner += `<span class="draft-dot"></span><span class="draft-bar"><i style="width:${pct}%"></i></span>`;
+      }
+      tiles += `<button class="${cls}" data-level="${i}" ${locked ? 'disabled' : ''} aria-label="Puzzle ${i + 1}">${inner}</button>`;
+    }
+    $('#scr-levels').innerHTML = `
+      <div class="sc-head">
+        <button class="hicon" data-nav="home">${IC.back}</button>
+        <h1>${m === 'classic' ? 'Classic Mode' : 'Expert Mode'}</h1>
+        <button class="hicon" data-act="toggle-theme">${Store.data.settings.theme === 'dark' ? IC.sun : IC.moon}</button>
+        <button class="hicon" data-nav="help">${IC.help}</button>
+        <button class="hicon" data-nav="settings">${IC.gear}</button>
+      </div>
+      <div class="tabs">${tabsHtml}</div>
+      <div class="sc-body">
+        <div class="lvl-grid">${tiles}</div>
+        <div style="height:10px"></div>
+      </div>`;
+    this.show('levels');
+    this.lazyThumbs($('#scr-levels'));
+  },
+
+  lazyThumbs(root) {
+    if (this.io) { this.io.disconnect(); this.io = null; }
+    const make = (canvas) => {
+      const tile = canvas.closest('.tile');
+      if (!tile || tile.dataset.built) return;
+      tile.dataset.built = '1';
+      const lv = +tile.dataset.level;
+      const size = sizeFor(this.tab, lv);
+      const p = getPuzzle(size, puzzleSeed(this.mode, this.tab, lv));
+      gridToCanvas(p.grid, canvas, cssVar('--fill'), null, 2);
+    };
+    const canvases = $$('.tile canvas', root);
+    if (!('IntersectionObserver' in window)) { canvases.forEach(make); return; }
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(en => { if (en.isIntersecting) { make(en.target); io.unobserve(en.target); } });
+    }, { root: root.querySelector('.sc-body'), rootMargin: '160px' });
+    canvases.forEach(c => io.observe(c));
+    this.io = io;
+  },
+
+  daily() {
+    const d = Store.data, now = new Date();
+    const spec = dailySpec(now);
+    const doneToday = d.daily.days[spec.key];
+    const dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const first = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+    const dows = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    let cal = dows.map(w => `<div class="dow">${w}</div>`).join('');
+    for (let i = 0; i < first; i++) cal += '<div></div>';
+    for (let day = 1; day <= dim; day++) {
+      const dt = new Date(now.getFullYear(), now.getMonth(), day);
+      const k = todayKey(dt), rec = d.daily.days[k], future = dt > now;
+      cal += `<div class="d ${rec ? 'done' : ''} ${k === spec.key ? 'today' : ''} ${future ? 'future' : ''}">
+        ${rec ? '<canvas data-day="' + k + '" width="30" height="30"></canvas>' : ''}<span>${day}</span></div>`;
+    }
+    const mn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    $('#scr-daily').innerHTML = `
+      <div class="sc-head">
+        <button class="hicon" data-nav="home">${IC.back}</button>
+        <h1>Daily</h1>
+        <button class="hicon" data-act="toggle-theme">${Store.data.settings.theme === 'dark' ? IC.sun : IC.moon}</button>
+        <button class="hicon" data-nav="help">${IC.help}</button>
+        <button class="hicon" data-nav="settings">${IC.gear}</button>
+      </div>
+      <div class="sc-body">
+        <div class="day-hero">
+          <div class="dh-k">${['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][now.getDay()]}</div>
+          <div class="dh-t">${mn[now.getMonth()]} ${now.getDate()}</div>
+          <div class="dh-r">
+            <span class="dh-tag">${IC.grid} ${spec.size}×${spec.size}</span>
+            <span class="dh-tag">${IC.flame} ${d.daily.streak || 0} day${d.daily.streak === 1 ? '' : 's'}</span>
+            ${doneToday ? `<span class="dh-tag" style="color:var(--teal)">${IC.check} Solved ${fmtTime(doneToday.t)}</span>` : ''}
+            <button class="btn teal" data-act="play-daily" style="margin-left:auto;min-height:40px">
+              ${doneToday ? IC.refresh : IC.play}<span>${doneToday ? 'Replay' : 'Play'}</span></button>
+          </div>
+        </div>
+        <div class="sect-k">${mn[now.getMonth()]} ${now.getFullYear()}</div>
+        <div class="cal">${cal}</div>
+        <p style="font-size:11px;letter-spacing:.6px;color:var(--muted);text-align:center;line-height:1.7;margin:18px 6px 0">
+          A brand new picture every day. Solve daily puzzles to keep your streak alive.</p>
+      </div>`;
+    this.show('daily');
+    $$('#scr-daily canvas[data-day]').forEach(cv => {
+      const daySpec = dailySpec(new Date(cv.dataset.day + 'T12:00:00'));
+      const p = getPuzzle(daySpec.size, daySpec.seed);
+      gridToCanvas(p.grid, cv, '#ffffff', null, 2);
+    });
+  },
+
+  /* ---------------- big picture mosaic ---------------- */
+  big(mode, idx) {
+    if (mode) this.bigMode = mode;
+    if (idx != null) this.bigIdx = idx;
+    const m = this.bigMode;
+    const data = getBig(this.bigIdx);
+    const spec = BIG_SPECS[this.bigIdx];
+    const blocks = bigDone(m, this.bigIdx);
+    const doneCount = Object.keys(blocks).length;
+    let tabs = '';
+    BIG_SPECS.forEach((sp, i) => {
+      const d = bigDone(m, i);
+      const fin = Object.keys(d).length >= sp.blocks * sp.blocks;
+      tabs += `<button class="big-thumb ${i === this.bigIdx ? 'on' : ''} ${fin ? 'fin' : ''}" data-big-tab="${i}"><canvas></canvas></button>`;
+    });
+    let cells = '';
+    let firstOpen = -1;
+    for (let i = 0; i < data.blocks.length; i++) {
+      const dn = !!blocks[i];
+      if (!dn && firstOpen < 0) firstOpen = i;
+      cells += `<button class="mcell ${dn ? 'done' : ''} ${!dn && i === firstOpen ? 'cur' : ''}" data-big-block="${i}" ${m === 'expert' && i > 0 && !blocks[i - 1] ? 'disabled' : ''}>
+        <canvas></canvas><span class="q">${dn ? '' : (i + 1)}</span></button>`;
+    }
+    $('#scr-big').innerHTML = `
+      <div class="sc-head">
+        <button class="hicon" data-nav="home">${IC.back}</button>
+        <h1>Big Picture</h1>
+        <button class="hicon" data-act="toggle-theme">${Store.data.settings.theme === 'dark' ? IC.sun : IC.moon}</button>
+        <button class="hicon" data-nav="help">${IC.help}</button>
+        <button class="hicon" data-nav="settings">${IC.gear}</button>
+      </div>
+      <div class="sc-body">
+        <div class="mode-seg">
+          <button data-big-mode="classic" class="${m === 'classic' ? 'on' : ''}">Classic</button>
+          <button data-big-mode="expert" class="${m === 'expert' ? 'on' : ''}">Expert</button>
+        </div>
+        <div class="big-tabs">${tabs}</div>
+        <div class="big-meta"><b>${spec.label} · ${data.name}</b><span>${doneCount}/${data.blocks.length} sections</span></div>
+        <div class="mosaic" style="grid-template-columns:repeat(${spec.blocks},1fr)">${cells}</div>
+        <div class="big-complete">
+          <button class="btn ghost" data-act="big-preview">${IC.grid}<span>Preview</span></button>
+          <button class="btn" data-act="big-continue" ${doneCount >= data.blocks.length ? 'disabled' : ''}>${IC.play}<span>${doneCount ? 'Continue' : 'Start'}</span></button>
+        </div>
+        <p style="font-size:11px;letter-spacing:.6px;color:var(--muted);text-align:center;line-height:1.7;margin:16px 6px 0">
+          Each tile is a ${spec.sub}×${spec.sub} nonogram. Solve every section to assemble one large ${spec.n}×${spec.n} pixel picture — like a jigsaw.</p>
+      </div>`;
+    this.show('big');
+    const fillCol = cssVar('--fill');
+    $$('#scr-big .big-thumb canvas').forEach((cv, i) => gridToCanvas(getBig(i).grid, cv, fillCol, null, 1));
+    $$('#scr-big .mcell canvas').forEach((cv, i) => {
+      if (blocks[i]) gridToCanvas(data.blocks[i].grid, cv, fillCol, null, 2);
+      else cv.style.opacity = '.07', gridToCanvas(data.blocks[i].grid, cv, fillCol, null, 2);
+    });
+  },
+
+  startBig(block) {
+    const spec = BIG_SPECS[this.bigIdx], data = getBig(this.bigIdx);
+    const b = data.blocks[block];
+    this.launch({
+      kind: 'big', mode: this.bigMode, bigMode: this.bigMode, bigIdx: this.bigIdx, block,
+      gridOverride: b.grid, cluesOverride: b.clues, name: spec.label,
+      title: 'Big Picture · ' + spec.label,
+      sub: 'Section ' + (block + 1) + '/' + data.blocks.length + ' · ' + spec.sub + '²',
+      expert: this.bigMode === 'expert'
+    });
+  },
+
+  bigReveal() {
+    const data = getBig(this.bigIdx), spec = BIG_SPECS[this.bigIdx], m = this.bigMode;
+    const blocks = bigDone(m, this.bigIdx);
+    const fin = Object.keys(blocks).length >= data.blocks.length;
+    const ov = this.overlay(`
+      <div class="sheet">
+        <h2>${fin ? 'Mosaic Complete' : 'Work In Progress'}</h2>
+        <div class="win-art"><canvas id="big-cv"></canvas>
+          ${fin ? `<span class="win-check">${IC.check}</span>` : ''}</div>
+        <div class="win-stats">
+          <div><span>Size</span><b>${spec.n}²</b></div>
+          <div><span>Sections</span><b>${Object.keys(blocks).length}/${data.blocks.length}</b></div>
+          <div><span>Mode</span><b>${m === 'expert' ? 'Expert' : 'Classic'}</b></div>
+        </div>
+        <div class="row"><button class="btn" data-act="close">${fin ? IC.check : IC.back}<span>${fin ? 'Great' : 'Back'}</span></button></div>
+      </div>`);
+    gridToCanvas(data.grid, ov.querySelector('#big-cv'), cssVar('--fill'), null, 2);
+    if (fin) { Snd.win(); setTimeout(() => pixelBurst($('#fx')), 200); }
+  },
+
+  overlay(html, cls) {
+    const host = $('#overlays'), ov = document.createElement('div');
+    ov.className = 'ov' + (cls ? ' ' + cls : '');
+    ov.innerHTML = html; host.appendChild(ov);
+    requestAnimationFrame(() => ov.classList.add('on'));
+    return ov;
+  },
+  close(ov) {
+    if (!ov) return;
+    ov.classList.remove('on');
+    setTimeout(() => ov.remove(), 240);
+    if (!$('#overlays').children.length && Game.s && !Game.finished) {
+      Game.s.running = true;
+      Game.s.t0 = Date.now() - Game.s.elapsed * 1000;
+    }
+  },
+  topOverlay() { const c = $('#overlays').children; return c[c.length - 1]; },
+
+  genOverlay() {
+    return this.overlay(`<div class="sheet" style="max-width:230px;padding:26px">
+      <div class="gen"><div class="load-bar"><i style="width:70%"></i></div>
+      <div class="load-txt">Generating</div></div></div>`);
+  },
+  launch(opts) {
+    const ov = this.genOverlay();
+    setTimeout(() => {
+      try { Game.start(opts); } catch (e) { console.error(e); toast('Could not load puzzle'); this.close(ov); return; }
+      this.close(ov);
+    }, 260);
+  },
+
+  startPuzzle(mode, tab, idx) {
+    const size = sizeFor(tab, idx);
+    this.mode = mode; this.tab = tab;
+    this.launch({
+      kind: mode, mode, tab, idx, size, seed: puzzleSeed(mode, tab, idx),
+      title: mode === 'classic' ? 'Classic Mode' : 'Expert Mode',
+      sub: TABS[tab].label + ' · No. ' + (idx + 1), expert: mode === 'expert'
+    });
+  },
+  quickStart() {
+    /* resume an unfinished puzzle first */
+    const lk = Store.data.lastDraft;
+    if (lk && Store.data.drafts[lk]) {
+      if (this.resumeDraft(lk)) return;
+    }
+    let target = null;
+    for (let t = 0; t < TABS.length && !target; t++) {
+      const i = firstUnsolved('classic', t);
+      if (i >= 0) target = { tab: t, idx: i };
+    }
+    if (!target) { this.levels('classic', 0); toast('Every classic puzzle is solved. Master!'); return; }
+    this.startPuzzle('classic', target.tab, target.idx);
+  },
+  resumeDraft(lk) {
+    const [mode, a, b] = lk.split(':');
+    if (mode === 'c' || mode === 'e') {
+      this.startPuzzle(mode === 'e' ? 'expert' : 'classic', +a, +b);
+      return true;
+    }
+    if (mode === 'd') { this.startDaily(); return true; }
+    if (mode === 'b') {
+      const [bm, bi, blk] = lk.slice(2).split(':');
+      this.bigMode = bm; this.bigIdx = +bi; this.startBig(+blk);
+      return true;
+    }
+    return false;
+  },
+  startDaily() {
+    const spec = dailySpec(), dt = new Date();
+    const mn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    this.launch({
+      kind: 'daily', mode: 'daily', tab: 0, idx: 0, size: spec.size, seed: spec.seed,
+      title: 'Daily Challenge', sub: mn[dt.getMonth()] + ' ' + dt.getDate() + ' · ' + spec.size + '×' + spec.size
+    });
+  },
+
+  winModal() {
+    const s = Game.s;
+    let stars = '';
+    for (let i = 0; i < 3; i++) stars += `<svg viewBox="0 0 24 24" width="22" height="22" fill="${i < s.stars ? '#f2b53b' : 'var(--line)'}" stroke="none"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z"/></svg>`;
+    const isDaily = s.kind === 'daily', isBig = s.kind === 'big';
+    let bigAll = false, nextBlock = -1;
+    if (isBig) {
+      const data = getBig(s.bigIdx), blocks = bigDone(s.bigMode, s.bigIdx);
+      for (let i = 0; i < data.blocks.length; i++) if (!blocks[i]) { nextBlock = i; break; }
+      bigAll = nextBlock < 0;
+    }
+    const nextIdx = s.idx + 1;
+    const canNext = !isDaily && !isBig && (nextIdx < PER_TAB || s.tab < TABS.length - 1);
+    const nextBtn = isBig
+      ? (bigAll
+        ? `<button class="btn" data-act="big-final">${IC.grid}<span>Mosaic</span></button>`
+        : `<button class="btn" data-act="big-next">${IC.play}<span>Next</span></button>`)
+      : isDaily ? '' : canNext
+        ? `<button class="btn" data-act="next">${IC.play}<span>Next</span></button>`
+        : `<button class="btn" data-act="win-menu2"><span>Done</span></button>`;
+    const ov = this.overlay(`
+      <div class="sheet win">
+        <div class="win-art">
+          <canvas id="win-cv"></canvas>
+          <span class="win-check">${IC.check}</span>
+        </div>
+        <h2>${isBig ? 'Section Complete' : 'Complete!'}</h2>
+        <div style="display:flex;gap:3px;justify-content:center;margin:8px 0 2px">${stars}</div>
+        <div class="win-stats">
+          <div><span>Time</span><b>${fmtTime(s.elapsed)}</b></div>
+          <div><span>Size</span><b>${s.size}²</b></div>
+          <div><span>Hints</span><b>${s.hintsUsed}</b></div>
+        </div>
+        <div class="row">
+          <button class="btn ghost" data-act="win-menu" aria-label="Menu" style="flex:0 0 auto;padding:0 16px">${IC.home}</button>
+          <button class="btn ghost" data-act="replay">${IC.refresh}<span>Replay</span></button>
+          ${nextBtn}
+        </div>
+      </div>`);
+    gridToCanvas(s.grid, ov.querySelector('#win-cv'), cssVar('--fill'), null, 3);
+    Snd.open();
+    setTimeout(() => pixelBurst($('#fx')), 250);
+  },
+
+  pauseQuit() {
+    const ov = this.overlay(`
+      <div class="sheet">
+        <h2>Quit Puzzle?</h2>
+        <p>Your progress on this picture will not be saved.</p>
+        <div class="row">
+          <button class="btn ghost" data-act="close">Keep Playing</button>
+          <button class="btn" data-act="quit-yes" style="background:linear-gradient(180deg,#e26470,#c7485a);box-shadow:0 2px 0 #a23a49">Quit</button>
+        </div>
+      </div>`);
+    if (Game.s) Game.s.running = false;
+    return ov;
+  },
+
+  settings() {
+    const s = Store.data.settings;
+    if (Game.s) Game.s.running = false;
+    const row = (key, label, desc) => `
+      <div class="set-row"><div class="st"><b>${label}</b>${desc ? `<small>${desc}</small>` : ''}</div>
+      <button class="sw ${s[key] ? 'on' : ''}" data-set="${key}"></button></div>`;
+    return this.overlay(`
+      <div class="sheet">
+        <h2>Settings</h2>
+        <div style="margin-top:12px">
+          ${row('sound', 'Sound Effects', 'Clicks and chimes')}
+          ${row('music', 'Ambient Music', 'Soft background tones')}
+          ${row('autoX', 'Auto X Marks', 'Cross out finished lines')}
+          ${row('crosshair', 'Crosshair', 'Highlight active row & column')}
+          ${row('timer', 'Timer', 'Show elapsed time')}
+        </div>
+        <div class="set-row" style="border-bottom:0">
+          <div class="st"><b>Theme</b></div>
+          <div class="seg2">
+            <button data-theme-set="light" class="${s.theme === 'light' ? 'on' : ''}">Light</button>
+            <button data-theme-set="dark" class="${s.theme === 'dark' ? 'on' : ''}">Dark</button>
+          </div>
+        </div>
+        <div class="row">
+          <button class="btn ghost" data-act="tutorial">${IC.help}<span>How To</span></button>
+          <button class="btn ghost" data-act="reset">Reset</button>
+        </div>
+        <div class="row"><button class="btn" data-act="close">Done</button></div>
+      </div>`);
+  },
+
+  tutorial(force) {
+    if (!force && Store.data.tut) return;
+    if (Game.s) Game.s.running = false;
+    const ov = this.overlay(`
+      <div class="sheet">
+        <h2>How To Play</h2>
+        <p style="margin-top:6px">Use the number clues to reveal the hidden pixel picture.</p>
+        <div class="tut-grid" id="tut-grid" style="margin-top:14px"></div>
+        <div class="tut-step"><span class="n">1</span><div><b>The Clues</b>
+          <p>Each number is a run of filled cells. “2 1” means two filled, a gap, then one.</p></div></div>
+        <div class="tut-step"><span class="n">2</span><div><b>Fill &amp; Cross</b>
+          <p>Tap (or drag) to fill cells with the pen. Switch to ✕ (or right-click) to mark empty cells.</p></div></div>
+        <div class="tut-step"><span class="n">3</span><div><b>Pure Logic</b>
+          <p>Every puzzle can be solved without guessing. Finished lines cross out automatically.</p></div></div>
+        <div class="tut-step"><span class="n">4</span><div><b>Hints &amp; Keys</b>
+          <p>Three hints per puzzle. Keys: Z undo, Y redo, space switch tool, +/- zoom, H hint.</p></div></div>
+        <div class="row"><button class="btn" data-act="close-tut">Got It</button></div>
+      </div>`);
+    const g = ov.querySelector('#tut-grid'), cells = [];
+    const pat = ['.#.#.', '#####', '#####', '.###.', '..#..'];
+    for (let i = 0; i < 25; i++) { const el = document.createElement('i'); g.appendChild(el); cells.push(el); }
+    let step = 0;
+    const run = () => {
+      step = (step + 1) % 42;
+      for (let i = 0; i < 25; i++) {
+        const x = i % 5, y = (i / 5) | 0, filled = pat[y][x] === '#';
+        cells[i].className = step > (x + y * 1.5) * 2.2 ? (filled ? 'f' : 'x') : '';
+      }
+    };
+    run();
+    if (this.tutTimer) clearInterval(this.tutTimer);
+    this.tutTimer = setInterval(run, 150);
+    return ov;
+  },
+
+  confirmReset() {
+    return this.overlay(`
+      <div class="sheet">
+        <h2>Reset All?</h2>
+        <p>Every solved puzzle and streak will be erased.</p>
+        <div class="row">
+          <button class="btn ghost" data-act="close">Cancel</button>
+          <button class="btn" data-act="reset-yes" style="background:linear-gradient(180deg,#e26470,#c7485a);box-shadow:0 2px 0 #a23a49">Reset</button>
+        </div>
+      </div>`);
+  }
+};
+
+function drawChipIcon(canvas, kind) {
+  const ctx = canvas.getContext('2d'), S = 6;
+  const px = (x, y, w, h, c) => { ctx.fillStyle = c; ctx.fillRect(x * S, y * S, w * S, h * S); };
+  ctx.clearRect(0, 0, 54, 54);
+  if (kind === 'daily') {
+    const c = '#2fae8e';
+    px(1, 1, 7, 1, c); px(1, 7, 7, 1, c); px(1, 1, 1, 7, c); px(7, 1, 1, 7, c);
+    px(1, 3, 7, 1, c); px(2, 0, 1, 2, c); px(6, 0, 1, 2, c);
+    px(2, 4, 1, 1, '#8fdcc6'); px(4, 4, 1, 1, '#8fdcc6'); px(2, 6, 1, 1, c); px(4, 6, 2, 1, '#8fdcc6');
+  } else if (kind === 'classic') {
+    const c = '#0e7cc4';
+    px(0, 0, 9, 1, c); px(0, 8, 9, 1, c); px(0, 0, 1, 9, c); px(8, 0, 1, 9, c);
+    px(0, 4, 9, 1, c); px(4, 0, 1, 9, c);
+    px(1, 1, 2, 2, c); px(5, 1, 2, 1, c); px(1, 5, 1, 2, c); px(5, 5, 2, 2, c); px(2, 6, 1, 1, '#7fb6dd');
+  } else {
+    const c = '#39538f';
+    px(0, 0, 9, 1, c); px(0, 8, 9, 1, c); px(0, 0, 1, 9, c); px(8, 0, 1, 9, c);
+    px(0, 4, 9, 1, c); px(4, 0, 1, 9, c);
+    ctx.fillStyle = c; ctx.font = 'bold 10px ui-monospace, Menlo, Consolas, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('?', 2.5 * S, 2.5 * S); ctx.fillText('?', 6.5 * S, 2.5 * S);
+    ctx.fillText('?', 2.5 * S, 6.5 * S); ctx.fillText('?', 6.5 * S, 6.5 * S);
+  }
+}
+
+/* ---------------- events ---------------- */
+document.addEventListener('click', e => {
+  const t = e.target;
+  if (!t || !t.closest) return;
+  Snd.resume();
+  const nav = t.closest('[data-nav]');
+  if (nav) {
+    Snd.tap();
+    const to = nav.dataset.nav;
+    if (to === 'home') { Game.quit(); UI.home(); }
+    else if (to === 'classic') UI.levels('classic', 0);
+    else if (to === 'expert') UI.levels('expert', 0);
+    else if (to === 'daily') UI.daily();
+    else if (to === 'big') UI.big();
+    else if (to === 'quick') UI.quickStart();
+    else if (to === 'settings') UI.settings();
+    else if (to === 'help') UI.tutorial(true);
+    return;
+  }
+  const bm = t.closest('[data-big-mode]');
+  if (bm) { Snd.tap(); UI.big(bm.dataset.bigMode, UI.bigIdx); return; }
+  const bt = t.closest('[data-big-tab]');
+  if (bt) { Snd.tap(); UI.big(UI.bigMode, +bt.dataset.bigTab); return; }
+  const bb = t.closest('[data-big-block]');
+  if (bb && !bb.disabled) { Snd.tap(); UI.startBig(+bb.dataset.bigBlock); return; }
+  const tab = t.closest('[data-tab]');
+  if (tab) { Snd.tap(); UI.levels(UI.mode, +tab.dataset.tab); return; }
+  const lvl = t.closest('[data-level]');
+  if (lvl) { Snd.tap(); UI.startPuzzle(UI.mode, UI.tab, +lvl.dataset.level); return; }
+  const tool = t.closest('[data-tool]');
+  if (tool) { Game.setTool(tool.dataset.tool); return; }
+  const th = t.closest('[data-theme-set]');
+  if (th) {
+    Store.data.settings.theme = th.dataset.themeSet; Store.save(); applyTheme(); Snd.tap();
+    $$('[data-theme-set]').forEach(b => b.classList.toggle('on', b.dataset.themeSet === Store.data.settings.theme));
+    if (UI.cur === 'levels') UI.levels();
+    else if (UI.cur === 'daily') UI.daily();
+    else if (UI.cur === 'big') UI.big();
+    return;
+  }
+  const sw = t.closest('[data-set]');
+  if (sw) {
+    const k = sw.dataset.set;
+    Store.data.settings[k] = !Store.data.settings[k]; Store.save();
+    sw.classList.toggle('on', Store.data.settings[k]); Snd.tap();
+    Snd.on = Store.data.settings.sound;
+    if (k === 'music') Store.data.settings.music ? Snd.startMusic() : Snd.stopMusic();
+    if (k === 'crosshair' && Game.s) Game.updateCross();
+    if (k === 'timer' && Game.s) { const el = $('#txt-time'); if (el) el.textContent = Store.data.settings.timer ? fmtTime(Game.s.elapsed) : '--:--'; }
+    return;
+  }
+  const act = t.closest('[data-act]');
+  if (!act) return;
+  const a = act.dataset.act;
+  if (a === 'quit') { if (Game.s && !Game.finished) UI.pauseQuit(); }
+  else if (a === 'settings') UI.settings();
+  else if (a === 'help') UI.tutorial(true);
+  else if (a === 'toggle-theme') {
+    Store.data.settings.theme = Store.data.settings.theme === 'dark' ? 'light' : 'dark';
+    Store.save(); applyTheme(); Snd.tap();
+    if (UI.cur === 'levels') UI.levels();
+    else if (UI.cur === 'daily') UI.daily();
+    else if (UI.cur === 'big') UI.big();
+  }
+  else if (a === 'undo') Game.undo();
+  else if (a === 'redo') Game.redo();
+  else if (a === 'hint') Game.hint();
+  else if (a === 'zoomin') Game.setZoom(Game.s.zoom + .2);
+  else if (a === 'zoomout') Game.setZoom(Game.s.zoom - .2);
+  else if (a === 'play-daily') UI.startDaily();
+  else if (a === 'big-preview') UI.bigReveal();
+  else if (a === 'big-continue') {
+    const data = getBig(UI.bigIdx), blocks = bigDone(UI.bigMode, UI.bigIdx);
+    let nx = 0;
+    for (let i = 0; i < data.blocks.length; i++) if (!blocks[i]) { nx = i; break; }
+    UI.startBig(nx);
+  }
+  else if (a === 'big-next' || a === 'big-final') {
+    const ov2 = act.closest('.ov'); UI.close(ov2);
+    const s = Game.s;
+    if (a === 'big-final') {
+      UI.bigIdx = s.bigIdx; UI.bigMode = s.bigMode;
+      Game.s = null; UI.big(s.bigMode, s.bigIdx);
+      setTimeout(() => UI.bigReveal(), 320);
+    } else {
+      const data = getBig(s.bigIdx), blocks = bigDone(s.bigMode, s.bigIdx);
+      let nx = s.block + 1;
+      while (nx < data.blocks.length && blocks[nx]) nx++;
+      UI.bigMode = s.bigMode; UI.bigIdx = s.bigIdx;
+      UI.startBig(nx);
+    }
+  }
+  else if (a === 'close') { UI.close(act.closest('.ov')); if (UI.tutTimer) { clearInterval(UI.tutTimer); UI.tutTimer = null; } }
+  else if (a === 'close-tut') {
+    Store.data.tut = true; Store.save();
+    clearInterval(UI.tutTimer); UI.tutTimer = null;
+    UI.close(act.closest('.ov'));
+  }
+  else if (a === 'tutorial') {
+    const old = act.closest('.ov'); if (old) UI.close(old);
+    setTimeout(() => UI.tutorial(true), 120);
+  }
+  else if (a === 'reset') UI.confirmReset();
+  else if (a === 'reset-yes') {
+    localStorage.removeItem(SAVE_KEY); Store.load(); applyTheme();
+    $$('#overlays .ov').forEach(o => UI.close(o));
+    Game.quit(); Game.s = null;
+    UI.home(); toast('Progress reset');
+  }
+  else if (a === 'quit-yes') {
+    const ov = act.closest('.ov'); UI.close(ov); Game.quit();
+    const s = Game.s;
+    if (s.kind === 'daily') { Game.s = null; UI.daily(); }
+    else if (s.kind === 'big') { UI.bigMode = s.bigMode; UI.bigIdx = s.bigIdx; Game.s = null; UI.big(s.bigMode, s.bigIdx); }
+    else { const mode = s.mode, tb = s.tab; Game.s = null; UI.levels(mode, tb); }
+  }
+  else if (a === 'replay') {
+    UI.close(act.closest('.ov'));
+    const s = Game.s;
+    if (s.kind === 'daily') UI.startDaily();
+    else if (s.kind === 'big') { UI.bigMode = s.bigMode; UI.bigIdx = s.bigIdx; UI.startBig(s.block); }
+    else UI.startPuzzle(s.mode, s.tab, s.idx);
+  }
+  else if (a === 'next') {
+    UI.close(act.closest('.ov'));
+    const s = Game.s;
+    if (s.idx + 1 < PER_TAB) UI.startPuzzle(s.mode, s.tab, s.idx + 1);
+    else if (s.tab < TABS.length - 1) { toast('Entering ' + TABS[s.tab + 1].label); UI.startPuzzle(s.mode, s.tab + 1, 0); }
+  }
+  else if (a === 'win-menu' || a === 'win-menu2') {
+    UI.close(act.closest('.ov'));
+    const s = Game.s;
+    if (s.kind === 'daily') { Game.s = null; UI.daily(); }
+    else if (s.kind === 'big') { UI.bigMode = s.bigMode; UI.bigIdx = s.bigIdx; Game.s = null; UI.big(s.bigMode, s.bigIdx); }
+    else { const mode = s.mode, tb = s.tab; Game.s = null; UI.levels(mode, tb); }
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const ov = UI.topOverlay();
+    if (ov) { if (!ov.classList.contains('win')) UI.close(ov); return; }
+    if (UI.cur === 'game' && Game.s && !Game.finished) UI.pauseQuit();
+    else if (UI.cur !== 'home' && UI.cur !== 'load') UI.home();
+    return;
+  }
+  if ($('#overlays').children.length) return;
+  if (UI.cur !== 'game' || !Game.s) return;
+  const k = e.key.toLowerCase();
+  if (k === 'z' && !(e.ctrlKey || e.metaKey)) { e.preventDefault(); Game.undo(); }
+  else if (k === 'y' || ((e.ctrlKey || e.metaKey) && k === 'y')) { e.preventDefault(); Game.redo(); }
+  else if ((e.ctrlKey || e.metaKey) && k === 'z') { e.preventDefault(); e.shiftKey ? Game.redo() : Game.undo(); }
+  else if (k === 'x') Game.setTool('x');
+  else if (k === 'f') Game.setTool('pen');
+  else if (k === 'h') Game.hint();
+  else if (k === '+' || k === '=') { e.preventDefault(); Game.setZoom(Game.s.zoom + .2); }
+  else if (k === '-' || k === '_') { e.preventDefault(); Game.setZoom(Game.s.zoom - .2); }
+  else if (k === ' ') { e.preventDefault(); Game.setTool(Game.s.tool === 'pen' ? 'x' : 'pen'); }
+  else if (k === 'enter' && Game.hover.x >= 0) {
+    const n = Game.s.size, i = Game.hover.y * n + Game.hover.x, cur = Game.s.st[i];
+    const to = Game.s.tool === 'pen' ? (cur === 1 ? 0 : 1) : (cur === 2 ? 0 : 2);
+    Game.s.st[i] = to; Game.paintCell(i, true);
+    Game.s.hist.push([[i, cur, to]]); Game.s.future.length = 0; Game.updateUndo();
+    to === 1 ? Snd.fill() : to === 2 ? Snd.mark() : Snd.unfill();
+    Game.afterChange([i]); Game.checkWin();
+  }
+  else if (k.startsWith('arrow')) {
+    e.preventDefault();
+    const n = Game.s.size;
+    let x = Game.hover.x < 0 ? 0 : Game.hover.x, y = Game.hover.y < 0 ? 0 : Game.hover.y;
+    if (k === 'arrowleft') x = clamp(x - 1, 0, n - 1);
+    if (k === 'arrowright') x = clamp(x + 1, 0, n - 1);
+    if (k === 'arrowup') y = clamp(y - 1, 0, n - 1);
+    if (k === 'arrowdown') y = clamp(y + 1, 0, n - 1);
+    Game.setHover(x, y);
+    const bv = $('#bv');
+    const cxp = Game.clueW + (x + .5) * Game.cs, cyp = Game.clueH + (y + .5) * Game.cs;
+    if (cxp < bv.scrollLeft + 40) bv.scrollLeft = cxp - 70;
+    if (cxp > bv.scrollLeft + bv.clientWidth - 40) bv.scrollLeft = cxp - bv.clientWidth + 70;
+    if (cyp < bv.scrollTop + 40) bv.scrollTop = cyp - 70;
+    if (cyp > bv.scrollTop + bv.clientHeight - 40) bv.scrollTop = cyp - bv.clientHeight + 70;
+  }
+});
+
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('touchmove', e => {
+  if (!e.target || !e.target.closest) return;
+  const onBoard = !!e.target.closest('.bv');
+  if (!onBoard) return;
+  if (Game.panning) { e.preventDefault(); return; }
+  if (Game.drag && e.touches && e.touches.length === 1 && e.target.closest('#cells')) e.preventDefault();
+}, { passive: false });
+window.addEventListener('beforeunload', () => Store.save());
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && Game.s && !Game.finished) Game.s.running = false;
+  else if (!document.hidden && Game.s && !Game.finished && UI.cur === 'game' && !$('#overlays').children.length) {
+    Game.s.running = true; Game.s.t0 = Date.now() - Game.s.elapsed * 1000;
+  }
+});
+
+function applyTheme() {
+  const t = Store.data.settings.theme === 'dark' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = t;
+  const m = document.querySelector('meta[name=theme-color]');
+  if (m) m.setAttribute('content', t === 'dark' ? '#121826' : '#dcebf8');
+}
+
+/* ---------------- boot ---------------- */
+(function boot() {
+  Store.load();
+  applyTheme();
+  Snd.on = Store.data.settings.sound;
+  const mark = $('#load-mark');
+  for (let i = 0; i < 16; i++) mark.appendChild(document.createElement('i'));
+  const fill = $('#load-fill');
+  let p = 0;
+  const t = setInterval(() => {
+    p += 7 + Math.random() * 13;
+    fill.style.width = Math.min(100, p) + '%';
+    if (p >= 100) {
+      clearInterval(t);
+      try { getPuzzle(5, puzzleSeed('classic', 0, 0)); getPuzzle(10, puzzleSeed('classic', 0, 12)); } catch (e) { }
+      setTimeout(() => {
+        makeFloatingSquares();
+        UI.home();
+        const kick = () => {
+          Snd.resume();
+          if (Store.data.settings.music) Snd.startMusic();
+          document.removeEventListener('pointerdown', kick);
+          document.removeEventListener('keydown', kick);
+        };
+        document.addEventListener('pointerdown', kick);
+        document.addEventListener('keydown', kick);
+      }, 300);
+    }
+  }, 95);
+})();
+</script>
+</body>
+</html>

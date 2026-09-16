@@ -61,14 +61,14 @@ html.dark{
   --track:#2c3a50;
 }
 *{box-sizing:border-box}
-html,body{height:100%;margin:0}
+html,body{height:100%;margin:0;overflow:hidden}
 body{
   font-family:"Baloo 2",ui-rounded,"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
   background:#e3f0fa;color:var(--text);-webkit-font-smoothing:antialiased;
   overscroll-behavior:none;
 }
 html.dark body{background:#0c1320}
-#app{height:100dvh;overflow:hidden;position:relative}
+#app{width:100%;height:100%;height:100dvh;overflow:hidden;position:relative}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;padding:0}
 .mono{font-family:"Roboto Mono",ui-monospace,Consolas,monospace}
 .ic{width:1em;height:1em;display:block;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
@@ -224,14 +224,15 @@ html.dark .cal .d.future{opacity:.22;background:#101726;border-color:#1b2536}
 
 .daily-subtext{font-size:11.5px;letter-spacing:.6px;color:var(--muted);text-align:center;line-height:1.7;margin:18px 6px 0}
 
-/* ============ BIG PICTURE MOSAIC ============ */
 .mosaic-link{
   display:flex;align-items:center;gap:14px;width:100%;text-align:left;
-  border-radius:18px;border:2px dashed var(--brand);background:var(--brand-tint);
+  border-radius:18px;border:2px dashed var(--brand);background:#e4f1fb;
   padding:14px 18px;color:var(--text);animation:slide-up .32s ease-out .15s both;
   transition:transform .15s ease,box-shadow .15s ease,background .15s ease;
 }
-.mosaic-link:hover{transform:translateY(-2px);background:rgba(45,134,199,.15)}
+html.dark .mosaic-link{background:#16253b}
+.mosaic-link:hover{transform:translateY(-2px);background:#d5e9f8}
+html.dark .mosaic-link:hover{background:#1c314f}
 .mosaic-link-ic{
   width:48px;height:48px;flex:0 0 auto;border-radius:12px;
   background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;
@@ -279,6 +280,10 @@ html.dark .cal .d.future{opacity:.22;background:#101726;border-color:#1b2536}
   border:2px solid var(--border);border-radius:18px;padding:8px;box-shadow:0 8px 24px var(--shadow);
   width:100%;max-width:min(320px, 38vh);aspect-ratio:1/1;margin:0 auto;
 }
+.mosaic-board.all-fin{
+  border-color:#12a880;
+  box-shadow:0 0 0 2px rgba(18,168,128,.25), 0 8px 24px var(--shadow);
+}
 .mcell{
   position:relative;aspect-ratio:1/1;border-radius:10px;overflow:hidden;
   background:var(--card-2);border:2px solid var(--border);cursor:pointer;
@@ -319,9 +324,9 @@ html.dark .mcell.done{background:var(--card);border-color:#3cd4aa}
 .chip.bad{color:#ef4444}
 .g-title{text-align:center;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:2px 10px 0}
 @media(min-width:640px){#gTitleSmall{display:none}}
-.board-wrap{flex:1;min-height:0;overflow:auto;display:flex;justify-content:safe center;align-items:safe center;padding:8px;scrollbar-width:thin}
+.board-wrap{flex:1;min-height:0;overflow:hidden;display:flex;justify-content:center;align-items:center;padding:8px}
 @media(min-width:640px){.board-wrap{padding:16px}}
-.board{margin:2px;position:relative;touch-action:none;border:2px solid var(--sep);border-radius:12px;overflow:hidden;background:var(--card);box-shadow:0 10px 30px var(--shadow);display:grid}
+.board{margin:2px;position:relative;touch-action:none;border:2px solid var(--sep);border-radius:12px;overflow:hidden;background:var(--card);box-shadow:none;display:grid}
 .corner{background:var(--clue-bg);border-right:2px solid var(--sep);border-bottom:2px solid var(--sep)}
 .cc{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;padding:0 3px 4px;background:var(--clue-bg);border-bottom:2px solid var(--sep)}
 .rc{display:flex;align-items:center;justify-content:flex-end;gap:4px;padding:3px 7px;background:var(--clue-bg);border-right:2px solid var(--sep)}
@@ -386,7 +391,14 @@ html.dark .switch{background:#3a4a60}
 
 /* win */
 .win-modal{max-width:380px;text-align:center}
-.win-art{width:150px;margin:12px auto 0;border-radius:16px;border:2px solid var(--border);background:var(--card);padding:8px;animation:win-bounce .5s cubic-bezier(.34,1.56,.64,1) both}
+.win-art{
+  width:min(180px,48vw);aspect-ratio:1/1;margin:10px auto 0;
+  border-radius:18px;border:2px solid var(--border);background:var(--card);
+  padding:10px;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 10px 25px rgba(45,90,130,.12);
+  animation:win-bounce .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+.win-art .thumb{width:100%;height:100%;border-radius:4px;overflow:hidden}
 @keyframes win-bounce{0%{transform:scale(.6)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
 .stars{display:flex;justify-content:center;gap:8px;margin:12px 0 4px}
 .star-ic{font-size:36px;color:var(--track)}
@@ -1125,11 +1137,14 @@ function renderMosaicScreen(bigIdx, subMode){
             '<b>'+spec.label+'</b>'+
             '<span>'+doneCount+' / 9 Sections</span>'+
           '</div>'+
-          '<div class="mosaic-board">'+cellsHTML+'</div>'+
+          '<div class="mosaic-board '+(isAllFin?'all-fin':'')+'">'+cellsHTML+'</div>'+
           '<div class="mosaic-actions">'+
             '<button class="btn-ghost press" style="flex:1" data-act="preview">'+icon("classic")+' <span>Preview</span></button>'+
             '<button class="btn-primary press" style="flex:1" data-act="play-next">'+
               icon(isAllFin?"restart":"play")+' <span>'+(isAllFin?"Replay":(doneCount>0?"Continue":"Start"))+'</span>'+
+            '</button>'+
+            '<button class="btn-ghost press" style="padding:9px 12px;font-size:12.5px;color:#f59e0b;border-color:rgba(245,158,11,.4)" data-act="test-toggle" title="'+(isAllFin?'Reset test for this mosaic':'Instantly solve all 9 parts for testing')+'">'+
+              '⚡ '+(isAllFin?'Reset Test':'Test Solve')+
             '</button>'+
           '</div>'+
           '<p class="daily-subtext" style="margin:2px 0 0;font-size:11px;line-height:1.4">'+
@@ -1163,6 +1178,24 @@ function renderMosaicScreen(bigIdx, subMode){
   app.querySelector('[data-act="preview"]').onclick=()=>{
     sound.click();
     showMosaicPreview(bigIdx,subMode);
+  };
+
+  app.querySelector('[data-act="test-toggle"]').onclick=()=>{
+    sound.click();
+    const all=loadMosaic();
+    const k=subMode+":"+bigIdx;
+    if(isAllFin){
+      delete all[k];
+      saveMosaic(all);
+    } else {
+      if(!all[k])all[k]={};
+      for(let i=0;i<9;i++){
+        all[k][i]={time:45,mistakes:0,hints:0,stars:3,date:new Date().toISOString()};
+      }
+      saveMosaic(all);
+    }
+    refreshStores();
+    renderMosaicScreen(bigIdx, subMode);
   };
 
   app.querySelector('[data-act="play-next"]').onclick=()=>{
@@ -1236,11 +1269,11 @@ function startMosaicGame(bigIdx,subMode,blockId){
 /* ==================================================================
    LEVEL SELECT
    ================================================================== */
-function renderLevelSelect(mode){
+function renderLevelSelect(mode, initialTab){
   if(G.cleanup){G.cleanup();G.cleanup=null;}
   closeModal();
   refreshStores();
-  let tab=5;
+  let tab=initialTab || (G.screen && G.screen.size) || 5;
   function draw(){
     const tabDefs=[{n:5,label:"SMALL",ic:"sizeS"},{n:10,label:"MEDIUM",ic:"sizeM"},{n:15,label:"LARGE",ic:"sizeL"}];
     let tabsHTML="";
@@ -1251,7 +1284,7 @@ function renderLevelSelect(mode){
     for(let id=0;id<LEVELS_PER_SIZE;id++){pz.push(getPuzzle(mode,tab,id));if(firstUnsolved<0&&!G.solved[pz[id].key])firstUnsolved=id;}
     pz.forEach((puzzle,id)=>{
       const rec=G.solved[puzzle.key],isSolved=!!rec,isNext=id===firstUnsolved,inProgress=!isSolved&&!!G.saves[puzzle.key];
-      const showArt=mode==="classic"||isSolved||isNext;
+      const showArt=isSolved;
       let inner;
       if(showArt)inner=thumbHTML(puzzle.grid,puzzle.n);
       else inner='<div class="q">?</div>';
@@ -1275,7 +1308,7 @@ function renderLevelSelect(mode){
     app.querySelector('[data-act="dark"]').onclick=()=>{G.settings.dark=!G.settings.dark;saveSettings(G.settings);applyDark();sound.click();draw();};
     app.querySelector('[data-act="help"]').onclick=()=>{sound.click();showHelp();};
     app.querySelector('[data-act="settings"]').onclick=()=>{sound.click();showSettings();};
-    app.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{sound.click();tab=Number(b.dataset.size);draw();});
+    app.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{sound.click();tab=Number(b.dataset.size);if(G.screen)G.screen.size=tab;draw();});
     app.querySelectorAll(".tile").forEach(b=>b.onclick=()=>{startGame(mode,tab,Number(b.dataset.id));});
   }
   draw();
@@ -1336,8 +1369,11 @@ function startGame(mode,size,id,customDate,customOpts){
   function metrics(){
     const wrap=document.getElementById("boardWrap");
     const kRow=n===5?2.4:n===10?2.9:3.5,kCol=n===5?1.9:n===10?2.7:3.7;
-    const availW=Math.max(200,(wrap?wrap.clientWidth:window.innerWidth)-12);
-    const availH=Math.max(200,(wrap?wrap.clientHeight:window.innerHeight)-12);
+    const isDesktop=window.innerWidth>=640;
+    const padX=isDesktop?36:20;
+    const padY=isDesktop?36:20;
+    const availW=Math.max(180,(wrap?wrap.clientWidth:window.innerWidth)-padX);
+    const availH=Math.max(180,(wrap?wrap.clientHeight:window.innerHeight)-padY);
     const base=Math.min(availW/(n+kRow),availH/(n+kCol));
     const cell=Math.max(14,Math.floor(base*zoom));
     const rowW=Math.floor(cell*kRow),colH=Math.floor(cell*kCol);
@@ -1379,8 +1415,8 @@ function startGame(mode,size,id,customDate,customOpts){
         '<button class="tbtn press" id="tHint" title="Hint" style="color:#f5b840">'+icon("bulb")+'<span class="n" id="hintN">'+hintCount+'</span></button>'+
         '<span class="tdiv"></span>'+
         '<button class="tbtn press" id="tRestart" title="Restart">'+icon("restart")+'</button>'+
-        '<button class="tbtn press" id="tOut" title="Zoom out" disabled>'+icon("zoomout")+'</button>'+
-        '<button class="tbtn press" id="tIn" title="Zoom in">'+icon("zoomin")+'</button>'+
+        /* '<button class="tbtn press" id="tOut" title="Zoom out" disabled>'+icon("zoomout")+'</button>'+
+        '<button class="tbtn press" id="tIn" title="Zoom in">'+icon("zoomin")+'</button>'+ */
       "</div></div>"+
     "</div>";
   const gTitleLong=document.getElementById("gTitleLong");
@@ -1473,8 +1509,8 @@ function startGame(mode,size,id,customDate,customOpts){
     document.getElementById("tUndo").disabled=history.length===0;
     document.getElementById("tRedo").disabled=future.length===0;
     document.getElementById("hintN").textContent=hintCount;
-    document.getElementById("tOut").disabled=zoom<=1.001;
-    document.getElementById("tIn").disabled=zoom>=maxZoom-.001;
+    /* document.getElementById("tOut").disabled=zoom<=1.001;
+    document.getElementById("tIn").disabled=zoom>=maxZoom-.001; */
     document.getElementById("tPen").classList.toggle("active",tool==="pen");
     document.getElementById("tX").classList.toggle("active",tool==="x");
   }
@@ -1665,7 +1701,7 @@ function startGame(mode,size,id,customDate,customOpts){
     sound.click();cleanup();G.cleanup=null;
     if(mode==="daily"){G.screen={name:"daily"};renderDailyScreen();}
     else if(mode==="mosaic"&&customOpts){G.screen={name:"mosaic"};renderMosaicScreen(customOpts.bigIdx,customOpts.subMode);}
-    else{G.screen={name:"select",mode};renderLevelSelect(mode);}
+    else{G.screen={name:"select",mode,size};renderLevelSelect(mode,size);}
   };
   document.getElementById("gHelp").onclick=()=>{sound.click();showHelp();};
   document.getElementById("gSet").onclick=()=>{sound.click();showSettings();};
@@ -1675,8 +1711,8 @@ function startGame(mode,size,id,customDate,customOpts){
   document.getElementById("tRedo").onclick=redo;
   document.getElementById("tHint").onclick=useHint;
   document.getElementById("tRestart").onclick=()=>{sound.click();showRestartConfirm(restart);};
-  document.getElementById("tOut").onclick=()=>{zoom=Math.max(1,+(zoom-.2).toFixed(2));buildBoard();};
-  document.getElementById("tIn").onclick=()=>{zoom=Math.min(maxZoom,+(zoom+.2).toFixed(2));buildBoard();};
+  /* document.getElementById("tOut").onclick=()=>{zoom=Math.max(1,+(zoom-.2).toFixed(2));buildBoard();};
+  document.getElementById("tIn").onclick=()=>{zoom=Math.min(maxZoom,+(zoom+.2).toFixed(2));buildBoard();}; */
 
   boardEl=document.getElementById("board");
   boardEl.addEventListener("pointerdown",onBoardDown);
@@ -1717,11 +1753,24 @@ function startGame(mode,size,id,customDate,customOpts){
   }
   function showWin(rec,isBest,streakVal){
     let starsHTML="";for(let s=1;s<=3;s++)starsHTML+='<span class="star-ic '+(s<=rec.stars?"on":"")+'" style="animation-delay:'+(250+s*160)+'ms">'+icon("star")+"</span>";
-    const winTitle=mode==="daily"?"Daily Complete!":(mode==="mosaic"?"Section Complete!":"Puzzle Complete!");
+    let winTitle=mode==="daily"?"Daily Complete!":(mode==="mosaic"?"Section Complete!":"Puzzle Complete!");
+    let winSub="";
+    if(mode==="mosaic"&&customOpts){
+      const spec=BIG_SPECS[customOpts.bigIdx];
+      const blocksDone=bigDone(customOpts.subMode,customOpts.bigIdx);
+      const isFin=Object.keys(blocksDone).length>=9;
+      if(isFin){winTitle="Masterpiece Complete!";winSub=spec.label;}
+      else{winSub=spec.label+" · Piece "+(customOpts.blockId+1)+"/9";}
+    }else if(mode==="daily"){
+      winSub=dateObj.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+    }else{
+      winSub=mode.toUpperCase()+" · "+size+"×"+size+" · #"+(id+1);
+    }
     const body=
       confettiHTML()+
       '<div class="modal win-modal">'+
         "<h2>"+winTitle+"</h2>"+
+        '<div style="font-family:\'Roboto Mono\',monospace;font-size:12px;font-weight:700;color:var(--muted);margin-top:-10px;margin-bottom:8px;text-transform:uppercase">'+winSub+"</div>"+
         '<div class="win-art">'+thumbHTML(puzzle.grid,n)+"</div>"+
         '<div class="stars">'+starsHTML+"</div>"+
         (mode==="daily"&&streakVal>0?'<div class="win-streak">'+icon("flame")+" "+streakVal+" day streak</div>":"")+
@@ -1743,7 +1792,7 @@ function startGame(mode,size,id,customDate,customOpts){
       closeModal();cleanup();G.cleanup=null;
       if(mode==="daily"){G.screen={name:"daily"};renderDailyScreen();}
       else if(mode==="mosaic"&&customOpts){G.screen={name:"mosaic"};renderMosaicScreen(customOpts.bigIdx,customOpts.subMode);}
-      else{G.screen={name:"select",mode};renderLevelSelect(mode);}
+      else{G.screen={name:"select",mode,size};renderLevelSelect(mode,size);}
     };
     document.getElementById("wReplay").onclick=()=>{closeModal();restart();};
     const wn=document.getElementById("wNext");
@@ -1765,7 +1814,7 @@ function startGame(mode,size,id,customDate,customOpts){
     }else{
       const idx=SIZES.indexOf(size);
       if(idx>=0&&idx<SIZES.length-1)startGame(mode,SIZES[idx+1],0);
-      else{G.screen={name:"select",mode};renderLevelSelect(mode);}
+      else{G.screen={name:"select",mode,size};renderLevelSelect(mode,size);}
     }
   }
 }

@@ -806,35 +806,86 @@ function getBig(idx) {
   return res;
 }
 
-/* ---------------- Storage ---------------- */
-const K={settings:"ns-settings-v1",solved:"ns-solved-v1",saves:"ns-saves-v1",daily:"ns-daily-v1",hints:"ns-hints-v1",help:"ns-seen-help-v1",mosaic:"ns-mosaic-v1"};
-const DEFAULT_SETTINGS={dark:false,sound:true,autoCross:true,highlight:true};
-function readObj(key,fallback){try{const raw=localStorage.getItem(key);return raw?Object.assign({},fallback,JSON.parse(raw)):fallback;}catch(e){return fallback;}}
-function readMap(key){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):{};}catch(e){return{};}}
-function write(key,val){try{localStorage.setItem(key,JSON.stringify(val));}catch(e){}}
-const loadSettings=()=>readObj(K.settings,DEFAULT_SETTINGS);
-const saveSettings=s=>write(K.settings,s);
-const loadSolved=()=>readMap(K.solved);
-const saveSolved=m=>write(K.solved,m);
-const loadSaves=()=>readMap(K.saves);
-const saveSaves=m=>write(K.saves,m);
-function loadDaily(){try{const raw=localStorage.getItem(K.daily);if(raw)return JSON.parse(raw);}catch(e){}return{date:"",streak:0,bestStreak:0};}
-const saveDaily=d=>write(K.daily,d);
-function loadHints(){const n=Number(localStorage.getItem(K.hints));return isFinite(n)&&n>0?n:3;}
-const saveHints=n=>localStorage.setItem(K.hints,String(n));
-const hasSeenHelp=()=>localStorage.getItem(K.help)==="1";
-const markHelpSeen=()=>localStorage.setItem(K.help,"1");
+/* ---------------- Storage Controller ---------------- */
+const Storage = {
+  keys: {
+    settings: "ns-settings-v1",
+    solved: "ns-solved-v1",
+    daily: "ns-daily-v1",
+    mosaic: "ns-mosaic-v1"
+  },
+  defaultSettings: { dark: false, sound: true, autoCross: true, highlight: true },
 
-function loadMosaic(){try{const raw=localStorage.getItem(K.mosaic);return raw?JSON.parse(raw):{};}catch(e){return{};}}
-function saveMosaic(data){try{localStorage.setItem(K.mosaic,JSON.stringify(data));}catch(e){}}
-function bigDone(mode,idx){const all=loadMosaic();return all[mode+":"+idx]||{};}
-function saveMosaicSection(mode,idx,blockId,rec){
-  const all=loadMosaic();
-  const k=mode+":"+idx;
-  if(!all[k])all[k]={};
-  all[k][blockId]=rec;
-  saveMosaic(all);
-}
+  readObj(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? Object.assign({}, fallback, JSON.parse(raw)) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  },
+  readMap(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
+    }
+  },
+  write(key, val) {
+    try {
+      localStorage.setItem(key, JSON.stringify(val));
+    } catch (e) {}
+  },
+
+  getSettings() { return this.readObj(this.keys.settings, this.defaultSettings); },
+  saveSettings(s) { this.write(this.keys.settings, s); },
+
+  getSolved() { return this.readMap(this.keys.solved); },
+  saveSolved(m) { this.write(this.keys.solved, m); },
+
+  getDaily() {
+    try {
+      const raw = localStorage.getItem(this.keys.daily);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return { date: "", streak: 0, bestStreak: 0 };
+  },
+  saveDaily(d) { this.write(this.keys.daily, d); },
+
+  getMosaic() { return this.readMap(this.keys.mosaic); },
+  saveMosaic(data) { this.write(this.keys.mosaic, data); },
+  bigDone(mode, idx) {
+    const all = this.getMosaic();
+    return all[mode + ":" + idx] || {};
+  },
+  saveMosaicSection(mode, idx, blockId, rec) {
+    const all = this.getMosaic();
+    const k = mode + ":" + idx;
+    if (!all[k]) all[k] = {};
+    all[k][blockId] = 1;
+    this.saveMosaic(all);
+  }
+};
+
+try{
+  localStorage.removeItem("ns-saves-v1");
+  localStorage.removeItem("ns-hints-v1");
+  localStorage.removeItem("ns-seen-help-v1");
+}catch(e){}
+
+let seenHelpSession = false;
+
+const loadSettings = () => Storage.getSettings();
+const saveSettings = s => Storage.saveSettings(s);
+const loadSolved = () => Storage.getSolved();
+const saveSolved = m => Storage.saveSolved(m);
+const loadDaily = () => Storage.getDaily();
+const saveDaily = d => Storage.saveDaily(d);
+const loadMosaic = () => Storage.getMosaic();
+const saveMosaic = data => Storage.saveMosaic(data);
+const bigDone = (mode, idx) => Storage.bigDone(mode, idx);
+const saveMosaicSection = (mode, idx, blockId, rec) => Storage.saveMosaicSection(mode, idx, blockId, rec);
 
 /* ---------------- Sound (WebAudio synth) ---------------- */
 const sound={
@@ -856,13 +907,11 @@ const G={
   screen:{name:"menu"},
   settings:loadSettings(),
   solved:loadSolved(),
-  saves:loadSaves(),
-  hints:loadHints(),
   daily:loadDaily(),
   cleanup:null
 };
 function applyDark(){document.documentElement.classList.toggle("dark",!!G.settings.dark);}
-function refreshStores(){G.solved=loadSolved();G.saves=loadSaves();G.daily=loadDaily();G.hints=loadHints();}
+function refreshStores(){G.solved=loadSolved();G.daily=loadDaily();}
 
 /* ---------------- DOM helpers ---------------- */
 const app=document.getElementById("app");
@@ -1283,14 +1332,13 @@ function renderLevelSelect(mode, initialTab){
     const pz=[];
     for(let id=0;id<LEVELS_PER_SIZE;id++){pz.push(getPuzzle(mode,tab,id));if(firstUnsolved<0&&!G.solved[pz[id].key])firstUnsolved=id;}
     pz.forEach((puzzle,id)=>{
-      const rec=G.solved[puzzle.key],isSolved=!!rec,isNext=id===firstUnsolved,inProgress=!isSolved&&!!G.saves[puzzle.key];
+      const rec=G.solved[puzzle.key],isSolved=!!rec,isNext=id===firstUnsolved;
       const showArt=isSolved;
       let inner;
       if(showArt)inner=thumbHTML(puzzle.grid,puzzle.n);
       else inner='<div class="q">?</div>';
       tiles+='<button class="tile press '+(isNext?"next ":"")+(isSolved?"solved":"")+'" data-id="'+id+'" style="animation-delay:'+Math.min(id,16)*28+'ms">'+
-        inner+(isSolved?'<span class="starbadge">'+icon("star")+"</span>":"")+
-        (inProgress?'<span class="tile-progress"><i style="width:45%"></i></span>':"")+"</button>";
+        inner+(isSolved?'<span class="starbadge">'+icon("star")+"</span>":"")+"</button>";
     });
     app.innerHTML=
       '<div class="screen">'+
@@ -1340,11 +1388,12 @@ function startGame(mode,size,id,customDate,customOpts){
   G.screen={name:"game",mode,size,id,date:dateObj,customOpts};
   refreshStores();
 
-  const existing=G.saves[puzzle.key];
-  let cells=(existing&&existing.cells.length===total)?existing.cells.slice():new Array(total).fill(0);
-  let tool="pen",mistakes=existing?existing.mistakes||0:0,hintsUsed=existing?existing.hintsUsed||0:0,elapsed=existing?existing.elapsed||0:0;
+  let cells=new Array(total).fill(0);
+  let tool="pen",mistakes=0,hintsUsed=0,elapsed=0;
   let started=false,won=false,hinted=-1;
-  let errors=new Set(),activeRow=-1,activeCol=-1,zoom=1,hintCount=loadHints();
+  const maxHints=n<=5?2:(n<=10?3:4);
+  let hintCount=maxHints;
+  let errors=new Set(),activeRow=-1,activeCol=-1,zoom=1;
   const history=[],future=[];
   let stroke=null,dead=false;
   const timeouts=[];
@@ -1516,12 +1565,6 @@ function startGame(mode,size,id,customDate,customOpts){
   }
   const maxZoom=n===5?1.4:n===10?1.7:2.1;
 
-  function persist(){
-    if(won)return;
-    const all=loadSaves();
-    all[puzzle.key]={cells:cells.slice(),elapsed,mistakes,hintsUsed};
-    saveSaves(all);
-  }
   function autoCross(draft){
     if(!G.settings.autoCross)return;
     for(let y=0;y<n;y++){let ok=true;for(let x=0;x<n;x++){const i=y*n+x;if((draft[i]===1)!==(puzzle.grid[i]===1)){ok=false;break;}}if(ok)for(let x=0;x<n;x++)if(draft[y*n+x]===0)draft[y*n+x]=2;}
@@ -1539,19 +1582,15 @@ function startGame(mode,size,id,customDate,customOpts){
     if(boardEl)boardEl.classList.add("won");
     sound.win();
     const stars=mistakes===0&&hintsUsed===0?3:(mistakes<=3&&hintsUsed<=1?2:1);
-    const rec={time:elapsed,mistakes,hints:hintsUsed,stars,date:new Date().toISOString()};
-    const solved=loadSolved(),prev=solved[puzzle.key];
-    const isBest=!prev||elapsed<prev.time;
-    if(isBest)solved[puzzle.key]=rec;
-    else solved[puzzle.key]={...rec,stars:Math.max(prev.stars,rec.stars),time:prev.time,mistakes:Math.min(prev.mistakes,rec.mistakes),hints:Math.min(prev.hints,rec.hints),date:rec.date};
+    const rec={time:elapsed,mistakes,hints:hintsUsed,stars};
+    const solved=loadSolved();
+    const isFirstTime=!solved[puzzle.key];
+    solved[puzzle.key]=1;
     saveSolved(solved);
 
     if(mode==="mosaic"&&customOpts){
-      saveMosaicSection(customOpts.subMode,customOpts.bigIdx,customOpts.blockId,rec);
+      saveMosaicSection(customOpts.subMode,customOpts.bigIdx,customOpts.blockId,1);
     }
-
-    hintCount=Math.min(9,loadHints()+1);saveHints(hintCount);
-    const saves=loadSaves();delete saves[puzzle.key];saveSaves(saves);
     let streakVal;
     if(mode==="daily"){
       const d=loadDaily(),t=todayKey(dateObj),nowKey=todayKey();
@@ -1567,7 +1606,7 @@ function startGame(mode,size,id,customDate,customOpts){
       }
     }
     renderAll();
-    later(()=>showWin(rec,isBest,streakVal),850);
+    later(()=>showWin(rec,isFirstTime,streakVal),850);
   }
 
   /* stroke engine */
@@ -1611,7 +1650,7 @@ function startGame(mode,size,id,customDate,customOpts){
     autoCross(draft);
     cells=draft;
     if(st.before.length){history.push({before:st.before,after:draft.slice()});if(history.length>200)history.shift();future.length=0;}
-    renderAll();persist();checkWin(draft);
+    renderAll();checkWin(draft);
   }
 
   function onBoardDown(e){
@@ -1665,14 +1704,15 @@ function startGame(mode,size,id,customDate,customOpts){
   }
 
   function undo(){
-    if(won)return;const entry=history.pop();if(!entry)return;
-    future.push(entry);cells=entry.before.slice();sound.undo();renderAll();persist();
+    if(won||modalOpen()||!history.length)return;
+    const entry=history.pop();
+    future.push(entry);cells=entry.before.slice();sound.undo();renderAll();
   }
   function redo(){
-    if(won)return;const entry=future.pop();if(!entry||!entry.after)return;
+    if(won||modalOpen()||!future.length)return;const entry=future.pop();if(!entry||!entry.after)return;
     history.push(entry);const draft=entry.after.slice();
     for(let i=0;i<total;i++)if(draft[i]===1&&puzzle.grid[i]!==1)draft[i]=2;
-    cells=draft;sound.undo();renderAll();persist();
+    cells=draft;sound.undo();renderAll();
   }
   function useHint(){
     if(won||modalOpen())return;
@@ -1684,24 +1724,36 @@ function startGame(mode,size,id,customDate,customOpts){
     else if(xTargets.length){target=xTargets[Math.floor(Math.random()*xTargets.length)];draft[target]=2;toX=true;}
     else return;
     const before=cells.slice();autoCross(draft);history.push({before,after:draft.slice()});future.length=0;
-    cells=draft;hintCount--;saveHints(hintCount);hintsUsed++;sound.hint();
+    cells=draft;hintCount--;hintsUsed++;sound.hint();
     hinted=target;later(()=>{if(hinted===target){hinted=-1;renderAll();}},1100);
     if(!toX)lastSound=performance.now();
-    renderAll();persist();checkWin(draft);
+    renderAll();checkWin(draft);
   }
   function restart(){
     cells=new Array(total).fill(0);history.length=0;future.length=0;
     mistakes=0;hintsUsed=0;elapsed=0;started=false;won=false;errors=new Set();hinted=-1;activeRow=-1;activeCol=-1;
-    const saves=loadSaves();delete saves[puzzle.key];saveSaves(saves);
+    hintCount=maxHints;
     closeModal();buildBoard();
+  }
+
+  function hasMoves(){
+    return history.length>0 || mistakes>0 || hintsUsed>0 || cells.some(c=>c!==0);
+  }
+  function doBack(){
+    cleanup();G.cleanup=null;
+    if(mode==="daily"){G.screen={name:"daily"};renderDailyScreen();}
+    else if(mode==="mosaic"&&customOpts){G.screen={name:"mosaic"};renderMosaicScreen(customOpts.bigIdx,customOpts.subMode);}
+    else{G.screen={name:"select",mode,size};renderLevelSelect(mode,size);}
   }
 
   /* wire controls */
   document.getElementById("gBack").onclick=()=>{
-    sound.click();cleanup();G.cleanup=null;
-    if(mode==="daily"){G.screen={name:"daily"};renderDailyScreen();}
-    else if(mode==="mosaic"&&customOpts){G.screen={name:"mosaic"};renderMosaicScreen(customOpts.bigIdx,customOpts.subMode);}
-    else{G.screen={name:"select",mode,size};renderLevelSelect(mode,size);}
+    sound.click();
+    if(!won && hasMoves()){
+      showLeaveConfirm(doBack);
+    } else {
+      doBack();
+    }
   };
   document.getElementById("gHelp").onclick=()=>{sound.click();showHelp();};
   document.getElementById("gSet").onclick=()=>{sound.click();showSettings();};
@@ -1724,7 +1776,7 @@ function startGame(mode,size,id,customDate,customOpts){
 
   /* timer */
   timerId=setInterval(()=>{
-    if(started&&!won&&!modalOpen()){elapsed++;document.getElementById("gTime").textContent=fmtTime(elapsed);if(elapsed%5===0)persist();}
+    if(started&&!won&&!modalOpen()){elapsed++;document.getElementById("gTime").textContent=fmtTime(elapsed);}
   },1000);
   document.addEventListener("visibilitychange",onVis);
   function onVis(){if(document.hidden)started=false;}
@@ -1744,7 +1796,7 @@ function startGame(mode,size,id,customDate,customOpts){
   }
 
   buildBoard();
-  if(!hasSeenHelp()&&!G.solved[puzzle.key]){markHelpSeen();showHelp();}
+  if(!seenHelpSession && Object.keys(G.solved).length === 0){seenHelpSession=true;showHelp();}
 
   /* win modal */
   function hasNextLevel(){
@@ -1880,6 +1932,16 @@ function showRestartConfirm(onConfirm){
   );
   document.getElementById("rcCancel").onclick=()=>{sound.click();closeModal();};
   document.getElementById("rcOk").onclick=()=>{sound.click();onConfirm();};
+}
+function showLeaveConfirm(onLeave){
+  showModal(
+    '<div class="modal"><h2>Leave Puzzle?</h2>'+
+    '<p class="confirm-text">Your unfinished progress on this puzzle will be lost.</p>'+
+    '<div class="modal-actions"><button class="btn-ghost press" id="lcCancel">Keep Playing</button>'+
+    '<button class="btn-red press" id="lcOk">Leave</button></div></div>'
+  );
+  document.getElementById("lcCancel").onclick=()=>{sound.click();closeModal();};
+  document.getElementById("lcOk").onclick=()=>{sound.click();closeModal();onLeave();};
 }
 
 /* ==================================================================

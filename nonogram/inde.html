@@ -420,10 +420,25 @@ html.dark .mcell.done{background:var(--card);border-color:#3cd4aa}
 .thumb > span.b{background:var(--fill)}
 
 /* ============ GAME ============ */
-.g-head{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:clamp(3px, 1vh, 8px) 10px 2px;flex:0 0 auto}
-.g-head-right{display:flex;align-items:center;gap:6px}
-.chip{display:inline-flex;align-items:center;gap:5px;background:var(--card);border-radius:99px;padding:clamp(3px, 0.6vh, 6px) clamp(7px, 1.2vw, 11px);font-family:"Roboto Mono",monospace;font-size:clamp(11px,1.4vw,14px);font-weight:600;color:var(--clue);box-shadow:0 1px 3px rgba(30,60,90,.12)}
-.chip .ic{font-size:15px;color:var(--muted)}
+.g-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:clamp(6px, 1.5vw, 12px);padding:clamp(3px, 0.8vh, 6px) clamp(6px, 1.5vw, 12px) 2px;
+  flex:0 0 auto;width:100%;box-sizing:border-box;
+}
+.g-head .back-link{
+  padding:clamp(4px, 0.7vh, 7px) clamp(6px, 1vw, 10px);
+  font-size:clamp(11.5px, 1.4vw, 13px);gap:4px;flex:0 0 auto;white-space:nowrap;
+}
+.g-head-right{
+  display:flex;align-items:center;justify-content:flex-end;gap:clamp(3px, 0.7vw, 6px);flex:0 0 auto;
+}
+.chip{
+  display:inline-flex;align-items:center;gap:4px;background:var(--card);border-radius:99px;
+  padding:clamp(2px, 0.5vh, 5px) clamp(5px, 1vw, 9px);font-family:"Roboto Mono",monospace;
+  font-size:clamp(10px, 1.3vw, 12.5px);font-weight:700;color:var(--clue);box-shadow:0 1px 3px rgba(30,60,90,.12);
+  white-space:nowrap;flex:0 0 auto;
+}
+.chip .ic{font-size:clamp(12px, 1.6vw, 14px);color:var(--muted)}
 .chip.bad{color:#ef4444}
 .test-chip{
   background:linear-gradient(135deg,#0284c7,#0369a1);
@@ -431,9 +446,11 @@ html.dark .mcell.done{background:var(--card);border-color:#3cd4aa}
   font-weight:800;
   cursor:pointer;
   border:none;
-  padding:clamp(3px, 0.6vh, 6px) clamp(8px, 1.4vw, 12px);
+  padding:clamp(2px, 0.5vh, 5px) clamp(6px, 1.2vw, 10px);
+  font-size:clamp(9.5px, 1.2vw, 11.5px);
   box-shadow:0 2px 8px rgba(2,132,199,.35);
   transition:transform .12s ease, filter .15s ease, box-shadow .15s ease;
+  white-space:nowrap;flex:0 0 auto;
 }
 .test-chip:hover{filter:brightness(1.12);transform:translateY(-1px);box-shadow:0 4px 12px rgba(2,132,199,.45)}
 .test-chip:active{transform:scale(.94)}
@@ -442,10 +459,24 @@ html.dark .test-chip{
   color:#0b1329 !important;
   box-shadow:0 0 12px rgba(56,189,248,.35);
 }
-.g-title{text-align:center;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:2px 10px 0;flex:0 0 auto}
-@media(min-width:640px){#gTitleSmall{display:none}}
-.board-wrap{flex:1;min-height:0;overflow:hidden;display:flex;justify-content:center;align-items:center;padding:clamp(2px, 1vh, 10px)}
-.board{margin:auto;position:relative;touch-action:none;border:2px solid var(--sep);border-radius:2px;overflow:hidden;background:var(--card);box-shadow:none;display:grid}
+.g-title{
+  text-align:center;font-family:"Roboto Mono",monospace;
+  font-size:clamp(10.5px, 1.5vh, 12.5px);font-weight:800;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);
+  padding:1px 10px 3px;flex:0 0 auto;width:100%;box-sizing:border-box;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+@media(max-width: 480px){
+  .g-head .back-link span{display:none}
+  .g-head .back-link{padding:4px 6px}
+  .test-chip span{display:none}
+  .test-chip{padding:3px 7px;font-size:12px}
+}
+@media(max-width: 360px){
+  .chip{padding:2px 5px;font-size:9.5px}
+}
+.board-wrap{flex:1;min-height:0;overflow:hidden;display:flex;justify-content:center;align-items:center;padding:clamp(2px, 0.8vh, 8px) clamp(4px, 1.2vw, 12px);box-sizing:border-box}
+.board{margin:auto;position:relative;touch-action:none;border:2px solid var(--sep);border-radius:2px;overflow:hidden;background:var(--card);box-shadow:none;display:grid;box-sizing:border-box;max-width:100%;max-height:100%}
 .corner{
   background:var(--clue-bg);
   border-right:2px solid var(--sep);
@@ -473,8 +504,8 @@ html.dark .corner-canvas{
   border-color:var(--border);
   box-shadow:0 1px 4px rgba(0,0,0,.35);
 }
-.cc{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;padding:4px 2px 3px;background:var(--clue-bg);border-bottom:2px solid var(--sep);overflow:hidden}
-.rc{display:flex;align-items:center;justify-content:flex-end;gap:4px;padding:2px 6px;background:var(--clue-bg);border-right:2px solid var(--sep);overflow:hidden}
+.cc{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:clamp(1px, 0.3vh, 2px);padding:2px 1px;background:var(--clue-bg);border-bottom:2px solid var(--sep);overflow:hidden;box-sizing:border-box}
+.rc{display:flex;align-items:center;justify-content:flex-end;gap:clamp(2px, 0.5vw, 4px);padding:1px clamp(3px, 0.8vw, 6px);background:var(--clue-bg);border-right:2px solid var(--sep);overflow:hidden;box-sizing:border-box}
 .cc span,.rc span{font-family:"Roboto Mono",monospace;font-weight:600;color:var(--clue);line-height:1;white-space:nowrap}
 .cc span.done,.rc span.done{color:var(--clue-done);text-decoration:line-through}
 .cell{position:relative;background:var(--cell);cursor:pointer;touch-action:none}
@@ -745,6 +776,75 @@ html.dark .square-btn:hover{
 .confirm-text{text-align:center;color:var(--muted);font-size:14px;margin-bottom:8px}
 .btn-red{flex:1;border-radius:12px;padding:10px;background:#ef4444;color:#fff;font-weight:800;letter-spacing:.06em;text-transform:uppercase;box-shadow:0 3px 0 #b91c1c}
 
+/* ============ RESPONSIVE CONFIRMATION MODALS ============ */
+.confirm-modal{
+  max-width:min(400px, 92vw);text-align:center;
+  padding:clamp(14px, 2.5vh, 22px) clamp(12px, 3vw, 20px);box-sizing:border-box;
+}
+.confirm-icon-wrap{
+  width:clamp(40px, 5.5vh, 50px);height:clamp(40px, 5.5vh, 50px);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  margin:0 auto clamp(8px, 1.4vh, 12px);font-size:clamp(18px, 2.5vh, 24px);
+  flex:0 0 auto;
+}
+.confirm-icon-wrap .ic{
+  font-size:clamp(18px, 2.5vh, 24px);stroke-width:2.2;
+}
+.confirm-icon-wrap.danger{
+  background:rgba(239,68,68,.12);border:2px solid rgba(239,68,68,.3);color:#ef4444;
+}
+.confirm-icon-wrap.warn{
+  background:rgba(245,158,11,.12);border:2px solid rgba(245,158,11,.3);color:#f59e0b;
+}
+.confirm-icon-wrap.info{
+  background:rgba(14,165,233,.12);border:2px solid rgba(14,165,233,.3);color:#0ea5e9;
+}
+.confirm-title{
+  margin:0 0 clamp(6px, 1vh, 8px)!important;font-size:clamp(17px, 2.4vh, 21px)!important;
+  font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--heading);
+}
+.confirm-desc{
+  margin:0 0 clamp(10px, 1.6vh, 14px);font-size:clamp(12px, 1.6vh, 13.5px);
+  color:var(--muted);line-height:1.45;
+}
+.confirm-card{
+  background:var(--card-2);border:1.5px solid var(--border);border-radius:12px;
+  padding:clamp(8px, 1.3vh, 12px) clamp(10px, 1.8vw, 14px);text-align:left;
+  font-size:clamp(11.5px, 1.5vh, 12.5px);color:var(--muted);line-height:1.6;
+  margin-bottom:clamp(10px, 1.6vh, 14px);
+}
+.confirm-card .row{
+  display:flex;align-items:center;gap:8px;
+}
+.confirm-card .row:not(:last-child){
+  margin-bottom:4px;
+}
+.confirm-warning{
+  font-size:clamp(10px, 1.3vh, 11px);color:#ef4444;font-weight:700;
+  margin:0 0 clamp(12px, 1.8vh, 16px);text-transform:uppercase;letter-spacing:.05em;line-height:1.3;
+}
+.confirm-actions{
+  display:flex;gap:clamp(6px, 1.5vw, 10px);margin-top:0;width:100%;
+}
+.confirm-actions button{
+  flex:1;padding:clamp(8px, 1.4vh, 11px) clamp(10px, 1.5vw, 14px);
+  font-size:clamp(12px, 1.6vh, 13.5px);font-weight:800;
+}
+@media(max-width:320px){
+  .confirm-actions{flex-direction:column;gap:6px}
+}
+@media(max-height:620px){
+  .confirm-modal{padding:10px 12px}
+  .confirm-icon-wrap{width:32px;height:32px;font-size:16px;margin-bottom:4px}
+  .confirm-icon-wrap .ic{font-size:16px}
+  .confirm-title{font-size:15px!important;margin-bottom:3px!important}
+  .confirm-desc{font-size:11px;margin-bottom:6px}
+  .confirm-card{padding:5px 8px;margin-bottom:6px;font-size:11px}
+  .confirm-card .row:not(:last-child){margin-bottom:2px}
+  .confirm-warning{font-size:9.5px;margin-bottom:8px}
+  .confirm-actions button{padding:6px 8px;font-size:11px}
+}
+
 /* win */
 .win-modal{max-width:380px;text-align:center}
 .win-art{
@@ -761,11 +861,29 @@ html.dark .square-btn:hover{
 .star-ic.on{color:#f5b840;filter:drop-shadow(0 2px 4px rgba(245,184,64,.5));animation:star-pop .45s cubic-bezier(.34,1.56,.64,1) both}
 @keyframes star-pop{0%{transform:scale(0) rotate(-30deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
 .win-streak{display:inline-flex;align-items:center;gap:6px;background:#ffe9d6;color:#e8801c;border-radius:99px;padding:4px 12px;font-weight:800;font-size:14px;margin-top:8px}
-html.dark .win-streak{background:rgba(245,146,40,.16)}
-.win-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
-.win-stat{background:var(--card-2);border-radius:12px;padding:10px 4px}
-.win-stat .ic{margin:0 auto 4px;font-size:16px;color:var(--muted)}
-.win-stat p{margin:0;font-family:"Roboto Mono",monospace;font-weight:700;font-size:14px;color:var(--heading)}
+.win-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(6px, 1.5vw, 10px);
+  margin-top:clamp(10px, 1.8vh, 16px);width:100%;box-sizing:border-box;
+}
+.win-stat{
+  background:var(--card-2);border:1.5px solid var(--border);border-radius:clamp(10px, 1.6vh, 14px);
+  padding:clamp(8px, 1.5vh, 12px) 4px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;box-sizing:border-box;
+  transition:border-color .15s ease, transform .12s ease;
+}
+.win-stat:hover{
+  border-color:var(--brand);
+}
+.win-stat .ic{
+  display:block;margin:0 auto clamp(3px, 0.6vh, 6px);font-size:clamp(16px, 2.2vh, 20px);
+  color:var(--muted);flex:0 0 auto;
+}
+.win-stat p{
+  margin:0;font-family:"Roboto Mono",monospace;font-weight:800;
+  font-size:clamp(12px, 1.7vh, 14px);color:var(--heading);
+  text-align:center;width:100%;line-height:1.2;
+}
 
 /* ============ CUSTOM THEMED SCROLLBARS ============ */
 *{
@@ -854,42 +972,519 @@ function mulberry32(seed){let a=seed>>>0;return function(){a|=0;a=(a+0x6d2b79f5)
 function randInt(rng,min,max){return min+Math.floor(rng()*(max-min+1));}
 function pick(rng,arr){return arr[Math.floor(rng()*arr.length)];}
 
+/* ---------------- Solved-art puzzle engine (verified-unique-solution generator) ---------------- */
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+
+function newGrid(n) { return { n, c: new Uint8Array(n * n) }; }
+function painter(g) {
+  const n = g.n, last = n - 1;
+  const X = t => clamp(Math.round(t * last), 0, last);
+  const px = i => i / last;
+  const set = (x, y, v) => { if (x >= 0 && y >= 0 && x < n && y < n) g.c[y * n + x] = v; };
+  const P = {
+    n, g, set,
+    rect(x0, y0, x1, y1, v) {
+      const a = X(Math.min(x0, x1)), b = X(Math.max(x0, x1));
+      const c = X(Math.min(y0, y1)), d = X(Math.max(y0, y1));
+      for (let y = c; y <= d; y++) for (let x = a; x <= b; x++) set(x, y, v === undefined ? 1 : v);
+    },
+    disc(cx, cy, r, v) {
+      for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+        const dx = px(x) - cx, dy = px(y) - cy;
+        if (dx * dx + dy * dy <= r * r) set(x, y, v === undefined ? 1 : v);
+      }
+    },
+    ellipse(cx, cy, rx, ry, v) {
+      for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+        const dx = (px(x) - cx) / rx, dy = (px(y) - cy) / ry;
+        if (dx * dx + dy * dy <= 1) set(x, y, v === undefined ? 1 : v);
+      }
+    },
+    ring(cx, cy, r, th, v) { P.arc(cx, cy, r, 0, Math.PI * 2, th, v); },
+    arc(cx, cy, r, a0, a1, th, v) {
+      const t = (th || 1) / last / 2;
+      for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+        const dx = px(x) - cx, dy = px(y) - cy;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d > r + t || d < r - t) continue;
+        let a = Math.atan2(dy, dx);
+        while (a < a0) a += Math.PI * 2;
+        if (a <= a1 + 1e-9) set(x, y, v === undefined ? 1 : v);
+      }
+    },
+    line(x0, y0, x1, y1, th, v) {
+      const ax = X(x0), ay = X(y0), bx = X(x1), by = X(y1);
+      const t = Math.max(1, th || 1);
+      const minx = Math.min(ax, bx) - t, maxx = Math.max(ax, bx) + t;
+      const miny = Math.min(ay, by) - t, maxy = Math.max(ay, by) + t;
+      const vx = bx - ax, vy = by - ay;
+      const len2 = vx * vx + vy * vy || 1;
+      for (let y = Math.max(0, miny); y <= Math.min(last, maxy); y++) {
+        for (let x = Math.max(0, minx); x <= Math.min(last, maxx); x++) {
+          let tp = ((x - ax) * vx + (y - ay) * vy) / len2;
+          tp = clamp(tp, 0, 1);
+          const cxp = ax + vx * tp, cyp = ay + vy * tp;
+          const dx = x - cxp, dy = y - cyp;
+          if (dx * dx + dy * dy <= t * t) set(x, y, v === undefined ? 1 : v);
+        }
+      }
+    },
+    poly(pts, v) {
+      const xs = pts.map(p => X(p[0])), ys = pts.map(p => X(p[1]));
+      const minx = Math.max(0, Math.min.apply(null, xs) - 1), maxx = Math.min(last, Math.max.apply(null, xs) + 1);
+      const miny = Math.max(0, Math.min.apply(null, ys) - 1), maxy = Math.min(last, Math.max.apply(null, ys) + 1);
+      for (let y = miny; y <= maxy; y++) for (let x = minx; x <= maxx; x++) {
+        let inside = false;
+        for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+          const xi = xs[i], yi = ys[i], xj = xs[j], yj = ys[j];
+          if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) inside = !inside;
+        }
+        if (inside) set(x, y, v === undefined ? 1 : v);
+      }
+    },
+    fn(test, v) {
+      for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+        if (test(px(x), px(y))) set(x, y, v === undefined ? 1 : v);
+      }
+    },
+    clear() { g.c.fill(0); }
+  };
+  return P;
+}
+
+function stampSym(P, x, y, r, fold) {
+  const pts = [[x, y], [1 - x, y], [x, 1 - y], [1 - x, 1 - y]];
+  if (fold >= 8) pts.push([y, x], [1 - y, x], [y, 1 - x], [1 - y, 1 - x]);
+  const seen = new Set();
+  pts.forEach(p => {
+    const k = p[0].toFixed(3) + ',' + p[1].toFixed(3);
+    if (seen.has(k)) return; seen.add(k);
+    P.disc(p[0], p[1], r);
+  });
+}
+
+/* ---------------- recipes (icons) ---------------- */
+const ICON_RECIPES = [
+  { name: 'Heart', cat: 'i', draw(P) {
+    P.fn((u, v) => { const x = (u - .5) * 2.3, y = (.44 - v) * 2.3;
+      const a = x * x + y * y - 1; return a * a * a - x * x * y * y * y <= 0; });
+  } },
+  { name: 'Star', cat: 'i', draw(P) {
+    const pts = [];
+    for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? .22 : .48;
+      pts.push([.5 + Math.cos(a) * r, .53 + Math.sin(a) * r]); }
+    P.poly(pts);
+  } },
+  { name: 'Smiley', cat: 'i', draw(P) {
+    P.disc(.5, .5, .47); P.disc(.33, .38, .075, 0); P.disc(.67, .38, .075, 0);
+    P.arc(.5, .5, .29, .35 * Math.PI, .65 * Math.PI, Math.max(1, P.n * .06));
+  } },
+  { name: 'Cat', cat: 'i', draw(P) {
+    P.poly([[.5, .04], [.78, .3], [.9, .16], [.86, .46], [.84, .62], [.5, .9], [.16, .62], [.14, .46], [.1, .16], [.22, .3]]);
+    P.disc(.34, .5, .06, 0); P.disc(.66, .5, .06, 0);
+    P.poly([[.44, .64], [.56, .64], [.5, .72]]);
+    if (P.n >= 15) { P.line(.06, .58, .32, .62, 1); P.line(.94, .58, .68, .62, 1); }
+  } },
+  { name: 'Fish', cat: 'i', draw(P) {
+    P.ellipse(.46, .5, .3, .2); P.poly([[.72, .5], [.95, .3], [.95, .7]]);
+    P.disc(.28, .44, .045, 0);
+  } },
+  { name: 'Butterfly', cat: 'i', draw(P) {
+    P.ellipse(.28, .34, .24, .22); P.ellipse(.72, .34, .24, .22);
+    P.ellipse(.3, .68, .2, .2); P.ellipse(.7, .68, .2, .2);
+    P.rect(.47, .2, .53, .88);
+    P.line(.47, .22, .3, .04, 1); P.line(.53, .22, .7, .04, 1);
+  } },
+  { name: 'Tree', cat: 'i', draw(P) {
+    P.rect(.44, .72, .56, .96);
+    P.poly([[.5, .02], [.84, .46], [.16, .46]]);
+    P.poly([[.5, .26], [.9, .66], [.1, .66]]);
+  } },
+  { name: 'Flower', cat: 'i', draw(P) {
+    for (let i = 0; i < 6; i++) { const a = -Math.PI / 2 + i * Math.PI / 3;
+      P.disc(.5 + Math.cos(a) * .26, .38 + Math.sin(a) * .26, .17); }
+    P.disc(.5, .38, .11);
+    P.rect(.47, .55, .53, .96);
+  } },
+  { name: 'House', cat: 'i', draw(P) {
+    P.rect(.18, .44, .82, .92); P.poly([[.5, .06], [.94, .48], [.06, .48]]);
+    P.rect(.42, .64, .58, .92, 0); P.rect(.24, .54, .36, .64, 0);
+  } },
+  { name: 'Car', cat: 'i', draw(P) {
+    P.rect(.08, .52, .92, .74); P.poly([[.24, .52], [.34, .28], [.68, .28], [.78, .52]]);
+    P.ring(.26, .78, .11, Math.max(1, P.n * .05)); P.ring(.74, .78, .11, Math.max(1, P.n * .05));
+  } },
+  { name: 'Rocket', cat: 'i', draw(P) {
+    P.poly([[.5, .02], [.68, .34], [.68, .72], [.32, .72], [.32, .34]]);
+    P.poly([[.32, .5], [.12, .84], [.32, .78]]);
+    P.poly([[.68, .5], [.88, .84], [.68, .78]]);
+    P.ring(.5, .42, .1, Math.max(1, P.n * .06));
+    P.poly([[.42, .76], [.58, .76], [.5, .98]]);
+  } },
+  { name: 'Key', cat: 'i', draw(P) {
+    P.ring(.28, .32, .19, Math.max(1, P.n * .07));
+    P.rect(.24, .48, .32, .94); P.rect(.32, .68, .48, .76); P.rect(.32, .86, .44, .92);
+  } },
+  { name: 'Crown', cat: 'i', draw(P) {
+    P.poly([[.08, .3], [.28, .6], [.5, .24], [.72, .6], [.92, .3], [.86, .82], [.14, .82]]);
+  } },
+  { name: 'Diamond', cat: 'i', draw(P) {
+    P.poly([[.5, .06], [.88, .4], [.5, .94], [.12, .4]]);
+  } },
+  { name: 'Bell', cat: 'i', draw(P) {
+    P.fn((u, v) => { const x = (u - .5) * 2.5, y = (.86 - v) * 2.2;
+      return x * x + y * y * y * .8 <= 1 && v < .8; });
+    P.rect(.14, .8, .86, .9); P.disc(.5, .95, .06);
+  } },
+  { name: 'Umbrella', cat: 'i', draw(P) {
+    P.fn((u, v) => { const x = (u - .5) * 2.3, y = (.5 - v) * 2.1;
+      return x * x + y * y <= 1 && v < .52; });
+    P.rect(.48, .5, .52, .82); P.arc(.6, .82, .12, 0, Math.PI, Math.max(1, P.n * .06));
+  } },
+  { name: 'Anchor', cat: 'i', draw(P) {
+    P.ring(.5, .16, .12, Math.max(1, P.n * .06));
+    P.rect(.47, .28, .53, .78); P.rect(.28, .32, .72, .38);
+    P.arc(.5, .56, .34, Math.PI * .18, Math.PI * .82, Math.max(1, P.n * .07));
+  } },
+  { name: 'Sun', cat: 'i', draw(P) {
+    P.disc(.5, .5, .27);
+    for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4;
+      P.line(.5 + Math.cos(a) * .35, .5 + Math.sin(a) * .35, .5 + Math.cos(a) * .48, .5 + Math.sin(a) * .48, Math.max(1, Math.round(P.n / 9))); }
+  } },
+  { name: 'Moon', cat: 'i', draw(P) {
+    P.disc(.5, .5, .42); P.disc(.74, .4, .34, 0);
+  } },
+  { name: 'Cloud', cat: 'i', draw(P) {
+    P.disc(.3, .48, .2); P.disc(.52, .36, .25); P.disc(.72, .5, .19);
+    P.rect(.14, .48, .86, .66);
+  } },
+  { name: 'Snowman', cat: 'i', draw(P) {
+    P.disc(.5, .7, .26); P.disc(.5, .34, .18);
+    P.rect(.32, .06, .68, .16);
+    P.disc(.44, .3, .035, 0); P.disc(.56, .3, .035, 0);
+  } },
+  { name: 'Ghost', cat: 'i', draw(P) {
+    P.fn((u, v) => { const x = (u - .5) * 2.4, y = (.2 - v) * 2.6;
+      return x * x + y * y <= 1 && v < .72; });
+    const k = Math.max(2, Math.round(P.n / 5));
+    P.rect(.08, .68, .92, .78);
+    for (let i = 0; i < k; i++) { const w = .84 / k; P.rect(.08 + i * w, .78, .08 + i * w + w * .55, .9, 0); }
+    P.disc(.38, .34, .07, 0); P.disc(.62, .34, .07, 0);
+  } },
+  { name: 'Gift', cat: 'i', draw(P) {
+    P.rect(.1, .36, .9, .92); P.rect(.06, .26, .94, .38);
+    P.rect(.44, .26, .56, .92, 0);
+  } },
+  { name: 'Balloon', cat: 'i', draw(P) {
+    P.ellipse(.5, .4, .3, .34); P.poly([[.44, .72], [.56, .72], [.5, .82]]);
+    P.arc(.58, .86, .1, 0, Math.PI * 1.4, 1);
+  } },
+  { name: 'Trophy', cat: 'i', draw(P) {
+    P.rect(.26, .06, .74, .26);
+    P.poly([[.26, .1], [.06, .34], [.26, .44]]);
+    P.poly([[.74, .1], [.94, .34], [.74, .44]]);
+    P.poly([[.32, .26], [.68, .26], [.6, .56], [.4, .56]]);
+    P.rect(.42, .56, .58, .72); P.rect(.3, .72, .7, .9);
+  } },
+  { name: 'Mushroom', cat: 'i', draw(P) {
+    P.fn((u, v) => { const x = (u - .5) * 2.4, y = (.42 - v) * 2.4;
+      return x * x + y * y <= 1 && v < .44; });
+    P.rect(.4, .44, .6, .92);
+    if (P.n >= 15) { P.disc(.38, .28, .07, 0); P.disc(.6, .34, .05, 0); }
+  } },
+  { name: 'Cherries', cat: 'i', draw(P) {
+    P.disc(.31, .68, .19); P.disc(.69, .72, .19);
+    P.line(.31, .5, .5, .12, 1); P.line(.69, .54, .5, .12, 1);
+  } },
+  { name: 'Light Bulb', cat: 'i', draw(P) {
+    P.disc(.5, .38, .3); P.rect(.36, .58, .64, .68);
+    P.rect(.38, .68, .62, .78); P.rect(.42, .78, .58, .88);
+  } }
+];
+
+/* ---------------- recipes (abstract geometric) ---------------- */
+const PAT_RECIPES = [
+  { name: 'Kaleidoscope', cat: 'p', draw(P, n, R) {
+    const k = 4 + Math.floor(R() * 3);
+    for (let i = 0; i < k; i++) {
+      const x = .06 + R() * .42, y = .06 + R() * .42, r = .05 + R() * .12;
+      stampSym(P, x, y, r, 8);
+    }
+    stampSym(P, .5, .5, .05 + R() * .06, 4);
+  } },
+  { name: 'Mandala', cat: 'p', draw(P, n, R) {
+    const k = 6;
+    for (let ring = 0; ring < 3; ring++) {
+      const rr = .14 + ring * .15, cnt = k + ring * 2;
+      for (let i = 0; i < cnt; i++) {
+        const a = (i / cnt) * Math.PI * 2 + ring * .3;
+        stampSym(P, .5 + Math.cos(a) * rr * .5, .5 + Math.sin(a) * rr * .5, .045 + R() * .02, 4);
+      }
+    }
+    P.disc(.5, .5, .08);
+  } },
+  { name: 'Diamonds', cat: 'p', draw(P) {
+    P.fn((u, v) => {
+      const d = Math.abs(u - .5) + Math.abs(v - .5);
+      return Math.floor(d * 9) % 2 === 0;
+    });
+  } },
+  { name: 'Argyle', cat: 'p', draw(P) {
+    P.fn((u, v) => {
+      const a = (u + v) * 4 % 1, b = ((u - v) + 1) * 4 % 1;
+      return (a < .16) || (b < .16);
+    });
+  } },
+  { name: 'Checker', cat: 'p', draw(P, n, R) {
+    const b = n < 12 ? 2 : (R() < .5 ? 2 : 3);
+    P.fn((u, v) => (Math.floor(u * n / b) + Math.floor(v * n / b)) % 2 === 0);
+  } },
+  { name: 'Woven', cat: 'p', draw(P, n) {
+    const b = Math.max(2, Math.round(n / 5));
+    P.fn((u, v) => {
+      const x = Math.floor(u * n) % (b * 2), y = Math.floor(v * n) % (b * 2);
+      return (x < b && y < b) || (x >= b && y >= b);
+    });
+  } },
+  { name: 'Crosshatch', cat: 'p', draw(P, n, R) {
+    const k = 3 + Math.floor(R() * 3);
+    for (let i = -1; i <= k + 1; i++) {
+      P.line(i / k, 0, i / k + 1, 1, Math.max(1, Math.round(n / 22)));
+      P.line(i / k, 1, i / k + 1, 0, Math.max(1, Math.round(n / 22)));
+    }
+  } },
+  { name: 'Waves', cat: 'p', draw(P, n, R) {
+    const k = 4 + Math.floor(R() * 3), ph = R() * Math.PI * 2;
+    P.fn((u, v) => Math.sin((v * k + Math.sin(u * 6 + ph) * .18) * Math.PI * 2) > .15);
+  } },
+  { name: 'Snowflake', cat: 'p', draw(P) {
+    for (let i = 0; i < 6; i++) {
+      const a = i * Math.PI / 3;
+      P.line(.5, .5, .5 + Math.cos(a) * .46, .5 + Math.sin(a) * .46, Math.max(1, Math.round(P.n / 14)));
+      for (let t = .2; t <= .4; t += .13) {
+        const bx = .5 + Math.cos(a) * t, by = .5 + Math.sin(a) * t;
+        P.line(bx, by, bx + Math.cos(a + .5) * .08, by + Math.sin(a + .5) * .08, Math.max(1, Math.round(P.n / 18)));
+        P.line(bx, by, bx + Math.cos(a - .5) * .08, by + Math.sin(a - .5) * .08, Math.max(1, Math.round(P.n / 18)));
+      }
+    }
+    P.disc(.5, .5, .06);
+  } },
+  { name: 'Rays', cat: 'p', draw(P, n, R) {
+    const k = 8 + Math.floor(R() * 5) * 2;
+    P.fn((u, v) => {
+      const a = Math.atan2(v - .5, u - .5);
+      return Math.floor(((a + Math.PI) / (Math.PI * 2)) * k) % 2 === 0 &&
+        Math.hypot(u - .5, v - .5) < .47;
+    });
+  } },
+  { name: 'Rings', cat: 'p', draw(P, n, R) {
+    const k = 3 + Math.floor(R() * 2);
+    for (let i = 0; i < k; i++) P.ring(.5, .5, .12 + i * .13, Math.max(1, Math.round(n / 12)));
+  } },
+  { name: 'Corners', cat: 'p', draw(P, n) {
+    const b = Math.max(2, Math.round(n / 4));
+    P.fn((u, v) => {
+      const x = Math.floor(u * n / b), y = Math.floor(v * n / b);
+      return (x + y) % 2 === 0 ? ((u * n) % b < b / 2) === ((v * n) % b < b / 2)
+        : ((u * n) % b < b / 2) !== ((v * n) % b < b / 2);
+    });
+  } },
+  { name: 'Zigzag', cat: 'p', draw(P, n, R) {
+    const k = 3 + Math.floor(R() * 3);
+    P.fn((u, v) => {
+      const z = Math.abs(((u * k * 2) % 2) - 1);
+      return v > z / (k * 1.4) + .12 && v < z / (k * 1.4) + .34;
+    });
+  } },
+  { name: 'Pluses', cat: 'p', draw(P, n) {
+    const b = Math.max(4, Math.round(n / 4));
+    P.fn((u, v) => {
+      const x = (u * n) % b, y = (v * n) % b;
+      return Math.abs(x - b / 2) < b / 5 || Math.abs(y - b / 2) < b / 5;
+    });
+  } },
+  { name: 'Triangles', cat: 'p', draw(P, n, R) {
+    const flip = R() < .5, k = 3.5;
+    P.fn((u, v) => {
+      const x = ((u * k) % 1), y = ((v * k) % 1);
+      const t = flip ? (y > x) : (y > 1 - x);
+      return (Math.floor(u * k) + Math.floor(v * k)) % 2 === 0 ? t : !t;
+    });
+  } },
+  { name: 'Squares', cat: 'p', draw(P) {
+    for (let r = .48; r > .05; r -= .11) {
+      const on = Math.round((.48 - r) * 30) % 2 === 0;
+      P.rect(.5 - r, .5 - r, .5 + r, .5 + r, on ? 1 : 0);
+    }
+  } }
+];
+
+function cluesForBuilt(g) {
+  const n = g.n, rows = [], cols = [];
+  const lineClue = arr => { const out = []; let run = 0; for (let i = 0; i < arr.length; i++) { if (arr[i]) run++; else if (run) { out.push(run); run = 0; } } if (run) out.push(run); return out; };
+  for (let y = 0; y < n; y++) { const a = []; for (let x = 0; x < n; x++) a.push(g.c[y * n + x]); rows.push(lineClue(a)); }
+  for (let x = 0; x < n; x++) { const a = []; for (let y = 0; y < n; y++) a.push(g.c[y * n + x]); cols.push(lineClue(a)); }
+  return { rows, cols };
+}
+function solveLine(known, clue) {
+  const n = known.length, k = clue.length;
+  if (!k) { const o = new Array(n); for (let i = 0; i < n; i++) { if (known[i] === 1) return null; o[i] = 2; } return o; }
+  const feas = new Array(n + 1);
+  for (let i = 0; i <= n; i++) feas[i] = new Uint8Array(k + 1);
+  feas[n][k] = 1;
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = k; j >= 0; j--) {
+      let ok = 0;
+      if (known[i] !== 1 && feas[i + 1][j]) ok = 1;
+      if (!ok && j < k) {
+        const L = clue[j];
+        if (i + L <= n) {
+          let fits = 1;
+          for (let t = i; t < i + L; t++) if (known[t] === 2) { fits = 0; break; }
+          if (fits) {
+            const after = i + L;
+            if (after === n) { if (j === k - 1) ok = 1; }
+            else if (known[after] !== 1 && feas[after + 1][j + 1]) ok = 1;
+          }
+        }
+      }
+      feas[i][j] = ok;
+    }
+  }
+  if (!feas[0][0]) return null;
+  const canF = new Uint8Array(n), canE = new Uint8Array(n);
+  const reach = new Array(n + 1);
+  for (let i = 0; i <= n; i++) reach[i] = new Uint8Array(k + 1);
+  reach[0][0] = 1;
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j <= k; j++) {
+      if (!reach[i][j]) continue;
+      if (known[i] !== 1 && feas[i + 1][j]) { canE[i] = 1; reach[i + 1][j] = 1; }
+      if (j < k) {
+        const L = clue[j];
+        if (i + L <= n) {
+          let fits = 1;
+          for (let t = i; t < i + L; t++) if (known[t] === 2) { fits = 0; break; }
+          if (fits) {
+            const after = i + L;
+            let ok = 0;
+            if (after === n) { if (j === k - 1) ok = 1; }
+            else if (known[after] !== 1 && feas[after + 1][j + 1]) ok = 1;
+            if (ok) {
+              for (let t = i; t < i + L; t++) canF[t] = 1;
+              if (after < n) { canE[after] = 1; reach[after + 1][j + 1] = 1; }
+            }
+          }
+        }
+      }
+    }
+  }
+  const out = new Array(n);
+  for (let i = 0; i < n; i++) {
+    if (canF[i] && canE[i]) out[i] = 0;
+    else if (canF[i]) out[i] = 1;
+    else if (canE[i]) out[i] = 2;
+    else return null;
+  }
+  return out;
+}
+function solveGrid(rows, cols, n) {
+  const st = new Uint8Array(n * n);
+  let changed = true, guard = 0;
+  while (changed && guard++ < 60) {
+    changed = false;
+    for (let y = 0; y < n; y++) {
+      const kn = new Array(n);
+      for (let x = 0; x < n; x++) kn[x] = st[y * n + x];
+      const r = solveLine(kn, rows[y]);
+      if (!r) return -1;
+      for (let x = 0; x < n; x++) if (r[x] && st[y * n + x] !== r[x]) { st[y * n + x] = r[x]; changed = true; }
+    }
+    for (let x = 0; x < n; x++) {
+      const kn = new Array(n);
+      for (let y = 0; y < n; y++) kn[y] = st[y * n + x];
+      const r = solveLine(kn, cols[x]);
+      if (!r) return -1;
+      for (let y = 0; y < n; y++) if (r[y] && st[y * n + x] !== r[y]) { st[y * n + x] = r[y]; changed = true; }
+    }
+    let done = true;
+    for (let i = 0; i < n * n; i++) if (!st[i]) { done = false; break; }
+    if (done) return 1;
+  }
+  return 0;
+}
+function denoiseBuilt(g) {
+  if (g.n <= 5) return;
+  const n = g.n, c = g.c, out = new Uint8Array(c);
+  const th = n >= 20 ? 2 : 1;
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    const i = y * n + x;
+    if (!c[i]) continue;
+    let nb = 0;
+    if (x > 0 && c[i - 1]) nb++;
+    if (x < n - 1 && c[i + 1]) nb++;
+    if (y > 0 && c[i - n]) nb++;
+    if (y < n - 1 && c[i + n]) nb++;
+    if (x > 0 && y > 0 && c[i - n - 1]) nb++;
+    if (x < n - 1 && y > 0 && c[i - n + 1]) nb++;
+    if (x > 0 && y < n - 1 && c[i + n - 1]) nb++;
+    if (x < n - 1 && y < n - 1 && c[i + n + 1]) nb++;
+    out[i] = nb >= th ? 1 : 0;
+  }
+  g.c = out;
+}
+function mirrorBuilt(g, horiz) {
+  const n = g.n, o = newGrid(n);
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++)
+    o.c[y * n + x] = horiz ? g.c[y * n + (n - 1 - x)] : g.c[(n - 1 - y) * n + x];
+  return o;
+}
+function rotateBuilt(g, q) {
+  let cur = g;
+  for (let i = 0; i < q; i++) {
+    const n = cur.n, o = newGrid(n);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) o.c[x * n + (n - 1 - y)] = cur.c[y * n + x];
+    cur = o;
+  }
+  return cur;
+}
+const BUILT_TRANSFORMS = [g => g, g => mirrorBuilt(g, true), g => mirrorBuilt(g, false), g => rotateBuilt(g, 1), g => rotateBuilt(g, 2),
+  g => rotateBuilt(mirrorBuilt(g, true), 1)];
+function builtDensity(g) { let s = 0; for (let i = 0; i < g.c.length; i++) s += g.c[i]; return s / g.c.length; }
+
+function buildPuzzle(size, seed) {
+  const tries = size <= 5 ? 500 : 200;
+  let fallback = null;
+  for (let t = 0; t < tries; t++) {
+    const rng = mulberry32(hashString(seed + '#' + t));
+    const usePattern = rng() < .58;
+    const pool = usePattern ? PAT_RECIPES : ICON_RECIPES;
+    const rec = pool[Math.floor(rng() * pool.length)];
+    const P = painter(newGrid(size));
+    rec.draw(P, size, rng);
+    let grid = P.g, name = rec.name;
+    grid = BUILT_TRANSFORMS[Math.floor(rng() * BUILT_TRANSFORMS.length)](grid);
+    denoiseBuilt(grid);
+    const d = builtDensity(grid);
+    if (d < .2 || d > .82) continue;
+    const clues = cluesForBuilt(grid);
+    const res = solveGrid(clues.rows, clues.cols, size);
+    if (res === 1) return { grid: grid.c, name, size };
+    if (res === 0 && !fallback) fallback = { grid: grid.c, name, size };
+  }
+  if (fallback) return fallback;
+  const g = newGrid(size);
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+    const r = Math.min(x, y, size - 1 - x, size - 1 - y);
+    g.c[y * size + x] = (r % 2 === 0 && r < size / 2) ? 1 : 0;
+  }
+  return { grid: g.c, name: 'Pattern', size };
+}
+
 /* ---------------- Puzzle generation ---------------- */
 const SIZES=[5,10,15];
 const LEVELS_PER_SIZE=48;
 
-const PATTERNS_5=[
-[".#.#.","#####","#####",".###.","..#.."],
-[".####","..###","...##","....#","....."],
-["#.#.#","#.#.#","#####","..#..","..#.."],
-["#...#","#...#","#####","#...#","#...#"],
-["#.#.#",".#.#.","#.#.#",".#.#.","#.#.#"],
-["#####","#.#.#","#...#","#.#.#","#####"],
-["..#..","..#..","#####","..#..","..#.."],
-["..#..",".###.","#####","..#..",".#.#."],
-[".###.","#####","#####","#####",".###."],
-[".###.","#....",".##..","..#.#",".###."],
-["#####","##.##","#.#.#","##.##","#####"],
-["#####","..#..","..#..","..#..","..#.."],
-["#...#","#...#","#...#","#...#","#####"],
-["..#..",".###.","#####","..#..","..#.."],
-[".#...",".##..",".###.",".##..",".#..."],
-["..#..",".###.","#####",".###.","..#.."],
-["#...#",".#.#.","..#..",".#.#.","#...#"],
-["#.#.#","#####","#####",".###.","..#.."],
-["#.#.#","#####",".###.",".###.",".#.#."],
-["#.#.#",".###.","#####",".###.","#.#.#"],
-[".###.","#...#","#.#.#","#...#",".###."],
-["..#..",".###.","#.#.#","#.#.#","#####"],
-[".###.","##...","..#..","...##",".###."],
-[".....",".###.","#.#.#","#####","....."],
-[".###.","#...#","#...#",".###.","....."],
-[".###.","##...","#....","##...",".###."],
-[".#.#.",".#.#.","#####","..#..",".#.#."],
-["####.","#..#.","####.",".#...",".#..."]
-].map(p=>p.join(""));
-
-function parsePattern(flat){const n=5,g=new Uint8Array(n*n);for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(flat[y*n+x]==="#")g[y*n+x]=1;return g;}
 function setPx(g,n,x,y,v){x=Math.round(x);y=Math.round(y);if(x>=0&&x<n&&y>=0&&y<n)g[y*n+x]=v;}
 function mirrorV(g,n,x,y,v){setPx(g,n,x,y,v);setPx(g,n,n-1-x,y,v);}
 function fillEllipse(g,n,cx,cy,rx,ry,v){for(let y=0;y<n;y++)for(let x=0;x<n;x++){const dx=(x-cx)/rx,dy=(y-cy)/ry;if(dx*dx+dy*dy<=1)g[y*n+x]=v;}}
@@ -936,9 +1531,33 @@ function genBlocks(rng,n){
 }
 function genGeo(rng,n){
   const g=new Uint8Array(n*n),kind=randInt(rng,0,3),cx=(n-1)/2;
-  if(kind===0){for(let y=0;y<n;y++){const half=Math.round(((n-1-y)/(n-1))*cx);for(let x=cx-half;x<=cx+half;x++)setPx(g,n,x,y,1);}}
-  else if(kind===1){for(let y=0;y<n;y++){const d=Math.abs(y-(n-1)/2);for(let k=0;k<=d;k++)mirrorV(g,n,Math.round(cx)-k,y,1);}}
-  else if(kind===2){fillEllipse(g,n,cx,cx,n*.44,n*.44,1);for(let y=0;y<n;y+=3)for(let x=0;x<n;x++)setPx(g,n,x,y,0);}
+  if(kind===0){
+    const flip=rng()<.5,curve=.6+rng()*1.1,baseW=.5+rng()*.42,jitter=rng()<.5;
+    for(let y=0;y<n;y++){
+      const t=(flip?(n-1-y):y)/(n-1);
+      let half=Math.round(Math.pow(1-t,curve)*cx*baseW*2);
+      if(jitter&&rng()<.3)half+=rng()<.5?-1:1;
+      half=Math.max(0,half);
+      for(let x=cx-half;x<=cx+half;x++)setPx(g,n,x,y,1);
+    }
+  }
+  else if(kind===1){
+    const skew=.55+rng()*.7,squash=rng()<.5,offset=randInt(rng,-1,1);
+    for(let y=0;y<n;y++){
+      let d=Math.abs(y-(n-1)/2+offset)*skew;
+      if(squash)d*=.7+rng()*.5;
+      d=Math.max(0,Math.round(d));
+      for(let k=0;k<=d;k++)mirrorV(g,n,Math.round(cx)-k,y,1);
+    }
+  }
+  else if(kind===2){
+    const rx=n*(.32+rng()*.16),ry=n*(.32+rng()*.16),stripe=randInt(rng,2,4),offset=randInt(rng,0,stripe-1),horiz=rng()<.5;
+    fillEllipse(g,n,cx,cx,rx,ry,1);
+    for(let i=0;i<n;i++)if((i+offset)%stripe===0){
+      if(horiz)for(let x=0;x<n;x++)setPx(g,n,x,i,0);
+      else for(let y=0;y<n;y++)setPx(g,n,i,y,0);
+    }
+  }
   else{
     const bars=randInt(rng,3,5);
     for(let b=0;b<bars;b++){const y=Math.round(((b+.5)/bars)*n),w=Math.round(n*(.2+rng()*.5));for(let x=cx-w;x<=cx+w;x++)setPx(g,n,x,y+randInt(rng,-1,1),1);}
@@ -995,16 +1614,49 @@ function hiddenMasks(key,rows,cols){
   return{hiddenRows:mask(rows),hiddenCols:mask(cols)};
 }
 const puzzleCache=new Map();
+const seenGridsByTier=new Map();
+function gridSignature(g){return g.join("");}
+function gridSimilarity(a,b){let same=0;for(let i=0;i<a.length;i++)if(a[i]===b[i])same++;return same/a.length;}
+function tooSimilar(grid,seenGrids){for(const g of seenGrids)if(g.length===grid.length&&gridSimilarity(grid,g)>=.86)return true;return false;}
+function fallbackGrid(rng,n){
+  const shapes=[
+    ()=>{const g=new Uint8Array(n*n);fillEllipse(g,n,(n-1)/2,(n-1)/2,n*(.3+rng()*.14),n*(.3+rng()*.14),1);return g;},
+    ()=>{const g=new Uint8Array(n*n),pad=Math.max(1,Math.round(n*(.12+rng()*.1)));for(let y=pad;y<n-pad;y++)for(let x=pad;x<n-pad;x++)g[y*n+x]=1;return g;},
+    ()=>{const g=new Uint8Array(n*n),cx=(n-1)/2,skew=.6+rng()*.6;for(let y=0;y<n;y++){const d=Math.round(Math.abs(y-cx)*skew);for(let k=0;k<=Math.max(0,Math.round(cx)-d);k++)mirrorV(g,n,Math.round(cx)-k,y,1);}return g;},
+    ()=>{const g=new Uint8Array(n*n),rows=randInt(rng,3,5);for(let r=0;r<rows;r++){const y=Math.round(((r+.5)/rows)*n),w=Math.round(n*(.2+rng()*.5)),cx=(n-1)/2;for(let x=cx-w;x<=cx+w;x++)setPx(g,n,x,y,1);}return g;}
+  ];
+  return pick(rng,shapes)();
+}
+function parsePattern(flat){const n=5,g=new Uint8Array(n*n);for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(flat[y*n+x]==="#")g[y*n+x]=1;return g;}
+
 function getPuzzle(mode,size,id){
   const key=mode+"-"+size+"-"+id;
   if(puzzleCache.has(key))return puzzleCache.get(key);
+  const tierKey=mode+"-"+size;
+  let seen=seenGridsByTier.get(tierKey);
+  if(!seen){seen={sigs:new Set(),grids:[]};seenGridsByTier.set(tierKey,seen);}
+  const isDup=g=>seen.sigs.has(gridSignature(g))||tooSimilar(g,seen.grids);
   let grid;
-  if(mode!=="daily"&&size===5&&id<PATTERNS_5.length){grid=parsePattern(PATTERNS_5[id]);}
-  else{
-    const rng=mulberry32(hashString(key+"::art"));let attempt=0;
-    do{const raw=pick(rng,GENERATORS)(rng,size);grid=cropAndCenter(raw,size,rng);attempt++;}while(!qualityOk(grid,size)&&attempt<60);
-    if(!qualityOk(grid,size)){grid=new Uint8Array(size*size);fillEllipse(grid,size,(size-1)/2,(size-1)/2,size*.42,size*.42,1);}
+
+  /* Level 1 (5x5 Classic #1): Iconic Heart tutorial level */
+  if(mode==="classic"&&size===5&&id===0){
+    grid=parsePattern(".#.#.##########.###...#..");
+  } else {
+    /* Primary: verified-unique-solution icon/pattern generator (index.html's engine) */
+    const built=buildPuzzle(size,key+"::built");
+    if(built&&built.grid&&!isDup(built.grid))grid=built.grid;
+    /* Fallback: this file's own procedural generators, all seeded/parametric (no static pixel data) */
+    if(!grid){
+      const rng=mulberry32(hashString(key+"::art"));let attempt=0;
+      do{const raw=pick(rng,GENERATORS)(rng,size);grid=cropAndCenter(raw,size,rng);attempt++;}while((!qualityOk(grid,size)||isDup(grid))&&attempt<120);
+      if(!qualityOk(grid,size)||isDup(grid)){
+        let fbAttempt=0;
+        do{grid=fallbackGrid(rng,size);fbAttempt++;}while(isDup(grid)&&fbAttempt<12);
+      }
+    }
   }
+  seen.sigs.add(gridSignature(grid));
+  seen.grids.push(grid);
   const{rows,cols}=computeClues(grid,size);
   const puzzle={key,n:size,grid,rows,cols};
   if(mode==="expert")Object.assign(puzzle,hiddenMasks(key,rows,cols));
@@ -2329,30 +2981,40 @@ function startGame(mode,size,id,customDate,customOpts){
     const maxColRuns=Math.max.apply(null,puzzle.cols.map(l=>l.length));
     const hasTwoDigitRow=puzzle.rows.some(r=>r.some(v=>v>=10));
     
-    // Scale clue proportions safely so no numbers ever get clipped
-    const charFactor=hasTwoDigitRow?0.72:0.58;
-    const kRow=Math.max(0.95,maxRowRuns*charFactor+0.32);
-    const kCol=Math.max(0.9,maxColRuns*0.52+0.32);
+    const cs=wrap?window.getComputedStyle(wrap):null;
+    const padX=cs?(parseFloat(cs.paddingLeft)||0)+(parseFloat(cs.paddingRight)||0)+6:14;
+    const padY=cs?(parseFloat(cs.paddingTop)||0)+(parseFloat(cs.paddingBottom)||0)+6:14;
 
-    const isShort=window.innerHeight<560;
-    const padX=window.innerWidth>=640?16:8;
-    const padY=isShort?4:(window.innerHeight>=640?16:8);
-    const availW=Math.max(120,(wrap?wrap.clientWidth:window.innerWidth)-padX);
-    const availH=Math.max(120,(wrap?wrap.clientHeight:window.innerHeight)-padY);
-    const base=Math.min(availW/(n+kRow),availH/(n+kCol));
-    const cell=Math.max(10,Math.floor(base*zoom));
-    
-    // Calculate font sizes with safe bounds
-    const fontRow=Math.max(8,Math.min(Math.floor(cell*0.44),16));
-    const fontCol=Math.max(8,Math.min(Math.floor(cell*0.44),16));
-    
-    // Ensure colH and rowW are strictly large enough to fit all text without clipping
-    const minColH=maxColRuns*(fontCol+2)+10;
-    const minRowW=maxRowRuns*(hasTwoDigitRow?Math.ceil(fontRow*1.6):fontRow)+12;
-    const colH=Math.max(minColH,Math.floor(cell*kCol));
-    const rowW=Math.max(minRowW,Math.floor(cell*kRow));
+    const availW=Math.max(80,(wrap&&wrap.clientWidth>0?wrap.clientWidth:window.innerWidth)-padX);
+    const availH=Math.max(80,(wrap&&wrap.clientHeight>0?wrap.clientHeight:(window.innerHeight-140))-padY);
 
-    return{cell,rowW,colH,boardW:rowW+n*cell,boardH:colH+n*cell,fontRow,fontCol};
+    const charFactor=hasTwoDigitRow?0.7:0.55;
+    const kRow=Math.max(0.9,maxRowRuns*charFactor+0.25);
+    const kCol=Math.max(0.85,maxColRuns*0.5+0.25);
+
+    // Initial estimate for cell size based on container aspect ratio
+    let cell=Math.max(8,Math.floor(Math.min(availW/(n+kRow),availH/(n+kCol))*zoom));
+
+    // Iteratively adjust cell down if board exceeds available width or height
+    let fontRow,fontCol,minColH,minRowW,colH,rowW,boardW,boardH;
+    function calcDims(c){
+      fontRow=Math.max(7,Math.min(Math.floor(c*0.44),16));
+      fontCol=Math.max(7,Math.min(Math.floor(c*0.44),16));
+      minColH=maxColRuns*(fontCol+2)+6;
+      minRowW=maxRowRuns*(hasTwoDigitRow?Math.ceil(fontRow*1.5):fontRow)+8;
+      colH=Math.max(minColH,Math.floor(c*kCol));
+      rowW=Math.max(minRowW,Math.floor(c*kRow));
+      boardW=rowW+n*c+4;
+      boardH=colH+n*c+4;
+    }
+
+    calcDims(cell);
+    while(cell>8 && (boardW>availW || boardH>availH)){
+      cell--;
+      calcDims(cell);
+    }
+
+    return{cell,rowW,colH,boardW,boardH,fontRow,fontCol};
   }
 
   let title="";
@@ -2372,15 +3034,16 @@ function startGame(mode,size,id,customDate,customOpts){
   app.innerHTML=
     '<div class="screen no-select">'+
       '<div class="g-head">'+
-        '<button class="back-link press" id="gBack">'+icon("back")+'<span class="g-head-title" style="display:none" id="gTitleLong">'+title+"</span></button>"+
+        '<button class="back-link press" id="gBack" aria-label="Back">'+icon("back")+'<span>Back</span></button>'+
         '<div class="g-head-right">'+
-          '<button class="chip test-chip press" id="gTestWin" title="Complete Level (Test)">⚡ Complete</button>'+
+          '<button class="chip test-chip press" id="gTestWin" title="Complete Level (Test)">⚡ <span>Complete</span></button>'+
           '<span class="chip">'+icon("clock")+'<span id="gTime">0:00</span></span>'+
           '<span class="chip" id="gMissChip">'+icon("x")+'<span id="gMiss">0</span></span>'+
-          '<button class="icon-btn press" id="gHelp" style="width:36px;height:36px;font-size:20px">'+icon("help")+'</button>'+
-          '<button class="icon-btn press" id="gSet" style="width:36px;height:36px;font-size:20px">'+icon("gear")+'</button>'+
-        "</div></div>"+
-      '<div class="g-title" id="gTitleSmall">'+title+"</div>"+
+          '<button class="icon-btn press" id="gHelp" title="Help" style="width:clamp(28px, 4vh, 34px);height:clamp(28px, 4vh, 34px);font-size:clamp(16px, 2.2vh, 19px)">'+icon("help")+'</button>'+
+          '<button class="icon-btn press" id="gSet" title="Settings" style="width:clamp(28px, 4vh, 34px);height:clamp(28px, 4vh, 34px);font-size:clamp(16px, 2.2vh, 19px)">'+icon("gear")+'</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="g-title">'+title+'</div>'+
       (isTutorial ? 
         '<div class="tutorial-banner" id="tutBanner">'+
           '<span class="tut-badge">💡 TUTORIAL</span>'+
@@ -2397,13 +3060,8 @@ function startGame(mode,size,id,customDate,customOpts){
         '<button class="tbtn press" id="tHint" title="Hint" style="color:#0ea5e9">'+icon("bulb")+'<span class="n" id="hintN">'+hintCount+'</span></button>'+
         '<span class="tdiv"></span>'+
         '<button class="tbtn press" id="tRestart" title="Restart">'+icon("restart")+'</button>'+
-        /* '<button class="tbtn press" id="tOut" title="Zoom out" disabled>'+icon("zoomout")+'</button>'+
-        '<button class="tbtn press" id="tIn" title="Zoom in">'+icon("zoomin")+'</button>'+ */
-      "</div></div>"+
-    "</div>";
-  const gTitleLong=document.getElementById("gTitleLong");
-  if(window.matchMedia("(min-width:640px)").matches)gTitleLong.style.display="inline";
-  else document.getElementById("gTitleSmall").style.display="block";
+      '</div></div>'+
+    '</div>';
 
   /* build board */
   function hair(v){return (v!==0&&v%5===0)?("2px solid var(--sep)"):("1px solid var(--hair)");}
@@ -2446,8 +3104,8 @@ function startGame(mode,size,id,customDate,customOpts){
     const canvas=document.getElementById("cornerCanvas");
     if(!canvas)return;
     const m=metrics();
-    const boxW=Math.max(10, m.rowW-8);
-    const boxH=Math.max(10, m.colH-8);
+    const boxW=Math.max(8, m.rowW-6);
+    const boxH=Math.max(8, m.colH-6);
     const size=Math.min(boxW, boxH);
     
     if(canvas.style.width!==size+"px"||canvas.style.height!==size+"px"){
@@ -2831,8 +3489,10 @@ function startGame(mode,size,id,customDate,customOpts){
   boardEl.addEventListener("contextmenu",e=>e.preventDefault());
 
   let resizeT;
-  ro=new ResizeObserver(()=>{clearTimeout(resizeT);resizeT=setTimeout(()=>{if(!dead)buildBoard();},60);});
-  ro.observe(document.getElementById("boardWrap"));
+  ro=new ResizeObserver(()=>{clearTimeout(resizeT);resizeT=setTimeout(()=>{if(!dead)buildBoard();},25);});
+  const wrapEl=document.getElementById("boardWrap");
+  if(wrapEl)ro.observe(wrapEl);
+  requestAnimationFrame(()=>{if(!dead)buildBoard();});
 
   /* timer */
   timerId=setInterval(()=>{
@@ -2945,17 +3605,17 @@ function showHelp(){
         '<div class="help-card-ic">1</div>'+
         '<div class="help-card-body">'+
           '<div class="help-card-title">Number Clues</div>'+
-          '<p class="help-card-desc">Numbers show continuous groups of filled squares. Multiple numbers (e.g. <b>2 2</b>) have at least <b>one empty gap</b> between them.</p>'+
+          '<p class="help-card-desc">Numbers show continuous groups of filled squares. Multiple numbers (e.g. <b>1 1</b>) have at least <b>one empty gap</b> between them.</p>'+
           '<div class="help-demo-wrap">'+
             '<div class="help-demo-row">'+
-              '<span class="help-demo-clue" id="helpDemoClue">2 2</span>'+
-              '<div class="help-demo-cell fill" data-idx="0"></div>'+
+              '<span class="help-demo-clue" id="helpDemoClue">1 1</span>'+
+              '<div class="help-demo-cell" data-idx="0">'+icon("x")+'</div>'+
               '<div class="help-demo-cell fill" data-idx="1"></div>'+
               '<div class="help-demo-cell" data-idx="2">'+icon("x")+'</div>'+
               '<div class="help-demo-cell" data-idx="3"></div>'+
-              '<div class="help-demo-cell fill" data-idx="4"></div>'+
+              '<div class="help-demo-cell" data-idx="4">'+icon("x")+'</div>'+
             '</div>'+
-            '<div class="help-demo-feedback" id="helpDemoMsg">💡 Tap cells to try solving the "2 2" row!</div>'+
+            '<div class="help-demo-feedback" id="helpDemoMsg">💡 Tap cells to solve the "1 1" Heart curve row!</div>'+
           '</div>'+
         '</div>'+
       '</div>'+
@@ -2996,7 +3656,7 @@ function showHelp(){
   );
 
   /* Interactive Demo Logic */
-  const demoStates = [1, 1, 2, 0, 1]; // 0: empty, 1: fill, 2: cross
+  const demoStates = [2, 1, 2, 0, 2]; // 0: empty, 1: fill, 2: cross
   const demoCells = modalRoot.querySelectorAll(".help-demo-cell");
   const demoClue = document.getElementById("helpDemoClue");
   const demoMsg = document.getElementById("helpDemoMsg");
@@ -3007,15 +3667,15 @@ function showHelp(){
       c.className = "help-demo-cell" + (s === 1 ? " fill" : "");
       c.innerHTML = s === 2 ? icon("x") : "";
     });
-    // Target: [1, 1, 2, 1, 1] for clue "2 2"
-    const isTargetSolved = (demoStates[0]===1 && demoStates[1]===1 && demoStates[2]===2 && demoStates[3]===1 && demoStates[4]===1) ||
-                           (demoStates[0]===1 && demoStates[1]===1 && demoStates[2]===0 && demoStates[3]===1 && demoStates[4]===1);
+    // Target: [X, 1, X, 1, X] for clue "1 1" (Heart top curve)
+    const isTargetSolved = demoStates[1] === 1 && demoStates[3] === 1 && 
+                           demoStates[0] !== 1 && demoStates[2] !== 1 && demoStates[4] !== 1;
     if(isTargetSolved){
-      if(demoClue) { demoClue.classList.add("solved"); demoClue.innerHTML = "2 2 ✓"; }
-      if(demoMsg) { demoMsg.className = "help-demo-feedback success"; demoMsg.innerHTML = "🎉 Perfect! 2 filled + gap + 2 filled."; }
+      if(demoClue) { demoClue.classList.add("solved"); demoClue.innerHTML = "1 1 ✓"; }
+      if(demoMsg) { demoMsg.className = "help-demo-feedback success"; demoMsg.innerHTML = "🎉 Perfect! Fill + Gap + Fill shapes the Heart lobes!"; }
     } else {
-      if(demoClue) { demoClue.classList.remove("solved"); demoClue.innerHTML = "2 2"; }
-      if(demoMsg) { demoMsg.className = "help-demo-feedback"; demoMsg.innerHTML = "💡 Tap cells to try solving the \"2 2\" row!"; }
+      if(demoClue) { demoClue.classList.remove("solved"); demoClue.innerHTML = "1 1"; }
+      if(demoMsg) { demoMsg.className = "help-demo-feedback"; demoMsg.innerHTML = "💡 Tap cell 4 to complete the \"1 1\" Heart curves!"; }
     }
   }
 
@@ -3068,21 +3728,21 @@ function showSettings(){
 
 function showResetConfirm(){
   showModal(
-    '<div class="modal" style="max-width:400px;text-align:center">'+
-      '<div style="width:48px;height:48px;border-radius:50%;background:rgba(239,68,68,.12);border:2px solid rgba(239,68,68,.3);color:#ef4444;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:22px">'+
+    '<div class="modal confirm-modal">'+
+      '<div class="confirm-icon-wrap danger">'+
         '⚠️'+
       '</div>'+
-      '<h2 style="margin-bottom:8px;color:#ef4444">Reset All Progress?</h2>'+
-      '<p class="confirm-text" style="margin-bottom:12px;color:var(--heading);font-weight:600">Are you sure you want to erase all your saved data?</p>'+
-      '<div style="background:var(--card-2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;text-align:left;font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:14px">'+
-        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="color:#ef4444;font-weight:bold">•</span> All solved Classic &amp; Expert levels</div>'+
-        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="color:#ef4444;font-weight:bold">•</span> Mosaic masterpiece unlocks</div>'+
-        '<div style="display:flex;align-items:center;gap:8px"><span style="color:#ef4444;font-weight:bold">•</span> Daily challenge streaks &amp; calendar history</div>'+
+      '<h2 class="confirm-title" style="color:#ef4444">Reset All Progress?</h2>'+
+      '<p class="confirm-desc" style="color:var(--heading);font-weight:600">Are you sure you want to erase all your saved data?</p>'+
+      '<div class="confirm-card">'+
+        '<div class="row"><span style="color:#ef4444;font-weight:bold">•</span> All solved Classic &amp; Expert levels</div>'+
+        '<div class="row"><span style="color:#ef4444;font-weight:bold">•</span> Mosaic masterpiece unlocks</div>'+
+        '<div class="row"><span style="color:#ef4444;font-weight:bold">•</span> Daily challenge streaks &amp; calendar history</div>'+
       '</div>'+
-      '<p style="font-size:11px;color:#ef4444;font-weight:700;margin:0 0 16px;text-transform:uppercase;letter-spacing:.05em">⚠️ This action is permanent and cannot be undone!</p>'+
-      '<div class="modal-actions" style="margin-top:0">'+
-        '<button class="btn-ghost press" style="flex:1" id="resetCancel">Keep Progress</button>'+
-        '<button class="btn-red press" style="flex:1;background:#ef4444;box-shadow:0 3px 0 #b91c1c" id="resetConfirm">Erase Everything</button>'+
+      '<p class="confirm-warning">⚠️ This action is permanent and cannot be undone!</p>'+
+      '<div class="confirm-actions">'+
+        '<button class="btn-ghost press" id="resetCancel">Keep Progress</button>'+
+        '<button class="btn-red press" id="resetConfirm">Erase Everything</button>'+
       '</div>'+
     '</div>'
   );
@@ -3105,20 +3765,34 @@ function showResetConfirm(){
 }
 function showRestartConfirm(onConfirm){
   showModal(
-    '<div class="modal"><h2>Restart Puzzle?</h2>'+
-    '<p class="confirm-text">Your current progress on this puzzle will be lost.</p>'+
-    '<div class="modal-actions"><button class="btn-ghost press" id="rcCancel">Cancel</button>'+
-    '<button class="btn-red press" id="rcOk">Restart</button></div></div>'
+    '<div class="modal confirm-modal">'+
+      '<div class="confirm-icon-wrap warn">'+
+        icon("restart")+
+      '</div>'+
+      '<h2 class="confirm-title">Restart Puzzle?</h2>'+
+      '<p class="confirm-desc">Your current moves and progress on this puzzle will be reset to the beginning.</p>'+
+      '<div class="confirm-actions">'+
+        '<button class="btn-ghost press" id="rcCancel">Cancel</button>'+
+        '<button class="btn-red press" id="rcOk">Restart</button>'+
+      '</div>'+
+    '</div>'
   );
   document.getElementById("rcCancel").onclick=()=>{sound.click();closeModal();};
   document.getElementById("rcOk").onclick=()=>{sound.click();onConfirm();};
 }
 function showLeaveConfirm(onLeave){
   showModal(
-    '<div class="modal"><h2>Leave Puzzle?</h2>'+
-    '<p class="confirm-text">Your unfinished progress on this puzzle will be lost.</p>'+
-    '<div class="modal-actions"><button class="btn-ghost press" id="lcCancel">Keep Playing</button>'+
-    '<button class="btn-red press" id="lcOk">Leave</button></div></div>'
+    '<div class="modal confirm-modal">'+
+      '<div class="confirm-icon-wrap info">'+
+        icon("back")+
+      '</div>'+
+      '<h2 class="confirm-title">Leave Puzzle?</h2>'+
+      '<p class="confirm-desc">Your unfinished moves on this puzzle will not be saved.</p>'+
+      '<div class="confirm-actions">'+
+        '<button class="btn-ghost press" id="lcCancel">Keep Playing</button>'+
+        '<button class="btn-red press" id="lcOk">Leave</button>'+
+      '</div>'+
+    '</div>'
   );
   document.getElementById("lcCancel").onclick=()=>{sound.click();closeModal();};
   document.getElementById("lcOk").onclick=()=>{sound.click();closeModal();onLeave();};

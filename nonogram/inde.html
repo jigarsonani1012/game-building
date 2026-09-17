@@ -1478,20 +1478,241 @@ const saveDaily = d => Storage.saveDaily(d);
 const bigDone = (mode, idx) => Storage.bigDone(mode, idx);
 const saveMosaicSection = (mode, idx, blockId) => Storage.saveMosaicSection(mode, idx, blockId);
 
-/* ---------------- Sound (WebAudio synth) ---------------- */
-const sound={
-  ctx:null,enabled:true,
-  ensure(){if(!this.enabled)return null;if(!this.ctx){try{const AC=window.AudioContext||window.webkitAudioContext;this.ctx=new AC();}catch(e){return null;}}if(this.ctx.state==="suspended")this.ctx.resume();return this.ctx;},
-  tone(freq,dur,type,vol,when,slideTo){const ctx=this.ensure();if(!ctx)return;when=when||0;vol=vol==null?.12:vol;const t0=ctx.currentTime+when,osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,t0);if(slideTo)osc.frequency.exponentialRampToValueAtTime(slideTo,t0+dur);gain.gain.setValueAtTime(0,t0);gain.gain.linearRampToValueAtTime(vol,t0+.008);gain.gain.exponentialRampToValueAtTime(.0001,t0+dur);osc.connect(gain);gain.connect(ctx.destination);osc.start(t0);osc.stop(t0+dur+.02);},
-  click(){this.tone(620,.06,"triangle",.07);},
-  fill(){this.tone(240+Math.random()*40,.055,"square",.05);},
-  cross(){this.tone(190,.05,"triangle",.06,0,140);},
-  undo(){this.tone(320,.07,"triangle",.07,0,220);},
-  error(){this.tone(150,.22,"sawtooth",.09,0,80);},
-  hint(){this.tone(660,.1,"sine",.1,0,990);this.tone(990,.12,"sine",.08,.09);},
-  denied(){this.tone(200,.12,"square",.06,0,140);},
-  win(){[523,659,784,1047,1319].forEach((f,i)=>this.tone(f,.22,"triangle",.11,i*.11));this.tone(262,.7,"sine",.06,.1);}
+/* ---------------- Spatial Ambient FM & Pentatonic Audio Engine ---------------- */
+const sound = {
+  ctx: null,
+  master: null,
+  reverb: null,
+  enabled: true,
+  comboIndex: 0,
+  lastFillTime: 0,
+
+  // Warm, deeply relaxing C Major Pentatonic scale across 2 octaves
+  SCALE: [
+    392.00,  // G4
+    440.00,  // A4
+    523.25,  // C5
+    587.33,  // D5
+    659.25,  // E5
+    783.99,  // G5
+    880.00,  // A5
+    1046.50, // C6
+    1174.66, // D6
+    1318.51  // E6
+  ],
+
+  ensure() {
+    if (!this.enabled) return null;
+    if (!this.ctx) {
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AC();
+
+        // Master dynamics compressor to keep sound punchy, smooth, and warm
+        const comp = this.ctx.createDynamicsCompressor();
+        comp.threshold.setValueAtTime(-18, this.ctx.currentTime);
+        comp.knee.setValueAtTime(14, this.ctx.currentTime);
+        comp.ratio.setValueAtTime(4.5, this.ctx.currentTime);
+        comp.attack.setValueAtTime(0.002, this.ctx.currentTime);
+        comp.release.setValueAtTime(0.16, this.ctx.currentTime);
+
+        this.master = this.ctx.createGain();
+        this.master.gain.setValueAtTime(0.8, this.ctx.currentTime);
+
+        // Ambient Acoustic Spatial Delay / Reverb bus
+        const delay = this.ctx.createDelay(1.0);
+        delay.delayTime.setValueAtTime(0.18, this.ctx.currentTime);
+        const delayFeedback = this.ctx.createGain();
+        delayFeedback.gain.setValueAtTime(0.25, this.ctx.currentTime);
+        const delayFilter = this.ctx.createBiquadFilter();
+        delayFilter.type = "lowpass";
+        delayFilter.frequency.setValueAtTime(1900, this.ctx.currentTime);
+
+        this.reverb = this.ctx.createGain();
+        this.reverb.gain.setValueAtTime(0.28, this.ctx.currentTime);
+
+        this.reverb.connect(delayFilter);
+        delayFilter.connect(delay);
+        delay.connect(delayFeedback);
+        delayFeedback.connect(delayFilter);
+        delay.connect(comp);
+
+        this.master.connect(comp);
+        comp.connect(this.ctx.destination);
+      } catch (e) { return null; }
+    }
+    if (this.ctx.state === "suspended") {
+      this.ctx.resume().catch(() => {});
+    }
+    return this.ctx;
+  },
+
+  // Organic FM Marimba / Kalimba Pluck with spatial stereo panning
+  playMarimba(freq, dur = 0.18, vol = 0.22, when = 0, harmonicRatio = 2.76, modIndex = 1.8, pan = 0, sendReverb = true) {
+    const ctx = this.ensure();
+    if (!ctx) return;
+    const now = ctx.currentTime + when;
+
+    const carrier = ctx.createOscillator();
+    const modulator = ctx.createOscillator();
+    const modGain = ctx.createGain();
+    const gain = ctx.createGain();
+
+    carrier.type = "sine";
+    modulator.type = "sine";
+
+    carrier.frequency.setValueAtTime(freq, now);
+    modulator.frequency.setValueAtTime(freq * harmonicRatio, now);
+
+    // FM transient attack envelope (physical wooden mallet strike)
+    modGain.gain.setValueAtTime(freq * modIndex, now);
+    modGain.gain.exponentialRampToValueAtTime(0.01, now + dur * 0.45);
+
+    // Warm exponential decay envelope
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(vol, now + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+    modulator.connect(modGain);
+    modGain.connect(carrier.frequency);
+    carrier.connect(gain);
+
+    // Stereo Spatial Panning Node (supported in all modern browsers)
+    let outputNode = gain;
+    if (typeof ctx.createStereoPanner === "function") {
+      const panner = ctx.createStereoPanner();
+      panner.pan.setValueAtTime(Math.max(-0.85, Math.min(0.85, pan)), now);
+      gain.connect(panner);
+      outputNode = panner;
+    }
+
+    outputNode.connect(this.master);
+    if (sendReverb && this.reverb) {
+      outputNode.connect(this.reverb);
+    }
+
+    modulator.start(now);
+    carrier.start(now);
+    modulator.stop(now + dur + 0.06);
+    carrier.stop(now + dur + 0.06);
+  },
+
+  click() {
+    // Tactile wooden bead snap
+    const ctx = this.ensure();
+    if (!ctx) return;
+    this.playMarimba(960, 0.04, 0.14, 0, 3.2, 0.8, 0, false);
+  },
+
+  fill(pan = 0) {
+    // Mesmerizing Pentatonic Kalimba Melody on consecutive fills!
+    const now = performance.now();
+    if (now - this.lastFillTime > 950) {
+      this.comboIndex = 0;
+    } else {
+      this.comboIndex = (this.comboIndex + 1) % this.SCALE.length;
+    }
+    this.lastFillTime = now;
+
+    const note = this.SCALE[this.comboIndex];
+    // Main warm marimba note with spatial panning
+    this.playMarimba(note, 0.20, 0.26, 0, 2.76, 1.7, pan, true);
+    // Subtle crystalline chime sparkle
+    this.playMarimba(note * 2, 0.10, 0.09, 0, 1.0, 0.25, pan * 0.7, true);
+  },
+
+  cross(pan = 0) {
+    // Crisp tactile wooden pencil tick with spatial pan
+    const ctx = this.ensure();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(1020, now);
+    osc.frequency.exponentialRampToValueAtTime(360, now + 0.032);
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.032);
+
+    let output = gain;
+    if (typeof ctx.createStereoPanner === "function") {
+      const panner = ctx.createStereoPanner();
+      panner.pan.setValueAtTime(Math.max(-0.85, Math.min(0.85, pan)), now);
+      gain.connect(panner);
+      output = panner;
+    }
+    output.connect(this.master);
+
+    osc.start(now);
+    osc.stop(now + 0.04);
+  },
+
+  undo(pan = 0) {
+    // Soothing gentle waterdrop swoop
+    this.playMarimba(440, 0.11, 0.18, 0, 1.5, 0.6, pan, true);
+  },
+
+  lineDone() {
+    // Celestial 3-bell chord chime blooming into ambient reverb (G5 -> C6 -> E6)
+    this.playMarimba(783.99, 0.42, 0.24, 0, 2.0, 0.6, -0.3, true);
+    this.playMarimba(1046.50, 0.50, 0.28, 0.05, 2.0, 0.6, 0.0, true);
+    this.playMarimba(1318.51, 0.60, 0.24, 0.11, 1.5, 0.4, 0.3, true);
+  },
+
+  error(pan = 0) {
+    // Warm, friendly wooden double-bonk (clear & zero harshness)
+    this.playMarimba(170, 0.14, 0.25, 0, 1.5, 0.8, pan, false);
+    this.playMarimba(130, 0.16, 0.28, 0.04, 1.5, 0.8, pan, false);
+  },
+
+  hint() {
+    // Sparkling ethereal dream harp ripple (C5 -> E5 -> G5 -> C6 -> E6)
+    [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((f, i) => {
+      const pan = (i / 4) * 0.8 - 0.4;
+      this.playMarimba(f, 0.35, 0.20, i * 0.055, 2.0, 0.5, pan, true);
+    });
+  },
+
+  denied() {
+    // Soft double wooden knock
+    this.playMarimba(180, 0.045, 0.16, 0, 1.2, 0.5, 0, false);
+    this.playMarimba(140, 0.045, 0.14, 0.055, 1.2, 0.5, 0, false);
+  },
+
+  win() {
+    // Heartwarming orchestral music box victory melody + ambient major 9th bloom
+    const melody = [
+      { f: 523.25, t: 0, d: 0.22, p: -0.3 },    // C5
+      { f: 659.25, t: 0.11, d: 0.22, p: -0.1 }, // E5
+      { f: 783.99, t: 0.22, d: 0.26, p: 0.1 },  // G5
+      { f: 1046.50, t: 0.34, d: 0.45, p: 0.3 }, // C6
+      { f: 1174.66, t: 0.45, d: 0.40, p: 0.0 }, // D6
+      { f: 1318.51, t: 0.56, d: 0.65, p: 0.2 }  // E6
+    ];
+    melody.forEach(n => {
+      this.playMarimba(n.f, n.d, 0.26, n.t, 2.0, 0.5, n.p, true);
+      this.playMarimba(n.f * 2, n.d * 0.6, 0.09, n.t + 0.01, 1.0, 0.1, n.p * 0.5, true);
+    });
+    // Ambient grand chord bloom
+    [261.63, 392.00, 523.25, 659.25, 987.77, 1046.50].forEach((f, idx) => {
+      const p = (idx % 2 === 0 ? -1 : 1) * 0.25;
+      this.playMarimba(f, 1.4, 0.18, 0.58, 1.5, 0.3, p, true);
+    });
+  }
 };
+
+// Global audio unlocker on first touch or keypress
+if (typeof window !== "undefined") {
+  const unlockAudio = () => {
+    sound.ensure();
+    window.removeEventListener("pointerdown", unlockAudio);
+    window.removeEventListener("keydown", unlockAudio);
+    window.removeEventListener("touchstart", unlockAudio);
+  };
+  window.addEventListener("pointerdown", unlockAudio, { passive: true });
+  window.addEventListener("keydown", unlockAudio, { passive: true });
+  window.addEventListener("touchstart", unlockAudio, { passive: true });
+}
 
 /* ---------------- Global state ---------------- */
 const G={
@@ -2239,10 +2460,34 @@ function startGame(mode,size,id,customDate,customOpts){
   }
   const maxZoom=n===5?1.4:n===10?1.7:2.1;
 
+  let prevDoneRows = new Set(), prevDoneCols = new Set();
   function autoCross(draft){
-    if(!G.settings.autoCross)return;
-    for(let y=0;y<n;y++){let ok=true;for(let x=0;x<n;x++){const i=y*n+x;if((draft[i]===1)!==(puzzle.grid[i]===1)){ok=false;break;}}if(ok)for(let x=0;x<n;x++)if(draft[y*n+x]===0)draft[y*n+x]=2;}
-    for(let x=0;x<n;x++){let ok=true;for(let y=0;y<n;y++){const i=y*n+x;if((draft[i]===1)!==(puzzle.grid[i]===1)){ok=false;break;}}if(ok)for(let y=0;y<n;y++)if(draft[y*n+x]===0)draft[y*n+x]=2;}
+    let newLineDone = false;
+    for(let y=0;y<n;y++){
+      let ok=true;
+      for(let x=0;x<n;x++){
+        const i=y*n+x;
+        if((draft[i]===1)!==(puzzle.grid[i]===1)){ok=false;break;}
+      }
+      if(ok){
+        if(!prevDoneRows.has(y)){ prevDoneRows.add(y); newLineDone = true; }
+        if(G.settings.autoCross) for(let x=0;x<n;x++)if(draft[y*n+x]===0)draft[y*n+x]=2;
+      }
+    }
+    for(let x=0;x<n;x++){
+      let ok=true;
+      for(let y=0;y<n;y++){
+        const i=y*n+x;
+        if((draft[i]===1)!==(puzzle.grid[i]===1)){ok=false;break;}
+      }
+      if(ok){
+        if(!prevDoneCols.has(x)){ prevDoneCols.add(x); newLineDone = true; }
+        if(G.settings.autoCross) for(let y=0;y<n;y++)if(draft[y*n+x]===0)draft[y*n+x]=2;
+      }
+    }
+    if(newLineDone && !won){
+      sound.lineDone();
+    }
   }
   function checkWin(draft){
     for(let i=0;i<total;i++){if(puzzle.grid[i]===1&&draft[i]!==1)return false;if(puzzle.grid[i]===0&&draft[i]===1)return false;}
@@ -2290,22 +2535,24 @@ function startGame(mode,size,id,customDate,customOpts){
       if(st.visited.has(k))continue;
       st.visited.add(k);
       const cur=cells[k];let touched=false;const draft=cells.slice();
+      const col=k%n;
+      const pan=((col+0.5)/n)*1.4-0.7;
       if(st.action==="fill"){
         if(cur!==1){
           if(puzzle.grid[k]===1){
             draft[k]=1;touched=true;
-            const now=performance.now();if(now-lastSound>40){sound.fill();lastSound=now;}
+            const now=performance.now();if(now-lastSound>35){sound.fill(pan);lastSound=now;}
           }else{
-            draft[k]=1;touched=true;mistakes++;sound.error();errors.add(k);
+            draft[k]=1;touched=true;mistakes++;sound.error(pan);errors.add(k);
             setTimeout(()=>{if(cells[k]===1)cells[k]=2;errors.delete(k);renderAll();},380);
           }
         }
       }else if(st.action==="x"){
-        if(cur!==2){draft[k]=2;touched=true;sound.cross();}
+        if(cur!==2){draft[k]=2;touched=true;sound.cross(pan);}
       }else if(st.action==="unx"){
-        if(cur===2){draft[k]=0;touched=true;sound.cross();}
+        if(cur===2){draft[k]=0;touched=true;sound.cross(pan);}
       }else if(st.action==="erase"){
-        if(cur!==0){errors.delete(k);draft[k]=0;touched=true;sound.undo();}
+        if(cur!==0){errors.delete(k);draft[k]=0;touched=true;sound.undo(pan);}
       }
       if(touched){cells=draft;renderAll();}
     }
@@ -2401,6 +2648,7 @@ function startGame(mode,size,id,customDate,customOpts){
   function restart(){
     cells=new Array(total).fill(0);history.length=0;future.length=0;
     mistakes=0;hintsUsed=0;elapsed=0;started=false;won=false;errors=new Set();hinted=-1;activeRow=-1;activeCol=-1;
+    prevDoneRows.clear();prevDoneCols.clear();
     hintCount=maxHints;
     closeModal();buildBoard();
   }

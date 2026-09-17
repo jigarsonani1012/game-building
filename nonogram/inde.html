@@ -508,6 +508,56 @@ html.dark @keyframes hint-glow{
 }
 .won .cell .blk{animation:none}
 
+/* ============ LEVEL 1 TUTORIAL BANNER ============ */
+.tutorial-banner{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  background:linear-gradient(135deg, rgba(14,165,233,.12), rgba(56,189,248,.06));
+  border:1.5px solid rgba(14,165,233,.3);border-radius:12px;
+  padding:5px 10px;margin:2px 10px 4px;
+  box-shadow:0 2px 10px rgba(14,165,233,.1);
+  animation:fade-in .3s ease-out;
+  flex:0 0 auto;
+}
+html.dark .tutorial-banner{
+  background:linear-gradient(135deg, rgba(14,165,233,.18), rgba(2,132,199,.1));
+  border-color:rgba(56,189,248,.35);
+  box-shadow:0 0 14px rgba(56,189,248,.12);
+}
+.tut-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  background:var(--brand);color:#ffffff;
+  font-family:"Roboto Mono",monospace;font-size:9.5px;font-weight:800;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 7px;border-radius:99px;white-space:nowrap;flex:0 0 auto;
+}
+.tut-msg{
+  font-size:clamp(10.5px, 1.5vh, 12px);color:var(--heading);
+  line-height:1.3;flex:1;min-width:0;
+}
+.tut-msg b{color:var(--brand)}
+.tut-close{
+  background:transparent;border:none;color:var(--muted);
+  cursor:pointer;padding:2px 5px;font-size:13px;display:flex;align-items:center;
+  border-radius:6px;transition:all .15s ease;
+}
+.tut-close:hover{color:var(--heading);background:rgba(0,0,0,.08)}
+html.dark .tut-close:hover{background:rgba(255,255,255,.1)}
+
+/* Pulsing highlight for tutorial recommended cells */
+.cell.tut-guide::after{
+  content:"";position:absolute;inset:0;
+  border:2px dashed #0ea5e9;background:rgba(14,165,233,.18);
+  border-radius:1px;pointer-events:none;z-index:3;
+  animation:tut-pulse 1.2s ease-in-out infinite alternate;
+}
+html.dark .cell.tut-guide::after{
+  border-color:#38bdf8;background:rgba(56,189,248,.22);
+}
+@keyframes tut-pulse{
+  0%{opacity:.35;transform:scale(.94)}
+  100%{opacity:1;transform:scale(1.02)}
+}
+
 .toolbar-outer{display:flex;justify-content:center;padding:clamp(2px, 0.8vh, 6px) 10px clamp(4px, 1.4vh, 14px);flex:0 0 auto}
 .toolbar{display:flex;align-items:center;gap:clamp(3px, 0.8vw, 6px);max-width:100%;overflow-x:auto;scrollbar-width:none;border-radius:clamp(10px, 1.8vh, 16px);border:2px solid var(--border);background:var(--card);padding:clamp(3px, 0.6vh, 6px) clamp(6px, 1vw, 10px);box-shadow:0 8px 24px var(--shadow)}
 .toolbar::-webkit-scrollbar{display:none}
@@ -712,7 +762,6 @@ html.dark .square-btn:hover{
 @keyframes star-pop{0%{transform:scale(0) rotate(-30deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
 .win-streak{display:inline-flex;align-items:center;gap:6px;background:#ffe9d6;color:#e8801c;border-radius:99px;padding:4px 12px;font-weight:800;font-size:14px;margin-top:8px}
 html.dark .win-streak{background:rgba(245,146,40,.16)}
-.win-best{margin-top:8px;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--brand)}
 .win-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
 .win-stat{background:var(--card-2);border-radius:12px;padding:10px 4px}
 .win-stat .ic{margin:0 auto 4px;font-size:16px;color:var(--muted)}
@@ -810,7 +859,7 @@ const SIZES=[5,10,15];
 const LEVELS_PER_SIZE=48;
 
 const PATTERNS_5=[
-["#####","#...#","#...#","#...#","#####"],
+[".#.#.","#####","#####",".###.","..#.."],
 [".####","..###","...##","....#","....."],
 ["#.#.#","#.#.#","#####","..#..","..#.."],
 ["#...#","#...#","#####","#...#","#...#"],
@@ -1460,6 +1509,8 @@ const Storage = {
   resetAll() {
     localStorage.removeItem(this.KEY);
     this.saveAll(this.defaults);
+    seenTutorialLevel1 = false;
+    seenHelpSession = false;
   }
 };
 
@@ -1469,6 +1520,7 @@ try{
 }catch(e){}
 
 let seenHelpSession = false;
+let seenTutorialLevel1 = false;
 
 const loadSettings = () => Storage.getSettings();
 const saveSettings = s => Storage.saveSettings(s);
@@ -1985,9 +2037,9 @@ function renderMosaicScreen(bigIdx, subMode){
       inner='<span class="q">'+(i+1)+'</span>';
     }
     const isCur=!isDone&&i===firstUnsolved;
-    const isLocked=subMode==="expert"&&i>0&&!blocksDone[i-1];
+    const isLocked=!isDone&&!isCur;
     cellsHTML+=
-      '<button class="mcell press '+(isDone?"done ":"")+(isCur?"cur ":"")+'" data-block="'+i+'" '+(isLocked?"disabled":"")+'>'+
+      '<button class="mcell press '+(isDone?"done ":"")+(isCur?"cur ":"")+(isLocked?"locked ":"")+'" data-block="'+i+'" '+(isLocked?'disabled title="Solve Section '+(i+1)+' first"':'')+'>'+
         inner+
       '</button>';
   }
@@ -2047,6 +2099,12 @@ function renderMosaicScreen(bigIdx, subMode){
   app.querySelectorAll('[data-block]').forEach(b=>{
     b.onclick=()=>{
       const blk=Number(b.dataset.block);
+      const isDone=!!blocksDone[blk];
+      const isCur=!isDone&&blk===firstUnsolved;
+      if(!isDone&&!isCur&&firstUnsolved!==-1){
+        sound.denied();
+        return;
+      }
       sound.click();
       startMosaicGame(bigIdx,subMode,blk);
     };
@@ -2119,6 +2177,17 @@ function showMosaicPreview(bigIdx,subMode){
 }
 
 function startMosaicGame(bigIdx,subMode,blockId){
+  const blocksDone=bigDone(subMode,bigIdx);
+  let firstUnsolved=-1;
+  for(let i=0;i<9;i++){
+    if(!blocksDone[i]&&firstUnsolved<0){firstUnsolved=i;break;}
+  }
+  const isDone=!!blocksDone[blockId];
+  const isCur=!isDone&&blockId===firstUnsolved;
+  if(!isDone&&!isCur&&firstUnsolved!==-1){
+    sound.denied();
+    return;
+  }
   const spec=BIG_SPECS[bigIdx];
   const data=getBig(bigIdx);
   const b=data.blocks[blockId];
@@ -2296,6 +2365,10 @@ function startGame(mode,size,id,customDate,customOpts){
     title=mode.toUpperCase()+" · "+size+"×"+size+" · #"+(id+1);
   }
 
+  const isTutorial = (mode === "classic" && size === 5 && id === 0 && !Storage.isLevelCompleted("classic", 5, 0) && !seenTutorialLevel1);
+  if(isTutorial) seenTutorialLevel1 = true;
+  let tutDismissed = false;
+
   app.innerHTML=
     '<div class="screen no-select">'+
       '<div class="g-head">'+
@@ -2308,6 +2381,12 @@ function startGame(mode,size,id,customDate,customOpts){
           '<button class="icon-btn press" id="gSet" style="width:36px;height:36px;font-size:20px">'+icon("gear")+'</button>'+
         "</div></div>"+
       '<div class="g-title" id="gTitleSmall">'+title+"</div>"+
+      (isTutorial ? 
+        '<div class="tutorial-banner" id="tutBanner">'+
+          '<span class="tut-badge">💡 TUTORIAL</span>'+
+          '<span class="tut-msg" id="tutMsg"><b>Tip 1:</b> Clue <b>5</b> means the whole row is filled! Drag across <b>Rows 2 &amp; 3</b>.</span>'+
+          '<button class="tut-close" id="tutClose" title="Hide Guide">✕</button>'+
+        '</div>' : '') +
       '<div class="board-wrap" id="boardWrap"><div class="board" id="board"></div></div>'+
       '<div class="toolbar-outer"><div class="toolbar">'+
         '<button class="tbtn press active" id="tPen" title="Pen (P)">'+icon("pen")+'</button>'+
@@ -2404,6 +2483,51 @@ function startGame(mode,size,id,customDate,customOpts){
   }
   G.refreshTheme=renderCornerPreview;
 
+  function updateTutorial(draft){
+    if(!isTutorial) return;
+    const tutEl=document.getElementById("tutBanner");
+    if(!tutEl || tutDismissed || won){
+      if(tutEl && (tutDismissed || won)) tutEl.style.display="none";
+      cellEls.forEach(el=>el.classList.remove("tut-guide"));
+      return;
+    }
+    const state=draft||cells;
+    const row1Done = [5,6,7,8,9].every(i => state[i] === 1);
+    const row2Done = [10,11,12,13,14].every(i => state[i] === 1);
+    const row0Done = state[1] === 1 && state[3] === 1;
+    const row3Done = state[16] === 1 && state[17] === 1 && state[18] === 1;
+    const row4Done = state[22] === 1;
+
+    let msg = "";
+    let guideIndices = [];
+
+    if(!row1Done || !row2Done){
+      msg = "<b>Tip 1:</b> Clue <b>5</b> means the whole row is filled! Drag across <b>Rows 2 &amp; 3</b>.";
+      if(!row1Done) guideIndices.push(5,6,7,8,9);
+      else if(!row2Done) guideIndices.push(10,11,12,13,14);
+    } else if(!row0Done){
+      msg = "<b>Tip 2:</b> Row 1 has clue <b>1 1</b>. Fill cells 2 and 4 to shape the heart lobes!";
+      guideIndices.push(1, 3);
+    } else if(!row3Done || !row4Done){
+      msg = "<b>Tip 3:</b> Finish the heart tip! Row 4 has clue <b>3</b> and Row 5 has clue <b>1</b>.";
+      if(!row3Done) guideIndices.push(16, 17, 18);
+      else guideIndices.push(22);
+    } else {
+      msg = "🎉 <b>Perfect!</b> You completed your first Nonogram: a Heart! ❤️";
+    }
+
+    const msgEl=document.getElementById("tutMsg");
+    if(msgEl) msgEl.innerHTML = msg;
+
+    cellEls.forEach((el, idx)=>{
+      if(guideIndices.includes(idx) && state[idx] !== 1){
+        el.classList.add("tut-guide");
+      } else {
+        el.classList.remove("tut-guide");
+      }
+    });
+  }
+
   function renderCellContent(i){
     const el=cellEls[i],s=cells[i],isErr=errors.has(i);
     let inner="";
@@ -2446,7 +2570,7 @@ function startGame(mode,size,id,customDate,customOpts){
       }
     }
   }
-  function renderAll(){renderCells();renderHighlight();renderClues();renderCornerPreview();
+  function renderAll(){renderCells();renderHighlight();renderClues();renderCornerPreview();updateTutorial();
     document.getElementById("gTime").textContent=fmtTime(elapsed);
     const mc=document.getElementById("gMissChip");mc.classList.toggle("bad",mistakes>0);
     document.getElementById("gMiss").textContent=mistakes;
@@ -2681,6 +2805,16 @@ function startGame(mode,size,id,customDate,customOpts){
       handleWin(draft);
     };
   }
+  const tutCloseBtn = document.getElementById("tutClose");
+  if(tutCloseBtn){
+    tutCloseBtn.onclick=()=>{
+      tutDismissed=true;
+      sound.click();
+      const b=document.getElementById("tutBanner");
+      if(b) b.style.display="none";
+      cellEls.forEach(el=>el.classList.remove("tut-guide"));
+    };
+  }
   document.getElementById("gHelp").onclick=()=>{sound.click();showHelp();};
   document.getElementById("gSet").onclick=()=>{sound.click();showSettings();};
   document.getElementById("tPen").onclick=()=>{tool="pen";sound.click();renderAll();};
@@ -2752,7 +2886,6 @@ function startGame(mode,size,id,customDate,customOpts){
         '<div class="win-art">'+thumbHTML(puzzle.grid,n)+"</div>"+
         '<div class="stars">'+starsHTML+"</div>"+
         (mode==="daily"&&streakVal>0?'<div class="win-streak">'+icon("flame")+" "+streakVal+" day streak</div>":"")+
-        (isBest&&mode!=="daily"?'<div class="win-best">New best time!</div>':"")+
         '<div class="win-stats">'+
           '<div class="win-stat">'+icon("clock")+"<p>"+fmtTime(rec.time)+"</p></div>"+
           '<div class="win-stat">'+icon("x")+"<p>"+rec.mistakes+"</p></div>"+
@@ -2928,12 +3061,46 @@ function showSettings(){
   });
   document.getElementById("setClose").onclick=()=>{sound.click();closeModal();};
   document.getElementById("setReset").onclick=()=>{
+    sound.click();
+    showResetConfirm();
+  };
+}
+
+function showResetConfirm(){
+  showModal(
+    '<div class="modal" style="max-width:400px;text-align:center">'+
+      '<div style="width:48px;height:48px;border-radius:50%;background:rgba(239,68,68,.12);border:2px solid rgba(239,68,68,.3);color:#ef4444;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:22px">'+
+        '⚠️'+
+      '</div>'+
+      '<h2 style="margin-bottom:8px;color:#ef4444">Reset All Progress?</h2>'+
+      '<p class="confirm-text" style="margin-bottom:12px;color:var(--heading);font-weight:600">Are you sure you want to erase all your saved data?</p>'+
+      '<div style="background:var(--card-2);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;text-align:left;font-size:12.5px;color:var(--muted);line-height:1.6;margin-bottom:14px">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="color:#ef4444;font-weight:bold">•</span> All solved Classic &amp; Expert levels</div>'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="color:#ef4444;font-weight:bold">•</span> Mosaic masterpiece unlocks</div>'+
+        '<div style="display:flex;align-items:center;gap:8px"><span style="color:#ef4444;font-weight:bold">•</span> Daily challenge streaks &amp; calendar history</div>'+
+      '</div>'+
+      '<p style="font-size:11px;color:#ef4444;font-weight:700;margin:0 0 16px;text-transform:uppercase;letter-spacing:.05em">⚠️ This action is permanent and cannot be undone!</p>'+
+      '<div class="modal-actions" style="margin-top:0">'+
+        '<button class="btn-ghost press" style="flex:1" id="resetCancel">Keep Progress</button>'+
+        '<button class="btn-red press" style="flex:1;background:#ef4444;box-shadow:0 3px 0 #b91c1c" id="resetConfirm">Erase Everything</button>'+
+      '</div>'+
+    '</div>'
+  );
+  document.getElementById("resetCancel").onclick=()=>{
+    sound.click();
+    showSettings();
+  };
+  document.getElementById("resetConfirm").onclick=()=>{
+    sound.click();
     Storage.resetAll();
     G.settings=Object.assign({},Storage.defaults.settings);
-    applyDark();sound.enabled=true;
+    applyDark();
+    sound.enabled=true;
     if(G.cleanup){G.cleanup();G.cleanup=null;}
-    refreshStores();closeModal();
-    G.screen={name:"menu"};renderMenu();
+    refreshStores();
+    closeModal();
+    G.screen={name:"menu"};
+    renderMenu();
   };
 }
 function showRestartConfirm(onConfirm){

@@ -540,7 +540,58 @@ html.dark .mcell.locked{opacity:.35}
   white-space:nowrap;flex:0 0 auto;
 }
 .chip .ic{font-size:clamp(12px, 1.6vw, 14px);color:var(--muted)}
-.chip.bad{color:#ef4444}
+.lives-chip{
+  display:inline-flex;align-items:center;gap:clamp(2px, 0.45vw, 5px);
+  padding:clamp(2px, 0.5vh, 5px) clamp(5px, 0.8vw, 9px);
+}
+.heart-slot{
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:clamp(12px, 1.6vw, 15.5px);
+  transition:all .35s cubic-bezier(.34,1.56,.64,1);
+  will-change:transform,opacity,filter;
+}
+.heart-slot .ic,
+.chip.lives-chip .heart-slot .ic,
+.chip.lives-chip .heart-slot.on .ic{
+  color:#e11d48;
+  fill:#e11d48;
+}
+html.dark .heart-slot .ic,
+html.dark .chip.lives-chip .heart-slot .ic,
+html.dark .chip.lives-chip .heart-slot.on .ic{
+  color:#fb7185;
+  fill:#fb7185;
+}
+.heart-slot.on{
+  opacity:1;
+  transform:scale(1);
+  filter:drop-shadow(0 2px 5px rgba(225,29,72,.45));
+}
+.heart-slot.lost{
+  opacity:0.9;
+  transform:scale(0.94);
+  filter:none;
+}
+.heart-slot.lost .ic path,
+.chip.lives-chip .heart-slot.lost .ic path{
+  stroke:#94a3b8 !important;
+  stroke-width:2.2px !important;
+  fill:rgba(148,163,184,.14) !important;
+}
+html.dark .heart-slot.lost .ic path,
+html.dark .chip.lives-chip .heart-slot.lost .ic path{
+  stroke:#64748b !important;
+  stroke-width:2.2px !important;
+  fill:rgba(100,116,139,.2) !important;
+}
+.heart-slot.flash{
+  animation:heart-hit .45s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes heart-hit{
+  0%{transform:scale(1.45);filter:drop-shadow(0 0 10px #be123c)}
+  45%{transform:rotate(14deg) scale(0.9)}
+  100%{transform:scale(0.94);opacity:0.9;filter:none}
+}
 .test-chip{
   background:linear-gradient(135deg,#0284c7,#0369a1);
   color:#ffffff !important;
@@ -575,6 +626,8 @@ html.dark .test-chip{
 }
 @media(max-width: 360px){
   .chip{padding:2px 5px;font-size:9.5px}
+  .lives-chip{padding:2px 4px;gap:2px}
+  .heart-slot{font-size:11px}
 }
 .board-wrap{flex:1;min-height:0;overflow:hidden;display:flex;justify-content:center;align-items:center;padding:clamp(2px, 0.8vh, 8px) clamp(4px, 1.2vw, 12px);box-sizing:border-box}
 .board{margin:auto;position:relative;touch-action:none;border:2px solid var(--sep);border-radius:2px;overflow:hidden;background:var(--card);box-shadow:none;display:grid;box-sizing:border-box;max-width:100%;max-height:100%}
@@ -943,8 +996,39 @@ html.dark .square-btn:hover{
   .confirm-card{padding:5px 8px;margin-bottom:6px;font-size:11px}
   .confirm-card .row:not(:last-child){margin-bottom:2px}
   .confirm-warning{font-size:9.5px;margin-bottom:8px}
-  .confirm-actions button{padding:6px 8px;font-size:11px}
 }
+
+/* gameover modal */
+.gameover-modal{max-width:380px;text-align:center}
+.gameover-icon{
+  width:64px;height:64px;margin:0 auto 12px;border-radius:50%;
+  background:rgba(239,68,68,.12);color:#ef4444;
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;
+  border:2px solid rgba(239,68,68,.25);
+  animation:gameover-icon-pulse 1.8s ease-in-out infinite alternate;
+}
+html.dark .gameover-icon{
+  background:rgba(248,113,113,.15);color:#f87171;border-color:rgba(248,113,113,.3);
+}
+@keyframes gameover-icon-pulse{
+  0%{transform:scale(1);box-shadow:0 0 0 0 rgba(239,68,68,.3)}
+  100%{transform:scale(1.06);box-shadow:0 0 16px 4px rgba(239,68,68,.2)}
+}
+.gameover-title{
+  color:#ef4444;font-size:clamp(20px, 3.2vh, 25px);font-weight:800;margin:0 0 6px;letter-spacing:.04em;text-transform:uppercase;
+}
+html.dark .gameover-title{
+  color:#f87171;
+}
+.gameover-desc{
+  font-size:clamp(12.5px, 1.8vh, 14.5px);color:var(--text);margin:0 0 14px;line-height:1.45;
+}
+.gameover-tip{
+  background:var(--card-2);border:1.5px solid var(--border);border-radius:14px;
+  padding:10px 14px;font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.4;text-align:left;
+}
+.gameover-tip b{color:var(--heading)}
 
 /* win */
 .win-modal{max-width:380px;text-align:center}
@@ -979,6 +1063,14 @@ html.dark .square-btn:hover{
 .win-stat .ic{
   display:block;margin:0 auto clamp(3px, 0.6vh, 6px);font-size:clamp(16px, 2.2vh, 20px);
   color:var(--muted);flex:0 0 auto;
+}
+.win-stat.heart-stat .ic{
+  color:#e11d48 !important;
+  fill:#e11d48 !important;
+}
+html.dark .win-stat.heart-stat .ic{
+  color:#fb7185 !important;
+  fill:#fb7185 !important;
 }
 .win-stat p{
   margin:0;font-family:"Roboto Mono",monospace;font-weight:800;
@@ -1063,7 +1155,9 @@ const ICONS = {
   sizeL:'<rect x="3.5" y="3.5" width="17" height="17" rx="1.5" stroke-width="1.4"/><path d="M12 3.5v17M3.5 12h17M7.7 3.5v17M16.3 3.5v17M3.5 7.7h17M3.5 16.3h17" stroke-width="1.4"/>',
   classic:'<rect x="3" y="3" width="18" height="18" rx="2" stroke-width="1.5"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18" stroke-width="1.5"/><rect x="9" y="9" width="6" height="6" fill="currentColor" stroke="none"/>',
   expert:'<rect x="3" y="3" width="18" height="18" rx="2" stroke-width="1.5"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18" stroke-width="1.5"/><path d="M10.2 8.2a2 2 0 1 1 3.1 1.7c-.6.5-1 .9-1 1.8" stroke-width="1.8" stroke-linecap="round"/><circle cx="12.3" cy="14.2" r="0.75" fill="currentColor" stroke="none"/>',
-  next:'<path d="M9 18l6-6-6-6"/>'
+  next:'<path d="M9 18l6-6-6-6"/>',
+  heart:'<path class="ic-fill" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>',
+  heartCrack:'<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" stroke="currentColor" fill="none" stroke-width="2"/>'
 };
 function icon(name, cls){return '<svg class="ic '+(cls||'')+'" viewBox="0 0 24 24">'+ICONS[name]+'</svg>';}
 
@@ -2484,6 +2578,13 @@ const sound = {
     this.playMarimba(140, 0.045, 0.14, 0.055, 1.2, 0.5, 0, false);
   },
 
+  gameOver() {
+    // Somber, gentle low marimba descent
+    this.playMarimba(392.00, 0.35, 0.22, 0, 1.5, 0.7, -0.2, true);
+    this.playMarimba(329.63, 0.38, 0.22, 0.16, 1.5, 0.7, 0.0, true);
+    this.playMarimba(261.63, 0.60, 0.26, 0.34, 1.8, 0.8, 0.2, true);
+  },
+
   win() {
     // Heartwarming orchestral music box victory melody + ambient major 9th bloom
     const melody = [
@@ -3156,6 +3257,12 @@ function startGame(mode,size,id,customDate,customOpts){
   if(isTutorial) seenTutorialLevel1 = true;
   let tutDismissed = false;
 
+  const maxLives = n <= 5 ? 3 : n <= 10 ? 4 : 5;
+  let heartsHTML = "";
+  for(let h=1; h<=maxLives; h++){
+    heartsHTML += '<span class="heart-slot on" id="gHeart'+h+'">'+icon("heart")+'</span>';
+  }
+
   app.innerHTML=
     '<div class="screen no-select">'+
       '<div class="g-head">'+
@@ -3163,7 +3270,9 @@ function startGame(mode,size,id,customDate,customOpts){
         '<div class="g-head-right">'+
           '<button class="chip test-chip press" id="gTestWin" title="Complete Level (Test)">⚡ <span>Complete</span></button>'+
           '<span class="chip">'+icon("clock")+'<span id="gTime">0:00</span></span>'+
-          '<span class="chip" id="gMissChip">'+icon("x")+'<span id="gMiss">0</span></span>'+
+          '<div class="chip lives-chip" id="gLivesChip" title="'+maxLives+' Lives">'+
+            heartsHTML+
+          '</div>'+
           '<button class="icon-btn press" id="gHelp" title="Help" style="width:clamp(28px, 4vh, 34px);height:clamp(28px, 4vh, 34px);font-size:clamp(16px, 2.2vh, 19px)">'+icon("help")+'</button>'+
           '<button class="icon-btn press" id="gSet" title="Settings" style="width:clamp(28px, 4vh, 34px);height:clamp(28px, 4vh, 34px);font-size:clamp(16px, 2.2vh, 19px)">'+icon("gear")+'</button>'+
         '</div>'+
@@ -3355,8 +3464,15 @@ function startGame(mode,size,id,customDate,customOpts){
   }
   function renderAll(){renderCells();renderHighlight();renderClues();renderCornerPreview();updateTutorial();
     document.getElementById("gTime").textContent=fmtTime(elapsed);
-    const mc=document.getElementById("gMissChip");mc.classList.toggle("bad",mistakes>0);
-    document.getElementById("gMiss").textContent=mistakes;
+    const livesLeft = Math.max(0, maxLives - mistakes);
+    for(let h=1; h<=maxLives; h++){
+      const el = document.getElementById("gHeart"+h);
+      if(el){
+        const isAlive = h <= livesLeft;
+        el.classList.toggle("on", isAlive);
+        el.classList.toggle("lost", !isAlive);
+      }
+    }
     document.getElementById("tUndo").disabled=history.length===0;
     document.getElementById("tRedo").disabled=future.length===0;
     document.getElementById("hintN").textContent=hintCount;
@@ -3407,7 +3523,7 @@ function startGame(mode,size,id,customDate,customOpts){
     viewShadow=new Array(total).fill(-1);
     if(boardEl)boardEl.classList.add("won");
     sound.win();
-    const stars=mistakes===0&&hintsUsed===0?3:(mistakes<=3&&hintsUsed<=1?2:1);
+    const stars=mistakes===0&&hintsUsed===0?3:(mistakes<=Math.floor(maxLives/2)&&hintsUsed<=1?2:1);
     const rec={time:elapsed,mistakes,hints:hintsUsed,stars};
     const isFirstTime=!Storage.isPuzzleCompleted(puzzle, customOpts, dateObj);
     Storage.markPuzzleCompleted(puzzle, customOpts, dateObj);
@@ -3451,7 +3567,26 @@ function startGame(mode,size,id,customDate,customOpts){
             const now=performance.now();if(now-lastSound>35){sound.fill(pan);lastSound=now;}
           }else{
             draft[k]=1;touched=true;mistakes++;sound.error(pan);errors.add(k);
+            const lostSlot=Math.max(1,Math.min(maxLives,(maxLives+1)-mistakes));
+            const hEl=document.getElementById("gHeart"+lostSlot);
+            if(hEl){
+              hEl.classList.remove("flash");
+              void hEl.offsetWidth;
+              hEl.classList.add("flash");
+              setTimeout(()=>{if(hEl)hEl.classList.remove("flash");},480);
+            }
+            if(navigator.vibrate)try{navigator.vibrate(40);}catch(err){}
             setTimeout(()=>{if(cells[k]===1)cells[k]=2;errors.delete(k);renderAll();},380);
+            if(mistakes>=maxLives){
+              started=false;
+              stroke=null;
+              setTimeout(()=>{
+                if(!won){
+                  sound.gameOver();
+                  showGameOver();
+                }
+              },420);
+            }
           }
         }
       }else if(st.action==="x"){
@@ -3477,7 +3612,7 @@ function startGame(mode,size,id,customDate,customOpts){
   }
 
   function onBoardDown(e){
-    if(won||modalOpen())return;
+    if(won||modalOpen()||mistakes>=maxLives)return;
     if(e.button!==0&&e.button!==2)return;
     let t=e.target&&e.target.closest?e.target.closest("[data-cell]"):null;
     if(!t&&e.clientX!=null&&e.clientY!=null){
@@ -3670,13 +3805,13 @@ function startGame(mode,size,id,customDate,customOpts){
         '<div class="stars">'+starsHTML+"</div>"+
         (mode==="daily"&&streakVal>0?'<div class="win-streak">'+icon("flame")+" "+streakVal+" day streak</div>":"")+
         '<div class="win-stats">'+
-          '<div class="win-stat">'+icon("clock")+"<p>"+fmtTime(rec.time)+"</p></div>"+
-          '<div class="win-stat">'+icon("x")+"<p>"+rec.mistakes+"</p></div>"+
-          '<div class="win-stat">'+icon("bulb")+"<p>"+rec.hints+"</p></div>"+
+          '<div class="win-stat" title="Solve Time">'+icon("clock")+"<p>"+fmtTime(rec.time)+"</p></div>"+
+          '<div class="win-stat heart-stat" title="Lives Remaining">'+icon("heart")+"<p>"+Math.max(0, maxLives - rec.mistakes)+"/"+maxLives+"</p></div>"+
+          '<div class="win-stat" title="Hints Used">'+icon("bulb")+"<p>"+rec.hints+"</p></div>"+
         "</div>"+
         '<div class="modal-actions">'+
-          '<button class="square-btn press" id="wHome">'+icon("home")+'</button>'+
-          '<button class="square-btn press" id="wReplay">'+icon("restart")+'</button>'+
+          '<button class="square-btn press" id="wHome" title="Menu">'+icon("home")+'</button>'+
+          '<button class="square-btn press" id="wReplay" title="Replay">'+icon("restart")+'</button>'+
           (hasNextLevel()?'<button class="btn-primary press" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px" id="wNext">NEXT '+icon("play")+'</button>':'<button class="btn-primary press" style="flex:1" id="wDone">Done</button>')+
         "</div>"+
       "</div>";
@@ -3699,6 +3834,35 @@ function startGame(mode,size,id,customDate,customOpts){
       else{G.screen={name:"menu"};renderMenu();}
     };
   }
+
+  function showGameOver(){
+    const body=
+      '<div class="modal gameover-modal">'+
+        '<div class="gameover-icon">💔</div>'+
+        '<h2 class="gameover-title">Out of Lives!</h2>'+
+        '<p class="gameover-desc">You made '+maxLives+' mistakes on this puzzle. Nonograms take patience and smart deductions!</p>'+
+        '<div class="gameover-tip">'+
+          '<b>💡 Pro Tip:</b> Use the <b>X mark</b> tool on squares you know must be empty, and look for rows or columns with large clue numbers first.'+
+        '</div>'+
+        '<div class="modal-actions">'+
+          '<button class="square-btn press" id="goBack" title="Exit Level">'+icon("back")+'</button>'+
+          '<button class="btn-primary press" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px" id="goRetry">'+
+            icon("restart")+' TRY AGAIN'+
+          '</button>'+
+        '</div>'+
+      '</div>';
+    showModal(body);
+    document.getElementById("goRetry").onclick=()=>{
+      sound.click();
+      restart();
+    };
+    document.getElementById("goBack").onclick=()=>{
+      sound.click();
+      closeModal();
+      doBack();
+    };
+  }
+
   function nextLevel(){
     cleanup();G.cleanup=null;
     if(mode==="mosaic"&&customOpts){

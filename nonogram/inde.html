@@ -2047,7 +2047,7 @@ const Storage = {
   KEY: "ns_data",
   defaults: {
     settings: { dark: false, sound: true, autoCross: true, highlight: true },
-    daily: { date: "", streak: 0, bestStreak: 0 },
+    daily: { month: "", date: "", streak: 0, bestStreak: 0 },
     completed: {
       classic: { "5x5": 0, "10x10": 0, "15x15": 0 },
       expert: { "5x5": 0, "10x10": 0, "15x15": 0 },
@@ -2150,12 +2150,14 @@ const Storage = {
         });
       }
       if (Array.isArray(rawObj.completed.daily)) {
-        comp.daily = Array.from(new Set(rawObj.completed.daily));
+        const curMonth = todayKey().substring(0, 7);
+        comp.daily = Array.from(new Set(rawObj.completed.daily)).filter(k => typeof k === "string" && k.startsWith(curMonth));
       }
     }
 
     // Migrate old flat solved keys if present
     if (rawObj && rawObj.solved && typeof rawObj.solved === "object") {
+      const curMonth = todayKey().substring(0, 7);
       Object.keys(rawObj.solved).forEach(key => {
         if (!rawObj.solved[key]) return;
         if (key.startsWith("classic-") || key.startsWith("expert-")) {
@@ -2180,7 +2182,7 @@ const Storage = {
             if (isFinite(dayNum)) {
               const d = new Date(Date.UTC(2024, 0, 1) + dayNum * 86400000);
               const dateStr = todayKey(d);
-              if (!comp.daily.includes(dateStr)) comp.daily.push(dateStr);
+              if (dateStr.startsWith(curMonth) && !comp.daily.includes(dateStr)) comp.daily.push(dateStr);
             }
           }
         }
@@ -2217,9 +2219,22 @@ const Storage = {
     this.saveAll(all);
   },
 
-  getDaily() { return this.getAll().daily; },
+  getDaily() {
+    const all = this.getAll();
+    const curMonth = todayKey().substring(0, 7);
+    const d = all.daily;
+    if (!d || d.month !== curMonth) {
+      const refreshed = { month: curMonth, date: "", streak: 0, bestStreak: (d && d.bestStreak) || 0 };
+      all.daily = refreshed;
+      this.saveAll(all);
+      return refreshed;
+    }
+    return d;
+  },
   saveDaily(d) {
     const all = this.getAll();
+    const curMonth = todayKey().substring(0, 7);
+    if (d && !d.month) d.month = curMonth;
     all.daily = d;
     this.saveAll(all);
   },
@@ -2286,14 +2301,17 @@ const Storage = {
     this.saveAll(all);
   },
 
-  // Daily challenge queries & mutations
+  // Daily challenge queries & mutations (Month-Scoped: Auto-prunes past months)
   isDailyCompleted(dateKey) {
     const comp = this.getCompleted();
-    return Array.isArray(comp.daily) && comp.daily.includes(dateKey);
+    const curMonth = todayKey().substring(0, 7);
+    return Array.isArray(comp.daily) && dateKey.startsWith(curMonth) && comp.daily.includes(dateKey);
   },
   markDailyCompleted(dateKey) {
     const all = this.getAll();
+    const curMonth = todayKey().substring(0, 7);
     if (!Array.isArray(all.completed.daily)) all.completed.daily = [];
+    all.completed.daily = all.completed.daily.filter(k => typeof k === "string" && k.startsWith(curMonth));
     if (!all.completed.daily.includes(dateKey)) {
       all.completed.daily.push(dateKey);
     }
@@ -3293,7 +3311,7 @@ function startGame(mode,size,id,customDate,customOpts){
         '<button class="tbtn press" id="tRedo" title="Redo (Y)" disabled>'+icon("redo")+'</button>'+
         '<button class="tbtn press" id="tHint" title="Hint" style="color:#0ea5e9">'+icon("bulb")+'<span class="n" id="hintN">'+hintCount+'</span></button>'+
         '<span class="tdiv"></span>'+
-        '<button class="tbtn press" id="tRestart" title="Restart">'+icon("restart")+'</button>'+
+        '<button class="tbtn press" id="tRestart" title="Restart" disabled>'+icon("restart")+'</button>'+
       '</div></div>'+
     '</div>';
 
@@ -3475,6 +3493,8 @@ function startGame(mode,size,id,customDate,customOpts){
     }
     document.getElementById("tUndo").disabled=history.length===0;
     document.getElementById("tRedo").disabled=future.length===0;
+    const rstBtn=document.getElementById("tRestart");
+    if(rstBtn) rstBtn.disabled=!hasMoves()||won;
     document.getElementById("hintN").textContent=hintCount;
     /* document.getElementById("tOut").disabled=zoom<=1.001;
     document.getElementById("tIn").disabled=zoom>=maxZoom-.001; */
@@ -3530,12 +3550,13 @@ function startGame(mode,size,id,customDate,customOpts){
     refreshStores();
     let streakVal;
     if(mode==="daily"){
-      const d=loadDaily(),t=todayKey(dateObj),nowKey=todayKey();
+      const d=loadDaily(),t=todayKey(dateObj),nowKey=todayKey(),curMonth=t.substring(0,7);
       if(t===nowKey){
         if(d.date!==t){
           const yest=new Date();yest.setDate(yest.getDate()-1);
-          const streak=d.date===todayKey(yest)?d.streak+1:1;
-          const next={date:t,streak,bestStreak:Math.max(d.bestStreak,streak)};
+          const isContinuation=d.month===curMonth&&d.date===todayKey(yest);
+          const streak=isContinuation?(d.streak+1):1;
+          const next={month:curMonth,date:t,streak,bestStreak:Math.max(d.bestStreak||0,streak)};
           saveDaily(next);streakVal=next.streak;
         }else streakVal=d.streak;
       }else{
@@ -3740,7 +3761,7 @@ function startGame(mode,size,id,customDate,customOpts){
   document.getElementById("tUndo").onclick=undo;
   document.getElementById("tRedo").onclick=redo;
   document.getElementById("tHint").onclick=useHint;
-  document.getElementById("tRestart").onclick=()=>{sound.click();showRestartConfirm(restart);};
+  document.getElementById("tRestart").onclick=()=>{if(!hasMoves()||won)return;sound.click();showRestartConfirm(restart);};
   /* document.getElementById("tOut").onclick=()=>{zoom=Math.max(1,+(zoom-.2).toFixed(2));buildBoard();};
   document.getElementById("tIn").onclick=()=>{zoom=Math.min(maxZoom,+(zoom+.2).toFixed(2));buildBoard();}; */
 

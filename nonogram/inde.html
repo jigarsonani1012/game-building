@@ -1138,8 +1138,8 @@ const ICONS = {
   calendar:'<rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M10 13h2M14 13h2M10 16.5h2"/>',
   pen:'<path d="M4 20l1-4.5L15.5 5l3.5 3.5L8.5 19z"/><path d="M13.5 7l3.5 3.5"/>',
   x:'<path d="M5 5l14 14M19 5L5 19"/>',
-  undo:'<path d="M9 7L4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 0 12h-3"/>',
-  redo:'<path d="M15 7l5 5-5 5"/><path d="M20 12H10a6 6 0 0 0 0 12h3"/>',
+  undo:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/>',
+  redo:'<path d="M15 14l5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5A5.5 5.5 0 0 0 9.5 20H13"/>',
   bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
   zoomin:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/>',
   zoomout:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6"/>',
@@ -3696,6 +3696,7 @@ function startGame(mode,size,id,customDate,customOpts){
   function useHint(){
     if(won||modalOpen())return;
     if(hintCount<=0){sound.denied();const b=document.getElementById("tHint");b.classList.remove("shake");void b.offsetWidth;b.classList.add("shake");return;}
+    started=true;
     const draft=cells.slice(),fillTargets=[],xTargets=[];
     for(let i=0;i<total;i++){if(puzzle.grid[i]===1&&draft[i]!==1)fillTargets.push(i);if(puzzle.grid[i]===0&&draft[i]===0)xTargets.push(i);}
     let target,toX=false;
@@ -3777,10 +3778,10 @@ function startGame(mode,size,id,customDate,customOpts){
 
   /* timer */
   timerId=setInterval(()=>{
-    if(started&&!won&&!modalOpen()){elapsed++;document.getElementById("gTime").textContent=fmtTime(elapsed);}
+    if(started&&!won&&!modalOpen()&&!document.hidden){elapsed++;document.getElementById("gTime").textContent=fmtTime(elapsed);}
   },1000);
   document.addEventListener("visibilitychange",onVis);
-  function onVis(){if(document.hidden)started=false;}
+  function onVis(){}
 
   /* keyboard */
   document.addEventListener("keydown",onKey);

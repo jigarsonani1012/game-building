@@ -1004,28 +1004,50 @@ html.dark .gameover-title{
 .gameover-tip b{color:var(--heading)}
 
 /* win */
-.win-modal{max-width:380px;text-align:center}
+.win-modal{
+  max-width:min(350px, 92vw);text-align:center;
+  padding:clamp(12px, 2.4vh, 20px) clamp(12px, 3vw, 18px);
+  box-sizing:border-box;
+}
+.win-header{
+  margin-bottom:clamp(3px, 0.8vh, 6px);
+}
+.win-modal h2{
+  font-size:clamp(16px, 2.4vh, 21px);
+  font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--heading);
+  margin:0 0 2px;
+}
+.win-sub{
+  font-family:"Roboto Mono",monospace;
+  font-size:clamp(10px, 1.3vh, 11.5px);
+  font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);
+}
 .win-art{
-  width:min(180px,48vw);aspect-ratio:1/1;margin:10px auto 0;
-  border-radius:18px;border:2px solid var(--border);background:var(--card);
-  padding:10px;display:flex;align-items:center;justify-content:center;
-  box-shadow:0 10px 25px rgba(45,90,130,.12);
+  width:clamp(80px, min(22vh, 44vw), 150px);
+  aspect-ratio:1/1;margin:clamp(6px, 1.2vh, 10px) auto;
+  border-radius:clamp(12px, 2vh, 16px);border:2px solid var(--border);background:var(--card);
+  padding:clamp(6px, 1.2vh, 10px);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 20px rgba(45,90,130,.12);
   animation:win-bounce .5s cubic-bezier(.34,1.56,.64,1) both;
 }
 .win-art .thumb{width:100%;height:100%;border-radius:4px;overflow:hidden}
 @keyframes win-bounce{0%{transform:scale(.6)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
-.stars{display:flex;justify-content:center;gap:8px;margin:12px 0 4px}
-.star-ic{font-size:36px;color:var(--track)}
+.stars{
+  display:flex;justify-content:center;gap:clamp(5px, 1.2vw, 8px);
+  margin:clamp(5px, 1vh, 8px) 0 clamp(3px, 0.6vh, 5px);
+}
+.star-ic{font-size:clamp(22px, 3.8vh, 32px);color:var(--track);line-height:1}
 .star-ic.on{color:#f5b840;filter:drop-shadow(0 2px 4px rgba(245,184,64,.5));animation:star-pop .45s cubic-bezier(.34,1.56,.64,1) both}
 @keyframes star-pop{0%{transform:scale(0) rotate(-30deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
-.win-streak{display:inline-flex;align-items:center;gap:6px;background:#ffe9d6;color:#e8801c;border-radius:99px;padding:4px 12px;font-weight:800;font-size:14px;margin-top:8px}
+.win-streak{display:inline-flex;align-items:center;gap:6px;background:#ffe9d6;color:#e8801c;border-radius:99px;padding:2px 10px;font-weight:800;font-size:clamp(10px, 1.4vh, 12px);margin-top:clamp(3px, 0.6vh, 6px)}
 .win-stats{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(6px, 1.5vw, 10px);
-  margin-top:clamp(10px, 1.8vh, 16px);width:100%;box-sizing:border-box;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(5px, 1.2vw, 8px);
+  margin-top:clamp(6px, 1.2vh, 12px);width:100%;box-sizing:border-box;
 }
 .win-stat{
-  background:var(--card-2);border:1.5px solid var(--border);border-radius:clamp(10px, 1.6vh, 14px);
-  padding:clamp(8px, 1.5vh, 12px) 4px;
+  background:var(--card-2);border:1.5px solid var(--border);border-radius:clamp(8px, 1.4vh, 12px);
+  padding:clamp(5px, 1vh, 9px) clamp(3px, 0.8vw, 6px);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;box-sizing:border-box;
   transition:border-color .15s ease, transform .12s ease;
@@ -1034,7 +1056,7 @@ html.dark .gameover-title{
   border-color:var(--brand);
 }
 .win-stat .ic{
-  display:block;margin:0 auto clamp(3px, 0.6vh, 6px);font-size:clamp(16px, 2.2vh, 20px);
+  display:block;margin:0 auto clamp(2px, 0.4vh, 4px);font-size:clamp(13px, 2vh, 17px);
   color:var(--muted);flex:0 0 auto;
 }
 .win-stat.heart-stat .ic{
@@ -1047,8 +1069,42 @@ html.dark .win-stat.heart-stat .ic{
 }
 .win-stat p{
   margin:0;font-family:"Roboto Mono",monospace;font-weight:800;
-  font-size:clamp(12px, 1.7vh, 14px);color:var(--heading);
+  font-size:clamp(10.5px, 1.5vh, 13px);color:var(--heading);
   text-align:center;width:100%;line-height:1.2;
+}
+.modal-actions{
+  display:flex;gap:clamp(5px, 1.2vw, 8px);margin-top:clamp(8px, 1.5vh, 14px);width:100%;align-items:stretch;
+}
+.square-btn{
+  width:clamp(38px, 5.4vh, 44px);height:clamp(38px, 5.4vh, 44px);flex:0 0 auto;border-radius:clamp(9px, 1.3vh, 12px);
+  border:2px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-size:clamp(16px, 2.3vh, 20px);color:var(--muted);
+  transition:background .18s ease,color .18s ease,border-color .18s ease;
+}
+.modal-actions .btn-primary{
+  flex:1;height:clamp(38px, 5.4vh, 44px);padding:0 clamp(10px, 1.8vw, 16px);
+  font-size:clamp(12px, 1.7vh, 15px);border-radius:clamp(9px, 1.3vh, 12px);
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  letter-spacing:.08em;
+}
+
+@media (max-height: 540px){
+  .overlay{padding:6px}
+  .modal{padding:8px 12px;border-radius:14px;max-height:min(98vh, 98dvh)}
+  .win-modal{padding:6px 10px;max-width:320px}
+  .win-header{margin-bottom:1px}
+  .win-modal h2{font-size:14px}
+  .win-sub{font-size:9px}
+  .win-art{width:clamp(55px, 18vh, 75px);padding:3px;margin:2px auto;border-radius:8px}
+  .stars{margin:2px 0;gap:4px}
+  .star-ic{font-size:19px}
+  .win-stats{margin-top:3px;gap:4px}
+  .win-stat{padding:3px 2px;border-radius:6px}
+  .win-stat .ic{font-size:11px;margin-bottom:1px}
+  .win-stat p{font-size:9.5px}
+  .modal-actions{margin-top:4px;gap:4px}
+  .square-btn{width:32px;height:32px;font-size:14px;border-radius:6px}
+  .modal-actions .btn-primary{height:32px;padding:0 8px;font-size:11.5px;border-radius:6px}
 }
 
 /* ============ CUSTOM THEMED SCROLLBARS ============ */
@@ -3177,6 +3233,7 @@ function startGame(mode,size,id,customDate,customOpts){
   let moveHandler=null,upHandler=null,timerId=0,ro=null;
   let guideIndices=[];
   let lastSound=0;
+  let winAnimStart=0;
   const placedAnim=new Map();
 
   function triggerPop(idx, type){
@@ -3308,14 +3365,20 @@ function startGame(mode,size,id,customDate,customOpts){
     title=mode.toUpperCase()+" · "+size+"×"+size+" · #"+(id+1);
   }
 
-  const isTutorial = (mode === "classic" && size === 5 && id === 0 && !Storage.isLevelCompleted("classic", 5, 0) && !seenTutorialLevel1);
+  const isFirstLevel = (mode === "classic" && size === 5 && id === 0);
+  const isTutorial = isFirstLevel && !Storage.isLevelCompleted("classic", 5, 0) && !seenTutorialLevel1;
   if(isTutorial) seenTutorialLevel1 = true;
   let tutDismissed = false;
 
-  const maxLives = n <= 5 ? 3 : n <= 10 ? 4 : 5;
+  const hasLives = !isFirstLevel;
+  const maxLives = hasLives ? (n <= 5 ? 3 : n <= 10 ? 4 : 5) : Infinity;
   let heartsHTML = "";
-  for(let h=1; h<=maxLives; h++){
-    heartsHTML += '<span class="heart-slot on" id="gHeart'+h+'">'+icon("heart")+'</span>';
+  if(hasLives){
+    for(let h=1; h<=maxLives; h++){
+      heartsHTML += '<span class="heart-slot on" id="gHeart'+h+'">'+icon("heart")+'</span>';
+    }
+  } else {
+    heartsHTML = '<span style="color:#0284c7;font-weight:800;font-size:11px;letter-spacing:0.04em;display:flex;align-items:center;gap:3px">✨ Practice</span>';
   }
 
   app.innerHTML=
@@ -3325,9 +3388,7 @@ function startGame(mode,size,id,customDate,customOpts){
         '<div class="g-head-right">'+
           '<button class="chip test-chip press" id="gTestWin" title="Complete Level (Test)">⚡ <span>Complete</span></button>'+
           '<span class="chip">'+icon("clock")+'<span id="gTime">0:00</span></span>'+
-          '<div class="chip lives-chip" id="gLivesChip" title="'+maxLives+' Lives">'+
-            heartsHTML+
-          '</div>'+
+          (hasLives ? '<div class="chip lives-chip" id="gLivesChip" title="'+maxLives+' Lives">'+heartsHTML+'</div>' : '<div class="chip" id="gLivesChip" title="Unlimited Practice Mode">'+heartsHTML+'</div>')+
           '<button class="icon-btn press" id="gHelp" title="Help" style="width:clamp(28px, 4vh, 34px);height:clamp(28px, 4vh, 34px);font-size:clamp(16px, 2.2vh, 19px)">'+icon("help")+'</button>'+
           '<button class="icon-btn press" id="gSet" title="Settings" style="width:clamp(28px, 4vh, 34px);height:clamp(28px, 4vh, 34px);font-size:clamp(16px, 2.2vh, 19px)">'+icon("gear")+'</button>'+
         '</div>'+
@@ -3514,7 +3575,20 @@ function startGame(mode,size,id,customDate,customOpts){
         const isTut = isTutorial && guideIndices.includes(idx);
         const anim = placedAnim.get(idx);
         let scale = 1;
-        if(anim && !won){
+        let winSheen = 0;
+
+        if(won && winAnimStart > 0){
+          const delay = (r + c) * 35;
+          const elapsed = (now - winAnimStart) - delay;
+          if(elapsed >= 0 && elapsed < 340){
+            const p = elapsed / 340;
+            scale = 1 + 0.18 * Math.sin(p * Math.PI);
+            winSheen = Math.sin(p * Math.PI);
+            hasAnim = true;
+          } else if(now - winAnimStart < (2 * n * 35 + 400)){
+            hasAnim = true;
+          }
+        } else if(anim && !won){
           const elapsed = now - anim.start;
           if(elapsed < anim.dur){
             scale = getPopScale(elapsed / anim.dur);
@@ -3563,7 +3637,13 @@ function startGame(mode,size,id,customDate,customOpts){
           ctx.save();
           ctx.translate(centerX, centerY);
           if(scale !== 1) ctx.scale(scale, scale);
-          ctx.fillStyle = isErr ? colors.err : colors.fill;
+          if(winSheen > 0){
+            ctx.fillStyle = colors.isDark ? "#38bdf8" : "#0284c7";
+            ctx.shadowColor = colors.isDark ? "rgba(56,189,248,0.7)" : "rgba(2,132,199,0.55)";
+            ctx.shadowBlur = 8 * winSheen;
+          } else {
+            ctx.fillStyle = isErr ? colors.err : colors.fill;
+          }
           roundRectPath(ctx, -half + 1, -half + 1, cell - 2, cell - 2, Math.min(1.5, cell * 0.05));
           ctx.fill();
           ctx.restore();
@@ -3684,13 +3764,15 @@ function startGame(mode,size,id,customDate,customOpts){
     renderBoardCanvas();
     const timeEl = document.getElementById("gTime");
     if(timeEl) timeEl.textContent = fmtTime(elapsed);
-    const livesLeft = Math.max(0, maxLives - mistakes);
-    for(let h=1; h<=maxLives; h++){
-      const el = document.getElementById("gHeart"+h);
-      if(el){
-        const isAlive = h <= livesLeft;
-        el.classList.toggle("on", isAlive);
-        el.classList.toggle("lost", !isAlive);
+    if(hasLives){
+      const livesLeft = Math.max(0, maxLives - mistakes);
+      for(let h=1; h<=maxLives; h++){
+        const el = document.getElementById("gHeart"+h);
+        if(el){
+          const isAlive = h <= livesLeft;
+          el.classList.toggle("on", isAlive);
+          el.classList.toggle("lost", !isAlive);
+        }
       }
     }
     const undoBtn = document.getElementById("tUndo");
@@ -3748,6 +3830,7 @@ function startGame(mode,size,id,customDate,customOpts){
     }
     if(newLineDone && !won){
       sound.lineDone();
+      if(navigator.vibrate) try{ navigator.vibrate([15, 30, 20]); }catch(e){}
     }
   }
 
@@ -3759,8 +3842,10 @@ function startGame(mode,size,id,customDate,customOpts){
     const draft=draftArg?draftArg.slice():cells.slice();
     for(let i=0;i<total;i++)if(draft[i]===0)draft[i]=2;
     cells=draft;won=true;started=false;
+    winAnimStart=performance.now();
     sound.win();
-    const stars=mistakes===0&&hintsUsed===0?3:(mistakes<=Math.floor(maxLives/2)&&hintsUsed<=1?2:1);
+    if(navigator.vibrate) try{ navigator.vibrate([30, 40, 30, 40, 70]); }catch(e){}
+    const stars = !hasLives ? 3 : (mistakes===0&&hintsUsed===0?3:(mistakes<=Math.floor(maxLives/2)&&hintsUsed<=1?2:1));
     const rec={time:elapsed,mistakes,hints:hintsUsed,stars};
     const isFirstTime=!Storage.isPuzzleCompleted(puzzle, customOpts, dateObj);
     Storage.markPuzzleCompleted(puzzle, customOpts, dateObj);
@@ -3803,20 +3888,23 @@ function startGame(mode,size,id,customDate,customOpts){
           triggerPop(k, "fill");
           if(puzzle.grid[k]===1){
             draft[k]=1;touched=true;
+            if(navigator.vibrate) try{ navigator.vibrate(10); }catch(e){}
             const now=performance.now();if(now-lastSound>35){sound.fill(pan);lastSound=now;}
           }else{
             draft[k]=1;touched=true;mistakes++;sound.error(pan);errors.add(k);
-            const lostSlot=Math.max(1,Math.min(maxLives,(maxLives+1)-mistakes));
-            const hEl=document.getElementById("gHeart"+lostSlot);
-            if(hEl){
-              hEl.classList.remove("flash");
-              void hEl.offsetWidth;
-              hEl.classList.add("flash");
-              setTimeout(()=>{if(hEl)hEl.classList.remove("flash");},480);
+            if(hasLives){
+              const lostSlot=Math.max(1,Math.min(maxLives,(maxLives+1)-mistakes));
+              const hEl=document.getElementById("gHeart"+lostSlot);
+              if(hEl){
+                hEl.classList.remove("flash");
+                void hEl.offsetWidth;
+                hEl.classList.add("flash");
+                setTimeout(()=>{if(hEl)hEl.classList.remove("flash");},480);
+              }
             }
             if(navigator.vibrate)try{navigator.vibrate(40);}catch(err){}
             setTimeout(()=>{if(cells[k]===1)cells[k]=2;errors.delete(k);triggerPop(k, "x");renderAll();},380);
-            if(mistakes>=maxLives){
+            if(hasLives && mistakes>=maxLives){
               started=false;
               stroke=null;
               setTimeout(()=>{
@@ -4071,20 +4159,22 @@ function startGame(mode,size,id,customDate,customOpts){
     const body=
       confettiHTML()+
       '<div class="modal win-modal">'+
-        "<h2>"+winTitle+"</h2>"+
-        '<div style="font-family:\'Roboto Mono\',monospace;font-size:12px;font-weight:700;color:var(--muted);margin-top:-10px;margin-bottom:8px;text-transform:uppercase">'+winSub+"</div>"+
-        '<div class="win-art">'+thumbHTML(puzzle.grid,n)+"</div>"+
+        '<div class="win-header">'+
+          '<h2>'+winTitle+'</h2>'+
+          '<div class="win-sub">'+winSub+'</div>'+
+        '</div>'+
+        '<div class="win-art">'+thumbHTML(puzzle.grid,n)+'</div>'+
         '<div class="stars">'+starsHTML+"</div>"+
         (mode==="daily"&&streakVal>0?'<div class="win-streak">'+icon("flame")+" "+streakVal+" day streak</div>":"")+
         '<div class="win-stats">'+
           '<div class="win-stat" title="Solve Time">'+icon("clock")+"<p>"+fmtTime(rec.time)+"</p></div>"+
-          '<div class="win-stat heart-stat" title="Lives Remaining">'+icon("heart")+"<p>"+Math.max(0, maxLives - rec.mistakes)+"/"+maxLives+"</p></div>"+
+          (hasLives ? '<div class="win-stat heart-stat" title="Lives Remaining">'+icon("heart")+"<p>"+Math.max(0, maxLives - rec.mistakes)+"/"+maxLives+"</p></div>" : '<div class="win-stat" title="Intro Level">'+icon("star")+"<p>Tutorial</p></div>")+
           '<div class="win-stat" title="Hints Used">'+icon("bulb")+"<p>"+rec.hints+"</p></div>"+
         "</div>"+
         '<div class="modal-actions">'+
           '<button class="square-btn press" id="wHome" title="Menu">'+icon("home")+'</button>'+
           '<button class="square-btn press" id="wReplay" title="Replay">'+icon("restart")+'</button>'+
-          (hasNextLevel()?'<button class="btn-primary press" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px" id="wNext">NEXT '+icon("play")+'</button>':'<button class="btn-primary press" style="flex:1" id="wDone">Done</button>')+
+          (hasNextLevel()?'<button class="btn-primary press btn-win-next" id="wNext">NEXT '+icon("play")+'</button>':'<button class="btn-primary press btn-win-next" id="wDone">Done</button>')+
         "</div>"+
       "</div>";
     /* note confetti must be outside the modal overlay */

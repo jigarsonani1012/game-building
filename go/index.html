@@ -39,12 +39,12 @@
    Base & Custom Scrollbar
    ============================================================ */
 *,*::before,*::after{box-sizing:border-box}
-html{height:100%;-webkit-text-size-adjust:100%;scrollbar-width:thin;scrollbar-color:var(--border-strong) var(--bg)}
+html{height:100%;-webkit-text-size-adjust:100%;scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent;scrollbar-gutter:stable;overflow-y:auto}
 body{margin:0;min-height:100%;font-family:var(--font-ui);background:var(--bg);color:var(--fg);line-height:1.45;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overscroll-behavior-y:none}
 body.modal-open{overflow:hidden}
 ::-webkit-scrollbar{width:8px;height:8px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:999px;border:2px solid var(--bg);transition:background .2s}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:999px;border:2px solid transparent;background-clip:padding-box;transition:background .2s}
 ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 button:disabled{cursor:not-allowed}
@@ -70,7 +70,7 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0}
 .span2{grid-column:1/-1}
 .sec-title{font-size:.8125rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--fg-muted);margin-bottom:.75rem;display:flex;align-items:baseline;justify-content:space-between;gap:.75rem}
 .sec-hint{font-size:.75rem;color:var(--fg-faint);text-transform:none;letter-spacing:0;font-weight:500}
-@media(max-width:1023px){.desktop-only{display:none!important}}
+@media(max-width:767px){.desktop-only{display:none!important}}
 .app-bg{
   background:
     radial-gradient(1200px 600px at 10% -10%, var(--accent-soft), transparent 60%),
@@ -245,8 +245,8 @@ input[type=range]:focus-visible::-moz-range-thumb{
 .brand{display:flex;align-items:center;gap:.75rem}
 .brand-name{font-size:1.25rem;font-weight:600;line-height:1}
 .brand-tag{font-size:.6875rem;color:var(--fg-muted);margin-top:4px;letter-spacing:.02em}
-.game-top{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--surface) 65%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:.625rem .75rem}
-@media(min-width:640px){.game-top{padding:.625rem 1.25rem}}
+.game-top{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--surface) 65%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:.5rem .75rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+@media(min-width:640px){.game-top{padding:.5rem 1.25rem}}
 .g-title{font-size:.875rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .g-sub{font-size:.6875rem;color:var(--fg-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
@@ -254,8 +254,7 @@ input[type=range]:focus-visible::-moz-range-thumb{
    Setup screen
    ============================================================ */
 .setup-main{max-width:72rem;margin:0 auto;padding:2rem 1rem 8rem;display:grid;gap:2rem;align-items:start;width:100%}
-@media(min-width:640px){.setup-main{padding:2rem 1.5rem 8rem}}
-@media(min-width:1024px){.setup-main{grid-template-columns:1fr 400px;padding-bottom:4rem}.setup-right{position:sticky;top:1.5rem}}
+@media(min-width:768px){.setup-main{grid-template-columns:1fr minmax(320px,400px);padding-bottom:4rem}.setup-right{position:sticky;top:1.5rem}}
 .setup-left{display:flex;flex-direction:column;gap:1.5rem;min-width:0;animation:rise .42s cubic-bezier(.2,.8,.2,1) both}
 .setup-right{display:flex;flex-direction:column;gap:1rem;animation:rise .42s cubic-bezier(.2,.8,.2,1) .08s both}
 .resume{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.875rem 1rem;border-color:color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-soft);border-radius:1rem}
@@ -274,7 +273,8 @@ input[type=range]:focus-visible::-moz-range-thumb{
 .choice b{display:block;font-weight:600}
 .choice small{display:block;font-size:.75rem;color:var(--fg-muted);margin-top:2px}
 @media(max-width:420px){.choice{flex-direction:column;gap:.5rem}.choice .ic{width:2rem;height:2rem}}
-.level-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.625rem}
+.level-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem}
+@media(max-width:640px){.level-grid{grid-template-columns:repeat(2,1fr)}}
 .level{border-radius:.875rem;border:1px solid var(--border);background:var(--surface-2);padding:.75rem .875rem;text-align:left;transition:.15s;display:flex;flex-direction:column;gap:3px}
 .level:hover{border-color:var(--border-strong)}
 .level:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent)}
@@ -322,66 +322,104 @@ input[type=range]:focus-visible::-moz-range-thumb{
 .learn-cta small{display:block;font-size:.75rem;color:var(--fg-muted)}
 .learn-cta .arr{margin-left:auto;color:var(--fg-faint)}
 .mobile-start{position:fixed;bottom:0;left:0;right:0;padding:1rem;padding-bottom:calc(1rem + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 45%,transparent);z-index:10}
-@media(min-width:1024px){.mobile-start{display:none}}
+@media(min-width:768px){.mobile-start{display:none}}
 
 /* ============================================================
    Game screen
    ============================================================ */
-.game-main{flex:1;width:100%;max-width:1400px;margin:0 auto;padding:.75rem;display:grid;gap:1rem;align-items:start}
-@media(min-width:640px){.game-main{padding:1.25rem}}
-@media(min-width:1024px){.game-main{grid-template-columns:minmax(0,1fr) 360px;gap:1.5rem}}
-.board-col{display:flex;flex-direction:column;align-items:center;gap:.75rem;min-width:0}
-.board-wrap{width:100%}
-@media(min-width:640px){.board-wrap{max-width:min(100%,calc(100dvh - 215px))}}
-@media(min-width:1024px){.board-wrap{max-width:min(100%,calc(100dvh - 165px))}}
-.board-frame{--edge:#8a5a22;padding:clamp(5px,1.2vw,10px);border-radius:14px;background:linear-gradient(180deg,color-mix(in srgb,var(--edge) 88%,#fff) 0%,var(--edge) 45%,color-mix(in srgb,var(--edge) 70%,#000) 100%);box-shadow:0 2px 0 0 color-mix(in srgb,var(--edge) 55%,#000),0 22px 45px -18px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.18)}
+#screen-game{min-height:100dvh;display:flex;flex-direction:column}
+@media(min-width:768px){#screen-game{height:100dvh;max-height:100dvh;overflow:hidden}}
+.game-main{flex:1;width:100%;max-width:520px;margin:0 auto;padding:.75rem .75rem 2rem;display:flex;flex-direction:column;align-items:center;gap:.75rem;min-height:0}
+@media(min-width:768px){.game-main{display:grid;grid-template-columns:auto minmax(280px,360px);justify-content:center;height:calc(100dvh - 50px);max-width:1440px;padding:clamp(.5rem,1.5vh,1rem) clamp(.75rem,1.5vw,1.5rem);gap:clamp(1rem,2.2vw,2.25rem);align-items:stretch}}
+.board-col{display:flex;flex-direction:column;align-items:center;gap:.75rem;min-width:0;width:100%}
+@media(min-width:768px){.board-col{height:100%;align-self:center;justify-content:center;width:auto;gap:.5rem}}
+.board-wrap{width:100%;max-width:100%;display:flex;justify-content:center;align-items:center}
+@media(min-width:768px){.board-wrap{max-width:min(100%,calc(100dvh - 90px),920px)}}
+@media(max-height:680px) and (min-width:768px){
+  .game-main{padding:.375rem clamp(.5rem,1.5vw,1rem);gap:.5rem}
+  .board-wrap{max-width:min(100%,calc(100dvh - 75px),700px)}
+}
+@media(max-height:480px) and (min-width:768px){
+  .game-main{padding:.25rem .5rem;gap:.375rem}
+  .board-wrap{max-width:min(100%,calc(100dvh - 55px),480px)}
+}
+.board-frame{--edge:#8a5a22;padding:clamp(4px,1vw,8px);border-radius:12px;background:linear-gradient(180deg,color-mix(in srgb,var(--edge) 88%,#fff) 0%,var(--edge) 45%,color-mix(in srgb,var(--edge) 70%,#000) 100%);box-shadow:0 2px 0 0 color-mix(in srgb,var(--edge) 55%,#000),0 16px 36px -14px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.18);width:100%}
 canvas.goban{display:block;width:100%;aspect-ratio:1/1;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25),0 1px 3px rgba(0,0,0,.35);background:transparent;touch-action:pan-y}
 canvas.goban.live{touch-action:none;cursor:pointer}
 canvas.goban.scoring{cursor:crosshair}
-.side{display:flex;flex-direction:column;gap:.75rem;min-width:0}
-@media(min-width:1024px){.side{position:sticky;top:68px}}
+.side{display:flex;flex-direction:column;gap:.5rem;min-width:0;width:100%;align-self:stretch}
+@media(min-width:768px){.side{width:auto;align-self:start;max-height:calc(100dvh - 80px)}}
 .players-mobile{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
 .players-desktop{display:none;flex-direction:column;gap:.5rem}
-@media(min-width:1024px){.players-mobile{display:none}.players-desktop{display:flex}}
+@media(min-width:768px){.players-mobile{display:none}.players-desktop{display:flex}}
+@media(max-height:680px) and (min-width:768px){.players-desktop{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}}
 #controls-mobile{width:100%}
-@media(min-width:1024px){#controls-mobile{display:none}}
-.status-row{display:flex;align-items:center;justify-content:center;gap:.75rem;min-height:2rem;width:100%;flex-wrap:wrap}
-.status-pill{padding:.375rem .875rem;border-radius:999px;font-size:.875rem;font-weight:500;border:1px solid var(--border);text-align:center;transition:.2s;background:var(--surface-2)}
+@media(min-width:768px){#controls-mobile{display:none}}
+.status-row{display:flex;align-items:center;justify-content:center;gap:.375rem;min-height:0;min-width:0;flex-shrink:1}
+.status-pill{padding:.25rem .75rem;border-radius:999px;font-size:.8125rem;font-weight:500;border:1px solid var(--border);text-align:center;transition:.2s;background:var(--surface-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .status-pill.accent{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 40%,transparent)}
 .status-pill.violet{background:color-mix(in srgb,var(--violet) 12%,transparent);border-color:color-mix(in srgb,var(--violet) 40%,transparent)}
 .status-pill.muted{color:var(--fg-muted)}
+@media(max-width:560px){
+  .status-pill{padding:.2rem .5rem;font-size:.75rem;max-width:140px}
+}
+@media(max-width:380px){
+  .g-sub{display:none}
+  .status-pill{max-width:110px}
+}
 .confirm-row{display:flex;justify-content:center;gap:.5rem;width:100%;animation:rise .3s cubic-bezier(.2,.8,.2,1)}
 
 /* Player cards */
-.pcard{position:relative;border-radius:1rem;border:1px solid var(--border);background:var(--surface);padding:.875rem;display:flex;align-items:center;gap:.75rem;transition:border-color .3s,background .3s;min-width:0}
-.pcard.compact{padding:.625rem;gap:.5rem}
+.pcard{position:relative;border-radius:1rem;border:1px solid var(--border);background:var(--surface);padding:.75rem .875rem;display:flex;align-items:center;gap:.75rem;transition:border-color .3s,background .3s;min-width:0}
+.pcard.compact{padding:.5rem .625rem;gap:.5rem}
 .pcard.active{border-color:color-mix(in srgb,var(--accent) 70%,transparent);background:var(--accent-soft);animation:turn-glow 2s ease-out infinite}
 .pcard.winner{border-color:color-mix(in srgb,var(--success) 60%,transparent)}
 .pcard-stone{position:relative;flex-shrink:0;display:flex}
-.pcard-stone .sdot{width:2.375rem;height:2.375rem}
-.pcard.compact .pcard-stone .sdot{width:1.75rem;height:1.75rem}
+.pcard-stone .sdot{width:2.125rem;height:2.125rem}
+.pcard.compact .pcard-stone .sdot{width:1.625rem;height:1.625rem}
 .ai-badge{position:absolute;right:-4px;bottom:-4px;width:1rem;height:1rem;border-radius:50%;background:var(--violet);color:#fff;display:grid;place-items:center;box-shadow:0 0 0 2px var(--surface)}
 .pcard-body{min-width:0;flex:1}
-.pcard-name{display:flex;align-items:center;gap:.5rem;min-width:0;font-weight:600;font-size:.9375rem}
-.pcard.compact .pcard-name{font-size:.8125rem;gap:.375rem}
+.pcard-name{display:flex;align-items:center;gap:.375rem;min-width:0;font-weight:600;font-size:.875rem}
+.pcard.compact .pcard-name{font-size:.8125rem;gap:.3125rem}
 .pcard-name .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rank{font-size:.625rem;padding:2px 6px;border-radius:6px;background:var(--surface-2);color:var(--fg-muted);flex-shrink:0;font-weight:500}
 .won{color:var(--success);display:inline-flex}
-.pcard-meta{display:flex;align-items:center;gap:.625rem;font-size:.75rem;color:var(--fg-muted);margin-top:2px;flex-wrap:wrap}
+.pcard-meta{display:flex;align-items:center;gap:.625rem;font-size:.75rem;color:var(--fg-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pcard.compact .pcard-meta{font-size:.6875rem}
 .pcard-meta b{color:var(--fg)}
-.thinking{color:var(--violet);display:inline-flex;align-items:center;gap:3px}
-.dots{display:inline-flex;gap:2px;margin-left:2px}
-.dots i{width:5px;height:5px;border-radius:50%;background:currentColor;animation:thinking-dot 1.2s ease-in-out infinite}
+.thinking{color:var(--violet);font-size:.6875rem;font-weight:500;display:inline-flex;align-items:center;gap:3px;flex-shrink:0;padding:1px 5px;border-radius:6px;background:color-mix(in srgb,var(--violet) 15%,transparent);line-height:1.2}
+.dots{display:inline-flex;gap:2px;align-items:center}
+.dots i{width:3.5px;height:3.5px;border-radius:50%;background:currentColor;animation:thinking-dot 1.2s ease-in-out infinite}
 .dots i:nth-child(2){animation-delay:.15s}
 .dots i:nth-child(3){animation-delay:.3s}
-.passed{color:var(--warn);font-weight:500}
+.passed{color:var(--warn);font-weight:600;font-size:.625rem;text-transform:uppercase;letter-spacing:.03em;padding:1px 4px;border-radius:4px;background:color-mix(in srgb,var(--warn) 15%,transparent);flex-shrink:0}
 .pcard-clock{text-align:right;flex-shrink:0}
-.clock-main{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums;font-size:1.25rem;line-height:1}
-.pcard.compact .clock-main{font-size:1rem}
+.clock-main{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums;font-size:1.125rem;line-height:1}
+.pcard.compact .clock-main{font-size:.9375rem}
 .clock-sub{font-size:.625rem;color:var(--fg-muted);margin-top:2px}
 .pcard-clock.low{color:var(--danger)}
 .pcard-clock.low .clock-main{animation:pulse 1s ease-in-out infinite}
+
+/* Compact layout on short viewports */
+@media(max-height:680px){
+  .game-top{padding:.375rem .75rem}
+  .pcard{padding:.45rem .625rem;gap:.5rem;border-radius:.75rem}
+  .pcard .sdot{width:1.5rem;height:1.5rem}
+  .clock-main{font-size:.875rem}
+  .pcard-name{font-size:.75rem}
+  .controls{gap:.3125rem}
+  #panel{padding:.45rem .5rem;gap:.375rem}
+  .move-list{max-height:clamp(3rem, 12vh, 6rem);margin-top:.25rem}
+  .est{padding:.5rem}
+  .finished-box{padding:.5rem;font-size:.8125rem}
+  .finished-box .row{margin-top:.375rem}
+}
+@media(max-height:460px){
+  .game-main{padding:.25rem .5rem;gap:.375rem}
+  .pcard{padding:.3rem .5rem}
+  .status-row{min-height:1.25rem}
+  .status-pill{padding:.15rem .5rem;font-size:.6875rem}
+}
 
 /* Controls & panel */
 .controls{display:flex;flex-direction:column;gap:.5rem}
@@ -399,8 +437,7 @@ canvas.goban.scoring{cursor:crosshair}
 .spinner{width:.75rem;height:.75rem;border-radius:50%;border:2px solid var(--accent);border-top-color:transparent;animation:spin .8s linear infinite;display:inline-block}
 .nav-row{display:flex;align-items:center;gap:.25rem}
 .nav-row input{flex:1;margin:0 .25rem;min-width:0}
-.move-list{display:flex;flex-wrap:wrap;gap:.25rem;max-height:10rem;overflow-y:auto;padding-right:.25rem;margin-top:.5rem}
-@media(min-width:1024px){.move-list{max-height:14rem}}
+.move-list{display:flex;flex-wrap:wrap;gap:.25rem;max-height:clamp(4rem, 18vh, 12rem);overflow-y:auto;padding-right:.25rem;margin-top:.5rem}
 .mv{display:inline-flex;align-items:center;gap:.375rem;border-radius:.5rem;padding:0 .375rem;height:1.75rem;font-size:.6875rem;font-weight:500;font-variant-numeric:tabular-nums;border:1px solid var(--border);background:var(--surface-2);color:var(--fg-muted);transition:.15s}
 .mv:hover{color:var(--fg);border-color:var(--border-strong)}
 .mv.active{background:var(--accent);color:var(--accent-fg);border-color:transparent}
@@ -437,7 +474,7 @@ canvas.goban.scoring{cursor:crosshair}
 @media(min-width:640px){.modal-backdrop{align-items:center;padding:1.5rem}.modal{border-radius:1.5rem;max-height:86dvh}.modal.sm{max-width:28rem}.modal.md{max-width:36rem}.modal.lg{max-width:48rem}}
 .modal-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.25rem 1.5rem .75rem;flex-shrink:0}
 .modal-title{font-family:var(--font-display);font-size:1.25rem;font-weight:600}
-.modal-body{padding:0 1.5rem 1.5rem;overflow-y:auto;min-height:0}
+.modal-body{padding:0 1.5rem 1.5rem;overflow-y:auto;min-height:0;scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent;overscroll-behavior:contain}
 .modal-close{width:2.25rem;height:2.25rem;border-radius:50%;display:grid;place-items:center;color:var(--fg-muted);transition:.15s}
 .modal-close:hover{background:var(--surface-2);color:var(--fg)}
 .modal-actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:1.25rem;flex-wrap:wrap}
@@ -662,6 +699,10 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
       <div class="logo sm desktop-only" aria-hidden="true"><svg viewBox="0 0 40 40"><g class="logo-grid" stroke="#6b4514" stroke-width="1" opacity=".7"><line x1="8" y1="14" x2="32" y2="14"/><line x1="8" y1="26" x2="32" y2="26"/><line x1="14" y1="8" x2="14" y2="32"/><line x1="26" y1="8" x2="26" y2="32"/></g><circle cx="14" cy="14" r="5.2" fill="#111"/><circle cx="26" cy="26" r="5.2" fill="#fff"/></svg></div>
       <div class="min0"><div class="g-title" id="g-title"></div><div class="g-sub" id="g-sub"></div></div>
     </div>
+    <div class="status-row" id="status-row">
+      <div class="status-pill accent" id="status-pill" role="status" aria-live="polite"></div>
+      <button class="btn btn-primary btn-sm" id="btn-latest" hidden></button>
+    </div>
     <div class="row" style="gap:2px">
       <button class="btn btn-ghost btn-icon" data-action="help" title="How to play" aria-label="How to play"></button>
       <button class="btn btn-ghost btn-icon" data-action="sound" title="Sound" aria-label="Toggle sound"></button>
@@ -674,10 +715,6 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
     <div class="board-col">
       <div class="players-mobile" id="players-mobile"></div>
       <div class="board-wrap"><div class="board-frame" id="board-frame"><canvas id="board-canvas" class="goban" aria-label="Go board"></canvas></div></div>
-      <div class="status-row">
-        <div class="status-pill accent" id="status-pill" role="status" aria-live="polite"></div>
-        <button class="btn btn-primary btn-sm" id="btn-latest" hidden></button>
-      </div>
       <div class="confirm-row" id="confirm-row" hidden>
         <button class="btn btn-secondary" id="btn-cancel-pending">Cancel</button>
         <button class="btn btn-primary btn-lg" id="btn-place"></button>
@@ -771,7 +808,7 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
       <nav class="help-nav" role="tablist">
         <button type="button" class="help-tab-btn active" data-tab="rules">📖 Core Rules</button>
         <button type="button" class="help-tab-btn" data-tab="atari">⚔️ Atari Go Mode</button>
-        <button type="button" class="help-tab-btn" data-tab="controls">🎮 Controls &amp; Gestures</button>
+        <button type="button" class="help-tab-btn" data-tab="controls">🎮 Controls &amp; Shortcuts</button>
         <button type="button" class="help-tab-btn" data-tab="strategy">💡 Strategy Guide</button>
       </nav>
 
@@ -1020,11 +1057,11 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
         </div>
       </div>
 
-      <!-- TAB 3: CONTROLS & TOUCH -->
+      <!-- TAB 3: CONTROLS & SHORTCUTS -->
       <div class="help-tab-pane" id="pane-controls">
         <div class="ctrl-grid">
-          <div class="help-card">
-            <div class="help-card-title">⌨️ Keyboard Shortcuts</div>
+          <div class="help-card desktop-only">
+            <div class="help-card-title">⌨️ Keyboard Hotkeys</div>
             <ul class="kbd-list">
               <li><span>Pass turn</span><span><kbd>P</kbd></span></li>
               <li><span>Undo last move</span><span><kbd>U</kbd></span></li>
@@ -1036,11 +1073,12 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
             </ul>
           </div>
           <div class="help-card">
-            <div class="help-card-title">📱 Mobile &amp; Touch Gestures</div>
+            <div class="help-card-title">🎯 Gameplay Controls</div>
             <div class="help-card-text" style="display:flex;flex-direction:column;gap:.75rem">
-              <p><b>🎯 Aim &amp; Release:</b> Press and slide your finger across the board to preview where the stone will land under the crosshair. Lift your finger to place!</p>
-              <p><b>🛡️ Move Confirmation:</b> On phone screens, enable <i>Confirm Moves</i> in Settings to preview moves and tap a second time to confirm.</p>
-              <p><b>🔍 Coordinate Markers:</b> Turn on coordinates in Settings to track algebraic board notations like <i>Q16</i> or <i>D4</i>.</p>
+              <p><b>⚡ 1-Tap Placement:</b> Click or tap any empty intersection on the board to place your stone immediately.</p>
+              <p><b>⏮️ Move Review:</b> Drag the bottom timeline slider or use the navigation buttons to review earlier turns.</p>
+              <p><b>📊 Live Estimation:</b> Toggle <i>Estimate</i> during play to inspect AI territory control and score margins.</p>
+              <p><b>🔍 Coordinate Grid:</b> Toggle coordinates in Settings to display official algebraic board notations.</p>
             </div>
           </div>
         </div>
@@ -1400,22 +1438,56 @@ const GO = (() => {
     for (let k = 0; k < ds.length; k++) if (board[ds[k]] === other) e++;
     return ds.length < 4 ? e === 0 : e <= 1;
   }
-  // Mutates board. Returns area score black − white (no komi).
+  // Tactical Monte-Carlo playout: Mutates board. Returns area score black − white (no komi).
   function runPlayout(board, s, toPlay, maxMoves) {
     const size = s.size, n = board.length, ko = { point: -1 }, { empties, order } = s;
-    let color = toPlay, passes = 0, moves = 0;
+    const nbrs = neighbors(size);
+    let color = toPlay, passes = 0, moves = 0, lastPlaced = -1;
     while (passes < 2 && moves < maxMoves) {
       let ec = 0; for (let i = 0; i < n; i++) if (board[i] === EMPTY) empties[ec++] = i;
+      if (ec === 0) break;
       for (let i = 0; i < ec; i++) order[i] = empties[i];
+
       let played = false;
-      for (let i = 0; i < ec; i++) {
-        const j = i + ((fastRandom() * (ec - i)) | 0); const t = order[i]; order[i] = order[j]; order[j] = t;
-        const p = order[i];
-        if (isPlayoutEye(board, size, p, color)) continue;
-        if (playoutMove(board, s, p, color, ko) >= 0) { played = true; break; }
+      const enemy = opponent(color);
+
+      // 1. Local tactical response: check adjacent to last move
+      if (lastPlaced >= 0) {
+        const ns = nbrs[lastPlaced];
+        for (let k = 0; k < ns.length; k++) {
+          const q = ns[k];
+          if (board[q] === EMPTY && !isPlayoutEye(board, size, q, color)) {
+            const caps = playoutMove(board, s, q, color, ko);
+            if (caps >= 0) {
+              if (caps === 0 && libsFast(board, s, nbrs, q, 1, nextStamp(s)) <= 1 && fastRandom() < 0.7) {
+                board[q] = EMPTY;
+              } else {
+                played = true; lastPlaced = q; break;
+              }
+            }
+          }
+        }
       }
-      if (played) passes = 0; else { passes++; ko.point = -1; }
-      color = opponent(color); moves++;
+
+      // 2. Tactical selection from empties with self-atari reduction
+      if (!played) {
+        for (let i = 0; i < ec; i++) {
+          const j = i + ((fastRandom() * (ec - i)) | 0); const t = order[i]; order[i] = order[j]; order[j] = t;
+          const p = order[i];
+          if (isPlayoutEye(board, size, p, color)) continue;
+          const caps = playoutMove(board, s, p, color, ko);
+          if (caps >= 0) {
+            if (caps === 0 && libsFast(board, s, nbrs, p, 1, nextStamp(s)) <= 1 && fastRandom() < 0.75) {
+              board[p] = EMPTY;
+              continue;
+            }
+            played = true; lastPlaced = p; break;
+          }
+        }
+      }
+
+      if (played) passes = 0; else { passes++; ko.point = -1; lastPlaced = -1; }
+      color = enemy; moves++;
     }
     const terr = computeTerritory(board, size); let score = terr.black - terr.white;
     for (let i = 0; i < n; i++) { if (board[i] === BLACK) score++; else if (board[i] === WHITE) score--; }
@@ -1452,11 +1524,12 @@ const GO = (() => {
   }
   function ownershipScore(ownership, komi) { let s = 0; for (let i = 0; i < ownership.length; i++) s += ownership[i]; return s - komi; }
 
-  /* ---------- AI ---------- */
+  /* ---------- AI ENGINE ---------- */
   const AI_LEVELS = [
-    { level: 1, name: 'Easy', rank: '~22 kyu', description: 'Plays casually with simple moves. Great for learning the rules and capturing.' },
-    { level: 2, name: 'Medium', rank: '~10 kyu', description: 'Reads one move ahead and values surrounding territory.' },
-    { level: 3, name: 'Hard', rank: '~3 kyu', description: 'Thinks deeply, reading tactical lines with Monte-Carlo evaluation.' },
+    { level: 1, name: 'Easy', rank: '~22 kyu', description: 'Plays casually with simple moves. Great for beginners.' },
+    { level: 2, name: 'Medium', rank: '~10 kyu', description: 'Reads ahead, defends liberties, and builds territory.' },
+    { level: 3, name: 'Hard', rank: '~2 kyu', description: 'Deep tactical reader with Monte-Carlo shape evaluation.' },
+    { level: 4, name: 'Master', rank: '2 Dan', description: 'Formidable Dan-level engine: UCB1 tree search and deep tesuji.' },
   ];
   function gaussianNoise(scale) {
     if (!scale) return 0;
@@ -1482,7 +1555,7 @@ const GO = (() => {
       if (typeof r === 'string') continue;
       let score = 0, tactical = 0;
       const captured = r.captured.length;
-      if (captured > 0) { const v = 10 + captured * 6; score += v; tactical += v; }
+      if (captured > 0) { const v = 14 + captured * 8; score += v; tactical += v; }
       const g = findGroup(r.board, size, idx), libs = g.liberties.length, gsize = g.stones.length;
       const ownAdj = new Set(), enemyAdj = new Set(); let savedStones = 0, weakOwn = 0;
       for (const q of nbrs[idx]) {
@@ -1492,14 +1565,15 @@ const GO = (() => {
         } else enemyAdj.add(gid);
       }
       if (savedStones > 0) {
-        if (libs >= 2) { const v = 6 + savedStones * 4 + (libs >= 3 ? 3 : 0); score += v; tactical += v; }
-        else if (captured === 0) score -= 8 + savedStones;
+        if (libs >= 2) { const v = 10 + savedStones * 5 + (libs >= 3 ? 4 : 0); score += v; tactical += v; }
+        else if (captured === 0) score -= 14 + savedStones * 2;
       }
-      if (weakOwn > 0 && libs >= 3) score += 1.5 + Math.min(weakOwn, 6) * 0.6;
-      if (libs === 1 && captured === 0) { score -= 12 + gsize * 3; if (atari) score -= 10; }
-      else if (libs === 2 && gsize > 1 && captured === 0) score -= 1.5;
-      score += Math.min(libs, 5) * 0.5;
-      if (isEyeLike(board, size, idx, color)) score -= atari ? 6 : 25;
+      if (weakOwn > 0 && libs >= 3) score += 2.5 + Math.min(weakOwn, 6) * 0.8;
+      // Severe blunder penalty for self-atari without immediate captures
+      if (libs === 1 && captured === 0) { score -= 22 + gsize * 4; if (atari) score -= 18; }
+      else if (libs === 2 && gsize > 1 && captured === 0) score -= 2.2;
+      score += Math.min(libs, 5) * 0.6;
+      if (isEyeLike(board, size, idx, color)) score -= atari ? 8 : 30;
       const checked = new Set();
       for (const q of nbrs[idx]) {
         if (r.board[q] !== enemy) continue;
@@ -1507,58 +1581,59 @@ const GO = (() => {
         if (checked.has(key)) continue; checked.add(key);
         if (eg.liberties.length === 1) {
           const escapes = canEscape(r.board, size, eg.liberties[0], enemy, r.koPoint);
-          const v = escapes ? 2 + eg.stones.length * 0.8 : 7 + eg.stones.length * 4;
-          score += v; tactical += v; if (libs === 1) score -= 5;
-        } else if (eg.liberties.length === 2) { const v = 1.2 + eg.stones.length * 0.35; score += v; tactical += v * 0.5; }
+          const v = escapes ? 3 + eg.stones.length * 1.2 : 12 + eg.stones.length * 5;
+          score += v; tactical += v; if (libs === 1 && captured === 0) score -= 8;
+        } else if (eg.liberties.length === 2) { const v = 2.2 + eg.stones.length * 0.5; score += v; tactical += v * 0.6; }
       }
-      if (ownAdj.size >= 2) score += 2.5 + ownAdj.size;
-      if (enemyAdj.size >= 2) score += 2 + enemyAdj.size * 0.8;
+      // Connection & Cutting tesuji
+      if (ownAdj.size >= 2) score += 4.5 + ownAdj.size * 1.5;
+      if (enemyAdj.size >= 2) score += 3.8 + enemyAdj.size * 1.2;
       let ownDiag = 0, ownOrtho = 0, enemyOrtho = 0;
       for (const d of diags[idx]) if (board[d] === color) ownDiag++;
       for (const q of nbrs[idx]) { if (board[q] === color) ownOrtho++; else if (board[q] === enemy) enemyOrtho++; }
       if (!atari) {
-        if (ownDiag > 0 && ownOrtho === 0) score += 1.0;
-        if (ownOrtho >= 3) score -= 3;
-        if (enemyOrtho >= 1 && ownOrtho === 0 && ownDiag === 0 && stage < 0.5) score -= 1.5;
+        if (ownDiag > 0 && ownOrtho === 0) score += 1.4;
+        if (ownOrtho >= 3) score -= 3.5;
+        if (enemyOrtho >= 1 && ownOrtho === 0 && ownDiag === 0 && stage < 0.5) score -= 1.8;
       }
       const line = lineOf(idx, size);
       if (!atari) {
         if (size >= 9) {
-          if (line === 1) score -= 6 * (1 - stage) + 1;
-          else if (line === 2) score -= 3 * (1 - stage);
-          else if (line === 3) score += 2.2 * openingFactor + 0.6;
-          else if (line === 4) score += 2.0 * openingFactor + 0.5;
-          else score += 0.4 * openingFactor;
+          if (line === 1) score -= 7 * (1 - stage) + 1.2;
+          else if (line === 2) score -= 3.5 * (1 - stage);
+          else if (line === 3) score += 2.6 * openingFactor + 0.7;
+          else if (line === 4) score += 2.4 * openingFactor + 0.6;
+          else score += 0.5 * openingFactor;
         }
-        if (size >= 13 && openingFactor > 0.3) {
+        if (size >= 13 && openingFactor > 0.25) {
           const x = idx % size, y = (idx / size) | 0, cx = Math.min(x, size - 1 - x), cy = Math.min(y, size - 1 - y);
-          if (cx >= 2 && cx <= 4 && cy >= 2 && cy <= 4) score += 2.5 * openingFactor;
-          else if ((cx >= 2 && cx <= 4) || (cy >= 2 && cy <= 4)) score += 0.8 * openingFactor;
+          if (cx >= 2 && cx <= 4 && cy >= 2 && cy <= 4) score += 3.2 * openingFactor;
+          else if ((cx >= 2 && cx <= 4) || (cy >= 2 && cy <= 4)) score += 1.0 * openingFactor;
         }
       } else {
         const c = (size - 1) / 2, dx = Math.abs((idx % size) - c), dy = Math.abs(((idx / size) | 0) - c);
-        score += Math.max(0, 3 - (dx + dy) * 0.4);
+        score += Math.max(0, 4 - (dx + dy) * 0.45);
       }
       const infv = inf[idx] * (color === BLACK ? 1 : -1);
       if (!atari) {
         const a = Math.abs(infv);
-        if (a < 6) score += 2.5;
-        else if (infv > 14) score -= 2 + 7 * stage + (infv - 14) * 0.08;
-        else if (infv < -14) score -= 3 + 6 * stage + (-infv - 14) * 0.1;
+        if (a < 6) score += 2.8;
+        else if (infv > 14) score -= 2.5 + 8 * stage + (infv - 14) * 0.1;
+        else if (infv < -14) score -= 3.5 + 7 * stage + (-infv - 14) * 0.12;
         let gain = 0; for (const q of nbrs[idx]) if (board[q] === EMPTY && Math.abs(inf[q]) < 8) gain++;
-        score += gain * 0.5;
+        score += gain * 0.6;
       }
-      if (ctx.lastMove >= 0) { const d = distance(idx, ctx.lastMove, size); if (d <= 1) score += 1.5; else if (d <= 3) score += 1.0; else if (d <= 5) score += 0.3; }
-      if (ctx.lastOwnMove >= 0 && distance(idx, ctx.lastOwnMove, size) <= 2) score += 0.6;
-      if (emptyCount < n * 0.15 && Math.abs(infv) > 20 && captured === 0 && tactical === 0) score -= 6;
-      score += gaussianNoise(noise);
+      if (ctx.lastMove >= 0) { const d = distance(idx, ctx.lastMove, size); if (d <= 1) score += 1.8; else if (d <= 3) score += 1.2; else if (d <= 5) score += 0.4; }
+      if (ctx.lastOwnMove >= 0 && distance(idx, ctx.lastOwnMove, size) <= 2) score += 0.8;
+      if (emptyCount < n * 0.15 && Math.abs(infv) > 20 && captured === 0 && tactical === 0) score -= 8;
+      if (noise > 0) score += gaussianNoise(noise);
       out.push({ idx, score, captures: captured, tactical });
     }
     out.sort((a, b) => b.score - a.score);
     return out;
   }
   function evaluate(board, size, color, komi, captures) {
-    const s = influenceScore(board, size, komi) + (captures[0] - captures[1]) * 0.5;
+    const s = influenceScore(board, size, komi) + (captures[0] - captures[1]) * 0.6;
     return color === BLACK ? s : -s;
   }
   function finalizeWithPassCheck(ctx, pick, all) {
@@ -1576,11 +1651,11 @@ const GO = (() => {
     if (emptyCount < n * 0.12 && pick.score < -3 && pick.tactical <= 0) return PASS;
     return pick.idx;
   }
-  // Synchronous: intended to run inside a Web Worker (or on the main thread with a reduced budget).
+  // Synchronous: runs in Web Worker or fallback
   function chooseMove(ctx) {
     const t0 = now(), { board, size, color, level, komi } = ctx, n = board.length, enemy = opponent(color);
     const scale = ctx.budgetScale || 1, cap = ctx.maxThinkMs || Infinity;
-    const noise = [0, 5, 1.2, 0.5][Math.min(level, 3)] ?? 1;
+    const noise = [0, 4.5, 1.0, 0, 0][Math.min(level, 4)] ?? 0;
     const heuristic = scoreCandidates(ctx, noise);
     let candidates = heuristic;
     const byIdx = new Map(); for (const c of heuristic) byIdx.set(c.idx, c);
@@ -1591,54 +1666,67 @@ const GO = (() => {
       return { move: finalizeWithPassCheck(ctx, pick, heuristic) };
     }
     let best = candidates[0], winrate;
-    const deepLevel = ctx.atariGo ? Math.min(level, 2) : level; // Atari Go is purely tactical
+    const deepLevel = ctx.atariGo ? Math.min(level, 2) : level;
     if (deepLevel >= 2) {
-      const K = size >= 19 ? 6 : size >= 13 ? 8 : 10, top = candidates.slice(0, K), evaluated = [];
+      const K = deepLevel >= 4 ? (size >= 19 ? 8 : 12) : (size >= 19 ? 6 : size >= 13 ? 8 : 10);
+      const top = candidates.slice(0, K), evaluated = [];
       for (const c of top) {
         const r = tryMove(board, size, c.idx, color, ctx.koPoint, ctx.hashes);
         if (typeof r === 'string') continue;
         const caps = [ctx.captures[0], ctx.captures[1]]; caps[color === BLACK ? 0 : 1] += r.captured.length;
         const replyCtx = Object.assign({}, ctx, { board: r.board, color: enemy, koPoint: r.koPoint, lastMove: c.idx, lastOwnMove: ctx.lastMove, moveNumber: ctx.moveNumber + 1, captures: caps });
-        const replies = scoreCandidates(replyCtx, 0).slice(0, size >= 19 ? 4 : 6);
+        const replies = scoreCandidates(replyCtx, 0).slice(0, deepLevel >= 4 ? 8 : (size >= 19 ? 4 : 6));
         let worst = Infinity;
         if (!replies.length) worst = evaluate(r.board, size, color, komi, caps);
         for (const rep of replies) {
           const rr = tryMove(r.board, size, rep.idx, enemy, r.koPoint);
           if (typeof rr === 'string') continue;
           const caps2 = [caps[0], caps[1]]; caps2[enemy === BLACK ? 0 : 1] += rr.captured.length;
-          const v = evaluate(rr.board, size, color, komi, caps2) - rep.tactical * 0.5;
+          const v = evaluate(rr.board, size, color, komi, caps2) - rep.tactical * 0.6;
           if (v < worst) worst = v;
         }
-        evaluated.push({ c, value: worst * 0.6 + c.score * 0.4 });
+        evaluated.push({ c, value: worst * 0.65 + c.score * 0.35 });
       }
       evaluated.sort((a, b) => b.value - a.value);
       if (evaluated.length) { best = evaluated[0].c; candidates = evaluated.map(e => Object.assign({}, e.c, { score: e.value })).concat(candidates.slice(K)); }
     }
     if (deepLevel >= 3) {
-      const base = (size >= 19 ? 3000 : 2000) * scale;
-      const budget = Math.max(120, Math.min(base, cap - (now() - t0) - 60));
-      const K = size >= 19 ? 4 : size >= 13 ? 5 : 6, top = candidates.slice(0, K);
+      const mult = deepLevel >= 4 ? 2.5 : 1.2;
+      const base = (size >= 19 ? 3500 : 2600) * mult * scale;
+      const budget = Math.max(160, Math.min(base, cap - (now() - t0) - 60));
+      const K = deepLevel >= 4 ? (size >= 19 ? 6 : 8) : (size >= 19 ? 4 : size >= 13 ? 5 : 6);
+      const top = candidates.slice(0, K);
       const stats = top.map(() => ({ wins: 0, games: 0, scoreSum: 0 })), scratch = makeScratch(size), work = new Uint8Array(n);
       const prepared = top.map(c => { const r = tryMove(board, size, c.idx, color, ctx.koPoint); return typeof r === 'string' ? null : r.board; });
-      const start = now(), maxMoves = n * 2; let i = 0;
+      const start = now(), maxMoves = n * 2; let totalGames = 0;
       while (now() - start < budget) {
-        const k = i % top.length; i++; const pb = prepared[k]; if (!pb) continue;
+        // UCB1 Tree Exploration: select move that maximizes exploitation + exploration
+        let k = 0, bestUcb = -Infinity;
+        for (let j = 0; j < top.length; j++) {
+          if (!prepared[j]) continue;
+          const st = stats[j];
+          if (st.games === 0) { k = j; bestUcb = Infinity; break; }
+          const ucb = (st.wins / st.games) + 0.85 * Math.sqrt(Math.log(totalGames + 1) / st.games);
+          if (ucb > bestUcb) { bestUcb = ucb; k = j; }
+        }
+        const pb = prepared[k]; if (!pb) continue;
         work.set(pb);
         const sc = runPlayout(work, scratch, enemy, maxMoves) - komi, mine = color === BLACK ? sc : -sc;
         stats[k].games++; stats[k].scoreSum += mine; if (mine > 0) stats[k].wins++;
+        totalGames++;
       }
       let bestIdx = -1, bestVal = -Infinity;
       const hMax = Math.max(...top.map(c => c.score)), hMin = Math.min(...top.map(c => c.score)), span = Math.max(1e-6, hMax - hMin);
       top.forEach((c, k) => {
         const st = stats[k]; if (!st.games) return;
-        const val = (st.wins / st.games) * 0.7 + ((c.score - hMin) / span) * 0.3 + (st.scoreSum / st.games) * 0.002;
+        const val = (st.wins / st.games) * 0.75 + ((c.score - hMin) / span) * 0.25 + (st.scoreSum / st.games) * 0.003;
         if (val > bestVal) { bestVal = val; bestIdx = k; }
       });
       if (bestIdx >= 0) { best = top[bestIdx]; winrate = stats[bestIdx].wins / Math.max(1, stats[bestIdx].games); }
     }
     if (!ctx.neverResign && !ctx.atariGo && ctx.moveNumber > n * 0.35) {
       const ev = evaluate(board, size, color, komi, ctx.captures), threshold = Math.max(12, n * 0.22);
-      const hopeless = winrate !== undefined ? (winrate < 0.04 && ev < -threshold * 0.6) : ev < -threshold;
+      const hopeless = winrate !== undefined ? (winrate < 0.03 && ev < -threshold * 0.7) : ev < -threshold;
       if (hopeless) return { move: RESIGN, winrate };
     }
     const pick = byIdx.get(best.idx) || best;
@@ -1831,11 +1919,11 @@ const Sound = (() => {
 /* ---------------- Settings (persisted) ---------------- */
 const isTouch = matchMedia('(pointer: coarse)').matches;
 const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const DEFAULT_SETTINGS = { boardTheme: 'kaya', stoneStyle: 'shell', uiTheme: 'dark', sound: true, volume: .7, showCoordinates: true, showMoveNumbers: false, showLastMove: true, highlightAtari: true, confirmMoves: false, reduceMotion: prefersReduced, showHints: false };
+const DEFAULT_SETTINGS = { boardTheme: 'kaya', stoneStyle: 'glass', uiTheme: 'dark', sound: true, volume: .7, showCoordinates: true, showMoveNumbers: false, showLastMove: true, highlightAtari: true, confirmMoves: false, reduceMotion: prefersReduced, showHints: false };
 const settings = Object.assign({}, DEFAULT_SETTINGS, loadStore('settings', {}));
 settings.confirmMoves = false;
 if (!THEMES[settings.boardTheme]) settings.boardTheme = 'kaya';
-if (!STONE_STYLES.some(s => s.id === settings.stoneStyle)) settings.stoneStyle = 'shell';
+if (!STONE_STYLES.some(s => s.id === settings.stoneStyle)) settings.stoneStyle = 'glass';
 const settingsListeners = [];
 function setSetting(key, value) {
   if (settings[key] === value) return;
@@ -1878,7 +1966,7 @@ class BoardView {
       size: 9, board: GO.emptyBoard(9), toPlay: BLACK, koPoint: -1, lastMove: -2, moveNumbers: null, hashes: null,
       interactive: false, scoringMode: false, confirmMoves: false, pending: null, oneColor: false,
       ownership: null, territory: null, dead: null, hints: null, highlightAtari: false, dimmed: false,
-      showCoords: true, showLastMove: true, theme: THEMES.kaya, stoneStyle: 'shell', reduceMotion: false,
+      showCoords: true, showLastMove: true, theme: THEMES.kaya, stoneStyle: 'glass', reduceMotion: false,
       accent: '#f0b35a', danger: '#f26d6d', anim: null,
     };
     this.css = 0; this.dpr = 1; this.bg = null; this.bgKey = ''; this.sprites = null; this.spriteKey = '';
@@ -2366,7 +2454,7 @@ function sanitizeConfig(c) {
   if (![1, 3, 5, 7].includes(cfg.atariTarget)) cfg.atariTarget = 1;
   if (!['crosscut', 'empty'].includes(cfg.atariStart)) cfg.atariStart = 'crosscut';
   if (!['black', 'white', 'nigiri'].includes(cfg.humanColor)) cfg.humanColor = 'black';
-  cfg.aiLevel = clamp(Math.round(+cfg.aiLevel || 1), 1, 3);
+  cfg.aiLevel = clamp(Math.round(+cfg.aiLevel || 1), 1, 4);
   cfg.handicap = clamp(Math.round(+cfg.handicap || 0), 0, 9);
   if (!Number.isFinite(+cfg.komi)) cfg.komi = defaultKomi(cfg.rules, cfg.handicap); cfg.komi = clamp(+cfg.komi, 0.5, 50);
   if (!['area', 'territory'].includes(cfg.rules)) cfg.rules = 'area';
@@ -2822,11 +2910,11 @@ function previewBoard(cfg) {
 }
 function buildSetup() {
   el('opp-grid').innerHTML = [
-    { v: 'ai', ic: 'cpu', t: 'Computer', s: 'Three levels: Easy, Medium, and Hard' },
+    { v: 'ai', ic: 'cpu', t: 'Computer', s: 'Four levels: Easy up to 2 Dan Master' },
     { v: 'human', ic: 'users', t: 'Two players', s: 'Share one screen, take turns' },
   ].map(o => `<button type="button" class="choice" data-opp="${o.v}"><span class="ic">${icon(o.ic)}</span><span><b>${o.t}</b><small>${o.s}</small></span></button>`).join('');
   $$('#opp-grid .choice').forEach(b => b.onclick = () => { Sound.ui(); updateCfg('opponent', b.dataset.opp); });
-  el('level-grid').innerHTML = AI_LEVELS.map(l => `<button type="button" class="level" data-level="${l.level}"><div class="level-top"><b>${l.name}</b><span class="pips">${[1, 2, 3].map(i => `<i class="${i <= l.level ? 'on' : ''}"></i>`).join('')}</span></div><small>${l.rank}</small></button>`).join('');
+  el('level-grid').innerHTML = AI_LEVELS.map(l => `<button type="button" class="level" data-level="${l.level}"><div class="level-top"><b>${l.name}</b><span class="pips">${[1, 2, 3, 4].map(i => `<i class="${i <= l.level ? 'on' : ''}"></i>`).join('')}</span></div><small>${l.rank}</small></button>`).join('');
   $$('#level-grid .level').forEach(b => b.onclick = () => { Sound.ui(); updateCfg('aiLevel', +b.dataset.level); });
   buildSeg(el('seg-color'), [{ value: 'black', label: '<span class="sdot b"></span>Black' }, { value: 'white', label: '<span class="sdot w"></span>White' }, { value: 'nigiri', label: 'Nigiri', hint: 'Random color' }], () => S.cfg.humanColor, v => updateCfg('humanColor', v));
   buildSeg(el('seg-variant'), [{ value: 'classic', label: 'Classic Go' }, { value: 'atari', label: 'Atari Go', hint: 'Capture race — great for learning' }], () => S.cfg.variant, v => updateCfg('variant', v));
@@ -2912,7 +3000,7 @@ function renderHeaderIcons() {
    GAME SCREEN
    ============================================================ */
 let controlsEl = null;
-const mqDesktop = matchMedia('(min-width: 1024px)');
+const mqDesktop = matchMedia('(min-width: 768px)');
 function buildControls() {
   controlsEl = document.createElement('div'); controlsEl.className = 'controls'; controlsEl.id = 'controls';
   controlsEl.innerHTML = `
@@ -2988,8 +3076,8 @@ function playerCardHTML(g, color, compact) {
   return `<div class="pcard${active ? ' active' : ''}${winner ? ' winner' : ''}${compact ? ' compact' : ''}">
     <div class="pcard-stone"><span class="sdot ${color === BLACK ? 'b' : 'w'}"></span>${isAI ? `<span class="ai-badge">${icon('cpu', 10)}</span>` : ''}</div>
     <div class="pcard-body">
-      <div class="pcard-name"><span class="nm">${esc(name)}</span>${lvl ? `<span class="rank">${lvl.rank}</span>` : ''}${winner ? `<span class="won">${icon('trophy', 14)}</span>` : ''}</div>
-      <div class="pcard-meta"><span><b>${caps}</b>${g.config.variant === 'atari' ? `<span class="faint"> / ${g.config.atariTarget}</span>` : ''} captured</span>${thinking ? '<span class="thinking">thinking<span class="dots"><i></i><i></i><i></i></span></span>' : ''}${passed && !thinking ? '<span class="passed">passed</span>' : ''}</div>
+      <div class="pcard-name"><span class="nm">${esc(name)}</span>${lvl ? `<span class="rank">${lvl.rank}</span>` : ''}${thinking ? '<span class="thinking" title="Thinking…">thinking<span class="dots"><i></i><i></i><i></i></span></span>' : ''}${passed && !thinking ? '<span class="passed">pass</span>' : ''}${winner ? `<span class="won">${icon('trophy', 14)}</span>` : ''}</div>
+      <div class="pcard-meta"><span><b>${caps}</b>${g.config.variant === 'atari' ? `<span class="faint"> / ${g.config.atariTarget}</span>` : ''} captured</span></div>
     </div>
     ${g.clocks ? `<div class="pcard-clock" data-clock="${color}"><div class="clock-main"></div><div class="clock-sub"></div></div>` : ''}
   </div>`;
@@ -3138,7 +3226,7 @@ function buildSettingsModal() {
   el('st-theme-chips').innerHTML = THEME_LIST.map(t => `<button type="button" class="chip" data-theme-id="${t.id}"><span class="sw" style="background:${t.swatch}"></span>${t.name}</button>`).join('');
   $$('#st-theme-chips .chip').forEach(b => b.onclick = () => { Sound.ui(); setSetting('boardTheme', b.dataset.themeId); });
   buildSeg(el('st-seg-stone'), STONE_STYLES.map(s => ({ value: s.id, label: s.name })), () => settings.stoneStyle, v => setSetting('stoneStyle', v), 'sm');
-  buildSeg(el('st-seg-ui'), [{ value: 'dark', label: 'Dark UI' }, { value: 'light', label: 'Light UI' }], () => settings.uiTheme, v => setSetting('uiTheme', v), 'sm');
+  buildSeg(el('st-seg-ui'), [{ value: 'dark', label: 'Dark' }, { value: 'light', label: 'Light' }], () => settings.uiTheme, v => setSetting('uiTheme', v), 'sm');
   buildToggle(el('st-coords'), 'Coordinates', 'Letters and numbers around the board', () => settings.showCoordinates, v => setSetting('showCoordinates', v));
   buildToggle(el('st-lastmove'), 'Last move marker', '', () => settings.showLastMove, v => setSetting('showLastMove', v));
   buildToggle(el('st-numbers'), 'Move numbers', 'Show the move number on every stone', () => settings.showMoveNumbers, v => setSetting('showMoveNumbers', v));

@@ -36,12 +36,16 @@
 }
 
 /* ============================================================
-   Base
+   Base & Custom Scrollbar
    ============================================================ */
 *,*::before,*::after{box-sizing:border-box}
-html{height:100%;-webkit-text-size-adjust:100%}
+html{height:100%;-webkit-text-size-adjust:100%;scrollbar-width:thin;scrollbar-color:var(--border-strong) var(--bg)}
 body{margin:0;min-height:100%;font-family:var(--font-ui);background:var(--bg);color:var(--fg);line-height:1.45;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overscroll-behavior-y:none}
 body.modal-open{overflow:hidden}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:999px;border:2px solid var(--bg);transition:background .2s}
+::-webkit-scrollbar-thumb:hover{background:var(--accent)}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 button:disabled{cursor:not-allowed}
 input{font:inherit;color:inherit}
@@ -163,18 +167,12 @@ input[type=range]{accent-color:var(--accent);width:100%;margin:0}
 .setup-right{display:flex;flex-direction:column;gap:1rem;animation:rise .42s cubic-bezier(.2,.8,.2,1) .08s both}
 .hero h1{font-size:clamp(2.1rem,5vw,3.25rem);line-height:1.05;letter-spacing:-.01em;font-weight:600}
 .hero p{margin-top:.75rem;color:var(--fg-muted);max-width:36rem}
-.presets{display:flex;flex-wrap:wrap;gap:.5rem}
-.preset{border:1px solid var(--border);background:color-mix(in srgb,var(--surface) 70%,transparent);border-radius:.75rem;padding:.5rem .75rem;text-align:left;transition:.15s}
-.preset:hover{border-color:color-mix(in srgb,var(--accent) 60%,transparent);background:var(--accent-soft)}
-.preset:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent)}
-.preset b{display:flex;align-items:center;gap:.375rem;font-size:.875rem;font-weight:600}
-.preset b svg{color:var(--accent);opacity:.7}
-.preset:hover b svg{opacity:1}
-.preset small{display:block;font-size:.6875rem;color:var(--fg-muted)}
-.resume{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem;border-color:color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-soft)}
-.resume .ic{width:2.5rem;height:2.5rem;border-radius:.75rem;display:grid;place-items:center;background:var(--accent);color:var(--accent-fg);flex-shrink:0}
+.resume{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.875rem 1rem;border-color:color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-soft);border-radius:1rem}
+.resume .ic{width:2.25rem;height:2.25rem;border-radius:.75rem;display:grid;place-items:center;background:var(--accent);color:var(--accent-fg);flex-shrink:0}
 .resume b{display:block;font-size:.875rem}
 .resume small{display:block;font-size:.75rem;color:var(--fg-muted)}
+#btn-discard{color:var(--fg-muted);border-radius:.5rem;transition:all .15s}
+#btn-discard:hover{color:var(--danger);background:color-mix(in srgb,var(--danger) 12%,transparent)}
 .choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
 .choice{border-radius:1rem;border:1px solid var(--border);background:var(--surface-2);padding:1rem;text-align:left;display:flex;gap:.75rem;align-items:flex-start;transition:.15s}
 .choice:hover{border-color:var(--border-strong)}
@@ -185,17 +183,17 @@ input[type=range]{accent-color:var(--accent);width:100%;margin:0}
 .choice b{display:block;font-weight:600}
 .choice small{display:block;font-size:.75rem;color:var(--fg-muted);margin-top:2px}
 @media(max-width:420px){.choice{flex-direction:column;gap:.5rem}.choice .ic{width:2rem;height:2rem}}
-.level-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
-@media(min-width:640px){.level-grid{grid-template-columns:repeat(6,1fr)}}
-.level{border-radius:.75rem;border:1px solid var(--border);background:var(--surface-2);padding:.625rem;text-align:left;transition:.15s}
+.level-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.625rem}
+.level{border-radius:.875rem;border:1px solid var(--border);background:var(--surface-2);padding:.75rem .875rem;text-align:left;transition:.15s;display:flex;flex-direction:column;gap:3px}
 .level:hover{border-color:var(--border-strong)}
 .level:focus-visible{outline:none;box-shadow:0 0 0 2px var(--accent)}
 .level.active{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent)}
-.level .pips{display:flex;gap:3px;margin-bottom:5px}
-.level .pips i{width:6px;height:6px;border-radius:50%;background:var(--border-strong)}
+.level-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;width:100%}
+.level .pips{display:inline-flex;gap:3px;align-items:center}
+.level .pips i{width:5px;height:5px;border-radius:50%;background:var(--border-strong)}
 .level .pips i.on{background:var(--accent)}
-.level b{display:block;font-size:.875rem;font-weight:600;line-height:1.2}
-.level small{font-size:.6875rem;color:var(--fg-muted)}
+.level b{display:block;font-size:.9375rem;font-weight:600;line-height:1.2}
+.level small{font-size:.75rem;color:var(--fg-muted);display:block}
 .flex-row{display:flex;flex-wrap:wrap;gap:1.25rem 2.5rem}
 .komi{display:flex;align-items:center;gap:.5rem;font-size:.875rem;color:var(--fg-muted)}
 .clock-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
@@ -466,14 +464,15 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
         <p>Surround territory, capture stones, outthink your opponent. Choose your settings and place your first stone.</p>
       </div>
 
-      <div id="presets" class="presets"></div>
-
       <div id="resume-card" class="card resume" hidden>
         <div class="row">
           <div class="ic" id="resume-ic"></div>
           <div><b>You have a game in progress</b><small id="resume-desc">Pick up right where you left off.</small></div>
         </div>
-        <button class="btn btn-primary" id="btn-resume">Resume</button>
+        <div class="row" style="gap:.5rem">
+          <button class="btn btn-primary" id="btn-resume">Resume</button>
+          <button class="btn btn-ghost btn-icon sm" id="btn-discard" title="Discard saved game" aria-label="Discard saved game"></button>
+        </div>
       </div>
 
       <section class="card pad">
@@ -1055,12 +1054,9 @@ const GO = (() => {
 
   /* ---------- AI ---------- */
   const AI_LEVELS = [
-    { level: 1, name: 'Pebble', rank: '~30 kyu', description: 'Plays almost randomly. Perfect for your very first games.' },
-    { level: 2, name: 'Sprout', rank: '~22 kyu', description: 'Knows how to capture and escape, but misses the big picture.' },
-    { level: 3, name: 'Bamboo', rank: '~15 kyu', description: 'Solid shape sense and local tactics.' },
-    { level: 4, name: 'River', rank: '~10 kyu', description: 'Reads one move ahead and values territory.' },
-    { level: 5, name: 'Mountain', rank: '~6 kyu', description: 'Combines reading with Monte-Carlo evaluation.' },
-    { level: 6, name: 'Dragon', rank: '~3 kyu', description: 'Thinks longer and fights harder. Strongest opponent.' },
+    { level: 1, name: 'Easy', rank: '~22 kyu', description: 'Plays casually with simple moves. Great for learning the rules and capturing.' },
+    { level: 2, name: 'Medium', rank: '~10 kyu', description: 'Reads one move ahead and values surrounding territory.' },
+    { level: 3, name: 'Hard', rank: '~3 kyu', description: 'Thinks deeply, reading tactical lines with Monte-Carlo evaluation.' },
   ];
   function gaussianNoise(scale) {
     if (!scale) return 0;
@@ -1184,7 +1180,7 @@ const GO = (() => {
   function chooseMove(ctx) {
     const t0 = now(), { board, size, color, level, komi } = ctx, n = board.length, enemy = opponent(color);
     const scale = ctx.budgetScale || 1, cap = ctx.maxThinkMs || Infinity;
-    const noise = [0, 14, 5, 2.2, 1.2, 0.8, 0.5][Math.min(level, 6)] ?? 1;
+    const noise = [0, 5, 1.2, 0.5][Math.min(level, 3)] ?? 1;
     const heuristic = scoreCandidates(ctx, noise);
     let candidates = heuristic;
     const byIdx = new Map(); for (const c of heuristic) byIdx.set(c.idx, c);
@@ -1195,8 +1191,8 @@ const GO = (() => {
       return { move: finalizeWithPassCheck(ctx, pick, heuristic) };
     }
     let best = candidates[0], winrate;
-    const deepLevel = ctx.atariGo ? Math.min(level, 3) : level; // Atari Go is purely tactical
-    if (deepLevel >= 4) {
+    const deepLevel = ctx.atariGo ? Math.min(level, 2) : level; // Atari Go is purely tactical
+    if (deepLevel >= 2) {
       const K = size >= 19 ? 6 : size >= 13 ? 8 : 10, top = candidates.slice(0, K), evaluated = [];
       for (const c of top) {
         const r = tryMove(board, size, c.idx, color, ctx.koPoint, ctx.hashes);
@@ -1218,8 +1214,8 @@ const GO = (() => {
       evaluated.sort((a, b) => b.value - a.value);
       if (evaluated.length) { best = evaluated[0].c; candidates = evaluated.map(e => Object.assign({}, e.c, { score: e.value })).concat(candidates.slice(K)); }
     }
-    if (deepLevel >= 5) {
-      const base = (level >= 6 ? (size >= 19 ? 3200 : 2400) : (size >= 19 ? 1500 : 1100)) * scale;
+    if (deepLevel >= 3) {
+      const base = (size >= 19 ? 3000 : 2000) * scale;
       const budget = Math.max(120, Math.min(base, cap - (now() - t0) - 60));
       const K = size >= 19 ? 4 : size >= 13 ? 5 : 6, top = candidates.slice(0, K);
       const stats = top.map(() => ({ wins: 0, games: 0, scoreSum: 0 })), scratch = makeScratch(size), work = new Uint8Array(n);
@@ -1867,7 +1863,7 @@ const TIME_CONTROLS = {
   rapid: { name: 'Rapid', detail: '10 min + 3×30s', tc: { main: 600, periods: 3, periodTime: 30 } },
   classical: { name: 'Classical', detail: '30 min + 5×30s', tc: { main: 1800, periods: 5, periodTime: 30 } },
 };
-const DEFAULT_CONFIG = { size: 9, opponent: 'ai', variant: 'classic', atariTarget: 1, atariStart: 'crosscut', humanColor: 'black', aiLevel: 2, handicap: 0, komi: 7.5, rules: 'area', aiNeverResigns: false, oneColor: false, timeControl: 'none' };
+const DEFAULT_CONFIG = { size: 9, opponent: 'ai', variant: 'classic', atariTarget: 1, atariStart: 'crosscut', humanColor: 'black', aiLevel: 1, handicap: 0, komi: 7.5, rules: 'area', aiNeverResigns: false, oneColor: false, timeControl: 'none' };
 const defaultKomi = (rules, handicap) => (handicap >= 2 ? .5 : rules === 'area' ? 7.5 : 6.5);
 const KEYS = { stats: 'goban.stats', game: 'goban.game', config: 'goban.lastConfig' };
 
@@ -1879,7 +1875,7 @@ function sanitizeConfig(c) {
   if (![1, 3, 5, 7].includes(cfg.atariTarget)) cfg.atariTarget = 1;
   if (!['crosscut', 'empty'].includes(cfg.atariStart)) cfg.atariStart = 'crosscut';
   if (!['black', 'white', 'nigiri'].includes(cfg.humanColor)) cfg.humanColor = 'black';
-  cfg.aiLevel = clamp(Math.round(+cfg.aiLevel || 2), 1, 6);
+  cfg.aiLevel = clamp(Math.round(+cfg.aiLevel || 1), 1, 3);
   cfg.handicap = clamp(Math.round(+cfg.handicap || 0), 0, 9);
   if (!Number.isFinite(+cfg.komi)) cfg.komi = defaultKomi(cfg.rules, cfg.handicap); cfg.komi = +cfg.komi;
   if (!['area', 'territory'].includes(cfg.rules)) cfg.rules = 'area';
@@ -2101,7 +2097,7 @@ async function runAI() {
     lastMove: pos.lastMove, lastOwnMove: prev ? prev.lastMove : -2, komi: g.config.komi, captures: pos.captures, opponentPassed: pos.lastMove === PASS,
     level: g.config.aiLevel, neverResign: g.config.aiNeverResigns, atariGo: g.config.variant === 'atari' ? { target: g.config.atariTarget } : null, maxThinkMs,
   };
-  const started = performance.now(), minDelay = Math.min(g.config.aiLevel <= 2 ? 380 : 560, (maxThinkMs || Infinity) * .5);
+  const started = performance.now(), minDelay = Math.min(g.config.aiLevel <= 1 ? 380 : 560, (maxThinkMs || Infinity) * .5);
   const job = Compute.ai.run({ type: 'move', ctx }); aiJob = job;
   let decision;
   try { decision = await job.promise; }
@@ -2301,13 +2297,6 @@ function showScreen(name) {
 /* ============================================================
    SETUP SCREEN
    ============================================================ */
-const PRESETS = [
-  { label: 'First game', hint: 'Atari Go · 9×9 · easiest bot', patch: { opponent: 'ai', variant: 'atari', size: 9, aiLevel: 1, atariTarget: 1, atariStart: 'crosscut', timeControl: 'none' } },
-  { label: 'Quick 9×9', hint: 'Classic · area rules', patch: c => ({ opponent: 'ai', variant: 'classic', size: 9, aiLevel: Math.max(2, c.aiLevel), handicap: 0, rules: 'area', komi: 7.5, timeControl: 'none' }) },
-  { label: 'Casual 13×13', hint: 'Classic · ~25 min', patch: { opponent: 'ai', variant: 'classic', size: 13, handicap: 0, rules: 'area', komi: 7.5 } },
-  { label: 'Full 19×19', hint: 'The real thing', patch: { opponent: 'ai', variant: 'classic', size: 19, handicap: 0, rules: 'area', komi: 7.5 } },
-  { label: 'Pass & play', hint: 'Two players, one screen', patch: { opponent: 'human', variant: 'classic', size: 9, handicap: 0, rules: 'area', komi: 7.5 } },
-];
 function updateCfg(key, value) {
   S.cfg[key] = value;
   if (!S.komiTouched && (key === 'handicap' || key === 'rules' || key === 'variant')) S.cfg.komi = defaultKomi(S.cfg.rules, S.cfg.variant === 'classic' ? S.cfg.handicap : 0);
@@ -2327,11 +2316,11 @@ function previewBoard(cfg) {
 }
 function buildSetup() {
   el('opp-grid').innerHTML = [
-    { v: 'ai', ic: 'cpu', t: 'Computer', s: 'Six levels, from first steps to a real fight' },
+    { v: 'ai', ic: 'cpu', t: 'Computer', s: 'Three levels: Easy, Medium, and Hard' },
     { v: 'human', ic: 'users', t: 'Two players', s: 'Share one screen, take turns' },
   ].map(o => `<button type="button" class="choice" data-opp="${o.v}"><span class="ic">${icon(o.ic)}</span><span><b>${o.t}</b><small>${o.s}</small></span></button>`).join('');
   $$('#opp-grid .choice').forEach(b => b.onclick = () => { Sound.ui(); updateCfg('opponent', b.dataset.opp); });
-  el('level-grid').innerHTML = AI_LEVELS.map(l => `<button type="button" class="level" data-level="${l.level}"><span class="pips">${[1, 2, 3, 4, 5, 6].map(i => `<i class="${i <= l.level ? 'on' : ''}"></i>`).join('')}</span><b>${l.name}</b><small>${l.rank}</small></button>`).join('');
+  el('level-grid').innerHTML = AI_LEVELS.map(l => `<button type="button" class="level" data-level="${l.level}"><div class="level-top"><b>${l.name}</b><span class="pips">${[1, 2, 3].map(i => `<i class="${i <= l.level ? 'on' : ''}"></i>`).join('')}</span></div><small>${l.rank}</small></button>`).join('');
   $$('#level-grid .level').forEach(b => b.onclick = () => { Sound.ui(); updateCfg('aiLevel', +b.dataset.level); });
   buildSeg(el('seg-color'), [{ value: 'black', label: '<span class="sdot b"></span>Black' }, { value: 'white', label: '<span class="sdot w"></span>White' }, { value: 'nigiri', label: 'Nigiri', hint: 'Random color' }], () => S.cfg.humanColor, v => updateCfg('humanColor', v));
   buildSeg(el('seg-variant'), [{ value: 'classic', label: 'Classic Go' }, { value: 'atari', label: 'Atari Go', hint: 'Capture race — great for learning' }], () => S.cfg.variant, v => updateCfg('variant', v));
@@ -2346,14 +2335,16 @@ function buildSetup() {
   buildToggle(el('toggle-neverresign'), 'Computer never resigns', 'Always play through to counting', () => S.cfg.aiNeverResigns, v => updateCfg('aiNeverResigns', v));
   el('theme-chips').innerHTML = THEME_LIST.map(t => `<button type="button" class="chip" data-theme-id="${t.id}"><span class="sw" style="background:${t.swatch}"></span>${t.name}</button>`).join('');
   $$('#theme-chips .chip').forEach(b => b.onclick = () => { Sound.ui(); setSetting('boardTheme', b.dataset.themeId); });
-  el('presets').innerHTML = PRESETS.map((p, i) => `<button type="button" class="preset" data-preset="${i}" title="${esc(p.hint)}"><b>${icon('spark', 13)}${p.label}</b><small>${p.hint}</small></button>`).join('');
-  $$('#presets .preset').forEach(b => b.onclick = () => {
-    Sound.ui(); const p = PRESETS[+b.dataset.preset]; S.komiTouched = false;
-    Object.assign(S.cfg, typeof p.patch === 'function' ? p.patch(S.cfg) : p.patch); renderSetup();
-  });
   el('range-handicap').addEventListener('input', e => updateCfg('handicap', +e.target.value));
   el('input-komi').addEventListener('change', e => { S.komiTouched = true; const v = parseFloat(e.target.value); updateCfg('komi', Number.isFinite(v) ? v : defaultKomi(S.cfg.rules, S.cfg.handicap)); });
   el('resume-ic').innerHTML = icon('play');
+  el('btn-discard').innerHTML = icon('close', 14);
+  el('btn-discard').onclick = () => {
+    Sound.ui();
+    removeKey(KEYS.game);
+    toast('Saved game discarded');
+    renderSetup();
+  };
   el('btn-resume').onclick = () => { Sound.ui(); if (!loadSaved()) { toast('Saved game could not be loaded', 'error'); renderSetup(); } };
   el('btn-start').innerHTML = `${icon('play', 16)} Start game`; el('btn-start-mobile').innerHTML = `${icon('play', 16)} Start game`;
   el('btn-start').onclick = el('btn-start-mobile').onclick = () => { Sound.ui(); newGame(S.cfg); };
@@ -2458,7 +2449,7 @@ function hintsFor(g, on) {
   const pos = lastOf(g.positions), key = `${g.id}:${pos.hash}:${pos.toPlay}:${g.moves.length}`;
   if (hintCache.key === key) return hintCache.moves;
   const prev = g.positions.length >= 2 ? g.positions[g.positions.length - 2] : null;
-  const moves = GO.suggestMoves({ board: pos.board, size: g.config.size, color: pos.toPlay, koPoint: pos.koPoint, hashes: g.hashSet, moveNumber: g.moves.length, lastMove: pos.lastMove, lastOwnMove: prev ? prev.lastMove : -2, komi: g.config.komi, captures: pos.captures, opponentPassed: pos.lastMove === PASS, level: 4, neverResign: true, atariGo: g.config.variant === 'atari' ? { target: g.config.atariTarget } : null }, 3);
+  const moves = GO.suggestMoves({ board: pos.board, size: g.config.size, color: pos.toPlay, koPoint: pos.koPoint, hashes: g.hashSet, moveNumber: g.moves.length, lastMove: pos.lastMove, lastOwnMove: prev ? prev.lastMove : -2, komi: g.config.komi, captures: pos.captures, opponentPassed: pos.lastMove === PASS, level: 2, neverResign: true, atariGo: g.config.variant === 'atari' ? { target: g.config.atariTarget } : null }, 3);
   hintCache.key = key; hintCache.moves = moves; return moves;
 }
 function moveNumbersFor(g) {

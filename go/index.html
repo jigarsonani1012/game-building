@@ -6,7 +6,7 @@
 <meta name="description" content="Play Go (Baduk, Weiqi) in your browser — beautiful boards, six AI levels, Atari Go, score estimation, and interactive lessons. A single-file HTML5 game.">
 <meta name="theme-color" content="#0e1015">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%23e3b463'/%3E%3Cg stroke='%236b4514' stroke-width='1' opacity='.7'%3E%3Cline x1='8' y1='14' x2='32' y2='14'/%3E%3Cline x1='8' y1='26' x2='32' y2='26'/%3E%3Cline x1='14' y1='8' x2='14' y2='32'/%3E%3Cline x1='26' y1='8' x2='26' y2='32'/%3E%3C/g%3E%3Ccircle cx='14' cy='14' r='5.2' fill='%23111'/%3E%3Ccircle cx='26' cy='26' r='5.2' fill='%23fff'/%3E%3C/svg%3E">
-<title>Goban Studio — Play Go Online</title>
+<title>Go — Play Online</title>
 <style>
 /* ============================================================
    Design tokens
@@ -165,8 +165,6 @@ input[type=range]{accent-color:var(--accent);width:100%;margin:0}
 @media(min-width:1024px){.setup-main{grid-template-columns:1fr 400px;padding-bottom:4rem}.setup-right{position:sticky;top:1.5rem}}
 .setup-left{display:flex;flex-direction:column;gap:1.5rem;min-width:0;animation:rise .42s cubic-bezier(.2,.8,.2,1) both}
 .setup-right{display:flex;flex-direction:column;gap:1rem;animation:rise .42s cubic-bezier(.2,.8,.2,1) .08s both}
-.hero h1{font-size:clamp(2.1rem,5vw,3.25rem);line-height:1.05;letter-spacing:-.01em;font-weight:600}
-.hero p{margin-top:.75rem;color:var(--fg-muted);max-width:36rem}
 .resume{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.875rem 1rem;border-color:color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-soft);border-radius:1rem}
 .resume .ic{width:2.25rem;height:2.25rem;border-radius:.75rem;display:grid;place-items:center;background:var(--accent);color:var(--accent-fg);flex-shrink:0}
 .resume b{display:block;font-size:.875rem}
@@ -448,7 +446,7 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
   <header class="top wrap">
     <div class="brand">
       <div class="logo" aria-hidden="true"><svg viewBox="0 0 40 40"><g stroke="#6b4514" stroke-width="1" opacity=".7"><line x1="8" y1="14" x2="32" y2="14"/><line x1="8" y1="26" x2="32" y2="26"/><line x1="14" y1="8" x2="14" y2="32"/><line x1="26" y1="8" x2="26" y2="32"/></g><circle cx="14" cy="14" r="5.2" fill="#111"/><circle cx="26" cy="26" r="5.2" fill="#fff"/></svg></div>
-      <div><div class="brand-name font-display">Goban Studio</div><div class="brand-tag">The ancient game of Go, beautifully playable</div></div>
+      <div><div class="brand-name font-display">Go</div><div class="brand-tag">The ancient board game, beautifully playable</div></div>
     </div>
     <div class="row">
       <button class="btn btn-ghost btn-icon" data-action="help" title="How to play" aria-label="How to play"></button>
@@ -459,11 +457,6 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
 
   <main class="setup-main">
     <div class="setup-left">
-      <div class="hero">
-        <h1 class="font-display">Play <span class="accent">Go</span>.<br>Simple rules, endless depth.</h1>
-        <p>Surround territory, capture stones, outthink your opponent. Choose your settings and place your first stone.</p>
-      </div>
-
       <div id="resume-card" class="card resume" hidden>
         <div class="row">
           <div class="ic" id="resume-ic"></div>
@@ -2196,7 +2189,7 @@ function exportSGF() {
   const escS = v => String(v).replace(/\\/g, '\\\\').replace(/]/g, '\\]');
   const d = new Date(g.startedAt), date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const pb = g.aiColor === BLACK ? `${playerName(g, BLACK)} (AI)` : playerName(g, BLACK), pw = g.aiColor === WHITE ? `${playerName(g, WHITE)} (AI)` : playerName(g, WHITE);
-  let s = `(;GM[1]FF[4]CA[UTF-8]AP[Goban Studio:1.0]SZ[${size}]KM[${g.config.komi}]RU[${g.config.rules === 'area' ? 'Chinese' : 'Japanese'}]PB[${escS(pb)}]PW[${escS(pw)}]DT[${date}]`;
+  let s = `(;GM[1]FF[4]CA[UTF-8]AP[Go:1.0]SZ[${size}]KM[${g.config.komi}]RU[${g.config.rules === 'area' ? 'Chinese' : 'Japanese'}]PB[${escS(pb)}]PW[${escS(pw)}]DT[${date}]`;
   if (g.config.handicap >= 2 && g.handicapStones.length) { s += `HA[${g.config.handicap}]AB`; for (const h of g.handicapStones) s += `[${coord(h)}]`; }
   if (g.result) s += `RE[${g.result.text}]`;
   for (const m of g.moves) s += `;${m.color === BLACK ? 'B' : 'W'}[${coord(m.idx)}]`;
@@ -2303,16 +2296,7 @@ function updateCfg(key, value) {
   renderSetup();
 }
 function previewBoard(cfg) {
-  const size = cfg.size, b = GO.emptyBoard(size);
-  if (cfg.variant === 'atari' && cfg.atariStart === 'crosscut') {
-    const c = Math.floor((size - 1) / 2); b[(c - 1) * size + (c - 1)] = BLACK; b[c * size + c] = BLACK; b[(c - 1) * size + c] = WHITE; b[c * size + (c - 1)] = WHITE; return b;
-  }
-  if (cfg.variant === 'classic' && cfg.handicap >= 2) { for (const p of GO.handicapPoints(size, cfg.handicap)) b[p] = BLACK; return b; }
-  const pts = size === 9 ? [[2, 2, 1], [6, 6, 2], [6, 2, 1], [2, 6, 2], [4, 4, 1], [5, 3, 2]]
-    : size === 13 ? [[3, 3, 1], [9, 9, 2], [9, 3, 1], [3, 9, 2], [6, 3, 1], [10, 6, 2], [3, 6, 1]]
-    : [[3, 3, 1], [15, 15, 2], [15, 3, 1], [3, 15, 2], [16, 9, 1], [3, 9, 2], [13, 2, 1], [9, 16, 2], [14, 16, 1]];
-  for (const [x, y, c] of pts) b[y * size + x] = c;
-  return b;
+  return initialPosition(cfg).pos.board;
 }
 function buildSetup() {
   el('opp-grid').innerHTML = [

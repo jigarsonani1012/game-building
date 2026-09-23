@@ -84,7 +84,99 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0}
 .scroll-thin{scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent}
 .scroll-thin::-webkit-scrollbar{width:6px;height:6px}
 .scroll-thin::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:999px}
-input[type=range]{accent-color:var(--accent);width:100%;margin:0}
+input[type=range]{
+  --pos:0%;
+  -webkit-appearance:none;
+  appearance:none;
+  width:100%;
+  height:2rem;
+  background:transparent;
+  cursor:pointer;
+  margin:0;
+  padding:0 10px;
+  box-sizing:border-box;
+  vertical-align:middle;
+}
+input[type=range]:focus-visible{outline:none}
+input[type=range]::-webkit-slider-runnable-track{
+  width:100%;
+  height:6px;
+  background:linear-gradient(to right,var(--accent) 0%,var(--accent) var(--pos),var(--surface-3) var(--pos),var(--surface-3) 100%);
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
+}
+input[type=range]:hover::-webkit-slider-runnable-track{
+  background:linear-gradient(to right,color-mix(in srgb,var(--accent) 90%,#fff) 0%,color-mix(in srgb,var(--accent) 90%,#fff) var(--pos),color-mix(in srgb,var(--surface-3) 75%,var(--accent)) var(--pos),color-mix(in srgb,var(--surface-3) 75%,var(--accent)) 100%);
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  appearance:none;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:var(--accent);
+  border:2.5px solid var(--surface);
+  box-shadow:0 2px 8px -1px var(--accent-glow),0 1px 3px rgba(0,0,0,.35);
+  cursor:grab;
+  margin-top:-7px;
+  transition:transform .15s cubic-bezier(.2,.8,.2,1),box-shadow .15s,filter .15s,background .15s;
+}
+input[type=range]:hover::-webkit-slider-thumb{
+  transform:scale(1.18);
+  filter:brightness(1.1);
+  box-shadow:0 0 0 5px var(--accent-soft),0 4px 14px -2px var(--accent-glow);
+}
+input[type=range]:active::-webkit-slider-thumb{
+  cursor:grabbing;
+  transform:scale(1.28);
+  box-shadow:0 0 0 8px var(--accent-soft),0 6px 18px -2px var(--accent-glow);
+}
+input[type=range]:focus-visible::-webkit-slider-thumb{
+  box-shadow:0 0 0 2px var(--bg),0 0 0 5px var(--accent);
+}
+input[type=range]::-moz-range-track{
+  width:100%;
+  height:6px;
+  background:var(--surface-3);
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
+}
+input[type=range]:hover::-moz-range-track{
+  background:color-mix(in srgb,var(--surface-3) 75%,var(--accent));
+}
+input[type=range]::-moz-range-progress{
+  height:6px;
+  background:var(--accent);
+  border-radius:999px;
+}
+input[type=range]:hover::-moz-range-progress{
+  background:color-mix(in srgb,var(--accent) 90%,#fff);
+}
+input[type=range]::-moz-range-thumb{
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  background:var(--accent);
+  border:2.5px solid var(--surface);
+  box-shadow:0 2px 8px -1px var(--accent-glow),0 1px 3px rgba(0,0,0,.35);
+  cursor:grab;
+  transition:transform .15s cubic-bezier(.2,.8,.2,1),box-shadow .15s,filter .15s,background .15s;
+}
+input[type=range]:hover::-moz-range-thumb{
+  transform:scale(1.18);
+  filter:brightness(1.1);
+  box-shadow:0 0 0 5px var(--accent-soft),0 4px 14px -2px var(--accent-glow);
+}
+input[type=range]:active::-moz-range-thumb{
+  cursor:grabbing;
+  transform:scale(1.28);
+  box-shadow:0 0 0 8px var(--accent-soft),0 6px 18px -2px var(--accent-glow);
+}
+input[type=range]:focus-visible::-moz-range-thumb{
+  box-shadow:0 0 0 2px var(--bg),0 0 0 5px var(--accent);
+}
 .row>input[type=range]{flex:1;min-width:0;width:auto}
 .num{width:4.25rem;height:2rem;border-radius:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:0 .5rem;font-size:.875rem;color:var(--fg);font-variant-numeric:tabular-nums}
 .num:focus{outline:none;box-shadow:0 0 0 2px var(--accent)}
@@ -139,9 +231,10 @@ input[type=range]{accent-color:var(--accent);width:100%;margin:0}
 .sdot.s{width:.875rem;height:.875rem}
 
 /* Logo */
-.logo{width:40px;height:40px;border-radius:.75rem;overflow:hidden;background:linear-gradient(135deg,#efc978,#d9a555);box-shadow:0 2px 6px rgba(0,0,0,.25);flex-shrink:0}
+.logo{width:40px;height:40px;border-radius:.75rem;overflow:hidden;background:var(--board-swatch, linear-gradient(135deg,#efc978,#d9a555));box-shadow:0 2px 6px rgba(0,0,0,.25);flex-shrink:0;transition:background .3s ease}
 .logo svg{width:100%;height:100%;display:block}
 .logo.sm{width:30px;height:30px;border-radius:.5rem}
+.logo .logo-grid{stroke:var(--board-line, #6b4514);opacity:var(--board-line-op, .7);transition:stroke .3s ease}
 
 /* ============================================================
    Top bars
@@ -242,7 +335,7 @@ input[type=range]{accent-color:var(--accent);width:100%;margin:0}
 @media(min-width:640px){.board-wrap{max-width:min(100%,calc(100dvh - 215px))}}
 @media(min-width:1024px){.board-wrap{max-width:min(100%,calc(100dvh - 165px))}}
 .board-frame{--edge:#8a5a22;padding:clamp(5px,1.2vw,10px);border-radius:14px;background:linear-gradient(180deg,color-mix(in srgb,var(--edge) 88%,#fff) 0%,var(--edge) 45%,color-mix(in srgb,var(--edge) 70%,#000) 100%);box-shadow:0 2px 0 0 color-mix(in srgb,var(--edge) 55%,#000),0 22px 45px -18px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.18)}
-canvas.goban{display:block;width:100%;aspect-ratio:1/1;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25),0 1px 3px rgba(0,0,0,.35);background:#e3b463;touch-action:pan-y}
+canvas.goban{display:block;width:100%;aspect-ratio:1/1;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25),0 1px 3px rgba(0,0,0,.35);background:transparent;touch-action:pan-y}
 canvas.goban.live{touch-action:none;cursor:pointer}
 canvas.goban.scoring{cursor:crosshair}
 .side{display:flex;flex-direction:column;gap:.75rem;min-width:0}
@@ -374,21 +467,55 @@ canvas.goban.scoring{cursor:crosshair}
 .confetti-box{pointer-events:none;position:absolute;left:0;right:0;top:-1.5rem;height:10rem;overflow:hidden}
 .confetti-box i{position:absolute;top:0;border-radius:2px;animation:confetti-fall 1.6s ease-in both}
 
-/* Help */
-.rules{display:grid;gap:1.5rem}
-@media(min-width:768px){.rules{grid-template-columns:1fr 1fr}}
-.rules-col{display:flex;flex-direction:column;gap:1rem}
-.rule{display:flex;gap:.75rem;font-size:.875rem;line-height:1.55}
-.rule .num{width:1.75rem;height:1.75rem;border-radius:50%;background:var(--accent);color:var(--accent-fg);display:grid;place-items:center;font-weight:700;font-size:.75rem;flex-shrink:0}
-.rule b.t{display:block}
-.rule p{color:var(--fg-muted)}
-.help-h{font-weight:600;font-size:.875rem;margin-bottom:.5rem}
-.kbd-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.375rem;color:var(--fg-muted);font-size:.875rem}
-.kbd-list li{display:flex;justify-content:space-between;gap:1rem;align-items:center}
+/* ============================================================
+   Enhanced Help Modal
+   ============================================================ */
+.help-nav{display:flex;gap:.5rem;margin-bottom:1.25rem;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.help-tab-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .875rem;border-radius:.75rem;font-size:.8125rem;font-weight:600;color:var(--fg-muted);background:var(--surface-2);border:1px solid var(--border);white-space:nowrap;cursor:pointer;transition:all .2s ease}
+.help-tab-btn:hover{color:var(--fg);border-color:var(--border-strong);background:var(--surface-3)}
+.help-tab-btn.active{color:var(--accent-fg);background:var(--accent);border-color:var(--accent);box-shadow:0 4px 14px -4px var(--accent-glow)}
+
+.help-tab-pane{display:none}
+.help-tab-pane.active{display:block}
+
+.help-grid{display:grid;grid-template-columns:1fr;gap:.875rem}
+@media(min-width:680px){.help-grid{grid-template-columns:1fr 1fr}}
+
+.help-card{background:var(--surface-2);border:1px solid var(--border);border-radius:1rem;padding:1.125rem;display:flex;flex-direction:column;gap:.75rem;transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease}
+.help-card:hover{border-color:color-mix(in srgb,var(--accent) 35%,var(--border-strong));box-shadow:0 8px 24px -8px var(--accent-soft);transform:translateY(-2px)}
+
+.help-card-head{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.help-pill{font-size:.6875rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
+.help-card-title{font-size:.9375rem;font-weight:700;color:var(--fg);display:flex;align-items:center;gap:.5rem}
+
+.help-card-body{display:flex;flex-direction:column;gap:.75rem}
+@media(min-width:500px){.help-card.with-diagram .help-card-body{display:grid;grid-template-columns:95px 1fr;align-items:center;gap:.875rem}}
+
+.help-card-text{font-size:.8125rem;color:var(--fg-muted);line-height:1.55}
+.help-card-text b{color:var(--fg)}
+
+.mini-diagram{width:95px;height:95px;border-radius:.75rem;background:var(--board-swatch, linear-gradient(135deg,#efc978,#d9a555));border:1px solid color-mix(in srgb,var(--border-strong) 80%,transparent);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 4px 12px rgba(0,0,0,.25);overflow:hidden;flex-shrink:0;margin:0 auto;display:flex;align-items:center;justify-content:center;transition:background .3s ease}
+.mini-diagram svg{width:100%;height:100%;display:block}
+.mini-diagram .diagram-grid{stroke:var(--board-line, #5a3a10);opacity:var(--board-line-op, 0.75);transition:stroke .3s ease}
+
+.help-cta-banner{margin-top:1.25rem;background:linear-gradient(135deg,var(--accent-soft),color-mix(in srgb,var(--surface-2) 90%,var(--accent) 10%));border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);border-radius:1rem;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.help-cta-text b{display:block;font-size:.9375rem;color:var(--fg);margin-bottom:2px}
+.help-cta-text p{font-size:.8125rem;color:var(--fg-muted);margin:0}
+
+.atari-box{background:var(--surface-2);border:1px solid var(--border);border-radius:1rem;padding:1.25rem;display:flex;flex-direction:column;gap:1rem}
+.atari-target-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.375rem .75rem;border-radius:.5rem;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:.8125rem;border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
+
+.strat-grid{display:grid;gap:.875rem}
+.strat-card{background:var(--surface-2);border:1px solid var(--border);border-radius:1rem;padding:1.125rem;display:flex;gap:1rem;align-items:flex-start}
+.strat-icon{width:2.5rem;height:2.5rem;border-radius:.75rem;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;flex-shrink:0;font-size:1.125rem;font-weight:700;border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
+
+.ctrl-grid{display:grid;gap:1.25rem}
+@media(min-width:680px){.ctrl-grid{grid-template-columns:1fr 1fr}}
+.kbd-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;color:var(--fg-muted);font-size:.8125rem}
+.kbd-list li{display:flex;justify-content:space-between;gap:1rem;align-items:center;padding:.375rem 0;border-bottom:1px solid var(--border)}
+.kbd-list li:last-child{border-bottom:none}
 .kbd-list li span:last-child{display:flex;gap:.25rem}
-kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6rem;height:1.5rem;padding:0 .375rem;border-radius:.375rem;background:var(--surface-2);border:1px solid var(--border-strong);font-size:.6875rem;font-family:var(--mono);color:var(--fg-muted)}
-.tips{margin:0;padding-left:1.25rem;color:var(--fg-muted);font-size:.875rem;display:flex;flex-direction:column;gap:.25rem}
-.tips b,.rule b{color:var(--fg)}
+kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6rem;height:1.5rem;padding:0 .375rem;border-radius:.375rem;background:var(--surface-3);border:1px solid var(--border-strong);font-size:.6875rem;font-family:var(--mono);font-weight:700;color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.2)}
 
 /* Learn */
 .learn{display:grid;gap:1.5rem}
@@ -445,7 +572,7 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
 <section id="screen-setup" class="screen app-bg">
   <header class="top wrap">
     <div class="brand">
-      <div class="logo" aria-hidden="true"><svg viewBox="0 0 40 40"><g stroke="#6b4514" stroke-width="1" opacity=".7"><line x1="8" y1="14" x2="32" y2="14"/><line x1="8" y1="26" x2="32" y2="26"/><line x1="14" y1="8" x2="14" y2="32"/><line x1="26" y1="8" x2="26" y2="32"/></g><circle cx="14" cy="14" r="5.2" fill="#111"/><circle cx="26" cy="26" r="5.2" fill="#fff"/></svg></div>
+      <div class="logo" aria-hidden="true"><svg viewBox="0 0 40 40"><g class="logo-grid" stroke="#6b4514" stroke-width="1" opacity=".7"><line x1="8" y1="14" x2="32" y2="14"/><line x1="8" y1="26" x2="32" y2="26"/><line x1="14" y1="8" x2="14" y2="32"/><line x1="26" y1="8" x2="26" y2="32"/></g><circle cx="14" cy="14" r="5.2" fill="#111"/><circle cx="26" cy="26" r="5.2" fill="#fff"/></svg></div>
       <div><div class="brand-name font-display">Go</div><div class="brand-tag">The ancient board game, beautifully playable</div></div>
     </div>
     <div class="row">
@@ -493,7 +620,7 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
           </div>
           <div>
             <div class="sec-title">Rules &amp; komi</div>
-            <div class="row" style="flex-wrap:wrap"><div id="seg-rules"></div><label class="komi">Komi <input type="number" class="num" id="input-komi" step="0.5" aria-label="Komi"></label></div>
+            <div class="row" style="flex-wrap:wrap"><div id="seg-rules"></div><label class="komi">Komi <input type="number" class="num" id="input-komi" min="0.5" max="50" step="0.5" aria-label="Komi"></label></div>
           </div>
         </div>
         <div id="atari-options" class="grid2 resp mt" style="gap:1.25rem 2.5rem" hidden>
@@ -532,7 +659,7 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
   <header class="top game-top">
     <div class="row min0">
       <button class="btn btn-ghost btn-icon" id="btn-home" title="Back to menu" aria-label="Back to menu"></button>
-      <div class="logo sm desktop-only" aria-hidden="true"><svg viewBox="0 0 40 40"><g stroke="#6b4514" stroke-width="1" opacity=".7"><line x1="8" y1="14" x2="32" y2="14"/><line x1="8" y1="26" x2="32" y2="26"/><line x1="14" y1="8" x2="14" y2="32"/><line x1="26" y1="8" x2="26" y2="32"/></g><circle cx="14" cy="14" r="5.2" fill="#111"/><circle cx="26" cy="26" r="5.2" fill="#fff"/></svg></div>
+      <div class="logo sm desktop-only" aria-hidden="true"><svg viewBox="0 0 40 40"><g class="logo-grid" stroke="#6b4514" stroke-width="1" opacity=".7"><line x1="8" y1="14" x2="32" y2="14"/><line x1="8" y1="26" x2="32" y2="26"/><line x1="14" y1="8" x2="14" y2="32"/><line x1="26" y1="8" x2="26" y2="32"/></g><circle cx="14" cy="14" r="5.2" fill="#111"/><circle cx="26" cy="26" r="5.2" fill="#fff"/></svg></div>
       <div class="min0"><div class="g-title" id="g-title"></div><div class="g-sub" id="g-sub"></div></div>
     </div>
     <div class="row" style="gap:2px">
@@ -632,42 +759,322 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
 
 <div class="modal-backdrop" id="modal-help" aria-hidden="true">
   <div class="modal lg" role="dialog" aria-modal="true" aria-labelledby="help-title">
-    <div class="modal-head"><h2 class="modal-title" id="help-title">How to play Go</h2><button class="modal-close" data-close aria-label="Close"></button></div>
+    <div class="modal-head">
+      <div>
+        <h2 class="modal-title font-display" id="help-title">How to Play Go</h2>
+        <div class="hint" style="margin-top:2px">The ancient strategy game — simple rules, endless depth</div>
+      </div>
+      <button class="modal-close" data-close aria-label="Close"></button>
+    </div>
     <div class="modal-body">
-      <div class="rules">
-        <div class="rules-col">
-          <div class="rule"><span class="num">1</span><div><b class="t">Take turns placing stones</b><p>Black plays first. Stones go on the <b>intersections</b>, not the squares, and never move once placed.</p></div></div>
-          <div class="rule"><span class="num">2</span><div><b class="t">Liberties &amp; capture</b><p>The empty points next to a stone (or a connected group) are its <b>liberties</b>. Fill all of them and the group is <b>captured</b> and removed. A group with one liberty left is in <b>atari</b>.</p></div></div>
-          <div class="rule"><span class="num">3</span><div><b class="t">No suicide, no repetition</b><p>You can't play a stone that would have zero liberties (unless it captures). The <b>ko</b> rule stops you from immediately recapturing a single stone that just captured a single stone — play elsewhere first.</p></div></div>
-          <div class="rule"><span class="num">4</span><div><b class="t">Ending &amp; counting</b><p>When neither player sees a useful move, both <b>pass</b>. Dead stones are removed, then each player counts their <b>territory</b> (area rules also count stones on the board). White gets <b>komi</b> to compensate for moving second.</p></div></div>
-          <button class="btn btn-primary w-full" id="help-learn"></button>
+      <!-- Tab Bar -->
+      <nav class="help-nav" role="tablist">
+        <button type="button" class="help-tab-btn active" data-tab="rules">📖 Core Rules</button>
+        <button type="button" class="help-tab-btn" data-tab="atari">⚔️ Atari Go Mode</button>
+        <button type="button" class="help-tab-btn" data-tab="controls">🎮 Controls &amp; Gestures</button>
+        <button type="button" class="help-tab-btn" data-tab="strategy">💡 Strategy Guide</button>
+      </nav>
+
+      <!-- TAB 1: CORE RULES -->
+      <div class="help-tab-pane active" id="pane-rules">
+        <div class="help-grid">
+          <!-- Rule 1 -->
+          <div class="help-card with-diagram">
+            <div class="help-card-head">
+              <span class="help-pill">Step 01 • Placement</span>
+            </div>
+            <div class="help-card-title">Intersections, Not Squares</div>
+            <div class="help-card-body">
+              <div class="mini-diagram" aria-hidden="true">
+                <svg viewBox="0 0 100 100">
+                  <defs>
+                    <radialGradient id="h-stone-w1" cx="32%" cy="28%" r="68%">
+                      <stop offset="0%" stop-color="#ffffff"/>
+                      <stop offset="60%" stop-color="#f0f2f5"/>
+                      <stop offset="100%" stop-color="#b0b8c6"/>
+                    </radialGradient>
+                    <radialGradient id="h-stone-b1" cx="30%" cy="25%" r="70%">
+                      <stop offset="0%" stop-color="#6a7285"/>
+                      <stop offset="35%" stop-color="#2d323d"/>
+                      <stop offset="85%" stop-color="#14171d"/>
+                      <stop offset="100%" stop-color="#0a0c10"/>
+                    </radialGradient>
+                    <filter id="h-shadow1" x="-30%" y="-30%" width="160%" height="160%">
+                      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000" flood-opacity="0.65"/>
+                    </filter>
+                  </defs>
+                  <g class="diagram-grid" stroke-width="1.4" stroke-linecap="round">
+                    <line x1="22" y1="22" x2="78" y2="22"/>
+                    <line x1="22" y1="50" x2="78" y2="50"/>
+                    <line x1="22" y1="78" x2="78" y2="78"/>
+                    <line x1="22" y1="22" x2="22" y2="78"/>
+                    <line x1="50" y1="22" x2="50" y2="78"/>
+                    <line x1="78" y1="22" x2="78" y2="78"/>
+                  </g>
+                  <circle cx="22" cy="22" r="2" fill="var(--board-line, #5a3a10)" opacity="0.6"/>
+                  <circle cx="78" cy="22" r="2" fill="var(--board-line, #5a3a10)" opacity="0.6"/>
+                  <circle cx="22" cy="78" r="2" fill="var(--board-line, #5a3a10)" opacity="0.6"/>
+                  <circle cx="78" cy="78" r="2" fill="var(--board-line, #5a3a10)" opacity="0.6"/>
+                  <circle cx="50" cy="50" r="16" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.8" stroke-dasharray="3 2.5"/>
+                  <!-- Stones -->
+                  <circle cx="50" cy="50" r="12" fill="url(#h-stone-b1)" filter="url(#h-shadow1)"/>
+                  <circle cx="78" cy="50" r="12" fill="url(#h-stone-w1)" filter="url(#h-shadow1)"/>
+                </svg>
+              </div>
+              <div class="help-card-text">
+                <b>Black moves first.</b> Players take turns placing stones directly on the <b>line intersections</b> (grid crossings), never inside the squares. Once placed, stones never move.
+              </div>
+            </div>
+          </div>
+
+          <!-- Rule 2 -->
+          <div class="help-card with-diagram">
+            <div class="help-card-head">
+              <span class="help-pill">Step 02 • Capturing</span>
+            </div>
+            <div class="help-card-title">Liberties &amp; Atari</div>
+            <div class="help-card-body">
+              <div class="mini-diagram" aria-hidden="true">
+                <svg viewBox="0 0 100 100">
+                  <defs>
+                    <radialGradient id="h-stone-w2" cx="32%" cy="28%" r="68%">
+                      <stop offset="0%" stop-color="#ffffff"/>
+                      <stop offset="60%" stop-color="#f0f2f5"/>
+                      <stop offset="100%" stop-color="#b0b8c6"/>
+                    </radialGradient>
+                    <radialGradient id="h-stone-b2" cx="30%" cy="25%" r="70%">
+                      <stop offset="0%" stop-color="#6a7285"/>
+                      <stop offset="35%" stop-color="#2d323d"/>
+                      <stop offset="85%" stop-color="#14171d"/>
+                      <stop offset="100%" stop-color="#0a0c10"/>
+                    </radialGradient>
+                    <filter id="h-shadow2" x="-30%" y="-30%" width="160%" height="160%">
+                      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000" flood-opacity="0.65"/>
+                    </filter>
+                  </defs>
+                  <g class="diagram-grid" stroke-width="1.4" stroke-linecap="round">
+                    <line x1="22" y1="22" x2="78" y2="22"/>
+                    <line x1="22" y1="50" x2="78" y2="50"/>
+                    <line x1="22" y1="78" x2="78" y2="78"/>
+                    <line x1="22" y1="22" x2="22" y2="78"/>
+                    <line x1="50" y1="22" x2="50" y2="78"/>
+                    <line x1="78" y1="22" x2="78" y2="78"/>
+                  </g>
+                  <!-- Black stone in center -->
+                  <circle cx="50" cy="50" r="12" fill="url(#h-stone-b2)" filter="url(#h-shadow2)"/>
+                  <!-- 3 White stones surrounding -->
+                  <circle cx="50" cy="22" r="12" fill="url(#h-stone-w2)" filter="url(#h-shadow2)"/>
+                  <circle cx="22" cy="50" r="12" fill="url(#h-stone-w2)" filter="url(#h-shadow2)"/>
+                  <circle cx="50" cy="78" r="12" fill="url(#h-stone-w2)" filter="url(#h-shadow2)"/>
+                  <!-- 1 liberty left (danger badge) -->
+                  <circle cx="78" cy="50" r="12" fill="var(--danger)" opacity="0.25"/>
+                  <circle cx="78" cy="50" r="7" fill="var(--danger)"/>
+                  <text x="78" y="53" text-anchor="middle" font-size="8.5" font-weight="900" fill="#ffffff">!</text>
+                </svg>
+              </div>
+              <div class="help-card-text">
+                Empty adjacent points are <b>liberties</b> (breathing room). Fill all of a stone's liberties and it is <b>captured</b> and removed! When a stone has only 1 liberty left, it is in <b>atari</b>.
+              </div>
+            </div>
+          </div>
+
+          <!-- Rule 3 -->
+          <div class="help-card with-diagram">
+            <div class="help-card-head">
+              <span class="help-pill">Step 03 • Survival</span>
+            </div>
+            <div class="help-card-title">Two Eyes (Invincibility)</div>
+            <div class="help-card-body">
+              <div class="mini-diagram" aria-hidden="true">
+                <svg viewBox="0 0 100 100">
+                  <defs>
+                    <radialGradient id="h-stone-b3" cx="30%" cy="25%" r="70%">
+                      <stop offset="0%" stop-color="#6a7285"/>
+                      <stop offset="35%" stop-color="#2d323d"/>
+                      <stop offset="85%" stop-color="#14171d"/>
+                      <stop offset="100%" stop-color="#0a0c10"/>
+                    </radialGradient>
+                    <filter id="h-shadow3" x="-30%" y="-30%" width="160%" height="160%">
+                      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000" flood-opacity="0.65"/>
+                    </filter>
+                  </defs>
+                  <g class="diagram-grid" stroke-width="1.3" stroke-linecap="round">
+                    <line x1="16" y1="26" x2="84" y2="26"/>
+                    <line x1="16" y1="50" x2="84" y2="50"/>
+                    <line x1="16" y1="74" x2="84" y2="74"/>
+                    <line x1="26" y1="16" x2="26" y2="84"/>
+                    <line x1="50" y1="16" x2="50" y2="84"/>
+                    <line x1="74" y1="16" x2="74" y2="84"/>
+                  </g>
+                  <!-- Eye 1 marker -->
+                  <rect x="20" y="44" width="12" height="12" rx="3" fill="var(--surface)" stroke="var(--success)" stroke-width="1.5"/>
+                  <text x="26" y="53" text-anchor="middle" font-size="8" font-weight="900" fill="var(--success)">1</text>
+                  <!-- Eye 2 marker -->
+                  <rect x="68" y="44" width="12" height="12" rx="3" fill="var(--surface)" stroke="var(--success)" stroke-width="1.5"/>
+                  <text x="74" y="53" text-anchor="middle" font-size="8" font-weight="900" fill="var(--success)">2</text>
+                  <!-- Black stones forming 2 eyes -->
+                  <circle cx="26" cy="26" r="9" fill="url(#h-stone-b3)" filter="url(#h-shadow3)"/>
+                  <circle cx="50" cy="26" r="9" fill="url(#h-stone-b3)" filter="url(#h-shadow3)"/>
+                  <circle cx="74" cy="26" r="9" fill="url(#h-stone-b3)" filter="url(#h-shadow3)"/>
+                  <circle cx="50" cy="50" r="9" fill="url(#h-stone-b3)" filter="url(#h-shadow3)"/>
+                  <circle cx="26" cy="74" r="9" fill="url(#h-stone-b3)" filter="url(#h-shadow3)"/>
+                  <circle cx="50" cy="74" r="9" fill="url(#h-stone-b3)" filter="url(#h-shadow3)"/>
+                  <circle cx="74" cy="74" r="9" fill="url(#h-stone-b3)" filter="url(#h-shadow3)"/>
+                </svg>
+              </div>
+              <div class="help-card-text">
+                Playing where you have zero liberties is <b>suicide (illegal)</b> unless it captures. Because of this, any group with <b>two separate internal eyes</b> can never be captured!
+              </div>
+            </div>
+          </div>
+
+          <!-- Rule 4 -->
+          <div class="help-card with-diagram">
+            <div class="help-card-head">
+              <span class="help-pill">Step 04 • Scoring</span>
+            </div>
+            <div class="help-card-title">Territory &amp; Komi</div>
+            <div class="help-card-body">
+              <div class="mini-diagram" aria-hidden="true">
+                <svg viewBox="0 0 100 100">
+                  <defs>
+                    <radialGradient id="h-stone-b4" cx="30%" cy="25%" r="70%">
+                      <stop offset="0%" stop-color="#6a7285"/>
+                      <stop offset="35%" stop-color="#2d323d"/>
+                      <stop offset="85%" stop-color="#14171d"/>
+                      <stop offset="100%" stop-color="#0a0c10"/>
+                    </radialGradient>
+                    <filter id="h-shadow4" x="-30%" y="-30%" width="160%" height="160%">
+                      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000" flood-opacity="0.65"/>
+                    </filter>
+                  </defs>
+                  <g class="diagram-grid" stroke-width="1.3" stroke-linecap="round">
+                    <line x1="20" y1="20" x2="88" y2="20"/>
+                    <line x1="20" y1="50" x2="88" y2="50"/>
+                    <line x1="20" y1="80" x2="88" y2="80"/>
+                    <line x1="20" y1="20" x2="20" y2="88"/>
+                    <line x1="50" y1="20" x2="50" y2="88"/>
+                    <line x1="80" y1="20" x2="80" y2="88"/>
+                  </g>
+                  <!-- Territory tiles -->
+                  <rect x="13" y="13" width="14" height="14" rx="3" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2" opacity="0.9"/>
+                  <rect x="43" y="13" width="14" height="14" rx="3" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2" opacity="0.9"/>
+                  <rect x="13" y="43" width="14" height="14" rx="3" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2" opacity="0.9"/>
+                  <rect x="43" y="43" width="14" height="14" rx="3" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2" opacity="0.9"/>
+                  <text x="20" y="23" text-anchor="middle" font-size="8.5" font-weight="900" fill="var(--accent)">+1</text>
+                  <text x="50" y="23" text-anchor="middle" font-size="8.5" font-weight="900" fill="var(--accent)">+1</text>
+                  <text x="20" y="53" text-anchor="middle" font-size="8.5" font-weight="900" fill="var(--accent)">+1</text>
+                  <text x="50" y="53" text-anchor="middle" font-size="8.5" font-weight="900" fill="var(--accent)">+1</text>
+                  <!-- Enclosing Black wall stones -->
+                  <circle cx="80" cy="20" r="10.5" fill="url(#h-stone-b4)" filter="url(#h-shadow4)"/>
+                  <circle cx="80" cy="50" r="10.5" fill="url(#h-stone-b4)" filter="url(#h-shadow4)"/>
+                  <circle cx="80" cy="80" r="10.5" fill="url(#h-stone-b4)" filter="url(#h-shadow4)"/>
+                  <circle cx="50" cy="80" r="10.5" fill="url(#h-stone-b4)" filter="url(#h-shadow4)"/>
+                  <circle cx="20" cy="80" r="10.5" fill="url(#h-stone-b4)" filter="url(#h-shadow4)"/>
+                </svg>
+              </div>
+              <div class="help-card-text">
+                When neither player wants to play, both <b>pass</b>. Players score points for each empty intersection they fully surround (<b>territory</b>). White receives <b>6.5 komi</b> to balance Black's first-move advantage.
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="rules-col">
-          <div>
-            <div class="help-h">Controls</div>
+
+        <!-- Practice CTA banner -->
+        <div class="help-cta-banner">
+          <div class="help-cta-text">
+            <b>⚡ Learn faster by playing</b>
+            <p>Step through hands-on scenarios in our 2-minute interactive tutorial.</p>
+          </div>
+          <button class="btn btn-primary" id="help-learn"></button>
+        </div>
+      </div>
+
+      <!-- TAB 2: ATARI GO -->
+      <div class="help-tab-pane" id="pane-atari">
+        <div class="atari-box">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:.75rem">
+              <span class="strat-icon">⚔️</span>
+              <div>
+                <b style="font-size:1.125rem;color:var(--fg)">Atari Go (First to Capture)</b>
+                <div class="hint" style="margin-top:2px">The fast, exciting capture battle for all skill levels</div>
+              </div>
+            </div>
+            <span class="atari-target-badge">🎯 First to N Captures Wins</span>
+          </div>
+          <div class="help-grid" style="margin-top:.5rem">
+            <div class="help-card">
+              <div class="help-card-title">🏁 Instant Victory Condition</div>
+              <div class="help-card-text">
+                Unlike Classic Go where you surround board territory, in <b>Atari Go</b> the goal is pure combat: the first player to capture the target amount of stones (e.g. <b>1 stone</b> or <b>3 stones</b>) instantly wins the game!
+              </div>
+            </div>
+            <div class="help-card">
+              <div class="help-card-title">💡 Why Play Atari Go?</div>
+              <div class="help-card-text">
+                It's the ultimate training ground for <b>liberties, cross-cuts, ladders, and atari defense</b>. You don't have to calculate territory or end-game passes — pure tactical intuition.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: CONTROLS & TOUCH -->
+      <div class="help-tab-pane" id="pane-controls">
+        <div class="ctrl-grid">
+          <div class="help-card">
+            <div class="help-card-title">⌨️ Keyboard Shortcuts</div>
             <ul class="kbd-list">
-              <li><span>Pass</span><span><kbd>P</kbd></span></li>
-              <li><span>Undo</span><span><kbd>U</kbd></span></li>
-              <li><span>Score estimate</span><span><kbd>E</kbd></span></li>
-              <li><span>Hints</span><span><kbd>H</kbd></span></li>
-              <li><span>Move numbers</span><span><kbd>N</kbd></span></li>
-              <li><span>Step through moves</span><span><kbd>←</kbd><kbd>→</kbd></span></li>
-              <li><span>First / latest move</span><span><kbd>Home</kbd><kbd>End</kbd></span></li>
+              <li><span>Pass turn</span><span><kbd>P</kbd></span></li>
+              <li><span>Undo last move</span><span><kbd>U</kbd></span></li>
+              <li><span>Live Score Estimation</span><span><kbd>E</kbd></span></li>
+              <li><span>AI Best-Move Hint</span><span><kbd>H</kbd></span></li>
+              <li><span>Toggle Move Numbers</span><span><kbd>N</kbd></span></li>
+              <li><span>Step back / forward</span><span><kbd>←</kbd><kbd>→</kbd></span></li>
+              <li><span>Jump to start / latest</span><span><kbd>Home</kbd><kbd>End</kbd></span></li>
             </ul>
           </div>
-          <div>
-            <div class="help-h">Tips for beginners</div>
-            <ul class="tips">
-              <li>Corners first, then sides, then the center — it's easier to make territory there.</li>
-              <li>Don't chase every stone. Capturing is a tool; surrounding space is the goal.</li>
-              <li>A group with two separate eyes can never be captured.</li>
-              <li>Use <b>Estimate</b> to see who's ahead and <b>Hints</b> when you're stuck.</li>
-              <li>On touch screens, press and slide your finger to aim, then lift to place.</li>
-            </ul>
+          <div class="help-card">
+            <div class="help-card-title">📱 Mobile &amp; Touch Gestures</div>
+            <div class="help-card-text" style="display:flex;flex-direction:column;gap:.75rem">
+              <p><b>🎯 Aim &amp; Release:</b> Press and slide your finger across the board to preview where the stone will land under the crosshair. Lift your finger to place!</p>
+              <p><b>🛡️ Move Confirmation:</b> On phone screens, enable <i>Confirm Moves</i> in Settings to preview moves and tap a second time to confirm.</p>
+              <p><b>🔍 Coordinate Markers:</b> Turn on coordinates in Settings to track algebraic board notations like <i>Q16</i> or <i>D4</i>.</p>
+            </div>
           </div>
-          <div>
-            <div class="help-h">Atari Go</div>
-            <p class="lead">The capture game: first to capture the target number of stones wins. Perfect for learning liberties and atari without worrying about territory.</p>
+        </div>
+      </div>
+
+      <!-- TAB 4: PRO STRATEGY -->
+      <div class="help-tab-pane" id="pane-strategy">
+        <div class="strat-grid">
+          <div class="strat-card">
+            <span class="strat-icon">👑</span>
+            <div>
+              <b style="color:var(--fg);font-size:.9375rem">"Corners are Gold, Sides are Silver, Center is Grass"</b>
+              <p class="help-card-text" style="margin-top:4px">
+                In the corner, you only need <b>4 stones</b> to secure 4 points of territory. On the side you need 6 stones, and in the open center you need 8 stones. Always claim corners first!
+              </p>
+            </div>
+          </div>
+          <div class="strat-card">
+            <span class="strat-icon">🛡️</span>
+            <div>
+              <b style="color:var(--fg);font-size:.9375rem">Don't Follow the Opponent Blindly (Tenuki)</b>
+              <p class="help-card-text" style="margin-top:4px">
+                You don't always have to reply to where your opponent just played. If their move is small and does not threaten immediate death, play a big point elsewhere (<b>tenuki</b>).
+              </p>
+            </div>
+          </div>
+          <div class="strat-card">
+            <span class="strat-icon">👁️</span>
+            <div>
+              <b style="color:var(--fg);font-size:.9375rem">Shape Before Capture</b>
+              <p class="help-card-text" style="margin-top:4px">
+                Chasing an opponent's stones blindly often leaves your own groups thin and vulnerable. Build solid, connected stone chains and give your groups room to create two eyes.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -1259,9 +1666,46 @@ const lastOf = a => a[a.length - 1];
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const CANVAS_FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
-function loadJSON(k, d) { try { const r = localStorage.getItem(k); return r ? JSON.parse(r) : d; } catch (e) { return d; } }
-function saveJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* quota / private mode */ } }
-function removeKey(k) { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } }
+/* ---------------- Unified Storage (go_data) ---------------- */
+const DB_KEY = 'go_data';
+function initGoData() {
+  let data = null;
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    if (raw) data = JSON.parse(raw);
+  } catch (e) {}
+  if (!data || typeof data !== 'object') data = {};
+  let migrated = false;
+  const legacyMap = { settings: 'goban.settings', config: 'goban.lastConfig', stats: 'goban.stats', game: 'goban.game' };
+  for (const [prop, oldKey] of Object.entries(legacyMap)) {
+    try {
+      const oldRaw = localStorage.getItem(oldKey);
+      if (oldRaw) {
+        if (data[prop] === undefined) {
+          data[prop] = JSON.parse(oldRaw);
+          migrated = true;
+        }
+        localStorage.removeItem(oldKey);
+      }
+    } catch (e) {}
+  }
+  if (migrated) {
+    try { localStorage.setItem(DB_KEY, JSON.stringify(data)); } catch (e) {}
+  }
+  return data;
+}
+let goDataCache = initGoData();
+function loadStore(k, d) { return (goDataCache && goDataCache[k] !== undefined) ? goDataCache[k] : d; }
+function saveStore(k, v) {
+  if (!goDataCache) goDataCache = {};
+  if (v === undefined || v === null) delete goDataCache[k];
+  else goDataCache[k] = v;
+  try { localStorage.setItem(DB_KEY, JSON.stringify(goDataCache)); } catch (e) { /* quota / private mode */ }
+}
+function removeStore(k) { saveStore(k, null); }
+function loadJSON(k, d) { return loadStore(k, d); }
+function saveJSON(k, v) { saveStore(k, v); }
+function removeKey(k) { removeStore(k); }
 
 /* ---------------- Icons (inline SVG) ---------------- */
 const ICONS = {
@@ -1298,12 +1742,30 @@ const icon = (name, size = 18) => `<svg width="${size}" height="${size}" viewBox
 
 /* ---------------- Board themes ---------------- */
 const THEMES = {
-  kaya:   { id: 'kaya',   name: 'Kaya',   surface: ['#efc978', '#e3b463', '#d9a555'], grain: .16, grainColor: '#7a4b12', line: '#5a3a10', lineOpacity: .7,  star: '#4a2f0c', coord: '#6b4a1a', edge: '#8a5a22', danger: '#d3302f', swatch: 'linear-gradient(135deg,#efc978,#d9a555)', tb: '#1a1a1a', tw: '#ffffff' },
-  walnut: { id: 'walnut', name: 'Walnut', surface: ['#8a5d34', '#734a27', '#5e3b1e'], grain: .22, grainColor: '#2a170a', line: '#f5e3c4', lineOpacity: .5,  star: '#f8ebd2', coord: '#e8d2ad', edge: '#3f2712', danger: '#ff5b5b', swatch: 'linear-gradient(135deg,#8a5d34,#5e3b1e)', tb: '#101010', tw: '#ffffff' },
-  bamboo: { id: 'bamboo', name: 'Bamboo', surface: ['#f6e7c2', '#efdcae', '#e8d19e'], grain: .10, grainColor: '#8a6c2c', line: '#6a5326', lineOpacity: .6,  star: '#54401a', coord: '#7a622f', edge: '#b89a5c', danger: '#d3302f', swatch: 'linear-gradient(135deg,#f6e7c2,#e8d19e)', tb: '#1a1a1a', tw: '#ffffff' },
-  slate:  { id: 'slate',  name: 'Slate',  surface: ['#3a4150', '#2f3542', '#272c37'], grain: .08, grainColor: '#000000', line: '#c7cfdd', lineOpacity: .42, star: '#dfe5ef', coord: '#aeb7c6', edge: '#1a1e26', danger: '#ff6b6b', swatch: 'linear-gradient(135deg,#3a4150,#272c37)', tb: '#0a0c10', tw: '#ffffff' },
-  paper:  { id: 'paper',  name: 'Paper',  surface: ['#fbfaf6', '#f5f2ea', '#efebe0'], grain: 0,   grainColor: '#000000', line: '#2b2b2b', lineOpacity: .75, star: '#2b2b2b', coord: '#666666', edge: '#d8d3c6', danger: '#d3302f', swatch: 'linear-gradient(135deg,#fbfaf6,#efebe0)', tb: '#111111', tw: '#f2f2f2' },
-  sakura: { id: 'sakura', name: 'Sakura', surface: ['#f9dfe3', '#f4cfd6', '#efc2cb'], grain: .06, grainColor: '#7a2c3c', line: '#7a3b49', lineOpacity: .6,  star: '#6a2f3d', coord: '#8b4d5b', edge: '#c78b97', danger: '#c81e3a', swatch: 'linear-gradient(135deg,#f9dfe3,#efc2cb)', tb: '#1a1a1a', tw: '#ffffff' },
+  kaya:   { id: 'kaya',   name: 'Kaya',   surface: ['#efc978', '#e3b463', '#d9a555'], grain: .16, grainColor: '#7a4b12', line: '#5a3a10', lineOpacity: .7,  star: '#4a2f0c', coord: '#6b4a1a', edge: '#8a5a22', danger: '#d3302f', swatch: 'linear-gradient(135deg,#efc978,#d9a555)', tb: '#1a1a1a', tw: '#ffffff',
+    dark:  { accent: '#f0b35a', accentFg: '#1b1206', glow: 'rgba(240,179,90,.55)', soft: 'rgba(240,179,90,.14)' },
+    light: { accent: '#c98a1d', accentFg: '#ffffff', glow: 'rgba(201,138,29,.45)', soft: 'rgba(201,138,29,.12)' }
+  },
+  walnut: { id: 'walnut', name: 'Walnut', surface: ['#8a5d34', '#734a27', '#5e3b1e'], grain: .22, grainColor: '#2a170a', line: '#f5e3c4', lineOpacity: .5,  star: '#f8ebd2', coord: '#e8d2ad', edge: '#3f2712', danger: '#ff5b5b', swatch: 'linear-gradient(135deg,#8a5d34,#5e3b1e)', tb: '#101010', tw: '#ffffff',
+    dark:  { accent: '#e08643', accentFg: '#1f0f04', glow: 'rgba(224,134,67,.55)', soft: 'rgba(224,134,67,.15)' },
+    light: { accent: '#9c541b', accentFg: '#ffffff', glow: 'rgba(156,84,27,.45)', soft: 'rgba(156,84,27,.12)' }
+  },
+  bamboo: { id: 'bamboo', name: 'Bamboo', surface: ['#f6e7c2', '#efdcae', '#e8d19e'], grain: .10, grainColor: '#8a6c2c', line: '#6a5326', lineOpacity: .6,  star: '#54401a', coord: '#7a622f', edge: '#b89a5c', danger: '#d3302f', swatch: 'linear-gradient(135deg,#f6e7c2,#e8d19e)', tb: '#1a1a1a', tw: '#ffffff',
+    dark:  { accent: '#e5b955', accentFg: '#1e1605', glow: 'rgba(229,185,85,.55)', soft: 'rgba(229,185,85,.15)' },
+    light: { accent: '#b88d22', accentFg: '#ffffff', glow: 'rgba(184,141,34,.45)', soft: 'rgba(184,141,34,.12)' }
+  },
+  slate:  { id: 'slate',  name: 'Slate',  surface: ['#3a4150', '#2f3542', '#272c37'], grain: .08, grainColor: '#000000', line: '#c7cfdd', lineOpacity: .42, star: '#dfe5ef', coord: '#aeb7c6', edge: '#1a1e26', danger: '#ff6b6b', swatch: 'linear-gradient(135deg,#3a4150,#272c37)', tb: '#0a0c10', tw: '#ffffff',
+    dark:  { accent: '#5ea2f5', accentFg: '#071526', glow: 'rgba(94,162,245,.55)', soft: 'rgba(94,162,245,.15)' },
+    light: { accent: '#2b77c9', accentFg: '#ffffff', glow: 'rgba(43,119,201,.45)', soft: 'rgba(43,119,201,.12)' }
+  },
+  paper:  { id: 'paper',  name: 'Paper',  surface: ['#fbfaf6', '#f5f2ea', '#efebe0'], grain: 0,   grainColor: '#000000', line: '#2b2b2b', lineOpacity: .75, star: '#2b2b2b', coord: '#666666', edge: '#d8d3c6', danger: '#d3302f', swatch: 'linear-gradient(135deg,#fbfaf6,#efebe0)', tb: '#111111', tw: '#f2f2f2',
+    dark:  { accent: '#9db2cf', accentFg: '#0c1420', glow: 'rgba(157,178,207,.55)', soft: 'rgba(157,178,207,.15)' },
+    light: { accent: '#475569', accentFg: '#ffffff', glow: 'rgba(71,85,105,.45)', soft: 'rgba(71,85,105,.12)' }
+  },
+  sakura: { id: 'sakura', name: 'Sakura', surface: ['#f9dfe3', '#f4cfd6', '#efc2cb'], grain: .06, grainColor: '#7a2c3c', line: '#7a3b49', lineOpacity: .6,  star: '#6a2f3d', coord: '#8b4d5b', edge: '#c78b97', danger: '#c81e3a', swatch: 'linear-gradient(135deg,#f9dfe3,#efc2cb)', tb: '#1a1a1a', tw: '#ffffff',
+    dark:  { accent: '#fb7185', accentFg: '#22050c', glow: 'rgba(251,113,133,.55)', soft: 'rgba(251,113,133,.15)' },
+    light: { accent: '#e11d48', accentFg: '#ffffff', glow: 'rgba(225,29,72,.45)', soft: 'rgba(225,29,72,.12)' }
+  },
 };
 const THEME_LIST = Object.values(THEMES);
 const STONE_STYLES = [
@@ -1369,18 +1831,39 @@ const Sound = (() => {
 /* ---------------- Settings (persisted) ---------------- */
 const isTouch = matchMedia('(pointer: coarse)').matches;
 const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const DEFAULT_SETTINGS = { boardTheme: 'kaya', stoneStyle: 'shell', uiTheme: 'dark', sound: true, volume: .7, showCoordinates: true, showMoveNumbers: false, showLastMove: true, highlightAtari: true, confirmMoves: isTouch, reduceMotion: prefersReduced, showHints: false };
-const settings = Object.assign({}, DEFAULT_SETTINGS, loadJSON('goban.settings', {}));
+const DEFAULT_SETTINGS = { boardTheme: 'kaya', stoneStyle: 'shell', uiTheme: 'dark', sound: true, volume: .7, showCoordinates: true, showMoveNumbers: false, showLastMove: true, highlightAtari: true, confirmMoves: false, reduceMotion: prefersReduced, showHints: false };
+const settings = Object.assign({}, DEFAULT_SETTINGS, loadStore('settings', {}));
+settings.confirmMoves = false;
 if (!THEMES[settings.boardTheme]) settings.boardTheme = 'kaya';
 if (!STONE_STYLES.some(s => s.id === settings.stoneStyle)) settings.stoneStyle = 'shell';
 const settingsListeners = [];
 function setSetting(key, value) {
   if (settings[key] === value) return;
-  settings[key] = value; saveJSON('goban.settings', settings); applySettings();
+  settings[key] = value; saveStore('settings', settings); applySettings();
 }
 function applySettings() {
   document.documentElement.dataset.theme = settings.uiTheme;
   const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = settings.uiTheme === 'dark' ? '#0e1015' : '#f4f1ea';
+  
+  const currentTheme = THEMES[settings.boardTheme] || THEMES.kaya;
+  const isDark = settings.uiTheme === 'dark';
+  const a = (isDark ? currentTheme.dark : currentTheme.light) || currentTheme.dark;
+  const rootStyle = document.documentElement.style;
+  rootStyle.setProperty('--accent', a.accent);
+  rootStyle.setProperty('--accent-fg', a.accentFg);
+  rootStyle.setProperty('--accent-glow', a.glow);
+  rootStyle.setProperty('--accent-soft', a.soft);
+  rootStyle.setProperty('--board-swatch', currentTheme.swatch);
+  rootStyle.setProperty('--board-line', currentTheme.line);
+  rootStyle.setProperty('--board-line-op', currentTheme.lineOpacity);
+
+  const fav = document.querySelector('link[rel="icon"]');
+  if (fav) {
+    const bgCol = encodeURIComponent(currentTheme.surface[1] || currentTheme.surface[0]);
+    const lineCol = encodeURIComponent(currentTheme.line);
+    fav.href = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='${bgCol}'/%3E%3Cg stroke='${lineCol}' stroke-width='1' opacity='${currentTheme.lineOpacity}'%3E%3Cline x1='8' y1='14' x2='32' y2='14'/%3E%3Cline x1='8' y1='26' x2='32' y2='26'/%3E%3Cline x1='14' y1='8' x2='14' y2='32'/%3E%3Cline x1='26' y1='8' x2='26' y2='32'/%3E%3C/g%3E%3Ccircle cx='14' cy='14' r='5.2' fill='%23111'/%3E%3Ccircle cx='26' cy='26' r='5.2' fill='%23fff'/%3E%3C/svg%3E`;
+  }
+
   Sound.setEnabled(settings.sound); Sound.setVolume(settings.volume);
   settingsListeners.forEach(fn => { try { fn(); } catch (e) { console.error(e); } });
 }
@@ -1681,11 +2164,26 @@ class BoardView {
         else if (c !== owner && a > .5) mark(x, y, cs * .34, owner, .85, cs * .05);
       }
     }
-    // hints
+    // hints / liberties
     if (st.hints) st.hints.forEach((hIdx, i) => {
-      const [x, y] = this.xy(hIdx), s = st.reduceMotion ? 1 : .9 + .2 * (.5 + .5 * Math.sin((t / 1400) * TAU));
-      ctx.fillStyle = st.accent; ctx.globalAlpha = Math.max(.1, .28 - i * .06); ctx.beginPath(); ctx.arc(x, y, R * .7 * s, 0, TAU); ctx.fill();
-      ctx.globalAlpha = Math.max(.3, .9 - i * .2); ctx.strokeStyle = st.accent; ctx.lineWidth = Math.max(1, cs * .06); ctx.beginPath(); ctx.arc(x, y, R * .7, 0, TAU); ctx.stroke(); ctx.globalAlpha = 1;
+      const [x, y] = this.xy(hIdx);
+      const pulse = st.reduceMotion ? 1 : .88 + .12 * Math.sin((t / 700) * TAU);
+      const curR = R * .68 * pulse;
+      ctx.save();
+      // Outer subtle halo
+      ctx.fillStyle = st.accent;
+      ctx.globalAlpha = Math.max(.08, .18 - i * .04);
+      ctx.beginPath(); ctx.arc(x, y, R * .82, 0, TAU); ctx.fill();
+      // Crisp target ring
+      ctx.globalAlpha = Math.max(.4, .95 - i * .15);
+      ctx.strokeStyle = st.accent;
+      ctx.lineWidth = Math.max(1.5, cs * .065);
+      ctx.beginPath(); ctx.arc(x, y, curR, 0, TAU); ctx.stroke();
+      // Center crisp dot
+      ctx.fillStyle = st.accent;
+      ctx.globalAlpha = Math.max(.6, 1 - i * .15);
+      ctx.beginPath(); ctx.arc(x, y, Math.max(2, cs * .09), 0, TAU); ctx.fill();
+      ctx.restore();
     });
     // ghost stone
     const gi = this.ghostIdx();
@@ -1858,7 +2356,7 @@ const TIME_CONTROLS = {
 };
 const DEFAULT_CONFIG = { size: 9, opponent: 'ai', variant: 'classic', atariTarget: 1, atariStart: 'crosscut', humanColor: 'black', aiLevel: 1, handicap: 0, komi: 7.5, rules: 'area', aiNeverResigns: false, oneColor: false, timeControl: 'none' };
 const defaultKomi = (rules, handicap) => (handicap >= 2 ? .5 : rules === 'area' ? 7.5 : 6.5);
-const KEYS = { stats: 'goban.stats', game: 'goban.game', config: 'goban.lastConfig' };
+const KEYS = { stats: 'stats', game: 'game', config: 'config', settings: 'settings' };
 
 function sanitizeConfig(c) {
   const cfg = Object.assign({}, DEFAULT_CONFIG, c || {});
@@ -1870,7 +2368,7 @@ function sanitizeConfig(c) {
   if (!['black', 'white', 'nigiri'].includes(cfg.humanColor)) cfg.humanColor = 'black';
   cfg.aiLevel = clamp(Math.round(+cfg.aiLevel || 1), 1, 3);
   cfg.handicap = clamp(Math.round(+cfg.handicap || 0), 0, 9);
-  if (!Number.isFinite(+cfg.komi)) cfg.komi = defaultKomi(cfg.rules, cfg.handicap); cfg.komi = +cfg.komi;
+  if (!Number.isFinite(+cfg.komi)) cfg.komi = defaultKomi(cfg.rules, cfg.handicap); cfg.komi = clamp(+cfg.komi, 0.5, 50);
   if (!['area', 'territory'].includes(cfg.rules)) cfg.rules = 'area';
   if (!TIME_CONTROLS[cfg.timeControl]) cfg.timeControl = 'none';
   cfg.aiNeverResigns = !!cfg.aiNeverResigns; cfg.oneColor = !!cfg.oneColor;
@@ -1929,7 +2427,8 @@ function describeResult(g) {
 /* ---------------- persistence ---------------- */
 function persistGame(g) {
   if (!g || g.phase === 'finished') { removeKey(KEYS.game); return; }
-  saveJSON(KEYS.game, { config: g.config, aiColor: g.aiColor, moves: g.moves.map(m => [m.color, m.idx]), clocks: g.clocks, startedAt: g.startedAt });
+  const clocks = g.clocks ? g.clocks.map(c => ({ main: Math.max(0, c.main), periods: c.periods, periodTime: Math.max(0, c.periodTime) })) : null;
+  saveJSON(KEYS.game, { config: g.config, aiColor: g.aiColor, moves: g.moves.map(m => [m.color, m.idx]), clocks, startedAt: g.startedAt });
 }
 function savedGameInfo() { const d = loadJSON(KEYS.game, null); return d && d.config ? d : null; }
 function saveStats() { saveJSON(KEYS.stats, S.stats); }
@@ -1957,7 +2456,10 @@ function rematch() { const g = S.game; newGame(g ? g.config : S.cfg); }
 function quitToMenu(keepSave) {
   cancelAI(); cancelEstimate(); stopClock();
   const g = S.game;
-  if (g && g.phase !== 'finished' && !keepSave) persistGame(null);
+  if (g && g.phase !== 'finished') {
+    if (keepSave) persistGame(g);
+    else persistGame(null);
+  }
   closeModal(); S.game = null; S.pending = null; S.showEstimate = false; S.estimate = null;
   showScreen('setup'); renderSetup();
 }
@@ -2160,6 +2662,7 @@ function startClock() {
   clockTimer = setInterval(() => { const now = performance.now(); tickClock(now - last); last = now; }, 100);
 }
 function stopClock() { if (clockTimer) { clearInterval(clockTimer); clockTimer = 0; } }
+let lastClockPersist = 0;
 function tickClock(dt) {
   const g = S.game; if (!g || !g.clocks || g.phase !== 'playing') return;
   const tc = TIME_CONTROLS[g.config.timeControl].tc, color = lastOf(g.positions).toPlay, c = g.clocks[color - 1];
@@ -2177,6 +2680,11 @@ function tickClock(dt) {
     const winner = GO.opponent(color);
     finish(g, { winner, method: 'timeout', text: resultText(winner, 'timeout') });
     toast(`${playerName(g, color)} ran out of time`, 'warn'); renderGame(); return;
+  }
+  const now = performance.now();
+  if (now - lastClockPersist > 1500) {
+    lastClockPersist = now;
+    persistGame(g);
   }
   renderClocks();
 }
@@ -2205,7 +2713,8 @@ function loadSaved() {
   const data = savedGameInfo(); if (!data) return false;
   try {
     const config = sanitizeConfig(data.config), { pos, handicapStones } = initialPosition(config);
-    const game = { id: ++gameCounter, config, aiColor: data.aiColor ?? null, handicapStones, positions: [pos], moves: [], hashSet: new Set([pos.hash]), phase: 'playing', viewIndex: 0, deadStones: new Set(), result: null, clocks: data.clocks || makeClocks(config.timeControl), startedAt: data.startedAt || Date.now() };
+    const clocks = data.clocks && Array.isArray(data.clocks) ? data.clocks.map(c => ({ main: Math.max(0, +c.main || 0), periods: +c.periods || 0, periodTime: Math.max(0, +c.periodTime || 0) })) : makeClocks(config.timeControl);
+    const game = { id: ++gameCounter, config, aiColor: data.aiColor ?? null, handicapStones, positions: [pos], moves: [], hashSet: new Set([pos.hash]), phase: 'playing', viewIndex: 0, deadStones: new Set(), result: null, clocks, startedAt: data.startedAt || Date.now() };
     for (const [color, idx] of data.moves || []) {
       const cur = lastOf(game.positions);
       if (idx === PASS) { game.positions.push(Object.assign({}, cur, { toPlay: GO.opponent(color), koPoint: -1, lastMove: PASS, consecutivePasses: cur.consecutivePasses + 1 })); game.moves.push({ color, idx: PASS, captured: [] }); continue; }
@@ -2251,6 +2760,19 @@ function buildToggle(container, label, hint, get, set) {
   const sync = () => sw.setAttribute('aria-checked', String(!!get()));
   controlRegistry.push(sync); sync();
 }
+function syncRangeProgress(input) {
+  if (!input) return;
+  const min = +input.min || 0, max = +input.max || 100, val = +input.value || 0;
+  const range = max - min;
+  const ratio = range <= 0 ? 0 : Math.max(0, Math.min(1, (val - min) / range));
+  if (ratio <= 0) {
+    input.style.setProperty('--pos', '0%');
+  } else if (ratio >= 1) {
+    input.style.setProperty('--pos', '100%');
+  } else {
+    input.style.setProperty('--pos', `${(ratio * 100).toFixed(2)}%`);
+  }
+}
 
 /* ---------------- toasts ---------------- */
 function toast(message, kind = 'info', ttl = 2600) {
@@ -2268,8 +2790,8 @@ function openModal(id) {
   closeModal(); const m = el('modal-' + id); if (!m) return;
   S.modal = id; m.classList.add('open'); m.setAttribute('aria-hidden', 'false'); document.body.classList.add('modal-open');
   if (id === 'gameover') fillGameOver();
-  if (id === 'settings') renderSettingsModal();
-  if (id === 'learn') Lessons.start();
+  if (id === 'settings') { renderSettingsModal(); setTimeout(() => settingsView && settingsView.resize(), 100); setTimeout(() => settingsView && settingsView.resize(), 280); }
+  if (id === 'learn') { Lessons.start(); setTimeout(() => lessonView && lessonView.resize(), 100); setTimeout(() => lessonView && lessonView.resize(), 280); }
   if (id === 'quit') el('quit-text').textContent = S.game && S.game.phase !== 'finished' ? 'Your game is saved automatically — you can resume it from the menu.' : 'Return to the main menu.';
   const f = m.querySelector('.btn-primary') || m.querySelector('button'); if (f) setTimeout(() => f.focus({ preventScroll: true }), 40);
 }
@@ -2320,7 +2842,7 @@ function buildSetup() {
   el('theme-chips').innerHTML = THEME_LIST.map(t => `<button type="button" class="chip" data-theme-id="${t.id}"><span class="sw" style="background:${t.swatch}"></span>${t.name}</button>`).join('');
   $$('#theme-chips .chip').forEach(b => b.onclick = () => { Sound.ui(); setSetting('boardTheme', b.dataset.themeId); });
   el('range-handicap').addEventListener('input', e => updateCfg('handicap', +e.target.value));
-  el('input-komi').addEventListener('change', e => { S.komiTouched = true; const v = parseFloat(e.target.value); updateCfg('komi', Number.isFinite(v) ? v : defaultKomi(S.cfg.rules, S.cfg.handicap)); });
+  el('input-komi').addEventListener('change', e => { S.komiTouched = true; const v = parseFloat(e.target.value); updateCfg('komi', clamp(Number.isFinite(v) ? v : defaultKomi(S.cfg.rules, S.cfg.handicap), 0.5, 50)); });
   el('resume-ic').innerHTML = icon('play');
   el('btn-discard').innerHTML = icon('close', 14);
   el('btn-discard').onclick = () => {
@@ -2347,10 +2869,22 @@ function renderSetup() {
   const classic = cfg.variant === 'classic';
   el('classic-options').hidden = !classic; el('atari-options').hidden = classic;
   el('toggle-neverresign').hidden = cfg.opponent !== 'ai';
-  el('range-handicap').value = cfg.handicap; el('handicap-val').textContent = cfg.handicap < 2 ? 'None' : `${cfg.handicap} st.`;
+  const rangeHandicap = el('range-handicap');
+  rangeHandicap.value = cfg.handicap;
+  syncRangeProgress(rangeHandicap);
+  el('handicap-val').textContent = cfg.handicap < 2 ? 'None' : `${cfg.handicap} st.`;
   el('handicap-hint').textContent = cfg.handicap >= 2 ? 'White plays first' : '';
-  const note = el('handicap-note'); note.hidden = !(cfg.opponent === 'ai' && cfg.handicap >= 2);
-  note.textContent = `Black gets ${cfg.handicap} free stones. ${cfg.humanColor === 'white' ? 'The computer plays Black.' : 'Play Black for an easier game.'}`;
+  const note = el('handicap-note');
+  note.hidden = false;
+  if (cfg.handicap >= 2) {
+    if (cfg.opponent === 'ai') {
+      note.textContent = `Black gets ${cfg.handicap} free stones. ${cfg.humanColor === 'white' ? 'The computer plays Black.' : 'Play Black for an easier game.'} White moves first.`;
+    } else {
+      note.textContent = `Black starts with ${cfg.handicap} free handicap stones. White moves first.`;
+    }
+  } else {
+    note.textContent = 'Even game — standard start with no handicap stones. Black moves first.';
+  }
   const komi = el('input-komi'); if (document.activeElement !== komi) komi.value = cfg.komi;
   el('atari-note').textContent = `Atari Go is the classic beginner's game: the first player to capture ${cfg.atariTarget} stone${cfg.atariTarget > 1 ? 's' : ''} wins. No territory counting — just liberties, atari and capture.`;
   el('summary').innerHTML = [
@@ -2553,7 +3087,7 @@ function renderGame() {
     el('score-lead').innerHTML = `${sc.winner === 0 ? 'Draw' : `${sc.winner === BLACK ? 'Black' : 'White'} leads by ${sc.margin}`} <span>· ${sc.dame} neutral point${sc.dame === 1 ? '' : 's'}</span>`;
     el('btn-accept-score').disabled = S.scoringBusy;
   } else {
-    const slider = el('nav-slider'); slider.max = live; slider.value = g.viewIndex;
+    const slider = el('nav-slider'); slider.max = live; slider.value = g.viewIndex; syncRangeProgress(slider);
     el('nav-first').disabled = g.viewIndex === 0; el('nav-prev').disabled = g.viewIndex === 0; el('nav-next').disabled = isLive; el('nav-last').disabled = isLive;
     renderMoveList(g);
   }
@@ -2619,7 +3153,7 @@ function buildSettingsModal() {
 function renderSettingsModal() {
   syncControls();
   $$('#st-theme-chips .chip').forEach(b => b.classList.toggle('active', b.dataset.themeId === settings.boardTheme));
-  el('st-volume').value = settings.volume; el('st-volume').disabled = !settings.sound; el('st-vol-val').textContent = `${Math.round(settings.volume * 100)}%`;
+  const vol = el('st-volume'); vol.value = settings.volume; vol.disabled = !settings.sound; syncRangeProgress(vol); el('st-vol-val').textContent = `${Math.round(settings.volume * 100)}%`;
   const theme = THEMES[settings.boardTheme]; el('settings-frame').style.setProperty('--edge', theme.edge);
   const numbers = settings.showMoveNumbers ? (() => { const a = new Int16Array(49); SETTINGS_SAMPLE_MOVES.forEach(([x, y], i) => { a[y * 7 + x] = i + 1; }); return a; })() : null;
   settingsView.setState({ size: 7, board: SETTINGS_SAMPLE, toPlay: WHITE, lastMove: 4 * 7 + 2, interactive: false, showCoords: settings.showCoordinates, showLastMove: settings.showLastMove, highlightAtari: settings.highlightAtari, theme, stoneStyle: settings.stoneStyle, reduceMotion: settings.reduceMotion, oneColor: false, hints: null, territory: null, ownership: null, dead: null, koPoint: -1, dimmed: false, moveNumbers: numbers });
@@ -2690,6 +3224,14 @@ function init() {
   $$('[data-action="theme"]').forEach(b => b.onclick = () => { Sound.ui(); setSetting('uiTheme', settings.uiTheme === 'dark' ? 'light' : 'dark'); });
   $$('[data-action="settings"]').forEach(b => b.onclick = () => { Sound.ui(); openModal('settings'); });
   el('help-learn').innerHTML = `${icon('book', 16)} Try the interactive lessons`; el('help-learn').onclick = () => { Sound.ui(); openModal('learn'); };
+  $$('.help-tab-btn').forEach(btn => {
+    btn.onclick = () => {
+      Sound.ui();
+      const tab = btn.dataset.tab;
+      $$('.help-tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+      $$('.help-tab-pane').forEach(p => p.classList.toggle('active', p.id === 'pane-' + tab));
+    };
+  });
   el('btn-confirm-resign').innerHTML = `${icon('flag', 16)} Resign`;
   el('btn-confirm-resign').onclick = () => { const g = S.game; closeModal(); if (!g) return; const human = g.aiColor !== null ? GO.opponent(g.aiColor) : lastOf(g.positions).toPlay; resign(human); };
   el('btn-confirm-quit').innerHTML = `${icon('home', 16)} Main menu`;
@@ -2722,11 +3264,16 @@ function init() {
       case 'Escape': if (S.pending !== null) { S.pending = null; renderGame(); } break;
     }
   });
+  // range inputs progress sync
+  document.addEventListener('input', e => { if (e.target && e.target.type === 'range') syncRangeProgress(e.target); });
+  document.addEventListener('change', e => { if (e.target && e.target.type === 'range') syncRangeProgress(e.target); });
   // audio unlock on first gesture
   const unlock = () => { Sound.unlock(); window.removeEventListener('pointerdown', unlock); window.removeEventListener('keydown', unlock); };
   window.addEventListener('pointerdown', unlock); window.addEventListener('keydown', unlock);
   window.addEventListener('resize', () => { [boardView, previewView, lessonView, settingsView].forEach(v => v.resize()); });
   window.addEventListener('beforeunload', () => { if (S.game && S.game.phase !== 'finished') persistGame(S.game); });
+  window.addEventListener('pagehide', () => { if (S.game && S.game.phase !== 'finished') persistGame(S.game); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && S.game && S.game.phase !== 'finished') persistGame(S.game); });
   showScreen('setup'); renderSetup();
   Compute.warmUp();
 }

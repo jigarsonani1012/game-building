@@ -2339,12 +2339,12 @@ class BoardView {
     if (th.grain > 0) {
       const rnd = GO.mulberry32(1234 + size);
       g.save(); g.globalCompositeOperation = 'multiply'; g.strokeStyle = th.grainColor; g.lineCap = 'round';
-      const streaks = Math.round(W / 12);
+      const streaks = Math.round(W / 8);
       for (let i = 0; i < streaks; i++) {
-        const x0 = rnd() * W, amp = (1.5 + rnd() * 3.5) * dpr, freq = (.003 + rnd() * .006) / dpr, ph = rnd() * TAU;
-        g.globalAlpha = th.grain * 0.15; g.lineWidth = (0.5 + rnd() * 1.0) * dpr;
+        const x0 = rnd() * W, amp = (3 + rnd() * 6) * dpr, freq = (.002 + rnd() * .005) / dpr, ph = rnd() * TAU;
+        g.globalAlpha = th.grain * 0.55; g.lineWidth = (0.6 + rnd() * 1.4) * dpr;
         g.beginPath();
-        for (let y = -10 * dpr; y <= W + 10 * dpr; y += 8 * dpr) {
+        for (let y = -10 * dpr; y <= W + 10 * dpr; y += 6 * dpr) {
           const x = x0 + Math.sin(y * freq + ph) * amp;
           if (y === -10 * dpr) g.moveTo(x, y); else g.lineTo(x, y);
         }

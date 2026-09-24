@@ -39,8 +39,8 @@
    Base & Custom Scrollbar
    ============================================================ */
 *,*::before,*::after{box-sizing:border-box}
-html{height:100%;-webkit-text-size-adjust:100%;overflow:hidden}
-body{margin:0;height:100%;min-height:100%;font-family:var(--font-ui);background:var(--bg);color:var(--fg);line-height:1.45;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain}
+html{height:100%;-webkit-text-size-adjust:100%;overflow-x:hidden;overflow-y:auto}
+body{margin:0;height:100%;min-height:100%;font-family:var(--font-ui);background:var(--bg);color:var(--fg);line-height:1.45;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:contain}
 body.modal-open,body.modal-open #screen-setup{overflow:hidden!important}
 ::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -337,8 +337,11 @@ input[type=range]:focus-visible::-moz-range-thumb{
 /* ============================================================
    Setup screen & Hero Main Menu
    ============================================================ */
-#screen-setup{height:100dvh;max-height:100dvh;display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto}
-@media(min-height:550px){#screen-setup{overflow-y:hidden}}
+#screen-setup{min-height:100dvh;display:flex;flex-direction:column;overflow-x:hidden}
+@media(min-height:550px){
+  #screen-setup{height:100dvh;max-height:100dvh;overflow:hidden}
+  body:has(#screen-setup:not([hidden])){overflow:hidden}
+}
 .setup-hero{flex:1;max-width:48rem;margin:0 auto;padding:clamp(.25rem,1vh,.75rem) clamp(.75rem,2vw,1.25rem);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(.4rem,1.2vh,.75rem);width:100%;box-sizing:border-box}
 .hero-board-card{position:relative;width:100%;max-width:450px;display:flex;flex-direction:column;align-items:center;gap:clamp(.35rem,1vh,.625rem);text-align:center;box-shadow:var(--shadow);padding:clamp(.5rem,1.2vh,.875rem)}
 .hero-help-btn{position:absolute;top:clamp(.4rem,1vh,.75rem);right:clamp(.5rem,1.2vw,.875rem);width:2rem;height:2rem;border-radius:.625rem;color:var(--fg-muted);display:grid;place-items:center;z-index:2;transition:all .15s}
@@ -356,8 +359,8 @@ input[type=range]:focus-visible::-moz-range-thumb{
   .hero-board-card #preview-frame{max-width:min(100%,130px)}
 }
 .hero-match-badge{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.25rem .75rem;border-radius:999px;font-size:.78125rem;font-weight:600;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.08);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.hero-appearance{display:flex;flex-direction:column;align-items:center;gap:.35rem;width:100%;margin:.15rem 0}
-.hero-theme-select-row{display:flex;justify-content:center;align-items:center;width:100%;position:relative}
+.hero-appearance{display:flex;flex-direction:row;align-items:center;justify-content:center;gap:.5rem;width:100%;margin:.15rem 0;flex-wrap:wrap}
+.hero-theme-select-row{display:flex;justify-content:center;align-items:center;position:relative;flex-shrink:0}
 .theme-dropdown{position:relative;display:inline-block;min-width:160px;max-width:200px;width:100%}
 .theme-dd-btn{display:flex;align-items:center;justify-content:space-between;gap:.6rem;width:100%;padding:.38rem .75rem;background:var(--surface-2);border:1px solid var(--border);border-radius:.75rem;color:var(--fg);font-size:.8125rem;font-weight:500;cursor:pointer;transition:all .15s ease;box-shadow:0 1px 2px rgba(0,0,0,.04)}
 .theme-dd-btn:hover{border-color:var(--border-strong);background:var(--surface-3)}
@@ -375,7 +378,7 @@ input[type=range]:focus-visible::-moz-range-thumb{
 .theme-dd-opt .sw{width:.875rem;height:.875rem;border-radius:.35rem;box-shadow:0 0 0 1px rgba(0,0,0,.15);flex-shrink:0}
 .sec-title-mini{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--fg-muted)}
 .chips.center{justify-content:center}
-.hero-stone-seg{display:flex;justify-content:center}
+.hero-stone-seg{display:flex;justify-content:center;flex-shrink:0}
 .hero-actions{display:flex;flex-direction:column;align-items:center;gap:.5rem;width:100%;max-width:320px}
 .hero-actions-row{display:flex;align-items:center;gap:.5rem;width:100%}
 .hero-actions-row #btn-start{flex:1;width:100%}
@@ -385,14 +388,13 @@ input[type=range]:focus-visible::-moz-range-thumb{
 .hero-bottom-grid .learn-cta{padding:.5rem .875rem}
 .modal-setup-content{display:flex;flex-direction:column;gap:1.25rem}
 
-.resume{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.75rem 1rem;border-color:color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-soft);border-radius:1rem;width:100%;max-width:420px;box-sizing:border-box}
+.resume{display:flex;align-items:center;gap:.75rem;padding:.75rem 1rem;border-color:color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-soft);border-radius:1rem;width:100%;max-width:450px;box-sizing:border-box}
 .resume .ic{width:2.25rem;height:2.25rem;border-radius:.75rem;display:grid;place-items:center;background:var(--accent);color:var(--accent-fg);flex-shrink:0}
-.resume b{display:block;font-size:.875rem}
-.resume small{display:block;font-size:.75rem;color:var(--fg-muted)}
-@media(max-width:520px){
-  .resume{flex-direction:column;align-items:stretch;gap:.75rem}
-  .resume .row:last-child{justify-content:flex-end}
-}
+.resume b{display:block;font-size:clamp(.75rem,2.2vw,.875rem);font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.resume small{display:block;font-size:clamp(.625rem,1.8vw,.75rem);color:var(--fg-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.resume-body{flex:1;min-width:0;overflow:hidden}
+.resume-actions{display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+#btn-resume{font-size:clamp(.75rem,2vw,.875rem);padding:0 clamp(.625rem,2vw,1rem);height:clamp(2rem,5vw,2.5rem)}
 #btn-discard{color:var(--fg-muted);border-radius:.5rem;transition:all .15s}
 #btn-discard:hover{color:var(--danger);background:color-mix(in srgb,var(--danger) 12%,transparent)}
 .choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
@@ -792,11 +794,9 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
 <section id="screen-setup" class="screen app-bg">
   <main class="setup-hero">
     <div id="resume-card" class="card resume" hidden>
-      <div class="row">
-        <div class="ic" id="resume-ic"></div>
-        <div><b>You have a game in progress</b><small id="resume-desc">Pick up right where you left off.</small></div>
-      </div>
-      <div class="row" style="gap:.5rem">
+      <div class="ic" id="resume-ic"></div>
+      <div class="resume-body"><b>You have a game in progress</b><small id="resume-desc">Pick up right where you left off.</small></div>
+      <div class="resume-actions">
         <button class="btn btn-primary" id="btn-resume">Resume</button>
         <button class="btn btn-ghost btn-icon sm" id="btn-discard" title="Discard saved game" aria-label="Discard saved game"></button>
       </div>
@@ -816,7 +816,6 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
       
       <!-- Board Appearance directly on Hero card -->
       <div class="hero-appearance">
-        <div class="sec-title-mini">Board appearance</div>
         <div class="hero-theme-select-row">
           <div class="theme-dropdown" id="hero-theme-dd">
             <button type="button" class="theme-dd-btn" id="hero-theme-btn" aria-haspopup="listbox" aria-expanded="false">
@@ -997,13 +996,13 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
           <section>
             <h3>Display</h3>
             <div class="divide">
-              <div id="st-coords"></div><div id="st-lastmove"></div><div id="st-numbers"></div><div id="st-atari"></div><div id="st-motion"></div>
+              <div id="st-coords"></div><div id="st-lastmove"></div><div id="st-numbers"></div><div id="st-atari"></div>
             </div>
           </section>
           <section>
             <h3>Input &amp; sound</h3>
             <div class="divide">
-              <div id="st-confirm"></div><div id="st-sound"></div>
+              <div id="st-sound"></div>
               <div class="vol"><span id="st-vol-ic"></span><input type="range" id="st-volume" min="0" max="1" step="0.05" aria-label="Volume"><span id="st-vol-val"></span></div>
             </div>
           </section>
@@ -3665,8 +3664,8 @@ function buildSettingsModal() {
   buildToggle(el('st-lastmove'), 'Last move marker', '', () => settings.showLastMove, v => setSetting('showLastMove', v));
   buildToggle(el('st-numbers'), 'Move numbers', 'Show the move number on every stone', () => settings.showMoveNumbers, v => setSetting('showMoveNumbers', v));
   buildToggle(el('st-atari'), 'Highlight atari', 'Red ring around groups with a single liberty', () => settings.highlightAtari, v => setSetting('highlightAtari', v));
-  buildToggle(el('st-motion'), 'Reduce motion', 'Disable stone animations', () => settings.reduceMotion, v => setSetting('reduceMotion', v));
-  buildToggle(el('st-confirm'), 'Confirm moves', 'Tap to preview, tap again (or press the button) to place — recommended on touch screens', () => settings.confirmMoves, v => setSetting('confirmMoves', v));
+
+
   buildToggle(el('st-sound'), 'Sound effects', '', () => settings.sound, v => setSetting('sound', v));
   el('st-vol-ic').innerHTML = icon('volume', 16);
   el('st-volume').addEventListener('input', e => { setSetting('volume', +e.target.value); });

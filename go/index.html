@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="Play Go (Baduk, Weiqi) in your browser — beautiful boards, six AI levels, Atari Go, score estimation, and interactive lessons. A single-file HTML5 game.">
-<meta name="theme-color" content="#0e1015">
+<meta name="theme-color" content="#f4f1ea">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%23e3b463'/%3E%3Cg stroke='%236b4514' stroke-width='1' opacity='.7'%3E%3Cline x1='8' y1='14' x2='32' y2='14'/%3E%3Cline x1='8' y1='26' x2='32' y2='26'/%3E%3Cline x1='14' y1='8' x2='14' y2='32'/%3E%3Cline x1='26' y1='8' x2='26' y2='32'/%3E%3C/g%3E%3Ccircle cx='14' cy='14' r='5.2' fill='%23111'/%3E%3Ccircle cx='26' cy='26' r='5.2' fill='%23fff'/%3E%3C/svg%3E">
-<title>Go — Play Online</title>
+<title>Play Go — Online Board Game</title>
 <style>
 /* ============================================================
    Design tokens
@@ -39,9 +39,9 @@
    Base & Custom Scrollbar
    ============================================================ */
 *,*::before,*::after{box-sizing:border-box}
-html{height:100%;-webkit-text-size-adjust:100%;scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent;scrollbar-gutter:stable;overflow-y:auto}
-body{margin:0;min-height:100%;font-family:var(--font-ui);background:var(--bg);color:var(--fg);line-height:1.45;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overscroll-behavior-y:none}
-body.modal-open{overflow:hidden}
+html{height:100%;-webkit-text-size-adjust:100%;overflow:hidden}
+body{margin:0;height:100%;min-height:100%;font-family:var(--font-ui);background:var(--bg);color:var(--fg);line-height:1.45;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain}
+body.modal-open,body.modal-open #screen-setup{overflow:hidden!important}
 ::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:999px;border:2px solid transparent;background-clip:padding-box;transition:background .2s}
@@ -99,6 +99,7 @@ input[type=range]{
   vertical-align:middle;
 }
 input[type=range]:focus-visible{outline:none}
+input[type=range]:disabled{cursor:not-allowed;opacity:.4;pointer-events:none}
 input[type=range]::-webkit-slider-runnable-track{
   width:100%;
   height:6px;
@@ -334,16 +335,64 @@ input[type=range]:focus-visible::-moz-range-thumb{
 }
 
 /* ============================================================
-   Setup screen
+   Setup screen & Hero Main Menu
    ============================================================ */
-.setup-main{max-width:72rem;margin:0 auto;padding:2rem 1rem 8rem;display:grid;gap:2rem;align-items:start;width:100%}
-@media(min-width:768px){.setup-main{grid-template-columns:1fr minmax(320px,400px);padding-bottom:4rem}.setup-right{position:sticky;top:1.5rem}}
-.setup-left{display:flex;flex-direction:column;gap:1.5rem;min-width:0;animation:rise .42s cubic-bezier(.2,.8,.2,1) both}
-.setup-right{display:flex;flex-direction:column;gap:1rem;animation:rise .42s cubic-bezier(.2,.8,.2,1) .08s both}
-.resume{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.875rem 1rem;border-color:color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-soft);border-radius:1rem}
+#screen-setup{height:100dvh;max-height:100dvh;display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto}
+@media(min-height:550px){#screen-setup{overflow-y:hidden}}
+.setup-hero{flex:1;max-width:48rem;margin:0 auto;padding:clamp(.25rem,1vh,.75rem) clamp(.75rem,2vw,1.25rem);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(.4rem,1.2vh,.75rem);width:100%;box-sizing:border-box}
+.hero-board-card{position:relative;width:100%;max-width:450px;display:flex;flex-direction:column;align-items:center;gap:clamp(.35rem,1vh,.625rem);text-align:center;box-shadow:var(--shadow);padding:clamp(.5rem,1.2vh,.875rem)}
+.hero-help-btn{position:absolute;top:clamp(.4rem,1vh,.75rem);right:clamp(.5rem,1.2vw,.875rem);width:2rem;height:2rem;border-radius:.625rem;color:var(--fg-muted);display:grid;place-items:center;z-index:2;transition:all .15s}
+.hero-help-btn:hover{color:var(--fg);background:var(--surface-2)}
+.hero-brand{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;gap:.2rem;padding:.1rem 0}
+.hero-brand-header{display:inline-flex;align-items:center;justify-content:center;gap:.55rem}
+.hero-brand .brand-name{font-size:1.5rem;font-weight:700;line-height:1;letter-spacing:-.01em}
+.hero-brand .brand-tag{font-size:.71875rem;color:var(--fg-muted);text-align:center;margin-top:0}
+.hero-card-title{font-size:clamp(1rem,2vh,1.25rem);font-weight:600;color:var(--fg)}
+.hero-board-card #preview-frame{width:100%;max-width:min(100%,260px,calc(100dvh - 350px));margin:0 auto}
+@media(max-height:720px){
+  .hero-board-card #preview-frame{max-width:min(100%,190px,calc(100dvh - 300px))}
+}
+@media(max-height:520px){
+  .hero-board-card #preview-frame{max-width:min(100%,130px)}
+}
+.hero-match-badge{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.25rem .75rem;border-radius:999px;font-size:.78125rem;font-weight:600;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.08);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.hero-appearance{display:flex;flex-direction:column;align-items:center;gap:.35rem;width:100%;margin:.15rem 0}
+.hero-theme-select-row{display:flex;justify-content:center;align-items:center;width:100%;position:relative}
+.theme-dropdown{position:relative;display:inline-block;min-width:160px;max-width:200px;width:100%}
+.theme-dd-btn{display:flex;align-items:center;justify-content:space-between;gap:.6rem;width:100%;padding:.38rem .75rem;background:var(--surface-2);border:1px solid var(--border);border-radius:.75rem;color:var(--fg);font-size:.8125rem;font-weight:500;cursor:pointer;transition:all .15s ease;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.theme-dd-btn:hover{border-color:var(--border-strong);background:var(--surface-3)}
+.theme-dd-btn:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.theme-dd-btn[aria-expanded="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.theme-dd-btn[aria-expanded="true"] .theme-dd-arrow{transform:rotate(180deg)}
+.theme-dd-swatch{width:.875rem;height:.875rem;border-radius:.35rem;box-shadow:0 0 0 1px rgba(0,0,0,.15);flex-shrink:0}
+.theme-dd-text{flex:1;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.theme-dd-arrow{display:flex;align-items:center;color:var(--fg-muted);transition:transform .2s ease;flex-shrink:0}
+.theme-dd-menu{position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);min-width:100%;width:max-content;max-width:240px;background:var(--surface);border:1px solid var(--border);border-radius:.75rem;padding:.35rem;box-shadow:0 12px 32px -4px rgba(0,0,0,.3), var(--shadow);z-index:100;display:flex;flex-direction:column;gap:2px;animation:ddFadeIn .15s ease}
+@keyframes ddFadeIn{from{opacity:0;transform:translate(-50%, -4px)}to{opacity:1;transform:translate(-50%, 0)}}
+.theme-dd-opt{display:flex;align-items:center;gap:.6rem;padding:.4rem .65rem;border-radius:.5rem;border:none;background:transparent;color:var(--fg);font-size:.8125rem;font-weight:500;cursor:pointer;text-align:left;width:100%;transition:all .12s ease}
+.theme-dd-opt:hover{background:var(--surface-2)}
+.theme-dd-opt.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.theme-dd-opt .sw{width:.875rem;height:.875rem;border-radius:.35rem;box-shadow:0 0 0 1px rgba(0,0,0,.15);flex-shrink:0}
+.sec-title-mini{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--fg-muted)}
+.chips.center{justify-content:center}
+.hero-stone-seg{display:flex;justify-content:center}
+.hero-actions{display:flex;flex-direction:column;align-items:center;gap:.5rem;width:100%;max-width:320px}
+.hero-actions-row{display:flex;align-items:center;gap:.5rem;width:100%}
+.hero-actions-row #btn-start{flex:1;width:100%}
+.hero-settings-btn{display:inline-flex;width:3rem;height:3rem;padding:0;border-radius:.75rem;flex-shrink:0;align-items:center;justify-content:center}
+.hero-actions #btn-record{gap:.5rem}
+.hero-bottom-grid{display:flex;flex-direction:column;gap:.4rem;width:100%;max-width:450px}
+.hero-bottom-grid .learn-cta{padding:.5rem .875rem}
+.modal-setup-content{display:flex;flex-direction:column;gap:1.25rem}
+
+.resume{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.75rem 1rem;border-color:color-mix(in srgb,var(--accent) 40%,transparent);background:var(--accent-soft);border-radius:1rem;width:100%;max-width:420px;box-sizing:border-box}
 .resume .ic{width:2.25rem;height:2.25rem;border-radius:.75rem;display:grid;place-items:center;background:var(--accent);color:var(--accent-fg);flex-shrink:0}
 .resume b{display:block;font-size:.875rem}
 .resume small{display:block;font-size:.75rem;color:var(--fg-muted)}
+@media(max-width:520px){
+  .resume{flex-direction:column;align-items:stretch;gap:.75rem}
+  .resume .row:last-child{justify-content:flex-end}
+}
 #btn-discard{color:var(--fg-muted);border-radius:.5rem;transition:all .15s}
 #btn-discard:hover{color:var(--danger);background:color-mix(in srgb,var(--danger) 12%,transparent)}
 .choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
@@ -404,14 +453,16 @@ input[type=range]:focus-visible::-moz-range-thumb{
 .learn-cta b{display:block;font-size:.875rem}
 .learn-cta small{display:block;font-size:.75rem;color:var(--fg-muted)}
 .learn-cta .arr{margin-left:auto;color:var(--fg-faint)}
-.mobile-start{position:fixed;bottom:0;left:0;right:0;padding:1rem;padding-bottom:calc(1rem + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 45%,transparent);z-index:10}
-@media(min-width:768px){.mobile-start{display:none}}
+.mobile-start{display:none}
 
 /* ============================================================
    Game screen
    ============================================================ */
-#screen-game{min-height:100dvh;display:flex;flex-direction:column}
-@media (min-width: 900px) and (min-aspect-ratio: 1/1), (min-width: 1100px){#screen-game{height:100dvh;max-height:100dvh;overflow:hidden}}
+#screen-game{min-height:100dvh;display:flex;flex-direction:column;overflow-x:hidden}
+@media (min-width: 900px) and (min-aspect-ratio: 1/1), (min-width: 1100px){
+  #screen-game{height:100dvh;max-height:100dvh;overflow:hidden}
+  body:has(#screen-game:not([hidden])){overflow:hidden}
+}
 .game-main{flex:1;width:100%;max-width:880px;margin:0 auto;padding:clamp(.75rem,2vh,1.5rem) clamp(.75rem,2vw,1.5rem) 2.5rem;display:flex;flex-direction:column;align-items:center;gap:clamp(.75rem,1.8vh,1.25rem);min-height:0;box-sizing:border-box}
 @media (min-width: 900px) and (min-aspect-ratio: 1/1), (min-width: 1100px){.game-main{display:grid;grid-template-columns:auto minmax(280px,360px);justify-content:center;height:calc(100dvh - 50px);max-width:1440px;padding:clamp(.5rem,1.5vh,1rem) clamp(.75rem,1.5vw,1.5rem);gap:clamp(1rem,2.2vw,2.25rem);align-items:stretch}}
 .board-col{display:flex;flex-direction:column;align-items:center;gap:clamp(.625rem,1.5vh,1rem);min-width:0;width:100%}
@@ -437,7 +488,6 @@ canvas.goban.scoring{cursor:crosshair}
     max-width:360px;
     width:100%;
     align-self:center;
-    height:100%;
     max-height:calc(100dvh - 90px);
     background:var(--surface);
     border:1px solid var(--border);
@@ -592,7 +642,7 @@ canvas.goban.scoring{cursor:crosshair}
 /* ============================================================
    Modals & toasts
    ============================================================ */
-.modal-backdrop{position:fixed;inset:0;z-index:50;display:none;align-items:flex-end;justify-content:center;padding:0}
+.modal-backdrop{position:fixed;inset:0;width:100vw;height:100dvh;z-index:50;display:none;align-items:flex-end;justify-content:center;padding:0;overflow:hidden}
 .modal-backdrop.open{display:flex}
 .modal-backdrop::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);animation:fade-in .18s ease-out}
 .modal{position:relative;width:100%;background:var(--surface);border:1px solid var(--border);box-shadow:0 30px 80px rgba(0,0,0,.5);border-radius:1.5rem 1.5rem 0 0;display:flex;flex-direction:column;max-height:92dvh;animation:modal-in .22s cubic-bezier(.2,.8,.2,1)}
@@ -698,17 +748,25 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
 .lesson-nav{margin-top:auto;padding-top:1.25rem;display:flex;justify-content:space-between;gap:.5rem}
 
 /* Settings */
+.settings-preview{display:none}
 .settings{display:grid;gap:1.5rem}
-@media(min-width:768px){.settings{grid-template-columns:1fr 220px}}
 .settings h3{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--fg-muted);margin:0 0 .5rem}
 .settings section+section{margin-top:1.5rem}
 .divide>*+*{border-top:1px solid var(--border)}
 .vol{display:flex;align-items:center;gap:.75rem;padding:.5rem 0}
+.vol.disabled>*:not(input){opacity:.4}
 .vol svg{color:var(--fg-muted)}
 .vol input{flex:1}
 .vol span{font-size:.75rem;width:2.25rem;text-align:right;color:var(--fg-muted);font-variant-numeric:tabular-nums}
-.settings-preview{display:none}
-@media(min-width:768px){.settings-preview{display:block}}
+
+@media(min-width:680px){
+  #modal-settings .modal-body{overflow-y:hidden;display:flex;flex-direction:column;min-height:0;padding-bottom:1.25rem}
+  .settings{grid-template-columns:1fr 220px;flex:1;min-height:0;align-items:start}
+  .settings>div:first-child{overflow-y:auto;max-height:calc(86dvh - 5.5rem);padding-right:.75rem;scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent}
+  .settings>div:first-child::-webkit-scrollbar{width:6px}
+  .settings>div:first-child::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:999px}
+  .settings-preview{display:block;position:sticky;top:0;align-self:start;width:220px;flex-shrink:0}
+}
 
 /* ============================================================
    Animations
@@ -732,89 +790,59 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
 
 <!-- ===================== SETUP SCREEN ===================== -->
 <section id="screen-setup" class="screen app-bg">
-  <header class="top wrap">
-    <div class="brand">
-      <div class="logo" aria-hidden="true"><svg viewBox="0 0 40 40"><g class="logo-grid" stroke="#6b4514" stroke-width="1" opacity=".7"><line x1="8" y1="14" x2="32" y2="14"/><line x1="8" y1="26" x2="32" y2="26"/><line x1="14" y1="8" x2="14" y2="32"/><line x1="26" y1="8" x2="26" y2="32"/></g><circle cx="14" cy="14" r="5.2" fill="#111"/><circle cx="26" cy="26" r="5.2" fill="#fff"/></svg></div>
-      <div class="min0"><div class="brand-name font-display">Go</div><div class="brand-tag">The ancient board game, beautifully playable</div></div>
-    </div>
-    <div class="top-actions">
-      <button class="btn btn-ghost btn-icon desktop-only" data-action="help" title="How to play" aria-label="How to play"></button>
-      <button class="btn btn-ghost btn-icon desktop-only" data-action="sound" title="Sound" aria-label="Toggle sound"></button>
-      <button class="btn btn-ghost btn-icon desktop-only" data-action="theme" title="Toggle light / dark" aria-label="Toggle color theme"></button>
-      <button class="btn btn-ghost btn-icon mobile-only" data-action="settings" title="Settings" aria-label="Settings"></button>
-    </div>
-  </header>
-
-  <main class="setup-main">
-    <div class="setup-left">
-      <div id="resume-card" class="card resume" hidden>
-        <div class="row">
-          <div class="ic" id="resume-ic"></div>
-          <div><b>You have a game in progress</b><small id="resume-desc">Pick up right where you left off.</small></div>
-        </div>
-        <div class="row" style="gap:.5rem">
-          <button class="btn btn-primary" id="btn-resume">Resume</button>
-          <button class="btn btn-ghost btn-icon sm" id="btn-discard" title="Discard saved game" aria-label="Discard saved game"></button>
-        </div>
+  <main class="setup-hero">
+    <div id="resume-card" class="card resume" hidden>
+      <div class="row">
+        <div class="ic" id="resume-ic"></div>
+        <div><b>You have a game in progress</b><small id="resume-desc">Pick up right where you left off.</small></div>
       </div>
+      <div class="row" style="gap:.5rem">
+        <button class="btn btn-primary" id="btn-resume">Resume</button>
+        <button class="btn btn-ghost btn-icon sm" id="btn-discard" title="Discard saved game" aria-label="Discard saved game"></button>
+      </div>
+    </div>
 
-      <section class="card pad">
-        <div class="sec-title">Opponent</div>
-        <div class="choice-grid" id="opp-grid"></div>
-        <div id="ai-options">
-          <div class="sec-title mt">Difficulty <span class="sec-hint" id="level-rank"></span></div>
-          <div class="level-grid" id="level-grid"></div>
-          <p class="hint" id="level-desc"></p>
-          <div class="sec-title mt">Your color</div>
-          <div id="seg-color"></div>
+    <div class="card pad hero-board-card">
+      <button type="button" class="btn btn-ghost btn-icon hero-help-btn" data-action="help" title="How to play" aria-label="How to play"></button>
+      <div class="hero-brand">
+        <div class="hero-brand-header">
+          <div class="logo sm" aria-hidden="true"><svg viewBox="0 0 40 40"><g class="logo-grid" stroke="#6b4514" stroke-width="1" opacity=".7"><line x1="8" y1="14" x2="32" y2="14"/><line x1="8" y1="26" x2="32" y2="26"/><line x1="14" y1="8" x2="14" y2="32"/><line x1="26" y1="8" x2="26" y2="32"/></g><circle cx="14" cy="14" r="5.2" fill="#111"/><circle cx="26" cy="26" r="5.2" fill="#fff"/></svg></div>
+          <div class="brand-name font-display">Play Go</div>
         </div>
-      </section>
-
-      <section class="card pad">
-        <div class="flex-row">
-          <div><div class="sec-title">Game</div><div id="seg-variant"></div></div>
-          <div><div class="sec-title">Board size</div><div id="seg-size"></div></div>
-        </div>
-        <div id="classic-options" class="grid2 resp mt" style="gap:1.25rem 2.5rem">
-          <div>
-            <div class="sec-title">Handicap <span class="sec-hint" id="handicap-hint"></span></div>
-            <div class="row"><input type="range" id="range-handicap" min="0" max="9" step="1" aria-label="Handicap stones"><span class="val" id="handicap-val"></span></div>
-            <p class="hint" id="handicap-note" hidden></p>
-          </div>
-          <div>
-            <div class="sec-title">Rules &amp; komi</div>
-            <div class="row" style="flex-wrap:wrap"><div id="seg-rules"></div><label class="komi">Komi <input type="number" class="num" id="input-komi" min="0.5" max="50" step="0.5" aria-label="Komi"></label></div>
+        <div class="brand-tag">The ancient board game, beautifully playable</div>
+      </div>
+      <div class="hero-match-badge" id="hero-match-pill"></div>
+      <div class="board-frame" id="preview-frame"><canvas id="preview-canvas" class="goban" aria-label="Board preview"></canvas></div>
+      
+      <!-- Board Appearance directly on Hero card -->
+      <div class="hero-appearance">
+        <div class="sec-title-mini">Board appearance</div>
+        <div class="hero-theme-select-row">
+          <div class="theme-dropdown" id="hero-theme-dd">
+            <button type="button" class="theme-dd-btn" id="hero-theme-btn" aria-haspopup="listbox" aria-expanded="false">
+              <span class="theme-dd-swatch" id="hero-theme-cur-swatch"></span>
+              <span class="theme-dd-text" id="hero-theme-cur-name"></span>
+              <span class="theme-dd-arrow" id="hero-theme-arrow"></span>
+            </button>
+            <div class="theme-dd-menu" id="hero-theme-menu" role="listbox" hidden></div>
           </div>
         </div>
-        <div id="atari-options" class="grid2 resp mt" style="gap:1.25rem 2.5rem" hidden>
-          <div><div class="sec-title">Capture target</div><div id="seg-target"></div></div>
-          <div><div class="sec-title">Starting position</div><div id="seg-start"></div></div>
-          <p class="hint span2" id="atari-note" style="margin-top:0"></p>
-        </div>
-        <div class="grid2 resp mt" style="gap:1.25rem 2.5rem">
-          <div><div class="sec-title">Clock</div><div class="clock-grid" id="clock-grid"></div></div>
-          <div><div class="sec-title">Extras</div><div id="toggle-onecolor"></div><div id="toggle-neverresign"></div></div>
-        </div>
-      </section>
+        <div id="hero-seg-stone" class="hero-stone-seg"></div>
+      </div>
 
-      <section class="card pad">
-        <div class="sec-title">Appearance</div>
-        <div class="row" style="flex-wrap:wrap;gap:.5rem"><div id="theme-chips" class="chips"></div><div class="vsep desktop-only"></div><div id="seg-stone"></div></div>
-      </section>
+      <div class="hero-actions">
+        <div class="hero-actions-row">
+          <button class="btn btn-primary btn-lg" id="btn-start"></button>
+          <button type="button" class="btn btn-secondary btn-lg hero-settings-btn" data-action="settings" title="Settings" aria-label="Settings"></button>
+        </div>
+        <button class="btn btn-ghost" id="btn-record" hidden></button>
+      </div>
     </div>
 
-    <aside class="setup-right">
-      <div class="card pad">
-        <div class="board-frame" id="preview-frame"><canvas id="preview-canvas" class="goban" aria-label="Board preview"></canvas></div>
-        <div class="summary" id="summary"></div>
-        <button class="btn btn-primary btn-lg w-full mt-s desktop-only" id="btn-start"></button>
-      </div>
-      <div class="card pad" id="stats-card" hidden></div>
+    <div class="hero-bottom-grid">
       <button class="card learn-cta" id="btn-learn"></button>
-    </aside>
+    </div>
   </main>
-
-  <div class="mobile-start"><button class="btn btn-primary btn-lg w-full" id="btn-start-mobile"></button></div>
 </section>
 
 <!-- ===================== GAME SCREEN ===================== -->
@@ -879,10 +907,73 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
 </div>
 
 <!-- ===================== MODALS ===================== -->
-<div class="modal-backdrop" id="modal-gameover" aria-hidden="true">
-  <div class="modal md" role="dialog" aria-modal="true" aria-label="Game over">
-    <div class="modal-head"><h2 class="modal-title"></h2><button class="modal-close" data-close aria-label="Close"></button></div>
-    <div class="modal-body" id="gameover-body"></div>
+<div class="modal-backdrop" id="modal-newgame" aria-hidden="true">
+  <div class="modal lg" role="dialog" aria-modal="true" aria-labelledby="newgame-title">
+    <div class="modal-head">
+      <div>
+        <h2 class="modal-title font-display" id="newgame-title">Game Settings</h2>
+        <div class="hint" style="margin-top:2px">Configure match rules, opponent difficulty, clock, and board style</div>
+      </div>
+      <button class="modal-close" data-close aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-setup-content">
+        <section>
+          <div class="sec-title">Opponent</div>
+          <div class="choice-grid" id="opp-grid"></div>
+        </section>
+
+        <section id="ai-options">
+          <div class="sec-title mt">Difficulty <span class="sec-hint" id="level-rank"></span></div>
+          <div class="level-grid" id="level-grid"></div>
+          <p class="hint" id="level-desc"></p>
+          <div class="sec-title mt">Your color</div>
+          <div id="seg-color"></div>
+        </section>
+
+        <section>
+          <div class="grid2 resp mt" style="gap:1.25rem 2rem">
+            <div><div class="sec-title">Game variant</div><div id="seg-variant"></div></div>
+            <div><div class="sec-title">Board size</div><div id="seg-size"></div></div>
+          </div>
+          
+          <div id="classic-options" class="grid2 resp mt" style="gap:1.25rem 2rem">
+            <div>
+              <div class="sec-title">Handicap <span class="sec-hint" id="handicap-hint"></span></div>
+              <div class="row"><input type="range" id="range-handicap" min="0" max="9" step="1" aria-label="Handicap stones"><span class="val" id="handicap-val"></span></div>
+              <p class="hint" id="handicap-note" hidden></p>
+            </div>
+            <div>
+              <div class="sec-title">Rules &amp; komi</div>
+              <div class="row" style="flex-wrap:wrap"><div id="seg-rules"></div><label class="komi">Komi <input type="number" class="num" id="input-komi" min="0.5" max="50" step="0.5" aria-label="Komi"></label></div>
+            </div>
+          </div>
+
+          <div id="atari-options" class="grid2 resp mt" style="gap:1.25rem 2rem" hidden>
+            <div><div class="sec-title">Capture target</div><div id="seg-target"></div></div>
+            <div><div class="sec-title">Starting position</div><div id="seg-start"></div></div>
+            <p class="hint span2" id="atari-note" style="margin-top:0"></p>
+          </div>
+        </section>
+
+        <section>
+          <div class="grid2 resp mt" style="gap:1.25rem 2rem">
+            <div><div class="sec-title">Clock</div><div class="clock-grid" id="clock-grid"></div></div>
+            <div><div class="sec-title">Extras</div><div id="toggle-onecolor"></div><div id="toggle-neverresign"></div></div>
+          </div>
+        </section>
+
+        <section>
+          <div class="sec-title mt">Board appearance</div>
+          <div class="row" style="flex-wrap:wrap;gap:.5rem"><div id="theme-chips" class="chips"></div><div class="vsep desktop-only"></div><div id="seg-stone"></div></div>
+        </section>
+      </div>
+
+      <div class="modal-actions" style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:.75rem">
+        <button type="button" class="btn btn-secondary" data-close>Cancel</button>
+        <button type="button" class="btn btn-primary btn-lg" id="btn-modal-start"></button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -895,7 +986,13 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
           <section>
             <h3>Board</h3>
             <div id="st-theme-chips" class="chips"></div>
-            <div class="row mt-s" style="flex-wrap:wrap;gap:.75rem"><div id="st-seg-stone"></div><div id="st-seg-ui"></div></div>
+            <div class="mt-s"><div id="st-seg-stone"></div></div>
+          </section>
+          <section>
+            <h3>Appearance</h3>
+            <div class="divide">
+              <div class="toggle"><span class="t-label">App theme</span><div id="st-seg-ui"></div></div>
+            </div>
           </section>
           <section>
             <h3>Display</h3>
@@ -1292,6 +1389,13 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
       <p class="lead" id="quit-text">Your game is saved automatically — you can resume it from the menu.</p>
       <div class="modal-actions"><button class="btn btn-secondary" data-close>Stay</button><button class="btn btn-primary" id="btn-confirm-quit"></button></div>
     </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-record" aria-hidden="true">
+  <div class="modal sm" role="dialog" aria-modal="true" aria-labelledby="record-title">
+    <div class="modal-head"><h2 class="modal-title" id="record-title">Your record</h2><button class="modal-close" data-close aria-label="Close"></button></div>
+    <div class="modal-body" id="record-body"></div>
   </div>
 </div>
 
@@ -1949,6 +2053,7 @@ const ICONS = {
   home: '<path d="m3 11 9-8 9 8v9a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2z"/>',
   refresh: '<path d="M21 12a9 9 0 1 1-2.6-6.4M21 3v6h-6"/>',
   check: '<path d="m20 6-11 11-5-5"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>',
   play: '<path d="m6 4 14 8-14 8V4z" fill="currentColor" stroke="none"/>',
   cpu: '<rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/>',
   users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4.5-6.2"/>',
@@ -2052,7 +2157,7 @@ const Sound = (() => {
 /* ---------------- Settings (persisted) ---------------- */
 const isTouch = matchMedia('(pointer: coarse)').matches;
 const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const DEFAULT_SETTINGS = { boardTheme: 'kaya', stoneStyle: 'glass', uiTheme: 'dark', sound: true, volume: .7, showCoordinates: true, showMoveNumbers: false, showLastMove: true, highlightAtari: true, confirmMoves: false, reduceMotion: prefersReduced, showHints: false };
+const DEFAULT_SETTINGS = { boardTheme: 'kaya', stoneStyle: 'glass', uiTheme: 'light', sound: true, volume: .7, showCoordinates: false, showMoveNumbers: false, showLastMove: true, highlightAtari: true, confirmMoves: false, reduceMotion: prefersReduced, showHints: false };
 const settings = Object.assign({}, DEFAULT_SETTINGS, loadStore('settings', {}));
 settings.confirmMoves = false;
 if (!THEMES[settings.boardTheme]) settings.boardTheme = 'kaya';
@@ -2109,13 +2214,13 @@ class BoardView {
     this.bindInput();
   }
   /* --- geometry (CSS pixels & device pixels) --- */
-  pad() { return this.st.showCoords ? 1.05 : 0.62; }
+  pad() { return this.st.showCoords ? 1.30 : 0.75; }
   updateGeometry() {
     const W = Math.round(this.css * this.dpr), size = this.st.size;
     if (W <= 0) return;
-    const marginRatio = this.st.showCoords ? 0.89 : 0.94;
-    const available = W * marginRatio;
-    this.cellW = Math.max(1, Math.floor(available / (size - 1)));
+    const padUnits = this.pad();
+    const totalUnits = (size - 1) + 2 * padUnits;
+    this.cellW = Math.max(1, Math.floor(W / totalUnits));
     this.gridSpan = (size - 1) * this.cellW;
     this.start = Math.floor((W - this.gridSpan) / 2);
     
@@ -2302,8 +2407,8 @@ class BoardView {
 
     // 5. Coordinates (scaled to device resolution)
     if (st.showCoords) {
-      const fs = Math.max(9 * dpr, Math.min(15 * dpr, cellW * .42));
-      const off = Math.max(10 * dpr, start * 0.52);
+      const fs = Math.max(9 * dpr, Math.min(14 * dpr, cellW * .36));
+      const off = Math.round(start * 0.58);
       g.fillStyle = th.coord;
       g.font = `600 ${fs}px ${CANVAS_FONT}`;
       g.textAlign = 'center';
@@ -3108,9 +3213,11 @@ function openModal(id) {
   closeModal(); const m = el('modal-' + id); if (!m) return;
   S.modal = id; m.classList.add('open'); m.setAttribute('aria-hidden', 'false'); document.body.classList.add('modal-open');
   if (id === 'gameover') fillGameOver();
+  if (id === 'newgame') renderSetup();
   if (id === 'settings') { renderSettingsModal(); setTimeout(() => settingsView && settingsView.resize(), 100); setTimeout(() => settingsView && settingsView.resize(), 280); }
   if (id === 'learn') { Lessons.start(); setTimeout(() => lessonView && lessonView.resize(), 100); setTimeout(() => lessonView && lessonView.resize(), 280); }
   if (id === 'quit') el('quit-text').textContent = S.game && S.game.phase !== 'finished' ? 'Your game is saved automatically — you can resume it from the menu.' : 'Return to the main menu.';
+  if (id === 'record') fillRecordModal();
   const f = m.querySelector('.btn-primary') || m.querySelector('button'); if (f) setTimeout(() => f.focus({ preventScroll: true }), 40);
 }
 function closeModal() {
@@ -3141,8 +3248,34 @@ function updateCfg(key, value) {
   if (!S.komiTouched && (key === 'handicap' || key === 'rules' || key === 'variant')) S.cfg.komi = defaultKomi(S.cfg.rules, S.cfg.variant === 'classic' ? S.cfg.handicap : 0);
   renderSetup();
 }
+function previewDemoStones(size) {
+  // Use the board's own hoshi (star) points as anchors — they're already spread evenly
+  // across every corner, side and the center, so a small skirmish at each one reads as
+  // a real match in progress covering the whole board, not an empty grid.
+  const stars = GO.starPoints(size);
+  if (!stars.length) return [];
+  const mid = (size - 1) / 2;
+  const at = (rr, cc) => (rr >= 0 && rr < size && cc >= 0 && cc < size) ? rr * size + cc : -1;
+  const stones = [];
+  stars.forEach((p, i) => {
+    const r = Math.floor(p / size), c = p % size;
+    const color = i % 2 === 0 ? BLACK : WHITE, opp = color === BLACK ? WHITE : BLACK;
+    stones.push({ idx: p, color });
+    const dr = r === mid ? 0 : (r < mid ? 1 : -1), dc = c === mid ? 0 : (c < mid ? 1 : -1);
+    const idx2 = (dr || dc) ? at(r + (dr || 1), c + (dc || -1)) : -1;
+    if (idx2 >= 0 && idx2 !== p) stones.push({ idx: idx2, color: opp });
+  });
+  return stones;
+}
 function previewBoard(cfg) {
-  return initialPosition(cfg).pos.board;
+  const board = initialPosition(cfg).pos.board;
+  // A perfectly empty grid reads as broken/unfinished in the small setup thumbnail —
+  // sketch a small illustrative position purely for display. Real handicap and Atari-Go
+  // starting positions are left as-is.
+  if (cfg.variant === 'classic' && cfg.handicap < 2) {
+    for (const s of previewDemoStones(cfg.size)) board[s.idx] = s.color;
+  }
+  return board;
 }
 function buildSetup() {
   el('opp-grid').innerHTML = [
@@ -3159,12 +3292,59 @@ function buildSetup() {
   buildSeg(el('seg-target'), [1, 3, 5, 7].map(n => ({ value: n, label: `${n} stone${n > 1 ? 's' : ''}` })), () => S.cfg.atariTarget, v => updateCfg('atariTarget', v));
   buildSeg(el('seg-start'), [{ value: 'crosscut', label: 'Crosscut', hint: 'Immediate contact fight' }, { value: 'empty', label: 'Empty board' }], () => S.cfg.atariStart, v => updateCfg('atariStart', v));
   buildSeg(el('seg-stone'), STONE_STYLES.map(s => ({ value: s.id, label: s.name, hint: s.description })), () => settings.stoneStyle, v => setSetting('stoneStyle', v), 'sm');
+  buildSeg(el('hero-seg-stone'), STONE_STYLES.map(s => ({ value: s.id, label: s.name, hint: s.description })), () => settings.stoneStyle, v => setSetting('stoneStyle', v), 'sm');
   el('clock-grid').innerHTML = Object.keys(TIME_CONTROLS).map(id => `<button type="button" class="clock-opt" data-tc="${id}"><b>${TIME_CONTROLS[id].name}</b><small>${TIME_CONTROLS[id].detail}</small></button>`).join('');
   $$('#clock-grid .clock-opt').forEach(b => b.onclick = () => { Sound.ui(); updateCfg('timeControl', b.dataset.tc); });
   buildToggle(el('toggle-onecolor'), 'One-color Go', 'All stones look alike — a memory challenge', () => S.cfg.oneColor, v => updateCfg('oneColor', v));
   buildToggle(el('toggle-neverresign'), 'Computer never resigns', 'Always play through to counting', () => S.cfg.aiNeverResigns, v => updateCfg('aiNeverResigns', v));
-  el('theme-chips').innerHTML = THEME_LIST.map(t => `<button type="button" class="chip" data-theme-id="${t.id}"><span class="sw" style="background:${t.swatch}"></span>${t.name}</button>`).join('');
+  
+  const themeHTML = THEME_LIST.map(t => `<button type="button" class="chip" data-theme-id="${t.id}"><span class="sw" style="background:${t.swatch}"></span>${t.name}</button>`).join('');
+  el('theme-chips').innerHTML = themeHTML;
   $$('#theme-chips .chip').forEach(b => b.onclick = () => { Sound.ui(); setSetting('boardTheme', b.dataset.themeId); });
+
+  const ddMenu = el('hero-theme-menu');
+  if (ddMenu) {
+    ddMenu.innerHTML = THEME_LIST.map(t => `<button type="button" class="theme-dd-opt" data-theme-id="${t.id}" role="option"><span class="sw" style="background:${t.swatch}"></span><span>${t.name}</span></button>`).join('');
+    $$('#hero-theme-menu .theme-dd-opt').forEach(b => {
+      b.onclick = (e) => {
+        e.stopPropagation();
+        Sound.ui();
+        setSetting('boardTheme', b.dataset.themeId);
+        closeThemeDropdown();
+      };
+    });
+  }
+
+  const ddBtn = el('hero-theme-btn');
+  if (ddBtn) {
+    el('hero-theme-arrow').innerHTML = icon('chevron', 14);
+    ddBtn.onclick = (e) => {
+      e.stopPropagation();
+      Sound.ui();
+      toggleThemeDropdown();
+    };
+  }
+
+  function toggleThemeDropdown() {
+    const menu = el('hero-theme-menu'), btn = el('hero-theme-btn');
+    if (!menu || !btn) return;
+    const isHidden = menu.hidden;
+    menu.hidden = !isHidden;
+    btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+  }
+  function closeThemeDropdown() {
+    const menu = el('hero-theme-menu'), btn = el('hero-theme-btn');
+    if (menu) menu.hidden = true;
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  }
+  document.addEventListener('click', (e) => {
+    const dd = el('hero-theme-dd');
+    if (dd && !dd.contains(e.target)) closeThemeDropdown();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeThemeDropdown();
+  });
+
   el('range-handicap').addEventListener('input', e => updateCfg('handicap', +e.target.value));
   el('input-komi').addEventListener('change', e => { S.komiTouched = true; const v = parseFloat(e.target.value); updateCfg('komi', clamp(Number.isFinite(v) ? v : defaultKomi(S.cfg.rules, S.cfg.handicap), 0.5, 50)); });
   el('resume-ic').innerHTML = icon('play');
@@ -3176,10 +3356,17 @@ function buildSetup() {
     renderSetup();
   };
   el('btn-resume').onclick = () => { Sound.ui(); if (!loadSaved()) { toast('Saved game could not be loaded', 'error'); renderSetup(); } };
-  el('btn-start').innerHTML = `${icon('play', 16)} Start game`; el('btn-start-mobile').innerHTML = `${icon('play', 16)} Start game`;
-  el('btn-start').onclick = el('btn-start-mobile').onclick = () => { Sound.ui(); newGame(S.cfg); };
+  el('btn-start').innerHTML = `${icon('play', 16)} Start game`;
+  el('btn-modal-start').innerHTML = `${icon('play', 16)} Start game`;
+  el('btn-start').onclick = () => { Sound.ui(); openModal('newgame'); };
+  el('btn-modal-start').onclick = () => { closeModal(); Sound.ui(); newGame(S.cfg); };
   el('btn-learn').innerHTML = `<span class="ic">${icon('book')}</span><span><b>New to Go? Learn in 2 minutes</b><small>Interactive mini-lessons on liberties and capturing.</small></span><span class="arr">${icon('next')}</span>`;
   el('btn-learn').onclick = () => { Sound.ui(); openModal('learn'); };
+  el('btn-record').onclick = () => { Sound.ui(); openModal('record'); };
+}
+function fillRecordModal() {
+  const st = S.stats;
+  el('record-body').innerHTML = `<div class="stats-head"><div class="row">${icon('trophy')}<span style="color:var(--fg);font-weight:600;font-size:.875rem">Your record vs computer</span></div><span>${st.games} games</span></div><div class="stats-grid"><div class="stat good"><b>${st.wins}</b><small>Wins</small></div><div class="stat bad"><b>${st.losses}</b><small>Losses</small></div><div class="stat"><b>${st.games ? Math.round((st.wins / st.games) * 100) : 0}%</b><small>Win rate</small></div></div>`;
 }
 function renderSetup() {
   const cfg = S.cfg, lvl = levelInfo(cfg.aiLevel), theme = THEMES[settings.boardTheme];
@@ -3188,6 +3375,17 @@ function renderSetup() {
   $$('#level-grid .level').forEach(b => b.classList.toggle('active', +b.dataset.level === cfg.aiLevel));
   $$('#clock-grid .clock-opt').forEach(b => b.classList.toggle('active', b.dataset.tc === cfg.timeControl));
   $$('#theme-chips .chip, #st-theme-chips .chip').forEach(b => b.classList.toggle('active', b.dataset.themeId === settings.boardTheme));
+
+  const curTheme = THEMES[settings.boardTheme] || THEMES.kaya;
+  const curSwatch = el('hero-theme-cur-swatch');
+  const curName = el('hero-theme-cur-name');
+  if (curSwatch) curSwatch.style.background = curTheme.swatch;
+  if (curName) curName.textContent = curTheme.name;
+  $$('#hero-theme-menu .theme-dd-opt').forEach(b => {
+    const isActive = b.dataset.themeId === settings.boardTheme;
+    b.classList.toggle('active', isActive);
+    b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
   el('ai-options').hidden = cfg.opponent !== 'ai';
   el('level-rank').textContent = lvl.rank; el('level-desc').textContent = lvl.description;
   const classic = cfg.variant === 'classic';
@@ -3211,18 +3409,18 @@ function renderSetup() {
   }
   const komi = el('input-komi'); if (document.activeElement !== komi) komi.value = cfg.komi;
   el('atari-note').textContent = `Atari Go is the classic beginner's game: the first player to capture ${cfg.atariTarget} stone${cfg.atariTarget > 1 ? 's' : ''} wins. No territory counting — just liberties, atari and capture.`;
-  el('summary').innerHTML = [
-    ['Match', cfg.opponent === 'ai' ? `You vs ${lvl.name} (${lvl.rank})` : 'Two players'],
-    ['Board', `${cfg.size}×${cfg.size} · ${classic ? `${cfg.rules === 'area' ? 'Area' : 'Territory'} scoring` : `Atari Go, first to ${cfg.atariTarget}`}`],
-    classic ? ['Komi', `${cfg.komi}${cfg.handicap >= 2 ? ` · ${cfg.handicap} handicap stones` : ''}`] : null,
-    ['Clock', TIME_CONTROLS[cfg.timeControl].tc ? TIME_CONTROLS[cfg.timeControl].detail : 'None'],
-  ].filter(Boolean).map(([k, v]) => `<div><span>${k}</span><span>${esc(v)}</span></div>`).join('');
+  
+  const matchDesc = cfg.opponent === 'ai' ? `vs ${lvl.name} (${lvl.rank})` : 'Two players';
+  const gameDesc = classic ? `${cfg.size}×${cfg.size} · ${cfg.rules === 'area' ? 'Area' : 'Territory'}` : `Atari Go (${cfg.size}×${cfg.size})`;
+  const pillEl = el('hero-match-pill');
+  if (pillEl) pillEl.textContent = `${classic ? 'Classic Go' : 'Atari Go'} · ${gameDesc} · ${matchDesc}`;
+
   el('preview-frame').style.setProperty('--edge', theme.edge);
   previewView.setState({ size: cfg.size, board: previewBoard(cfg), toPlay: BLACK, lastMove: -2, interactive: false, oneColor: cfg.oneColor, showCoords: settings.showCoordinates, showLastMove: false, theme, stoneStyle: settings.stoneStyle, reduceMotion: true, highlightAtari: false, hints: null, territory: null, ownership: null, dead: null, koPoint: -1, dimmed: false });
   const saved = savedGameInfo(); el('resume-card').hidden = !saved;
   if (saved) el('resume-desc').textContent = `${saved.config.size}×${saved.config.size} · ${saved.config.variant === 'atari' ? 'Atari Go' : 'Classic'} · ${saved.moves ? saved.moves.length : 0} moves played`;
-  const st = S.stats, sc = el('stats-card'); sc.hidden = !st.games;
-  if (st.games) sc.innerHTML = `<div class="stats-head"><div class="row">${icon('trophy')}<span style="color:var(--fg);font-weight:600;font-size:.875rem">Your record vs computer</span></div><span>${st.games} games</span></div><div class="stats-grid"><div class="stat good"><b>${st.wins}</b><small>Wins</small></div><div class="stat bad"><b>${st.losses}</b><small>Losses</small></div><div class="stat"><b>${Math.round((st.wins / st.games) * 100)}%</b><small>Win rate</small></div></div>`;
+  const st = S.stats, recordBtn = el('btn-record'); recordBtn.hidden = !st.games;
+  recordBtn.innerHTML = `${icon('trophy', 16)} Your record`;
   renderHeaderIcons();
 }
 function renderHeaderIcons() {
@@ -3411,8 +3609,8 @@ function renderGame() {
     el('score-lead').innerHTML = `${sc.winner === 0 ? 'Draw' : `${sc.winner === BLACK ? 'Black' : 'White'} leads by ${sc.margin}`} <span>· ${sc.dame} neutral point${sc.dame === 1 ? '' : 's'}</span>`;
     el('btn-accept-score').disabled = S.scoringBusy;
   } else {
-    const slider = el('nav-slider'); slider.max = live; slider.value = g.viewIndex; syncRangeProgress(slider);
-    el('nav-first').disabled = g.viewIndex === 0; el('nav-prev').disabled = g.viewIndex === 0; el('nav-next').disabled = isLive; el('nav-last').disabled = isLive;
+    const slider = el('nav-slider'); slider.max = live; slider.value = g.viewIndex; slider.disabled = live === 0; syncRangeProgress(slider);
+    el('nav-first').disabled = g.viewIndex === 0 || live === 0; el('nav-prev').disabled = g.viewIndex === 0 || live === 0; el('nav-next').disabled = isLive || live === 0; el('nav-last').disabled = isLive || live === 0;
     renderMoveList(g);
   }
   renderClocks();
@@ -3482,6 +3680,7 @@ function renderSettingsModal() {
   syncControls();
   $$('#st-theme-chips .chip').forEach(b => b.classList.toggle('active', b.dataset.themeId === settings.boardTheme));
   const vol = el('st-volume'); vol.value = settings.volume; vol.disabled = !settings.sound; syncRangeProgress(vol); el('st-vol-val').textContent = `${Math.round(settings.volume * 100)}%`;
+  vol.closest('.vol').classList.toggle('disabled', !settings.sound);
   const theme = THEMES[settings.boardTheme]; el('settings-frame').style.setProperty('--edge', theme.edge);
   const numbers = settings.showMoveNumbers ? (() => { const a = new Int16Array(49); SETTINGS_SAMPLE_MOVES.forEach(([x, y], i) => { a[y * 7 + x] = i + 1; }); return a; })() : null;
   settingsView.setState({ size: 7, board: SETTINGS_SAMPLE, toPlay: WHITE, lastMove: 4 * 7 + 2, interactive: false, showCoords: settings.showCoordinates, showLastMove: settings.showLastMove, highlightAtari: settings.highlightAtari, theme, stoneStyle: settings.stoneStyle, reduceMotion: settings.reduceMotion, oneColor: false, hints: null, territory: null, ownership: null, dead: null, koPoint: -1, dimmed: false, moveNumbers: numbers });

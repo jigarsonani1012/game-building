@@ -71,6 +71,7 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0}
 .sec-title{font-size:.8125rem;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--fg-muted);margin-bottom:.75rem;display:flex;align-items:baseline;justify-content:space-between;gap:.75rem}
 .sec-hint{font-size:.75rem;color:var(--fg-faint);text-transform:none;letter-spacing:0;font-weight:500}
 @media(max-width:767px){.desktop-only{display:none!important}}
+@media(min-width:768px){.mobile-only{display:none!important}}
 .app-bg{
   background:
     radial-gradient(1200px 600px at 10% -10%, var(--accent-soft), transparent 60%),
@@ -237,18 +238,100 @@ input[type=range]:focus-visible::-moz-range-thumb{
 .logo .logo-grid{stroke:var(--board-line, #6b4514);opacity:var(--board-line-op, .7);transition:stroke .3s ease}
 
 /* ============================================================
-   Top bars
+   Top bars & Navigation
    ============================================================ */
-.top{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
-.top.wrap{max-width:72rem;margin:0 auto;padding:1.25rem 1rem 0;width:100%}
+.top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;width:100%;box-sizing:border-box}
+.top.wrap{max-width:72rem;margin:0 auto;padding:1rem 1rem 0;width:100%}
 @media(min-width:640px){.top.wrap{padding:1.25rem 1.5rem 0}}
-.brand{display:flex;align-items:center;gap:.75rem}
+.brand{display:flex;align-items:center;gap:.75rem;min-width:0}
 .brand-name{font-size:1.25rem;font-weight:600;line-height:1}
-.brand-tag{font-size:.6875rem;color:var(--fg-muted);margin-top:4px;letter-spacing:.02em}
-.game-top{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--surface) 65%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:.5rem .75rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
-@media(min-width:640px){.game-top{padding:.5rem 1.25rem}}
-.g-title{font-size:.875rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.g-sub{font-size:.6875rem;color:var(--fg-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-tag{font-size:.6875rem;color:var(--fg-muted);margin-top:4px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-actions{display:flex;align-items:center;gap:.375rem;flex-shrink:0}
+
+/* Game topbar */
+.game-top{
+  position:sticky;
+  top:0;
+  z-index:20;
+  border-bottom:1px solid var(--border);
+  background:color-mix(in srgb,var(--surface) 75%,transparent);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  padding:.4rem .75rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.75rem;
+  width:100%;
+  box-sizing:border-box;
+  min-height:3.25rem;
+}
+@media(min-width:768px){
+  .game-top{padding:.5rem 1.25rem;gap:1rem}
+}
+@media(max-width:480px){
+  .game-top{padding:.35rem .5rem;gap:.35rem;min-height:2.85rem}
+}
+
+.game-top-left{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  min-width:0;
+  flex:1 1 auto;
+}
+.game-top-logo{display:none;flex-shrink:0}
+@media(min-width:960px){.game-top-logo{display:block}}
+.g-info{display:flex;flex-direction:column;min-width:0;flex:1 1 auto}
+.g-title{font-size:.875rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
+.g-sub{font-size:.6875rem;color:var(--fg-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+
+.status-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.375rem;
+  min-height:0;
+  min-width:0;
+  flex:0 0 auto;
+}
+.status-pill{padding:.25rem .75rem;border-radius:999px;font-size:.8125rem;font-weight:600;border:1px solid var(--border);text-align:center;transition:.2s;background:var(--surface-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.status-pill.accent{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 40%,transparent);color:var(--fg)}
+.status-pill.violet{background:color-mix(in srgb,var(--violet) 14%,transparent);border-color:color-mix(in srgb,var(--violet) 40%,transparent)}
+.status-pill.muted{color:var(--fg-muted)}
+
+.game-top-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:4px;
+  flex:0 0 auto;
+}
+
+/* Top buttons responsive sizing */
+@media(max-width:860px){
+  .game-top .btn-icon, .top.wrap .btn-icon{width:2.125rem;height:2.125rem;border-radius:.625rem}
+  .game-top-actions{gap:2px}
+  .top-actions{gap:2px}
+  .status-pill{max-width:180px;font-size:.78125rem;padding:.22rem .625rem}
+}
+@media(max-width:640px){
+  .game-top .btn-icon, .top.wrap .btn-icon{width:2rem;height:2rem;border-radius:.5rem}
+  .status-pill{max-width:140px;font-size:.75rem;padding:.2rem .5rem}
+  .brand-tag{max-width:220px}
+}
+@media(max-width:480px){
+  .game-top-left{gap:.35rem}
+  .game-top .btn-icon, .top.wrap .btn-icon{width:1.875rem;height:1.875rem;border-radius:.45rem}
+  .game-top-actions{gap:1px}
+  .status-pill{max-width:110px;font-size:.7rem;padding:.18rem .4rem}
+  .brand-tag{max-width:140px}
+  .g-title{font-size:.8125rem}
+}
+@media(max-width:380px){
+  .status-pill{max-width:92px;font-size:.6875rem;padding:.15rem .35rem}
+  .brand-tag{display:none}
+}
 
 /* ============================================================
    Setup screen
@@ -328,18 +411,18 @@ input[type=range]:focus-visible::-moz-range-thumb{
    Game screen
    ============================================================ */
 #screen-game{min-height:100dvh;display:flex;flex-direction:column}
-@media(min-width:768px){#screen-game{height:100dvh;max-height:100dvh;overflow:hidden}}
-.game-main{flex:1;width:100%;max-width:520px;margin:0 auto;padding:.75rem .75rem 2rem;display:flex;flex-direction:column;align-items:center;gap:.75rem;min-height:0}
-@media(min-width:768px){.game-main{display:grid;grid-template-columns:auto minmax(280px,360px);justify-content:center;height:calc(100dvh - 50px);max-width:1440px;padding:clamp(.5rem,1.5vh,1rem) clamp(.75rem,1.5vw,1.5rem);gap:clamp(1rem,2.2vw,2.25rem);align-items:stretch}}
-.board-col{display:flex;flex-direction:column;align-items:center;gap:.75rem;min-width:0;width:100%}
-@media(min-width:768px){.board-col{height:100%;align-self:center;justify-content:center;width:auto;gap:.5rem}}
+@media (min-width: 900px) and (min-aspect-ratio: 1/1), (min-width: 1100px){#screen-game{height:100dvh;max-height:100dvh;overflow:hidden}}
+.game-main{flex:1;width:100%;max-width:880px;margin:0 auto;padding:clamp(.75rem,2vh,1.5rem) clamp(.75rem,2vw,1.5rem) 2.5rem;display:flex;flex-direction:column;align-items:center;gap:clamp(.75rem,1.8vh,1.25rem);min-height:0;box-sizing:border-box}
+@media (min-width: 900px) and (min-aspect-ratio: 1/1), (min-width: 1100px){.game-main{display:grid;grid-template-columns:auto minmax(280px,360px);justify-content:center;height:calc(100dvh - 50px);max-width:1440px;padding:clamp(.5rem,1.5vh,1rem) clamp(.75rem,1.5vw,1.5rem);gap:clamp(1rem,2.2vw,2.25rem);align-items:stretch}}
+.board-col{display:flex;flex-direction:column;align-items:center;gap:clamp(.625rem,1.5vh,1rem);min-width:0;width:100%}
+@media (min-width: 900px) and (min-aspect-ratio: 1/1), (min-width: 1100px){.board-col{height:100%;align-self:center;justify-content:center;width:auto;gap:.5rem}}
 .board-wrap{width:100%;max-width:100%;display:flex;justify-content:center;align-items:center}
-@media(min-width:768px){.board-wrap{max-width:min(100%,calc(100dvh - 90px),920px)}}
-@media(max-height:680px) and (min-width:768px){
+@media (min-width: 900px) and (min-aspect-ratio: 1/1), (min-width: 1100px){.board-wrap{max-width:min(100%,calc(100dvh - 90px),920px)}}
+@media (max-height:680px) and (min-aspect-ratio: 1/1){
   .game-main{padding:.375rem clamp(.5rem,1.5vw,1rem);gap:.5rem}
   .board-wrap{max-width:min(100%,calc(100dvh - 75px),700px)}
 }
-@media(max-height:480px) and (min-width:768px){
+@media (max-height:480px) and (min-aspect-ratio: 1/1){
   .game-main{padding:.25rem .5rem;gap:.375rem}
   .board-wrap{max-width:min(100%,calc(100dvh - 55px),480px)}
 }
@@ -347,26 +430,51 @@ input[type=range]:focus-visible::-moz-range-thumb{
 canvas.goban{display:block;width:100%;aspect-ratio:1/1;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25),0 1px 3px rgba(0,0,0,.35);background:transparent;touch-action:pan-y}
 canvas.goban.live{touch-action:none;cursor:pointer}
 canvas.goban.scoring{cursor:crosshair}
-.side{display:flex;flex-direction:column;gap:.5rem;min-width:0;width:100%;align-self:stretch}
-@media(min-width:768px){.side{width:auto;align-self:start;max-height:calc(100dvh - 80px)}}
-.players-mobile{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
-.players-desktop{display:none;flex-direction:column;gap:.5rem}
-@media(min-width:768px){.players-mobile{display:none}.players-desktop{display:flex}}
-@media(max-height:680px) and (min-width:768px){.players-desktop{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}}
+.side{display:flex;flex-direction:column;gap:.5rem;min-width:0;width:100%}
+@media (min-width: 900px) and (min-aspect-ratio: 1/1), (min-width: 1100px){
+  .side{
+    min-width:280px;
+    max-width:360px;
+    width:100%;
+    align-self:center;
+    height:100%;
+    max-height:calc(100dvh - 90px);
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:1.25rem;
+    box-shadow:var(--shadow);
+    padding:.75rem .875rem;
+    gap:.625rem;
+    box-sizing:border-box;
+    overflow-y:auto;
+    overflow-x:hidden;
+    scrollbar-width:thin;
+  }
+}
+@media (max-height:680px) and (min-aspect-ratio: 1/1){
+  .side{
+    padding:.5rem .625rem;
+    gap:.375rem;
+    max-height:calc(100dvh - 70px);
+  }
+}
+@media (max-height:480px) and (min-aspect-ratio: 1/1){
+  .side{
+    padding:.35rem .5rem;
+    gap:.25rem;
+    max-height:calc(100dvh - 50px);
+  }
+}
+.players-mobile{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:.625rem}
+.players-desktop{display:none;flex-direction:column;gap:.375rem;width:100%}
+@media (min-width: 900px) and (min-aspect-ratio: 1/1), (min-width: 1100px){
+  .players-mobile{display:none}
+  .players-desktop{display:flex;flex-direction:column;gap:.375rem}
+  .players-desktop .pcard{background:var(--surface-2)}
+}
 #controls-mobile{width:100%}
-@media(min-width:768px){#controls-mobile{display:none}}
-.status-row{display:flex;align-items:center;justify-content:center;gap:.375rem;min-height:0;min-width:0;flex-shrink:1}
-.status-pill{padding:.25rem .75rem;border-radius:999px;font-size:.8125rem;font-weight:500;border:1px solid var(--border);text-align:center;transition:.2s;background:var(--surface-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.status-pill.accent{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 40%,transparent)}
-.status-pill.violet{background:color-mix(in srgb,var(--violet) 12%,transparent);border-color:color-mix(in srgb,var(--violet) 40%,transparent)}
-.status-pill.muted{color:var(--fg-muted)}
-@media(max-width:560px){
-  .status-pill{padding:.2rem .5rem;font-size:.75rem;max-width:140px}
-}
-@media(max-width:380px){
-  .g-sub{display:none}
-  .status-pill{max-width:110px}
-}
+@media (min-width: 900px) and (min-aspect-ratio: 1/1), (min-width: 1100px){#controls-mobile{display:none}}
+
 .confirm-row{display:flex;justify-content:center;gap:.5rem;width:100%;animation:rise .3s cubic-bezier(.2,.8,.2,1)}
 
 /* Player cards */
@@ -414,16 +522,33 @@ canvas.goban.scoring{cursor:crosshair}
   .finished-box{padding:.5rem;font-size:.8125rem}
   .finished-box .row{margin-top:.375rem}
 }
-@media(max-height:460px){
+@media(max-height:480px){
+  .game-top{padding:.25rem .5rem}
   .game-main{padding:.25rem .5rem;gap:.375rem}
-  .pcard{padding:.3rem .5rem}
+  .players-desktop{gap:.25rem}
+  .pcard{padding:.25rem .45rem;gap:.35rem;border-radius:.5rem}
+  .pcard .sdot{width:1.25rem;height:1.25rem}
+  .pcard-name{font-size:.6875rem}
+  .pcard-meta{font-size:.625rem;margin-top:0}
+  .clock-main{font-size:.75rem}
   .status-row{min-height:1.25rem}
   .status-pill{padding:.15rem .5rem;font-size:.6875rem}
+  .finished-box{padding:.35rem .45rem;font-size:.75rem}
+  .finished-box b{font-size:.75rem}
+  .finished-box .btn{padding:.2rem .45rem;font-size:.6875rem;height:1.625rem}
+  .finished-box .row{margin-top:.25rem;gap:.25rem}
+  .nav-row input{height:1.25rem}
+  .move-list{max-height:clamp(2rem, 8vh, 3.5rem);margin-top:.2rem}
 }
 
 /* Controls & panel */
 .controls{display:flex;flex-direction:column;gap:.5rem}
 #panel{display:flex;flex-direction:column;gap:.75rem}
+@media (min-width: 900px) and (min-aspect-ratio: 1/1), (min-width: 1100px){
+  #panel{background:transparent;border:none;box-shadow:none;padding:0;gap:.5rem;flex:1;min-height:0}
+  #nav-box{display:flex;flex-direction:column;flex:1;min-height:0}
+  .move-list{flex:1;min-height:3rem;max-height:16rem;overflow-y:auto;margin-top:.375rem}
+}
 .est{border-radius:.75rem;border:1px solid var(--border);background:var(--surface);padding:.75rem}
 .est-head{display:flex;justify-content:space-between;align-items:center;font-size:.75rem;margin-bottom:.5rem}
 .est-head b{display:inline-flex;align-items:center;gap:.375rem}
@@ -610,12 +735,13 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
   <header class="top wrap">
     <div class="brand">
       <div class="logo" aria-hidden="true"><svg viewBox="0 0 40 40"><g class="logo-grid" stroke="#6b4514" stroke-width="1" opacity=".7"><line x1="8" y1="14" x2="32" y2="14"/><line x1="8" y1="26" x2="32" y2="26"/><line x1="14" y1="8" x2="14" y2="32"/><line x1="26" y1="8" x2="26" y2="32"/></g><circle cx="14" cy="14" r="5.2" fill="#111"/><circle cx="26" cy="26" r="5.2" fill="#fff"/></svg></div>
-      <div><div class="brand-name font-display">Go</div><div class="brand-tag">The ancient board game, beautifully playable</div></div>
+      <div class="min0"><div class="brand-name font-display">Go</div><div class="brand-tag">The ancient board game, beautifully playable</div></div>
     </div>
-    <div class="row">
-      <button class="btn btn-ghost btn-icon" data-action="help" title="How to play" aria-label="How to play"></button>
-      <button class="btn btn-ghost btn-icon" data-action="sound" title="Sound" aria-label="Toggle sound"></button>
-      <button class="btn btn-ghost btn-icon" data-action="theme" title="Toggle light / dark" aria-label="Toggle color theme"></button>
+    <div class="top-actions">
+      <button class="btn btn-ghost btn-icon desktop-only" data-action="help" title="How to play" aria-label="How to play"></button>
+      <button class="btn btn-ghost btn-icon desktop-only" data-action="sound" title="Sound" aria-label="Toggle sound"></button>
+      <button class="btn btn-ghost btn-icon desktop-only" data-action="theme" title="Toggle light / dark" aria-label="Toggle color theme"></button>
+      <button class="btn btn-ghost btn-icon mobile-only" data-action="settings" title="Settings" aria-label="Settings"></button>
     </div>
   </header>
 
@@ -694,27 +820,27 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
 <!-- ===================== GAME SCREEN ===================== -->
 <section id="screen-game" class="screen app-bg" hidden>
   <header class="top game-top">
-    <div class="row min0">
+    <div class="game-top-left min0">
       <button class="btn btn-ghost btn-icon" id="btn-home" title="Back to menu" aria-label="Back to menu"></button>
-      <div class="logo sm desktop-only" aria-hidden="true"><svg viewBox="0 0 40 40"><g class="logo-grid" stroke="#6b4514" stroke-width="1" opacity=".7"><line x1="8" y1="14" x2="32" y2="14"/><line x1="8" y1="26" x2="32" y2="26"/><line x1="14" y1="8" x2="14" y2="32"/><line x1="26" y1="8" x2="26" y2="32"/></g><circle cx="14" cy="14" r="5.2" fill="#111"/><circle cx="26" cy="26" r="5.2" fill="#fff"/></svg></div>
-      <div class="min0"><div class="g-title" id="g-title"></div><div class="g-sub" id="g-sub"></div></div>
+      <div class="logo sm game-top-logo" aria-hidden="true"><svg viewBox="0 0 40 40"><g class="logo-grid" stroke="#6b4514" stroke-width="1" opacity=".7"><line x1="8" y1="14" x2="32" y2="14"/><line x1="8" y1="26" x2="32" y2="26"/><line x1="14" y1="8" x2="14" y2="32"/><line x1="26" y1="8" x2="26" y2="32"/></g><circle cx="14" cy="14" r="5.2" fill="#111"/><circle cx="26" cy="26" r="5.2" fill="#fff"/></svg></div>
+      <div class="g-info min0"><div class="g-title" id="g-title"></div><div class="g-sub" id="g-sub"></div></div>
     </div>
     <div class="status-row" id="status-row">
       <div class="status-pill accent" id="status-pill" role="status" aria-live="polite"></div>
       <button class="btn btn-primary btn-sm" id="btn-latest" hidden></button>
     </div>
-    <div class="row" style="gap:2px">
-      <button class="btn btn-ghost btn-icon" data-action="help" title="How to play" aria-label="How to play"></button>
-      <button class="btn btn-ghost btn-icon" data-action="sound" title="Sound" aria-label="Toggle sound"></button>
-      <button class="btn btn-ghost btn-icon" data-action="theme" title="Toggle light / dark" aria-label="Toggle color theme"></button>
+    <div class="game-top-actions">
+      <button class="btn btn-ghost btn-icon desktop-only" data-action="help" title="How to play" aria-label="How to play"></button>
+      <button class="btn btn-ghost btn-icon desktop-only" data-action="sound" title="Sound" aria-label="Toggle sound"></button>
+      <button class="btn btn-ghost btn-icon desktop-only" data-action="theme" title="Toggle light / dark" aria-label="Toggle color theme"></button>
       <button class="btn btn-ghost btn-icon" data-action="settings" title="Settings" aria-label="Settings"></button>
     </div>
   </header>
 
   <main class="game-main">
     <div class="board-col">
-      <div class="players-mobile" id="players-mobile"></div>
       <div class="board-wrap"><div class="board-frame" id="board-frame"><canvas id="board-canvas" class="goban" aria-label="Go board"></canvas></div></div>
+      <div class="players-mobile" id="players-mobile"></div>
       <div class="confirm-row" id="confirm-row" hidden>
         <button class="btn btn-secondary" id="btn-cancel-pending">Cancel</button>
         <button class="btn btn-primary btn-lg" id="btn-place"></button>
@@ -782,6 +908,13 @@ kbd{display:inline-flex;align-items:center;justify-content:center;min-width:1.6r
             <div class="divide">
               <div id="st-confirm"></div><div id="st-sound"></div>
               <div class="vol"><span id="st-vol-ic"></span><input type="range" id="st-volume" min="0" max="1" step="0.05" aria-label="Volume"><span id="st-vol-val"></span></div>
+            </div>
+          </section>
+          <section>
+            <h3>Help &amp; Tutorial</h3>
+            <div class="grid2" style="gap:.5rem">
+              <button type="button" class="btn btn-secondary" id="st-btn-help"></button>
+              <button type="button" class="btn btn-secondary" id="st-btn-learn"></button>
             </div>
           </section>
         </div>
@@ -1830,27 +1963,27 @@ const icon = (name, size = 18) => `<svg width="${size}" height="${size}" viewBox
 
 /* ---------------- Board themes ---------------- */
 const THEMES = {
-  kaya:   { id: 'kaya',   name: 'Kaya',   surface: ['#efc978', '#e3b463', '#d9a555'], grain: .16, grainColor: '#7a4b12', line: '#5a3a10', lineOpacity: .7,  star: '#4a2f0c', coord: '#6b4a1a', edge: '#8a5a22', danger: '#d3302f', swatch: 'linear-gradient(135deg,#efc978,#d9a555)', tb: '#1a1a1a', tw: '#ffffff',
+  kaya:   { id: 'kaya',   name: 'Kaya',   surface: ['#efc978', '#e3b463', '#d9a555'], grain: .16, grainColor: '#7a4b12', line: '#4a2c08', lineOpacity: .88,  star: '#3e2406', coord: '#5a3810', edge: '#8a5a22', danger: '#d3302f', swatch: 'linear-gradient(135deg,#efc978,#d9a555)', tb: '#1a1a1a', tw: '#ffffff',
     dark:  { accent: '#f0b35a', accentFg: '#1b1206', glow: 'rgba(240,179,90,.55)', soft: 'rgba(240,179,90,.14)' },
     light: { accent: '#c98a1d', accentFg: '#ffffff', glow: 'rgba(201,138,29,.45)', soft: 'rgba(201,138,29,.12)' }
   },
-  walnut: { id: 'walnut', name: 'Walnut', surface: ['#8a5d34', '#734a27', '#5e3b1e'], grain: .22, grainColor: '#2a170a', line: '#f5e3c4', lineOpacity: .5,  star: '#f8ebd2', coord: '#e8d2ad', edge: '#3f2712', danger: '#ff5b5b', swatch: 'linear-gradient(135deg,#8a5d34,#5e3b1e)', tb: '#101010', tw: '#ffffff',
+  walnut: { id: 'walnut', name: 'Walnut', surface: ['#8a5d34', '#734a27', '#5e3b1e'], grain: .22, grainColor: '#2a170a', line: '#fcf3e3', lineOpacity: .82,  star: '#fff8ed', coord: '#f7ebd6', edge: '#3f2712', danger: '#ff5b5b', swatch: 'linear-gradient(135deg,#8a5d34,#5e3b1e)', tb: '#101010', tw: '#ffffff',
     dark:  { accent: '#e08643', accentFg: '#1f0f04', glow: 'rgba(224,134,67,.55)', soft: 'rgba(224,134,67,.15)' },
     light: { accent: '#9c541b', accentFg: '#ffffff', glow: 'rgba(156,84,27,.45)', soft: 'rgba(156,84,27,.12)' }
   },
-  bamboo: { id: 'bamboo', name: 'Bamboo', surface: ['#f6e7c2', '#efdcae', '#e8d19e'], grain: .10, grainColor: '#8a6c2c', line: '#6a5326', lineOpacity: .6,  star: '#54401a', coord: '#7a622f', edge: '#b89a5c', danger: '#d3302f', swatch: 'linear-gradient(135deg,#f6e7c2,#e8d19e)', tb: '#1a1a1a', tw: '#ffffff',
+  bamboo: { id: 'bamboo', name: 'Bamboo', surface: ['#f6e7c2', '#efdcae', '#e8d19e'], grain: .10, grainColor: '#8a6c2c', line: '#523a14', lineOpacity: .85,  star: '#422e0e', coord: '#624618', edge: '#b89a5c', danger: '#d3302f', swatch: 'linear-gradient(135deg,#f6e7c2,#e8d19e)', tb: '#1a1a1a', tw: '#ffffff',
     dark:  { accent: '#e5b955', accentFg: '#1e1605', glow: 'rgba(229,185,85,.55)', soft: 'rgba(229,185,85,.15)' },
     light: { accent: '#b88d22', accentFg: '#ffffff', glow: 'rgba(184,141,34,.45)', soft: 'rgba(184,141,34,.12)' }
   },
-  slate:  { id: 'slate',  name: 'Slate',  surface: ['#3a4150', '#2f3542', '#272c37'], grain: .08, grainColor: '#000000', line: '#c7cfdd', lineOpacity: .42, star: '#dfe5ef', coord: '#aeb7c6', edge: '#1a1e26', danger: '#ff6b6b', swatch: 'linear-gradient(135deg,#3a4150,#272c37)', tb: '#0a0c10', tw: '#ffffff',
+  slate:  { id: 'slate',  name: 'Slate',  surface: ['#3a4150', '#2f3542', '#272c37'], grain: .08, grainColor: '#000000', line: '#e2e8f0', lineOpacity: .75, star: '#f1f5f9', coord: '#cbd5e1', edge: '#1a1e26', danger: '#ff6b6b', swatch: 'linear-gradient(135deg,#3a4150,#272c37)', tb: '#0a0c10', tw: '#ffffff',
     dark:  { accent: '#5ea2f5', accentFg: '#071526', glow: 'rgba(94,162,245,.55)', soft: 'rgba(94,162,245,.15)' },
     light: { accent: '#2b77c9', accentFg: '#ffffff', glow: 'rgba(43,119,201,.45)', soft: 'rgba(43,119,201,.12)' }
   },
-  paper:  { id: 'paper',  name: 'Paper',  surface: ['#fbfaf6', '#f5f2ea', '#efebe0'], grain: 0,   grainColor: '#000000', line: '#2b2b2b', lineOpacity: .75, star: '#2b2b2b', coord: '#666666', edge: '#d8d3c6', danger: '#d3302f', swatch: 'linear-gradient(135deg,#fbfaf6,#efebe0)', tb: '#111111', tw: '#f2f2f2',
+  paper:  { id: 'paper',  name: 'Paper',  surface: ['#fbfaf6', '#f5f2ea', '#efebe0'], grain: 0,   grainColor: '#000000', line: '#1f1f1f', lineOpacity: .90, star: '#1f1f1f', coord: '#4a4a4a', edge: '#d8d3c6', danger: '#d3302f', swatch: 'linear-gradient(135deg,#fbfaf6,#efebe0)', tb: '#111111', tw: '#f2f2f2',
     dark:  { accent: '#9db2cf', accentFg: '#0c1420', glow: 'rgba(157,178,207,.55)', soft: 'rgba(157,178,207,.15)' },
     light: { accent: '#475569', accentFg: '#ffffff', glow: 'rgba(71,85,105,.45)', soft: 'rgba(71,85,105,.12)' }
   },
-  sakura: { id: 'sakura', name: 'Sakura', surface: ['#f9dfe3', '#f4cfd6', '#efc2cb'], grain: .06, grainColor: '#7a2c3c', line: '#7a3b49', lineOpacity: .6,  star: '#6a2f3d', coord: '#8b4d5b', edge: '#c78b97', danger: '#c81e3a', swatch: 'linear-gradient(135deg,#f9dfe3,#efc2cb)', tb: '#1a1a1a', tw: '#ffffff',
+  sakura: { id: 'sakura', name: 'Sakura', surface: ['#f9dfe3', '#f4cfd6', '#efc2cb'], grain: .06, grainColor: '#7a2c3c', line: '#521422', lineOpacity: .90,  star: '#440e1b', coord: '#6d2133', edge: '#c78b97', danger: '#c81e3a', swatch: 'linear-gradient(135deg,#f9dfe3,#efc2cb)', tb: '#1a1a1a', tw: '#ffffff',
     dark:  { accent: '#fb7185', accentFg: '#22050c', glow: 'rgba(251,113,133,.55)', soft: 'rgba(251,113,133,.15)' },
     light: { accent: '#e11d48', accentFg: '#ffffff', glow: 'rgba(225,29,72,.45)', soft: 'rgba(225,29,72,.12)' }
   },
@@ -1975,10 +2108,23 @@ class BoardView {
     this.ro = new ResizeObserver(() => this.resize()); this.ro.observe(canvas);
     this.bindInput();
   }
-  /* --- geometry (CSS pixels) --- */
+  /* --- geometry (CSS pixels & device pixels) --- */
   pad() { return this.st.showCoords ? 1.05 : 0.62; }
-  cs() { return this.css / (this.st.size - 1 + 2 * this.pad()); }
-  ox() { return this.pad() * this.cs(); }
+  updateGeometry() {
+    const W = Math.round(this.css * this.dpr), size = this.st.size;
+    if (W <= 0) return;
+    const marginRatio = this.st.showCoords ? 0.89 : 0.94;
+    const available = W * marginRatio;
+    this.cellW = Math.max(1, Math.floor(available / (size - 1)));
+    this.gridSpan = (size - 1) * this.cellW;
+    this.start = Math.floor((W - this.gridSpan) / 2);
+    
+    // CSS-space counterparts
+    this.cellWCss = this.cellW / this.dpr;
+    this.startCss = this.start / this.dpr;
+  }
+  cs() { if (!this.cellWCss) this.updateGeometry(); return this.cellWCss || (this.css / (this.st.size - 1 + 2 * this.pad())); }
+  ox() { if (this.startCss === undefined) this.updateGeometry(); return this.startCss !== undefined ? this.startCss : (this.pad() * this.cs()); }
   xy(idx) { const cs = this.cs(), o = this.ox(), s = this.st.size; return [o + (idx % s) * cs, o + ((idx / s) | 0) * cs]; }
 
   setState(patch) {
@@ -1997,12 +2143,13 @@ class BoardView {
     for (const c of anim.captured || []) this.anims.push({ type: 'out', idx: c.idx, color: c.color, start: t + 40, dur: 380 });
   }
   resize() {
-    const rect = this.canvas.getBoundingClientRect(), css = Math.round(rect.width);
+    const rect = this.canvas.getBoundingClientRect(), css = Math.floor(rect.width);
     if (css <= 0) return;
     const dpr = Math.min(3, window.devicePixelRatio || 1);
-    if (css === this.css && dpr === this.dpr && this.bg) return;
+    if (css === this.css && dpr === this.dpr && this.bg && this.canvas.width === Math.round(css * dpr)) return;
     this.css = css; this.dpr = dpr;
     this.canvas.width = Math.round(css * dpr); this.canvas.height = Math.round(css * dpr);
+    this.updateGeometry();
     this.bg = null; this.sprites = null; this.requestDraw();
   }
   requestDraw() {
@@ -2040,59 +2187,134 @@ class BoardView {
 
   /* --- static background: wood, grain, grid, stars, coordinates --- */
   buildBackground() {
+    // The grid is the single most important thing on screen — if anything in the
+    // decorative rendering below throws (bad theme data, an exotic canvas edge case,
+    // a mid-resize transient), we must never end up with a wood panel and no lines.
+    try {
+      this.buildBackgroundImpl();
+    } catch (e) {
+      console.error('Goban: buildBackground failed, falling back to a plain grid', e);
+      this.buildFallbackBackground();
+    }
+  }
+  buildFallbackBackground() {
+    this.updateGeometry();
+    const css = this.css, dpr = this.dpr, st = this.st, th = st.theme || THEMES.kaya, size = st.size;
+    const W = Math.max(1, Math.round(css * dpr));
+    const c = document.createElement('canvas'); c.width = W; c.height = W;
+    const g = c.getContext('2d');
+    g.fillStyle = (th.surface && th.surface[1]) || '#e3b463';
+    g.fillRect(0, 0, W, W);
+    const cellW = this.cellW, start = this.start, gridSpan = this.gridSpan;
+    const devLw = Math.max(1, Math.round(dpr));
+    g.strokeStyle = th.line || '#3a2a13';
+    g.lineWidth = devLw;
+    const snap = (devLw % 2 === 1) ? 0.5 : 0;
+    g.beginPath();
+    for (let i = 0; i < size; i++) {
+      const p = start + i * cellW + snap;
+      g.moveTo(p, start + snap); g.lineTo(p, start + gridSpan + snap);
+      g.moveTo(start + snap, p); g.lineTo(start + gridSpan + snap, p);
+    }
+    g.stroke();
+    this.bg = c;
+  }
+  buildBackgroundImpl() {
+    this.updateGeometry();
     const css = this.css, dpr = this.dpr, st = this.st, th = st.theme, size = st.size;
-    const c = document.createElement('canvas'); c.width = Math.round(css * dpr); c.height = c.width;
-    const g = c.getContext('2d'); g.scale(dpr, dpr);
-    const lg = g.createLinearGradient(0, 0, css, css);
+    const W = Math.round(css * dpr);
+    const c = document.createElement('canvas'); c.width = W; c.height = W;
+    const g = c.getContext('2d');
+
+    // 1. Wood gradient surface (device pixels)
+    const lg = g.createLinearGradient(0, 0, W, W);
     lg.addColorStop(0, th.surface[0]); lg.addColorStop(.55, th.surface[1]); lg.addColorStop(1, th.surface[2]);
-    g.fillStyle = lg; g.fillRect(0, 0, css, css);
+    g.fillStyle = lg; g.fillRect(0, 0, W, W);
+
+    // 2. Subtle natural wood texture
     if (th.grain > 0) {
       const rnd = GO.mulberry32(1234 + size);
       g.save(); g.globalCompositeOperation = 'multiply'; g.strokeStyle = th.grainColor; g.lineCap = 'round';
-      const streaks = Math.round(css / 4);
+      const streaks = Math.round(W / 12);
       for (let i = 0; i < streaks; i++) {
-        const x0 = rnd() * css, amp = 2 + rnd() * 7, freq = .004 + rnd() * .01, ph = rnd() * TAU;
-        g.globalAlpha = th.grain * (.25 + rnd() * .75); g.lineWidth = .5 + rnd() * 1.6;
+        const x0 = rnd() * W, amp = (1.5 + rnd() * 3.5) * dpr, freq = (.003 + rnd() * .006) / dpr, ph = rnd() * TAU;
+        g.globalAlpha = th.grain * 0.15; g.lineWidth = (0.5 + rnd() * 1.0) * dpr;
         g.beginPath();
-        for (let y = -10; y <= css + 10; y += 6) {
-          const x = x0 + Math.sin(y * freq + ph) * amp + Math.sin(y * freq * 3.1 + ph * 2) * amp * .3;
-          if (y === -10) g.moveTo(x, y); else g.lineTo(x, y);
+        for (let y = -10 * dpr; y <= W + 10 * dpr; y += 8 * dpr) {
+          const x = x0 + Math.sin(y * freq + ph) * amp;
+          if (y === -10 * dpr) g.moveTo(x, y); else g.lineTo(x, y);
         }
-        g.stroke();
-      }
-      for (let i = 0; i < 10; i++) { // broad tonal bands
-        const x0 = rnd() * css, w = 12 + rnd() * 40, amp = 4 + rnd() * 10, freq = .002 + rnd() * .004, ph = rnd() * TAU;
-        g.globalAlpha = th.grain * .22; g.lineWidth = w; g.beginPath();
-        for (let y = -20; y <= css + 20; y += 10) { const x = x0 + Math.sin(y * freq + ph) * amp; if (y === -20) g.moveTo(x, y); else g.lineTo(x, y); }
         g.stroke();
       }
       g.restore();
     }
-    const vg = g.createRadialGradient(css / 2, css / 2, css * .35, css / 2, css / 2, css * .78);
-    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.18)');
-    g.fillStyle = vg; g.fillRect(0, 0, css, css);
-    // grid
-    const cs = this.cs(), ox = this.ox();
-    const lw = Math.max(1, cs * (size >= 19 ? .03 : .034));
-    const snap = (v, w) => { const dv = Math.round(v * dpr); return (Math.round(w * dpr) % 2 ? dv + .5 : dv) / dpr; };
-    const pos = [], widths = [];
-    for (let i = 0; i < size; i++) { const edge = i === 0 || i === size - 1; widths.push(edge ? Math.max(1, lw * 1.7) : lw); pos.push(snap(ox + i * cs, widths[i])); }
-    g.strokeStyle = th.line; g.globalAlpha = th.lineOpacity; g.lineCap = 'square';
+
+    const vg = g.createRadialGradient(W / 2, W / 2, W * .35, W / 2, W / 2, W * .78);
+    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.10)');
+    g.fillStyle = vg; g.fillRect(0, 0, W, W);
+
+    // 3. Grid Lines (100% Constant Integer Stride Across ALL Columns & Rows)
+    const cellW = this.cellW;
+    const start = this.start;
+    const gridSpan = this.gridSpan;
+    
+    // Physical line thickness in device pixels
+    const devLw = Math.max(1, Math.round(dpr * (size >= 19 ? 1.0 : 1.2)));
+    const snapOffset = (devLw % 2 === 1) ? 0.5 : 0;
+
+    g.strokeStyle = th.line;
+    g.globalAlpha = th.lineOpacity || 0.95;
+    g.lineWidth = devLw;
+    g.lineCap = 'square';
+    g.lineJoin = 'miter';
+
+    const p0 = start + snapOffset;
+    const pEnd = start + gridSpan + snapOffset;
+
+    g.beginPath();
     for (let i = 0; i < size; i++) {
-      g.lineWidth = widths[i]; g.beginPath();
-      g.moveTo(pos[i], pos[0]); g.lineTo(pos[i], pos[size - 1]);
-      g.moveTo(pos[0], pos[i]); g.lineTo(pos[size - 1], pos[i]);
-      g.stroke();
+      const p = start + i * cellW + snapOffset;
+      // Vertical line from top to bottom
+      g.moveTo(p, p0); g.lineTo(p, pEnd);
+      // Horizontal line from left to right
+      g.moveTo(p0, p); g.lineTo(pEnd, p);
     }
-    g.globalAlpha = 1; g.fillStyle = th.star;
-    const sr = Math.max(2, cs * (size >= 19 ? .085 : .1));
-    for (const p of GO.starPoints(size)) { g.beginPath(); g.arc(ox + (p % size) * cs, ox + ((p / size) | 0) * cs, sr, 0, TAU); g.fill(); }
+    g.stroke();
+
+    // Outer boundary frame border (consistent crisp alignment)
+    const edgeLw = Math.max(devLw, Math.round(devLw * 1.5));
+    const edgeOffset = (edgeLw % 2 === 1) ? 0.5 : 0;
+    g.lineWidth = edgeLw;
+    g.strokeRect(start + edgeOffset, start + edgeOffset, gridSpan, gridSpan);
+
+    // 4. Star points (Hoshi) - perfectly centered on line intersections
+    g.globalAlpha = 1.0;
+    g.fillStyle = th.star || th.line;
+    const sr = Math.max(2.5 * dpr, cellW * (size >= 19 ? .09 : .11));
+    for (const p of GO.starPoints(size)) {
+      const col = p % size, row = (p / size) | 0;
+      const px = start + col * cellW + snapOffset;
+      const py = start + row * cellW + snapOffset;
+      g.beginPath();
+      g.arc(px, py, sr, 0, TAU);
+      g.fill();
+    }
+
+    // 5. Coordinates (scaled to device resolution)
     if (st.showCoords) {
-      const fs = Math.max(8, Math.min(15, cs * .42)), off = this.pad() * .58 * cs, end = ox + (size - 1) * cs;
-      g.fillStyle = th.coord; g.font = `600 ${fs}px ${CANVAS_FONT}`; g.textAlign = 'center'; g.textBaseline = 'middle';
+      const fs = Math.max(9 * dpr, Math.min(15 * dpr, cellW * .42));
+      const off = Math.max(10 * dpr, start * 0.52);
+      g.fillStyle = th.coord;
+      g.font = `600 ${fs}px ${CANVAS_FONT}`;
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
       for (let i = 0; i < size; i++) {
-        const p = ox + i * cs, L = 'ABCDEFGHJKLMNOPQRST'[i], N = String(size - i);
-        g.fillText(L, p, ox - off); g.fillText(L, p, end + off); g.fillText(N, ox - off, p); g.fillText(N, end + off, p);
+        const p = start + i * cellW + snapOffset;
+        const L = 'ABCDEFGHJKLMNOPQRST'[i], N = String(size - i);
+        g.fillText(L, p, p0 - off);
+        g.fillText(L, p, pEnd + off);
+        g.fillText(N, p0 - off, p);
+        g.fillText(N, pEnd + off, p);
       }
     }
     this.bg = c;
@@ -2158,14 +2380,22 @@ class BoardView {
     if (!this.css) { this.resize(); if (!this.css) return; }
     const st = this.st, ctx = this.ctx, css = this.css, size = st.size, board = st.board;
     const bgKey = [size, st.theme.id, st.showCoords, css, this.dpr].join('|');
-    if (!this.bg || this.bgKey !== bgKey) { this.buildBackground(); this.bgKey = bgKey; }
+    // Belt-and-braces: even if the cache key matches, a stale/mismatched buffer (e.g. from a
+    // resize that landed between reads) must never be blitted as-is — rebuild instead of
+    // silently showing a wood panel with no grid.
+    if (!this.bg || this.bgKey !== bgKey || this.bg.width !== this.canvas.width || this.bg.height !== this.canvas.height) {
+      this.buildBackground(); this.bgKey = bgKey;
+    }
     const spKey = [st.stoneStyle, css, size, st.showCoords, this.dpr].join('|');
     if (!this.sprites || this.spriteKey !== spKey) { this.buildSprites(); this.spriteKey = spKey; }
     const sp = this.sprites, R = sp.R, cs = this.cs(), ox = this.ox(), end = ox + (size - 1) * cs;
     const t = now || performance.now();
+    
+    // Direct 1:1 pixel blit for the pre-rendered background to eliminate resampling Moiré
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    if (this.bg) ctx.drawImage(this.bg, 0, 0);
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    ctx.clearRect(0, 0, css, css);
-    ctx.drawImage(this.bg, 0, 0, css, css);
 
     // touch aiming guides
     if (this.touchTarget !== null && st.interactive && !st.scoringMode) {
@@ -2894,7 +3124,13 @@ function showScreen(name) {
   S.screen = name;
   el('screen-setup').hidden = name !== 'setup'; el('screen-game').hidden = name !== 'game';
   window.scrollTo(0, 0);
-  if (name === 'game') { placeControls(); boardView.resize(); } else previewView.resize();
+  const view = name === 'game' ? boardView : previewView;
+  if (name === 'game') placeControls();
+  view.resize();
+  // The layout can still settle a frame or two after becoming visible (webfonts,
+  // flex/grid reflow, mobile browser chrome resize) — re-measure once more so the
+  // board never gets stuck rendered at a stale/incorrect size with no grid.
+  requestAnimationFrame(() => requestAnimationFrame(() => { view.bg = null; view.sprites = null; view.resize(); }));
 }
 
 /* ============================================================
@@ -3000,7 +3236,7 @@ function renderHeaderIcons() {
    GAME SCREEN
    ============================================================ */
 let controlsEl = null;
-const mqDesktop = matchMedia('(min-width: 768px)');
+const mqDesktop = matchMedia('(min-width: 900px) and (min-aspect-ratio: 1/1), (min-width: 1100px)');
 function buildControls() {
   controlsEl = document.createElement('div'); controlsEl.className = 'controls'; controlsEl.id = 'controls';
   controlsEl.innerHTML = `
@@ -3106,8 +3342,8 @@ function renderGame() {
   const size = g.config.size, live = g.positions.length - 1, isLive = g.viewIndex === live, pos = g.positions[g.viewIndex], livePos = g.positions[live];
   const humanTurn = g.aiColor === null || livePos.toPlay !== g.aiColor, theme = THEMES[settings.boardTheme], classic = g.config.variant === 'classic';
   // header
-  el('g-title').textContent = `${size}×${size} · ` + (classic ? `${g.config.rules === 'area' ? 'Area' : 'Territory'} · komi ${g.config.komi}` : `Atari Go · first to ${g.config.atariTarget}`) + (classic && g.config.handicap >= 2 ? ` · H${g.config.handicap}` : '');
-  el('g-sub').textContent = `Move ${g.viewIndex}${!isLive ? ` / ${live}` : ''}${g.config.oneColor ? ' · One-color Go' : ''}${g.config.opponent === 'ai' ? ` · vs ${levelInfo(g.config.aiLevel).name}` : ''}`;
+  el('g-title').textContent = `${classic ? 'Classic Go' : 'Atari Go'} · ${size}×${size}`;
+  el('g-sub').textContent = (classic ? `${g.config.rules === 'area' ? 'Area' : 'Territory'} · Komi ${g.config.komi}` : `First to ${g.config.atariTarget} capture${g.config.atariTarget > 1 ? 's' : ''}`) + (classic && g.config.handicap >= 2 ? ` · H${g.config.handicap}` : '') + (g.config.oneColor ? ' · One-color' : '');
   // players
   const cards = playerCardHTML(g, BLACK, true) + playerCardHTML(g, WHITE, true);
   el('players-mobile').innerHTML = cards;
@@ -3142,8 +3378,8 @@ function renderGame() {
   el('confirm-row').hidden = !(settings.confirmMoves && S.pending !== null && g.phase === 'playing' && interactive);
   // controls
   const canPass = g.phase === 'playing' && humanTurn && isLive && !S.aiThinking;
-  controlsEl.hidden = g.phase === 'scoring';
-  el('controls-mobile').hidden = g.phase === 'scoring';
+  controlsEl.hidden = g.phase === 'scoring' || g.phase === 'finished';
+  el('controls-mobile').hidden = g.phase === 'scoring' || g.phase === 'finished';
   controlsEl.querySelector('#btn-pass').disabled = !canPass;
   controlsEl.querySelector('#btn-undo').disabled = !(g.phase !== 'finished' && g.moves.length > 0);
   controlsEl.querySelector('#btn-resign').disabled = g.phase === 'finished';
@@ -3237,6 +3473,10 @@ function buildSettingsModal() {
   el('st-vol-ic').innerHTML = icon('volume', 16);
   el('st-volume').addEventListener('input', e => { setSetting('volume', +e.target.value); });
   el('st-volume').addEventListener('change', () => Sound.ui());
+  el('st-btn-help').innerHTML = `${icon('help', 16)} How to Play &amp; Rules`;
+  el('st-btn-help').onclick = () => { Sound.ui(); openModal('help'); };
+  el('st-btn-learn').innerHTML = `${icon('book', 16)} Interactive Lessons`;
+  el('st-btn-learn').onclick = () => { Sound.ui(); openModal('learn'); };
 }
 function renderSettingsModal() {
   syncControls();
@@ -3358,7 +3598,13 @@ function init() {
   // audio unlock on first gesture
   const unlock = () => { Sound.unlock(); window.removeEventListener('pointerdown', unlock); window.removeEventListener('keydown', unlock); };
   window.addEventListener('pointerdown', unlock); window.addEventListener('keydown', unlock);
-  window.addEventListener('resize', () => { [boardView, previewView, lessonView, settingsView].forEach(v => v.resize()); });
+  const handleResize = () => {
+    [boardView, previewView, lessonView, settingsView].forEach(v => {
+      if (v) { v.bg = null; v.sprites = null; v.resize(); }
+    });
+  };
+  window.addEventListener('resize', handleResize);
+  window.addEventListener('orientationchange', handleResize);
   window.addEventListener('beforeunload', () => { if (S.game && S.game.phase !== 'finished') persistGame(S.game); });
   window.addEventListener('pagehide', () => { if (S.game && S.game.phase !== 'finished') persistGame(S.game); });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && S.game && S.game.phase !== 'finished') persistGame(S.game); });

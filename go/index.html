@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="description" content="Play Go (Baduk, Weiqi) in your browser — beautiful boards, six AI levels, Atari Go, score estimation, and interactive lessons. A single-file HTML5 game.">
+<meta name="description" content="Play Go (Baduk, Weiqi) in your browser — customizable boards, 4 Computer difficulty levels, Atari Go, live score estimation, territory heatmaps, move hints, and full rules support. A standalone HTML5 game.">
 <meta name="theme-color" content="#f4f1ea">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%23e3b463'/%3E%3Cg stroke='%236b4514' stroke-width='1' opacity='.7'%3E%3Cline x1='8' y1='14' x2='32' y2='14'/%3E%3Cline x1='8' y1='26' x2='32' y2='26'/%3E%3Cline x1='14' y1='8' x2='14' y2='32'/%3E%3Cline x1='26' y1='8' x2='26' y2='32'/%3E%3C/g%3E%3Ccircle cx='14' cy='14' r='5.2' fill='%23111'/%3E%3Ccircle cx='26' cy='26' r='5.2' fill='%23fff'/%3E%3C/svg%3E">
-<title>Play Go — Online Board Game</title>
+<!-- <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='8' fill='%23e3b463'/%3E%3Cg stroke='%236b4514' stroke-width='1' opacity='.7'%3E%3Cline x1='8' y1='14' x2='32' y2='14'/%3E%3Cline x1='8' y1='26' x2='32' y2='26'/%3E%3Cline x1='14' y1='8' x2='14' y2='32'/%3E%3Cline x1='26' y1='8' x2='26' y2='32'/%3E%3C/g%3E%3Ccircle cx='14' cy='14' r='5.2' fill='%23111'/%3E%3Ccircle cx='26' cy='26' r='5.2' fill='%23fff'/%3E%3C/svg%3E"> -->
+<title>Play Go — Board Game</title>
 <style>
 /* ============================================================
    Design tokens
@@ -258,7 +258,7 @@ input[type=range]:focus-visible::-moz-range-thumb{
   background:color-mix(in srgb,var(--surface) 75%,transparent);
   backdrop-filter:blur(14px);
   -webkit-backdrop-filter:blur(14px);
-  padding:.35rem .75rem;
+  padding:max(.35rem, env(safe-area-inset-top)) max(.75rem, env(safe-area-inset-right)) .35rem max(.75rem, env(safe-area-inset-left));
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -268,10 +268,10 @@ input[type=range]:focus-visible::-moz-range-thumb{
   min-height:3rem;
 }
 @media(min-width:768px){
-  .game-top{padding:.5rem 1.25rem;gap:1rem;min-height:3.25rem}
+  .game-top{padding:max(.5rem, env(safe-area-inset-top)) max(1.25rem, env(safe-area-inset-right)) .5rem max(1.25rem, env(safe-area-inset-left));gap:1rem;min-height:3.25rem}
 }
 @media(max-width:480px){
-  .game-top{padding:.3rem .45rem;gap:.35rem;min-height:2.75rem}
+  .game-top{padding:max(.3rem, env(safe-area-inset-top)) max(.45rem, env(safe-area-inset-right)) .3rem max(.45rem, env(safe-area-inset-left));gap:.35rem;min-height:2.75rem}
 }
 
 .game-top-left{
@@ -362,7 +362,7 @@ input[type=range]:focus-visible::-moz-range-thumb{
   #screen-setup{height:100dvh;max-height:100dvh;overflow:hidden}
   body:has(#screen-setup:not([hidden])){overflow:hidden}
 }
-.setup-hero{flex:1;max-width:48rem;margin:0 auto;padding:clamp(.25rem,1vh,.75rem) clamp(.75rem,2vw,1.25rem);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(.4rem,1.2vh,.75rem);width:100%;box-sizing:border-box}
+.setup-hero{flex:1;max-width:48rem;margin:0 auto;padding:max(clamp(.25rem,1vh,.75rem), env(safe-area-inset-top)) max(clamp(.75rem,2vw,1.25rem), env(safe-area-inset-right)) max(clamp(.25rem,1vh,.75rem), env(safe-area-inset-bottom)) max(clamp(.75rem,2vw,1.25rem), env(safe-area-inset-left));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(.4rem,1.2vh,.75rem);width:100%;box-sizing:border-box}
 .hero-board-card{position:relative;width:100%;max-width:450px;display:flex;flex-direction:column;align-items:center;gap:clamp(.35rem,1vh,.625rem);text-align:center;box-shadow:var(--shadow);padding:clamp(.5rem,1.2vh,.875rem)}
 .hero-help-btn{position:absolute;top:clamp(.4rem,1vh,.75rem);right:clamp(.5rem,1.2vw,.875rem);width:2rem;height:2rem;border-radius:.625rem;color:var(--fg-muted);display:grid;place-items:center;z-index:2;transition:all .15s}
 .hero-help-btn:hover{color:var(--fg);background:var(--surface-2)}
@@ -485,7 +485,7 @@ input[type=range]:focus-visible::-moz-range-thumb{
   #screen-game{height:100dvh;max-height:100dvh;overflow:hidden}
   body:has(#screen-game:not([hidden])){overflow:hidden}
 }
-.game-main{flex:1;width:100%;max-width:880px;margin:0 auto;padding:clamp(.75rem,2vh,1.5rem) clamp(.75rem,2vw,1.5rem) 2.5rem;display:flex;flex-direction:column;align-items:center;gap:clamp(.75rem,1.8vh,1.25rem);min-height:0;box-sizing:border-box}
+.game-main{flex:1;width:100%;max-width:880px;margin:0 auto;padding:clamp(.75rem,2vh,1.5rem) max(clamp(.75rem,2vw,1.5rem), env(safe-area-inset-right)) max(2.5rem, env(safe-area-inset-bottom)) max(clamp(.75rem,2vw,1.5rem), env(safe-area-inset-left));display:flex;flex-direction:column;align-items:center;gap:clamp(.75rem,1.8vh,1.25rem);min-height:0;box-sizing:border-box}
 @media (min-width: 900px) and (min-aspect-ratio: 1/1), (min-width: 1100px){.game-main{display:grid;grid-template-columns:auto minmax(280px,360px);justify-content:center;height:calc(100dvh - 50px);max-width:1440px;padding:clamp(.5rem,1.5vh,1rem) clamp(.75rem,1.5vw,1.5rem);gap:clamp(1rem,2.2vw,2.25rem);align-items:stretch}}
 .board-col{display:flex;flex-direction:column;align-items:center;gap:clamp(.625rem,1.5vh,1rem);min-width:0;width:100%}
 @media (min-width: 900px) and (min-aspect-ratio: 1/1), (min-width: 1100px){.board-col{height:100%;align-self:center;justify-content:center;width:auto;gap:.5rem}}
@@ -673,8 +673,8 @@ canvas.goban.scoring{cursor:crosshair}
 .modal-backdrop{position:fixed;inset:0;width:100vw;height:100dvh;z-index:50;display:none;align-items:flex-end;justify-content:center;padding:0;overflow:hidden}
 .modal-backdrop.open{display:flex}
 .modal-backdrop::before{content:"";position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);animation:fade-in .18s ease-out}
-.modal{position:relative;width:100%;background:var(--surface);border:1px solid var(--border);box-shadow:0 30px 80px rgba(0,0,0,.5);border-radius:1.5rem 1.5rem 0 0;display:flex;flex-direction:column;max-height:92dvh;animation:modal-in .22s cubic-bezier(.2,.8,.2,1)}
-@media(min-width:640px){.modal-backdrop{align-items:center;padding:1.5rem}.modal{border-radius:1.5rem;max-height:86dvh}.modal.sm{max-width:28rem}.modal.md{max-width:36rem}.modal.lg{max-width:48rem}}
+.modal{position:relative;width:100%;background:var(--surface);border:1px solid var(--border);box-shadow:0 30px 80px rgba(0,0,0,.5);border-radius:1.5rem 1.5rem 0 0;display:flex;flex-direction:column;max-height:92dvh;padding-bottom:env(safe-area-inset-bottom);animation:modal-in .22s cubic-bezier(.2,.8,.2,1)}
+@media(min-width:640px){.modal-backdrop{align-items:center;padding:1.5rem}.modal{border-radius:1.5rem;max-height:86dvh;padding-bottom:0}.modal.sm{max-width:28rem}.modal.md{max-width:36rem}.modal.lg{max-width:48rem}}
 .modal-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.25rem 1.5rem .75rem;flex-shrink:0}
 .modal-title{font-family:var(--font-display);font-size:1.25rem;font-weight:600}
 .modal-body{padding:0 1.5rem 1.5rem;overflow-y:auto;min-height:0;scrollbar-width:thin;scrollbar-color:var(--border-strong) transparent;overscroll-behavior:contain}
@@ -682,7 +682,7 @@ canvas.goban.scoring{cursor:crosshair}
 .modal-close:hover{background:var(--surface-2);color:var(--fg)}
 .modal-actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:1.25rem;flex-wrap:wrap}
 .modal p.lead{font-size:.875rem;color:var(--fg-muted)}
-#toasts{position:fixed;z-index:60;bottom:1rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;pointer-events:none;padding:0 1rem;width:100%;max-width:28rem}
+#toasts{position:fixed;z-index:60;bottom:max(1rem, env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;pointer-events:none;padding:0 1rem;width:100%;max-width:28rem}
 .toast{pointer-events:auto;animation:toast-in .2s cubic-bezier(.2,.8,.2,1);display:flex;align-items:center;gap:.6rem;border-radius:999px;padding:.5rem 1rem .5rem .625rem;font-size:.875rem;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,.35);border:1px solid var(--border-strong);background:color-mix(in srgb,var(--surface) 95%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:opacity .25s,transform .25s;cursor:pointer;text-align:left}
 .toast.out{opacity:0;transform:translateY(6px)}
 .toast .t-ic{width:1.5rem;height:1.5rem;border-radius:50%;display:grid;place-items:center;flex-shrink:0;background:var(--accent-soft);color:var(--accent)}

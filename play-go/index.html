@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="description" content="Play Go (Baduk, Weiqi) in your browser — customizable boards, 4 Computer difficulty levels, Atari Go, live score estimation, territory heatmaps, move hints, and full rules support. A standalone HTML5 game.">
+<meta name="theme-color" content="#f4f1ea">
+<title>Play Go — Board Game</title>
+<link rel="stylesheet" href="style.css?v=2026-09-30_1">
+</head>
+<body>
+<div id="app">
+
+<!-- ===================== SETUP SCREEN ===================== -->
+<section id="screen-setup" class="screen app-bg">
+  <main class="setup-hero">
+    <div id="resume-card" class="card resume" hidden>
+      <div class="ic" id="resume-ic"></div>
+      <div class="resume-body"><b>You have a game in progress</b><small id="resume-desc">Pick up right where you left off.</small></div>
+      <div class="resume-actions">
+        <button class="btn btn-primary" id="btn-resume">Resume</button>
+        <button class="btn btn-ghost btn-icon sm" id="btn-discard" title="Discard saved game" aria-label="Discard saved game"></button>
+      </div>
+    </div>
+
+    <div class="card pad hero-board-card">
+      <button type="button" class="btn btn-ghost btn-icon hero-help-btn" data-action="help" title="How to play" aria-label="How to play"></button>
+      <div class="hero-brand">
+        <div class="hero-brand-header">
+          <div class="logo sm" aria-hidden="true"><svg viewBox="0 0 40 40"><g class="logo-grid" stroke="#6b4514" stroke-width="1" opacity=".7"><line x1="8" y1="14" x2="32" y2="14"/><line x1="8" y1="26" x2="32" y2="26"/><line x1="14" y1="8" x2="14" y2="32"/><line x1="26" y1="8" x2="26" y2="32"/></g><circle cx="14" cy="14" r="5.2" fill="#111"/><circle cx="26" cy="26" r="5.2" fill="#fff"/></svg></div>
+          <div class="brand-name font-display">Play Go</div>
+        </div>
+        <div class="brand-tag">The ancient board game, beautifully playable</div>
+      </div>
+      <div class="hero-match-badge" id="hero-match-pill"></div>
+      <div class="board-frame" id="preview-frame"><canvas id="preview-canvas" class="goban" aria-label="Board preview"></canvas></div>
+      
+      <!-- Board Appearance directly on Hero card -->
+      <div class="hero-appearance">
+        <div class="hero-theme-select-row">
+          <div class="theme-dropdown" id="hero-theme-dd">
+            <button type="button" class="theme-dd-btn" id="hero-theme-btn" aria-haspopup="listbox" aria-expanded="false">
+              <span class="theme-dd-swatch" id="hero-theme-cur-swatch"></span>
+              <span class="theme-dd-text" id="hero-theme-cur-name"></span>
+              <span class="theme-dd-arrow" id="hero-theme-arrow"></span>
+            </button>
+            <div class="theme-dd-menu" id="hero-theme-menu" role="listbox" hidden></div>
+          </div>
+        </div>
+        <div id="hero-seg-stone" class="hero-stone-seg"></div>
+      </div>
+
+      <div class="hero-actions">
+        <div class="hero-actions-row">
+          <button class="btn btn-primary btn-lg" id="btn-start"></button>
+          <button type="button" class="btn btn-secondary btn-lg hero-settings-btn" data-action="settings" title="Settings" aria-label="Settings"></button>
+        </div>
+        <button class="btn btn-ghost" id="btn-record" hidden></button>
+      </div>
+    </div>
+
+    <div class="hero-bottom-grid">
+      <button class="card learn-cta" id="btn-learn"></button>
+    </div>
+  </main>
+</section>
+
+<!-- ===================== GAME SCREEN ===================== -->
+<section id="screen-game" class="screen app-bg" hidden>
+  <header class="top game-top">
+    <div class="game-top-left min0">
+      <button class="btn btn-ghost btn-icon" id="btn-home" title="Back to menu" aria-label="Back to menu"></button>
+      <div class="logo sm game-top-logo" aria-hidden="true"><svg viewBox="0 0 40 40"><g class="logo-grid" stroke="#6b4514" stroke-width="1" opacity=".7"><line x1="8" y1="14" x2="32" y2="14"/><line x1="8" y1="26" x2="32" y2="26"/><line x1="14" y1="8" x2="14" y2="32"/><line x1="26" y1="8" x2="26" y2="32"/></g><circle cx="14" cy="14" r="5.2" fill="#111"/><circle cx="26" cy="26" r="5.2" fill="#fff"/></svg></div>
+      <div class="g-info min0"><div class="g-title" id="g-title"></div><div class="g-sub" id="g-sub"></div></div>
+    </div>
+    <div class="status-row" id="status-row">
+      <div class="status-pill accent" id="status-pill" role="status" aria-live="polite"></div>
+      <button class="btn btn-primary btn-sm" id="btn-latest" hidden></button>
+    </div>
+    <div class="game-top-actions">
+      <button class="btn btn-ghost btn-icon desktop-only" data-action="help" title="How to play" aria-label="How to play"></button>
+      <button class="btn btn-ghost btn-icon desktop-only" data-action="sound" title="Sound" aria-label="Toggle sound"></button>
+      <button class="btn btn-ghost btn-icon desktop-only" data-action="theme" title="Toggle light / dark" aria-label="Toggle color theme"></button>
+      <button class="btn btn-ghost btn-icon" data-action="settings" title="Settings" aria-label="Settings"></button>
+    </div>
+  </header>
+
+  <main class="game-main">
+    <div class="board-col">
+      <div class="board-wrap"><div class="board-frame" id="board-frame"><canvas id="board-canvas" class="goban" aria-label="Go board"></canvas></div></div>
+      <div class="players-mobile" id="players-mobile"></div>
+      <div class="confirm-row" id="confirm-row" hidden>
+        <button class="btn btn-secondary" id="btn-cancel-pending">Cancel</button>
+        <button class="btn btn-primary btn-lg" id="btn-place"></button>
+      </div>
+      <div id="controls-mobile" class="card pad-sm"></div>
+    </div>
+
+    <aside class="side">
+      <div class="players-desktop" id="players-desktop"></div>
+      <div class="card pad-sm" id="panel">
+        <div id="controls-slot"></div>
+        <div id="finished-box" class="finished-box" hidden></div>
+        <div id="scoring-box" hidden>
+          <div class="notice"><span id="scoring-ic"></span><div><div class="notice-title">Both players passed — time to count</div><div id="scoring-msg"></div></div></div>
+          <div id="score-table"></div>
+          <div class="score-lead" id="score-lead"></div>
+          <div class="grid2">
+            <button class="btn btn-secondary" id="btn-resume-play"></button>
+            <button class="btn btn-primary" id="btn-accept-score"></button>
+          </div>
+        </div>
+        <div id="nav-box">
+          <div class="nav-row">
+            <button class="btn btn-ghost btn-icon sm" id="nav-first" title="First move (Home)" aria-label="First move"></button>
+            <button class="btn btn-ghost btn-icon sm" id="nav-prev" title="Previous move (←)" aria-label="Previous move"></button>
+            <input type="range" id="nav-slider" min="0" max="0" value="0" aria-label="Move slider">
+            <button class="btn btn-ghost btn-icon sm" id="nav-next" title="Next move (→)" aria-label="Next move"></button>
+            <button class="btn btn-ghost btn-icon sm" id="nav-last" title="Latest move (End)" aria-label="Latest move"></button>
+          </div>
+          <div id="move-list" class="move-list scroll-thin"></div>
+        </div>
+      </div>
+    </aside>
+  </main>
+</section>
+</div>
+
+<!-- ===================== MODALS ===================== -->
+<div class="modal-backdrop" id="modal-newgame" aria-hidden="true">
+  <div class="modal lg" role="dialog" aria-modal="true" aria-labelledby="newgame-title">
+    <div class="modal-head">
+      <div>
+        <h2 class="modal-title font-display" id="newgame-title">Game Settings</h2>
+        <div class="hint" style="margin-top:2px">Configure match rules, opponent difficulty, clock, and board style</div>
+      </div>
+      <button class="modal-close" data-close aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-setup-content">
+        <section>
+          <div class="sec-title">Opponent</div>
+          <div class="choice-grid" id="opp-grid"></div>
+        </section>
+
+        <section id="ai-options">
+          <div class="sec-title">Difficulty <span class="sec-hint" id="level-rank"></span></div>
+          <div class="level-grid" id="level-grid"></div>
+          <p class="hint" id="level-desc"></p>
+          <div class="grid2 resp mt-s">
+            <div>
+              <div class="sec-title">Your color</div>
+              <div id="seg-color"></div>
+            </div>
+            <div>
+              <div class="sec-title">Computer resignation</div>
+              <div id="toggle-neverresign"></div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="grid2 resp">
+            <div><div class="sec-title">Game variant</div><div id="seg-variant"></div></div>
+            <div><div class="sec-title">Board size</div><div id="seg-size"></div></div>
+          </div>
+          
+          <div id="classic-options" class="grid2 resp mt-s">
+            <div>
+              <div class="sec-title">Handicap <span class="sec-hint" id="handicap-hint"></span></div>
+              <div class="row"><input type="range" id="range-handicap" min="0" max="9" step="1" value="0" aria-label="Handicap stones"><span class="val" id="handicap-val"></span></div>
+              <p class="hint" id="handicap-note" hidden></p>
+            </div>
+            <div>
+              <div class="sec-title">Rules &amp; komi</div>
+              <div class="row" style="flex-wrap:wrap"><div id="seg-rules"></div><label class="komi">Komi <input type="number" class="num" id="input-komi" min="0.5" max="50" step="0.5" aria-label="Komi"></label></div>
+            </div>
+          </div>
+
+          <div id="atari-options" class="grid2 resp mt-s" hidden>
+            <div><div class="sec-title">Capture target</div><div id="seg-target"></div></div>
+            <div><div class="sec-title">Starting position</div><div id="seg-start"></div></div>
+            <p class="hint span2" id="atari-note" style="margin-top:0"></p>
+          </div>
+        </section>
+
+        <section>
+          <div class="grid2 resp">
+            <div>
+              <div class="sec-title">Clock</div>
+              <div class="clock-grid" id="clock-grid"></div>
+            </div>
+            <div>
+              <div class="sec-title">Board theme</div>
+              <div id="theme-chips" class="chips"></div>
+            </div>
+          </div>
+          
+          <div class="grid2 resp mt-s">
+            <div>
+              <div class="sec-title">Stone style</div>
+              <div id="seg-stone"></div>
+            </div>
+            <div>
+              <div class="sec-title">Challenge mode</div>
+              <div id="toggle-onecolor"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-secondary" data-close>Cancel</button>
+      <button type="button" class="btn btn-primary btn-lg" id="btn-modal-start"></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-settings" aria-hidden="true">
+  <div class="modal lg" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="modal-head"><h2 class="modal-title" id="settings-title">Settings</h2><button class="modal-close" data-close aria-label="Close"></button></div>
+    <div class="modal-body">
+      <div class="settings">
+        <div>
+          <section>
+            <h3>Appearance</h3>
+            <div id="st-theme-chips" class="chips"></div>
+            <div class="grid2 resp mt-s" style="gap:.75rem 1.25rem">
+              <div>
+                <div class="sec-title-mini" style="margin-bottom:.35rem">Stones</div>
+                <div id="st-seg-stone"></div>
+              </div>
+              <div>
+                <div class="sec-title-mini" style="margin-bottom:.35rem">App theme</div>
+                <div id="st-seg-ui"></div>
+              </div>
+            </div>
+          </section>
+          <section>
+            <h3>Display</h3>
+            <div class="divide">
+              <div id="st-coords"></div><div id="st-lastmove"></div><div id="st-numbers"></div><div id="st-atari"></div>
+            </div>
+          </section>
+          <section>
+            <h3>Input &amp; sound</h3>
+            <div class="divide">
+              <div id="st-sound"></div>
+              <div class="vol"><span id="st-vol-ic"></span><input type="range" id="st-volume" min="0" max="1" step="0.05" aria-label="Volume"><span id="st-vol-val"></span></div>
+            </div>
+          </section>
+          <section>
+            <h3>Help &amp; Tutorial</h3>
+            <div class="grid2 resp" style="gap:.5rem">
+              <button type="button" class="btn btn-secondary" id="st-btn-help"></button>
+              <button type="button" class="btn btn-secondary" id="st-btn-learn"></button>
+            </div>
+          </section>
+        </div>
+        <div class="settings-preview">
+          <h3>Preview</h3>
+          <div class="board-frame" id="settings-frame"><canvas id="settings-canvas" class="goban" aria-label="Settings preview"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-help" aria-hidden="true">
+  <div class="modal lg" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <div class="modal-head">
+      <div>
+        <h2 class="modal-title font-display" id="help-title">How to Play Go</h2>
+        <div class="hint" style="margin-top:2px">The ancient strategy game — simple rules, endless depth</div>
+      </div>
+      <button class="modal-close" data-close aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <!-- Tab Bar -->
+      <nav class="help-nav" role="tablist">
+        <button type="button" class="help-tab-btn active" data-tab="rules">📖 Core Rules</button>
+        <button type="button" class="help-tab-btn" data-tab="atari">⚔️ Atari Go Mode</button>
+        <button type="button" class="help-tab-btn" data-tab="controls">🎮 Controls &amp; Shortcuts</button>
+        <button type="button" class="help-tab-btn" data-tab="strategy">💡 Strategy Guide</button>
+      </nav>
+
+      <!-- TAB 1: CORE RULES -->
+      <div class="help-tab-pane active" id="pane-rules">
+        <div class="help-grid">
+          <!-- Rule 1 -->
+          <div class="help-card with-diagram">
+            <div class="help-card-head">
+              <span class="help-pill">Step 01 • Placement</span>
+            </div>
+            <div class="help-card-title">Intersections, Not Squares</div>
+            <div class="help-card-body">
+              <div class="mini-diagram" aria-hidden="true">
+                <svg viewBox="0 0 100 100">
+                  <defs>
+                    <radialGradient id="h-stone-w1" cx="32%" cy="28%" r="68%">
+                      <stop offset="0%" stop-color="#ffffff"/>
+                      <stop offset="60%" stop-color="#f0f2f5"/>
+                      <stop offset="100%" stop-color="#b0b8c6"/>
+                    </radialGradient>
+                    <radialGradient id="h-stone-b1" cx="30%" cy="25%" r="70%">
+                      <stop offset="0%" stop-color="#6a7285"/>
+                      <stop offset="35%" stop-color="#2d323d"/>
+                      <stop offset="85%" stop-color="#14171d"/>
+                      <stop offset="100%" stop-color="#0a0c10"/>
+                    </radialGradient>
+                    <filter id="h-shadow1" x="-30%" y="-30%" width="160%" height="160%">
+                      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000" flood-opacity="0.65"/>
+                    </filter>
+                  </defs>
+                  <g class="diagram-grid" stroke-width="1.4" stroke-linecap="round">
+                    <line x1="22" y1="22" x2="78" y2="22"/>
+                    <line x1="22" y1="50" x2="78" y2="50"/>
+                    <line x1="22" y1="78" x2="78" y2="78"/>
+                    <line x1="22" y1="22" x2="22" y2="78"/>
+                    <line x1="50" y1="22" x2="50" y2="78"/>
+                    <line x1="78" y1="22" x2="78" y2="78"/>
+                  </g>
+                  <circle cx="22" cy="22" r="2" fill="var(--board-line, #5a3a10)" opacity="0.6"/>
+                  <circle cx="78" cy="22" r="2" fill="var(--board-line, #5a3a10)" opacity="0.6"/>
+                  <circle cx="22" cy="78" r="2" fill="var(--board-line, #5a3a10)" opacity="0.6"/>
+                  <circle cx="78" cy="78" r="2" fill="var(--board-line, #5a3a10)" opacity="0.6"/>
+                  <circle cx="50" cy="50" r="16" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.8" stroke-dasharray="3 2.5"/>
+                  <!-- Stones -->
+                  <circle cx="50" cy="50" r="12" fill="url(#h-stone-b1)" filter="url(#h-shadow1)"/>
+                  <circle cx="78" cy="50" r="12" fill="url(#h-stone-w1)" filter="url(#h-shadow1)"/>
+                </svg>
+              </div>
+              <div class="help-card-text">
+                <b>Black moves first.</b> Players take turns placing stones directly on the <b>line intersections</b> (grid crossings), never inside the squares. Once placed, stones never move.
+              </div>
+            </div>
+          </div>
+
+          <!-- Rule 2 -->
+          <div class="help-card with-diagram">
+            <div class="help-card-head">
+              <span class="help-pill">Step 02 • Capturing</span>
+            </div>
+            <div class="help-card-title">Liberties &amp; Atari</div>
+            <div class="help-card-body">
+              <div class="mini-diagram" aria-hidden="true">
+                <svg viewBox="0 0 100 100">
+                  <defs>
+                    <radialGradient id="h-stone-w2" cx="32%" cy="28%" r="68%">
+                      <stop offset="0%" stop-color="#ffffff"/>
+                      <stop offset="60%" stop-color="#f0f2f5"/>
+                      <stop offset="100%" stop-color="#b0b8c6"/>
+                    </radialGradient>
+                    <radialGradient id="h-stone-b2" cx="30%" cy="25%" r="70%">
+                      <stop offset="0%" stop-color="#6a7285"/>
+                      <stop offset="35%" stop-color="#2d323d"/>
+                      <stop offset="85%" stop-color="#14171d"/>
+                      <stop offset="100%" stop-color="#0a0c10"/>
+                    </radialGradient>
+                    <filter id="h-shadow2" x="-30%" y="-30%" width="160%" height="160%">
+                      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000" flood-opacity="0.65"/>
+                    </filter>
+                  </defs>
+                  <g class="diagram-grid" stroke-width="1.4" stroke-linecap="round">
+                    <line x1="22" y1="22" x2="78" y2="22"/>
+                    <line x1="22" y1="50" x2="78" y2="50"/>
+                    <line x1="22" y1="78" x2="78" y2="78"/>
+                    <line x1="22" y1="22" x2="22" y2="78"/>
+                    <line x1="50" y1="22" x2="50" y2="78"/>
+                    <line x1="78" y1="22" x2="78" y2="78"/>
+                  </g>
+                  <!-- Black stone in center -->
+                  <circle cx="50" cy="50" r="12" fill="url(#h-stone-b2)" filter="url(#h-shadow2)"/>
+                  <!-- 3 White stones surrounding -->
+                  <circle cx="50" cy="22" r="12" fill="url(#h-stone-w2)" filter="url(#h-shadow2)"/>
+                  <circle cx="22" cy="50" r="12" fill="url(#h-stone-w2)" filter="url(#h-shadow2)"/>
+                  <circle cx="50" cy="78" r="12" fill="url(#h-stone-w2)" filter="url(#h-shadow2)"/>
+                  <!-- 1 liberty left (danger badge) -->
+                  <circle cx="78" cy="50" r="12" fill="var(--danger)" opacity="0.25"/>
+                  <circle cx="78" cy="50" r="7" fill="var(--danger)"/>
+                  <text x="78" y="53" text-anchor="middle" font-size="8.5" font-weight="900" fill="#ffffff">!</text>
+                </svg>
+              </div>
+              <div class="help-card-text">
+                Empty adjacent points are <b>liberties</b> (breathing room). Fill all of a stone's liberties and it is <b>captured</b> and removed! When a stone has only 1 liberty left, it is in <b>atari</b>.
+              </div>
+            </div>
+          </div>
+
+          <!-- Rule 3 -->
+          <div class="help-card with-diagram">
+            <div class="help-card-head">
+              <span class="help-pill">Step 03 • Survival</span>
+            </div>
+            <div class="help-card-title">Two Eyes (Invincibility)</div>
+            <div class="help-card-body">
+              <div class="mini-diagram" aria-hidden="true">
+                <svg viewBox="0 0 100 100">
+                  <defs>
+                    <radialGradient id="h-stone-b3" cx="30%" cy="25%" r="70%">
+                      <stop offset="0%" stop-color="#6a7285"/>
+                      <stop offset="35%" stop-color="#2d323d"/>
+                      <stop offset="85%" stop-color="#14171d"/>
+                      <stop offset="100%" stop-color="#0a0c10"/>
+                    </radialGradient>
+                    <filter id="h-shadow3" x="-30%" y="-30%" width="160%" height="160%">
+                      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000" flood-opacity="0.65"/>
+                    </filter>
+                  </defs>
+                  <g class="diagram-grid" stroke-width="1.3" stroke-linecap="round">
+                    <line x1="16" y1="26" x2="84" y2="26"/>
+                    <line x1="16" y1="50" x2="84" y2="50"/>
+                    <line x1="16" y1="74" x2="84" y2="74"/>
+                    <line x1="26" y1="16" x2="26" y2="84"/>
+                    <line x1="50" y1="16" x2="50" y2="84"/>
+                    <line x1="74" y1="16" x2="74" y2="84"/>
+                  </g>
+                  <!-- Eye 1 marker -->
+                  <rect x="20" y="44" width="12" height="12" rx="3" fill="var(--surface)" stroke="var(--success)" stroke-width="1.5"/>
+                  <text x="26" y="53" text-anchor="middle" font-size="8" font-weight="900" fill="var(--success)">1</text>
+                  <!-- Eye 2 marker -->
+                  <rect x="68" y="44" width="12" height="12" rx="3" fill="var(--surface)" stroke="var(--success)" stroke-width="1.5"/>
+                  <text x="74" y="53" text-anchor="middle" font-size="8" font-weight="900" fill="var(--success)">2</text>
+                  <!-- Black stones forming 2 eyes -->
+                  <circle cx="26" cy="26" r="9" fill="url(#h-stone-b3)" filter="url(#h-shadow3)"/>
+                  <circle cx="50" cy="26" r="9" fill="url(#h-stone-b3)" filter="url(#h-shadow3)"/>
+                  <circle cx="74" cy="26" r="9" fill="url(#h-stone-b3)" filter="url(#h-shadow3)"/>
+                  <circle cx="50" cy="50" r="9" fill="url(#h-stone-b3)" filter="url(#h-shadow3)"/>
+                  <circle cx="26" cy="74" r="9" fill="url(#h-stone-b3)" filter="url(#h-shadow3)"/>
+                  <circle cx="50" cy="74" r="9" fill="url(#h-stone-b3)" filter="url(#h-shadow3)"/>
+                  <circle cx="74" cy="74" r="9" fill="url(#h-stone-b3)" filter="url(#h-shadow3)"/>
+                </svg>
+              </div>
+              <div class="help-card-text">
+                Playing where you have zero liberties is <b>suicide (illegal)</b> unless it captures. Because of this, any group with <b>two separate internal eyes</b> can never be captured!
+              </div>
+            </div>
+          </div>
+
+          <!-- Rule 4 -->
+          <div class="help-card with-diagram">
+            <div class="help-card-head">
+              <span class="help-pill">Step 04 • Scoring</span>
+            </div>
+            <div class="help-card-title">Territory &amp; Komi</div>
+            <div class="help-card-body">
+              <div class="mini-diagram" aria-hidden="true">
+                <svg viewBox="0 0 100 100">
+                  <defs>
+                    <radialGradient id="h-stone-b4" cx="30%" cy="25%" r="70%">
+                      <stop offset="0%" stop-color="#6a7285"/>
+                      <stop offset="35%" stop-color="#2d323d"/>
+                      <stop offset="85%" stop-color="#14171d"/>
+                      <stop offset="100%" stop-color="#0a0c10"/>
+                    </radialGradient>
+                    <filter id="h-shadow4" x="-30%" y="-30%" width="160%" height="160%">
+                      <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" flood-color="#000" flood-opacity="0.65"/>
+                    </filter>
+                  </defs>
+                  <g class="diagram-grid" stroke-width="1.3" stroke-linecap="round">
+                    <line x1="20" y1="20" x2="88" y2="20"/>
+                    <line x1="20" y1="50" x2="88" y2="50"/>
+                    <line x1="20" y1="80" x2="88" y2="80"/>
+                    <line x1="20" y1="20" x2="20" y2="88"/>
+                    <line x1="50" y1="20" x2="50" y2="88"/>
+                    <line x1="80" y1="20" x2="80" y2="88"/>
+                  </g>
+                  <!-- Territory tiles -->
+                  <rect x="13" y="13" width="14" height="14" rx="3" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2" opacity="0.9"/>
+                  <rect x="43" y="13" width="14" height="14" rx="3" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2" opacity="0.9"/>
+                  <rect x="13" y="43" width="14" height="14" rx="3" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2" opacity="0.9"/>
+                  <rect x="43" y="43" width="14" height="14" rx="3" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2" opacity="0.9"/>
+                  <text x="20" y="23" text-anchor="middle" font-size="8.5" font-weight="900" fill="var(--accent)">+1</text>
+                  <text x="50" y="23" text-anchor="middle" font-size="8.5" font-weight="900" fill="var(--accent)">+1</text>
+                  <text x="20" y="53" text-anchor="middle" font-size="8.5" font-weight="900" fill="var(--accent)">+1</text>
+                  <text x="50" y="53" text-anchor="middle" font-size="8.5" font-weight="900" fill="var(--accent)">+1</text>
+                  <!-- Enclosing Black wall stones -->
+                  <circle cx="80" cy="20" r="10.5" fill="url(#h-stone-b4)" filter="url(#h-shadow4)"/>
+                  <circle cx="80" cy="50" r="10.5" fill="url(#h-stone-b4)" filter="url(#h-shadow4)"/>
+                  <circle cx="80" cy="80" r="10.5" fill="url(#h-stone-b4)" filter="url(#h-shadow4)"/>
+                  <circle cx="50" cy="80" r="10.5" fill="url(#h-stone-b4)" filter="url(#h-shadow4)"/>
+                  <circle cx="20" cy="80" r="10.5" fill="url(#h-stone-b4)" filter="url(#h-shadow4)"/>
+                </svg>
+              </div>
+              <div class="help-card-text">
+                When neither player wants to play, both <b>pass</b>. Players score points for each empty intersection they fully surround (<b>territory</b>). White receives <b>6.5 komi</b> to balance Black's first-move advantage.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Practice CTA banner -->
+        <div class="help-cta-banner">
+          <div class="help-cta-text">
+            <b>⚡ Learn faster by playing</b>
+            <p>Step through hands-on scenarios in our 2-minute interactive tutorial.</p>
+          </div>
+          <button class="btn btn-primary" id="help-learn"></button>
+        </div>
+      </div>
+
+      <!-- TAB 2: ATARI GO -->
+      <div class="help-tab-pane" id="pane-atari">
+        <div class="atari-box">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:.75rem">
+              <span class="strat-icon">⚔️</span>
+              <div>
+                <b style="font-size:1.125rem;color:var(--fg)">Atari Go (First to Capture)</b>
+                <div class="hint" style="margin-top:2px">The fast, exciting capture battle for all skill levels</div>
+              </div>
+            </div>
+            <span class="atari-target-badge">🎯 First to N Captures Wins</span>
+          </div>
+          <div class="help-grid" style="margin-top:.5rem">
+            <div class="help-card">
+              <div class="help-card-title">🏁 Instant Victory Condition</div>
+              <div class="help-card-text">
+                Unlike Classic Go where you surround board territory, in <b>Atari Go</b> the goal is pure combat: the first player to capture the target amount of stones (e.g. <b>1 stone</b> or <b>3 stones</b>) instantly wins the game!
+              </div>
+            </div>
+            <div class="help-card">
+              <div class="help-card-title">💡 Why Play Atari Go?</div>
+              <div class="help-card-text">
+                It's the ultimate training ground for <b>liberties, cross-cuts, ladders, and atari defense</b>. You don't have to calculate territory or end-game passes — pure tactical intuition.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: CONTROLS & SHORTCUTS -->
+      <div class="help-tab-pane" id="pane-controls">
+        <div class="ctrl-grid">
+          <div class="help-card desktop-only">
+            <div class="help-card-title">⌨️ Keyboard Hotkeys</div>
+            <ul class="kbd-list">
+              <li><span>Pass turn</span><span><kbd>P</kbd></span></li>
+              <li><span>Undo last move</span><span><kbd>U</kbd></span></li>
+              <li><span>Live Score Estimation</span><span><kbd>E</kbd></span></li>
+              <li><span>Best-Move Hint</span><span><kbd>H</kbd></span></li>
+              <li><span>Toggle Move Numbers</span><span><kbd>N</kbd></span></li>
+              <li><span>Step back / forward</span><span><kbd>←</kbd><kbd>→</kbd></span></li>
+              <li><span>Jump to start / latest</span><span><kbd>Home</kbd><kbd>End</kbd></span></li>
+            </ul>
+          </div>
+          <div class="help-card">
+            <div class="help-card-title">🎯 Gameplay Controls</div>
+            <div class="help-card-text" style="display:flex;flex-direction:column;gap:.75rem">
+              <p><b>⚡ 1-Tap Placement:</b> Click or tap any empty intersection on the board to place your stone immediately.</p>
+              <p><b>⏮️ Move Review:</b> Drag the bottom timeline slider or use the navigation buttons to review earlier turns.</p>
+              <p><b>📊 Live Estimation:</b> Toggle <i>Estimate</i> during play to inspect live territory control and score margins.</p>
+              <p><b>🔍 Coordinate Grid:</b> Toggle coordinates in Settings to display official algebraic board notations.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: PRO STRATEGY -->
+      <div class="help-tab-pane" id="pane-strategy">
+        <div class="strat-grid">
+          <div class="strat-card">
+            <span class="strat-icon">👑</span>
+            <div>
+              <b style="color:var(--fg);font-size:.9375rem">"Corners are Gold, Sides are Silver, Center is Grass"</b>
+              <p class="help-card-text" style="margin-top:4px">
+                In the corner, you only need <b>4 stones</b> to secure 4 points of territory. On the side you need 6 stones, and in the open center you need 8 stones. Always claim corners first!
+              </p>
+            </div>
+          </div>
+          <div class="strat-card">
+            <span class="strat-icon">🛡️</span>
+            <div>
+              <b style="color:var(--fg);font-size:.9375rem">Don't Follow the Opponent Blindly (Tenuki)</b>
+              <p class="help-card-text" style="margin-top:4px">
+                You don't always have to reply to where your opponent just played. If their move is small and does not threaten immediate death, play a big point elsewhere (<b>tenuki</b>).
+              </p>
+            </div>
+          </div>
+          <div class="strat-card">
+            <span class="strat-icon">👁️</span>
+            <div>
+              <b style="color:var(--fg);font-size:.9375rem">Shape Before Capture</b>
+              <p class="help-card-text" style="margin-top:4px">
+                Chasing an opponent's stones blindly often leaves your own groups thin and vulnerable. Build solid, connected stone chains and give your groups room to create two eyes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-learn" aria-hidden="true">
+  <div class="modal lg" role="dialog" aria-modal="true" aria-labelledby="learn-title">
+    <div class="modal-head"><h2 class="modal-title" id="learn-title">Learn Go in 2 minutes</h2><button class="modal-close" data-close aria-label="Close"></button></div>
+    <div class="modal-body">
+      <div class="learn">
+        <div class="lesson-board"><div class="board-frame" id="lesson-frame"><canvas id="lesson-canvas" class="goban" aria-label="Lesson board"></canvas></div></div>
+        <div class="lesson-right">
+          <div class="lesson-dots" id="lesson-dots"></div>
+          <h3 class="lesson-title font-display" id="lesson-title"></h3>
+          <p class="lesson-text" id="lesson-text"></p>
+          <div class="lesson-turn" id="lesson-turn" hidden></div>
+          <div class="lesson-msg" id="lesson-msg" hidden></div>
+          <div class="lesson-nav">
+            <button class="btn btn-ghost" id="lesson-back"></button>
+            <button class="btn btn-primary" id="lesson-next"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-resign" aria-hidden="true">
+  <div class="modal sm" role="dialog" aria-modal="true" aria-labelledby="resign-title">
+    <div class="modal-head"><h2 class="modal-title" id="resign-title">Resign this game?</h2><button class="modal-close" data-close aria-label="Close"></button></div>
+    <div class="modal-body">
+      <p class="lead">Your opponent will be awarded the win. You can review the game afterwards.</p>
+      <div class="modal-actions"><button class="btn btn-secondary" data-close>Keep playing</button><button class="btn btn-danger" id="btn-confirm-resign"></button></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-quit" aria-hidden="true">
+  <div class="modal sm" role="dialog" aria-modal="true" aria-labelledby="quit-title">
+    <div class="modal-head"><h2 class="modal-title" id="quit-title">Leave the game?</h2><button class="modal-close" data-close aria-label="Close"></button></div>
+    <div class="modal-body">
+      <p class="lead" id="quit-text">Your game is saved automatically — you can resume it from the menu.</p>
+      <div class="modal-actions"><button class="btn btn-secondary" data-close>Stay</button><button class="btn btn-primary" id="btn-confirm-quit"></button></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-record" aria-hidden="true">
+  <div class="modal sm" role="dialog" aria-modal="true" aria-labelledby="record-title">
+    <div class="modal-head"><h2 class="modal-title" id="record-title">Your record</h2><button class="modal-close" data-close aria-label="Close"></button></div>
+    <div class="modal-body" id="record-body"></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modal-gameover" aria-hidden="true" data-static="true">
+  <div class="modal sm" role="dialog" aria-modal="true" aria-labelledby="gameover-title">
+    <div class="modal-body" id="gameover-body" style="padding-top:1.5rem"></div>
+  </div>
+</div>
+
+<div id="toasts" aria-live="polite"></div>
+
+<script src="script.js?v=2026-09-30_1"></script>
+</body>
+</html>

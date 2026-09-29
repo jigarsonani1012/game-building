@@ -8,41 +8,45 @@
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js"}}</script>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  html,body{width:100%;height:100%;height:100dvh;overflow:hidden;background:#120a05;font-family:"Trebuchet MS","Gill Sans",Georgia,serif;color:#f4e3c1;overscroll-behavior:none;touch-action:none}
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:rgba(190,148,72,.35);border-radius:4px}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(240,205,126,.6)}
+  html,body{width:100%;height:100%;height:100dvh;overflow:hidden;background:#120a05;font-family:"Trebuchet MS","Gill Sans",Georgia,serif;color:#f4e3c1;overscroll-behavior:none;touch-action:none;scrollbar-width:none}
   #c{display:block;position:fixed;inset:0;width:100%;height:100%}
-  .seg{pointer-events:auto;display:flex;margin-top:16px;border:2px solid #7d5a22;border-radius:7px;overflow:hidden;
+  .seg{pointer-events:auto;display:flex;margin-top:clamp(8px,1.8vh,14px);border:2px solid #7d5a22;border-radius:7px;overflow:hidden;
     background:linear-gradient(#3b2410,#221308);box-shadow:inset 0 2px 6px rgba(0,0,0,.6),0 4px 0 #26160a}
   .seg .lbl{display:flex;align-items:center;padding:0 13px;font-size:10px;letter-spacing:.2em;color:#9c8155;text-transform:uppercase}
   .segb{cursor:pointer;border:0;background:transparent;color:#ab8d5e;font-family:Georgia,serif;font-weight:700;
-    font-size:14px;letter-spacing:.12em;padding:10px 20px;transition:color .18s,background .18s}
+    font-size:clamp(12px,2.6vw,14px);letter-spacing:.12em;padding:clamp(6px,1.2vh,10px) clamp(12px,2.5vw,18px);transition:color .18s,background .18s}
   .segb+.segb{border-left:1px solid rgba(190,148,72,.35)}
   .segb:hover{color:#f0d69a}
   .segb.on{color:#2a1708;background:linear-gradient(#f0cd7e,#c79733);text-shadow:0 1px 0 rgba(255,246,214,.5)}
   .ibtn.txt{font-family:Georgia,serif;font-size:13px;font-weight:700;letter-spacing:.06em}
-  #vig{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 42%,rgba(0,0,0,0) 38%,rgba(0,0,0,.42) 78%,rgba(0,0,0,.72) 100%);z-index:2}
-  #ui{position:fixed;inset:0;z-index:5;pointer-events:none;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-  .screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .35s ease;pointer-events:none;padding:24px;overflow-y:auto;overscroll-behavior:contain}
+  #vig{display:none}
+  #ui{position:fixed;inset:0;z-index:5;pointer-events:none;overflow:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  .screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .35s ease;pointer-events:none;padding:clamp(12px,3vh,24px) 16px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(190,148,72,.35) transparent}
   .screen>*{flex:0 0 auto}
-  #menu{justify-content:flex-start;padding-top:max(24px,6vh)}
-  @media (min-height:640px){#menu{justify-content:center;padding-top:24px}}
+  #menu{justify-content:center;overflow:hidden;scrollbar-width:none;-ms-overflow-style:none}
+  #menu::-webkit-scrollbar{display:none}
   .screen.show{opacity:1;visibility:visible;pointer-events:auto}
   .screen::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,rgba(20,10,4,.6),rgba(8,4,2,.88));z-index:-1}
   #menu::before{background:radial-gradient(ellipse at 50% 46%,rgba(16,8,3,.34) 20%,rgba(11,5,2,.66) 60%,rgba(5,2,1,.85) 100%)}
 
   /* ---------- logo ---------- */
-  .logo{text-align:center;margin-bottom:34px;user-select:none}
+  .logo{text-align:center;margin-bottom:clamp(10px,2.6vh,26px);user-select:none}
   .logo span{display:block;font-family:Georgia,"Times New Roman",serif;font-weight:700;letter-spacing:.06em;
     background:linear-gradient(#fff3c9 2%,#f4cf76 26%,#c08e2b 52%,#8a5d13 62%,#efc86c 78%,#ffeaa9 96%);
     -webkit-background-clip:text;background-clip:text;color:transparent;
     filter:drop-shadow(0 3px 0 rgba(66,38,8,.85)) drop-shadow(0 7px 14px rgba(0,0,0,.65));}
-  .logo .l1{font-size:clamp(38px,9vw,86px);line-height:.98}
-  .logo .l2{font-size:clamp(30px,7.1vw,68px);line-height:1.02;letter-spacing:.08em}
-  .logo .rule{width:min(62vw,420px);height:2px;margin:14px auto 0;background:linear-gradient(90deg,transparent,#c9992f,#f3dc9a,#c9992f,transparent);opacity:.85}
+  .logo .l1{font-size:clamp(32px,8vw,78px);line-height:.98}
+  .logo .l2{font-size:clamp(25px,6.2vw,62px);line-height:1.02;letter-spacing:.08em}
+  .logo .rule{width:min(62vw,400px);height:2px;margin:clamp(8px,1.4vh,12px) auto 0;background:linear-gradient(90deg,transparent,#c9992f,#f3dc9a,#c9992f,transparent);opacity:.85}
 
   /* ---------- wooden buttons ---------- */
   .wbtn{pointer-events:auto;position:relative;display:flex;align-items:center;justify-content:center;gap:10px;
-    width:min(88vw,368px);min-height:58px;padding:12px 18px;white-space:nowrap;margin:9px 0;cursor:pointer;
-    font-family:Georgia,serif;font-size:clamp(13px,3.3vw,18px);font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+    width:min(88vw,360px);min-height:clamp(44px,6.2vh,56px);padding:clamp(8px,1.2vh,12px) 18px;white-space:nowrap;margin:clamp(4px,0.9vh,7px) 0;cursor:pointer;
+    font-family:Georgia,serif;font-size:clamp(13px,3.2vw,17px);font-weight:700;letter-spacing:.07em;text-transform:uppercase;
     color:#ffeec2;text-shadow:0 2px 2px rgba(40,18,2,.9);
     border:2px solid #7d5a22;border-radius:7px;
     background:linear-gradient(#6d4520,#4e2f14 46%,#3d2410 54%,#5b381a);
@@ -52,7 +56,7 @@
   .wbtn:hover{filter:brightness(1.14)}
   .wbtn:active{transform:translateY(4px);box-shadow:inset 0 1px 0 rgba(255,214,140,.25),inset 0 -2px 6px rgba(0,0,0,.6),0 1px 0 #26160a,0 4px 10px rgba(0,0,0,.5)}
   .wbtn.gold{background:linear-gradient(#a97a24,#7d5313 46%,#6a440f 54%,#94681c);border-color:#d8b05a}
-  .wbtn.small{width:min(40vw,170px);min-height:50px;font-size:clamp(12px,3.1vw,16px)}
+  .wbtn.small{width:min(40vw,160px);min-height:clamp(40px,5.5vh,48px);font-size:clamp(12px,3vw,15px)}
   .wbtn .ic{font-size:1.15em;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
   .caption{font-family:Georgia,serif;letter-spacing:.24em;text-transform:uppercase;font-size:clamp(11px,3vw,15px);color:#d8b678;margin-bottom:18px;text-shadow:0 2px 3px rgba(0,0,0,.8)}
   .row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
@@ -173,7 +177,6 @@
     <button class="wbtn" id="btnRules"><span class="ic">?</span>How to play</button>
     <div class="seg" id="viewSeg"><span class="lbl">View</span>
       <button class="segb on" data-v="3d">3D</button><button class="segb" data-v="2d">2D</button></div>
-    <div class="foot">Classic draughts · 8×8 · captures are mandatory</div>
   </section>
 
   <section id="diff" class="screen">
@@ -374,40 +377,39 @@ function woodGrain(ctx,x,y,w,h,base,dark,light,lines,angle,seed){
 
 function tableTexture(){
   const S=1024,c=cnv(S,S),x=c.getContext('2d');
-  woodGrain(x,0,0,S,S,'#3a2212','#1d0f06','#5c3a1d',110,0,13);
-  // plank seams
-  x.globalAlpha=.5;
-  for(let i=1;i<5;i++){ const py=i*S/5; const g=x.createLinearGradient(0,py-6,0,py+6);
-    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(.5,'rgba(0,0,0,.65)'); g.addColorStop(1,'rgba(0,0,0,0)');
-    x.fillStyle=g; x.fillRect(0,py-6,S,12); }
-  x.globalAlpha=1;
-  const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(3,3);
-  t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=8; return t;
+  // Rich polished mahogany wood base & continuous vertical grain
+  woodGrain(x,0,0,S,S,'#5a230a','#280b02','#964516',100,0,13);
+  const t=new THREE.CanvasTexture(c);
+  t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;
+  t.repeat.set(1,1);
+  t.colorSpace=THREE.SRGBColorSpace;
+  t.anisotropy=16;
+  return t;
 }
 
 /* board top: frame + 64 inlaid squares + coordinates. Mapped over 10x10 units */
 /* ---------------------------- theme catalogue --------------------------- */
 const BOARD_THEMES={
-  walnut:  {name:'Walnut',  frame:['#4a2b13','#200f05','#70431f'], dark:['#7d2a20','#4a130d','#a8483a'], light:['#e3c88f','#bf9b59','#f6e6bd'], line:'rgba(226,186,104,.85)', label:'rgba(235,201,132,.75)', side:0x6b4523, grain:true,  hl:0xffd070},
-  oak:     {name:'Oak',     frame:['#6b4a24','#3a2510','#96703c'], dark:['#6a4526','#3e2611','#8d6238'], light:['#efdcb4','#c9ad7e','#fbf1d8'], line:'rgba(236,208,150,.8)',  label:'rgba(250,228,180,.8)',  side:0x8a6535, grain:true,  hl:0xffd070},
-  green:   {name:'Tournament', frame:['#2b1c10','#150c05','#43301a'], dark:['#3f7a4a','#2b5a34','#5b9666'], light:['#f1e8cf','#d6c9a5','#fbf6e6'], line:'rgba(226,206,150,.7)',  label:'rgba(230,214,170,.8)',  side:0x3c2a17, grain:false, hl:0xffe58a},
-  blue:    {name:'Ocean',   frame:['#1c2431','#0f141d','#2e3a4c'], dark:['#37628f','#25466a','#5486b6'], light:['#e6ecf3','#c2cdd9','#f7f9fc'], line:'rgba(190,210,235,.7)',  label:'rgba(210,225,245,.8)',  side:0x25303f, grain:false, hl:0xffd985},
-  ebony:   {name:'Ebony',   frame:['#121316','#08090a','#1f2228'], dark:['#14161a','#0a0b0d','#22262e'], light:['#f6f8fb','#e1e6ee','#ffffff'], line:'rgba(240,245,255,.85)', label:'rgba(242,246,255,.90)', side:0x0d0e12, grain:true,  hl:0xffe070},
-  cherry:  {name:'Cherry',  frame:['#5a2418','#2f0f08','#84392a'], dark:['#8f3a26','#5d2213','#b45a42'], light:['#f3d9b2','#d3b586','#fbead0'], line:'rgba(240,200,140,.8)',  label:'rgba(250,215,160,.8)',  side:0x6e2f1f, grain:true,  hl:0xffd070},
-  marble:  {name:'Marble',  frame:['#2a2a2e','#151518','#3d3d43'], dark:['#4a4c54','#33353b','#666a74'], light:['#eeeef0','#cfd0d4','#fafafb'], line:'rgba(220,220,230,.6)',  label:'rgba(230,230,240,.75)', side:0x2b2b30, grain:false, hl:0xffd985},
-  neon:    {name:'Midnight',frame:['#0e1020','#06070f','#1b1f3a'], dark:['#243055','#161d38','#35457a'], light:['#8fa4d8','#6e83b9','#b4c4ee'], line:'rgba(150,180,255,.65)', label:'rgba(170,195,255,.8)',  side:0x11132a, grain:false, hl:0x9fd0ff},
+  walnut:  {name:'Walnut',  frame:['#4a2b13','#200f05','#70431f'], dark:['#7d2a20','#4a130d','#a8483a'], light:['#e3c88f','#bf9b59','#f6e6bd'], line:'rgba(226,186,104,.85)', label:'rgba(235,201,132,.75)', side:0x6b4523, grain:true,  hl:0x38bdf8},
+  oak:     {name:'Oak',     frame:['#6b4a24','#3a2510','#96703c'], dark:['#6a4526','#3e2611','#8d6238'], light:['#efdcb4','#c9ad7e','#fbf1d8'], line:'rgba(236,208,150,.8)',  label:'rgba(250,228,180,.8)',  side:0x8a6535, grain:true,  hl:0x38bdf8},
+  green:   {name:'Tournament', frame:['#2b1c10','#150c05','#43301a'], dark:['#3f7a4a','#2b5a34','#5b9666'], light:['#f1e8cf','#d6c9a5','#fbf6e6'], line:'rgba(226,206,150,.7)',  label:'rgba(230,214,170,.8)',  side:0x3c2a17, grain:false, hl:0x38bdf8},
+  blue:    {name:'Ocean',   frame:['#1c2431','#0f141d','#2e3a4c'], dark:['#37628f','#25466a','#5486b6'], light:['#e6ecf3','#c2cdd9','#f7f9fc'], line:'rgba(190,210,235,.7)',  label:'rgba(210,225,245,.8)',  side:0x25303f, grain:false, hl:0x38bdf8},
+  ebony:   {name:'Ebony',   frame:['#121316','#08090a','#1f2228'], dark:['#14161a','#0a0b0d','#22262e'], light:['#f6f8fb','#e1e6ee','#ffffff'], line:'rgba(240,245,255,.85)', label:'rgba(242,246,255,.90)', side:0x0d0e12, grain:true,  hl:0x38bdf8},
+  cherry:  {name:'Cherry',  frame:['#5a2418','#2f0f08','#84392a'], dark:['#8f3a26','#5d2213','#b45a42'], light:['#f3d9b2','#d3b586','#fbead0'], line:'rgba(240,200,140,.8)',  label:'rgba(250,215,160,.8)',  side:0x6e2f1f, grain:true,  hl:0x38bdf8},
+  marble:  {name:'Marble',  frame:['#2a2a2e','#151518','#3d3d43'], dark:['#4a4c54','#33353b','#666a74'], light:['#eeeef0','#cfd0d4','#fafafb'], line:'rgba(220,220,230,.6)',  label:'rgba(230,230,240,.75)', side:0x2b2b30, grain:false, hl:0x38bdf8},
+  neon:    {name:'Midnight',frame:['#0e1020','#06070f','#1b1f3a'], dark:['#243055','#161d38','#35457a'], light:['#8fa4d8','#6e83b9','#b4c4ee'], line:'rgba(150,180,255,.65)', label:'rgba(170,195,255,.8)',  side:0x11132a, grain:false, hl:0x38bdf8},
 };
 const PIECE_SETS={
-  classic:{name:'White & Black', a:{col:0xf2f5f9,metal:.06,rough:.15,emb:['#e2e8f0','#141c2b','#ffffff'],sprite:['#ffffff','#ffffff','#f1f5f9','#cbd5e1'],ui:['#ffffff','#f8fafc','#cbd5e1']},
-                                  b:{col:0x12151c,metal:.30,rough:.20,emb:['#1a1e27','#06070a','#e2e8f0'],sprite:['#cbd5e1','#334155','#1e293b','#0a0d12'],ui:['#cbd5e1','#1e293b','#090b0e']}},
-  gold:   {name:'Gold & Onyx',   a:{col:0xd8a648,metal:.92,rough:.28,emb:['#c9992f','#6a4507','#ffe8a6'],sprite:['#fff0bd','#e8bb63','#a9761f','#5f4210'],ui:['#ffe9a8','#d3a33d','#8a5e14']},
-                                  b:{col:0x221a14,metal:.52,rough:.30,emb:['#1c140e','#070503','#ffe6a4'],sprite:['#ffe6a4','#786a5e','#1c1611','#080605'],ui:['#ffe6a4','#2a201a','#0e0a07']}},
-  redblack:{name:'Red & Black',  a:{col:0xc92e22,metal:.14,rough:.25,emb:['#b8281c','#540e07','#ffa396'],sprite:['#ff9a8c','#d84a3c','#8e1f15','#4a0d08'],ui:['#ff9a8c','#c9382b','#6d150d']},
-                                  b:{col:0x161619,metal:.22,rough:.28,emb:['#18181c','#050506','#f1f5f9'],sprite:['#e2e8f0','#6f6f78','#131316','#050506'],ui:['#e2e8f0','#26262b','#0a0a0c']}},
-  marble: {name:'Marble & Slate',a:{col:0xedeae5,metal:.06,rough:.18,emb:['#d8d3ca','#2b323c','#ffffff'],sprite:['#ffffff','#ebe9e6','#bcb8b3','#7d7873'],ui:['#ffffff','#e2dfda','#9c968f']},
-                                  b:{col:0x273240,metal:.18,rough:.26,emb:['#222c3a','#0e131a','#f1f5f9'],sprite:['#e2e8f0','#7f90a8','#1f2833','#0a0e14'],ui:['#e2e8f0','#33404f','#141a22']}},
-  jade:   {name:'Jade & Ruby',   a:{col:0x339b6b,metal:.18,rough:.18,emb:['#2b8a5d','#11422b','#b5ffd9'],sprite:['#b7f5d6','#55b98a','#1f6b48','#0d3a26'],ui:['#b7f5d6','#48a97b','#1f5a3f']},
-                                  b:{col:0x9e1834,metal:.18,rough:.20,emb:['#8c132c','#3d0612','#ffb5c6'],sprite:['#ffa8bd','#c23a5c','#6e1230','#33060f'],ui:['#ffa8bd','#a72446','#4d0b1b']}},
+  classic:{name:'Wood & Ebony', a:{col:0xdcae64,metal:.04,rough:.36,emb:['#dcae64','#2c1404','#fff5dc'],sprite:['#fae8c0','#d6b377','#a68042','#6b4f24'],ui:['#fae8c0','#d6b377','#8a622c']},
+                                  b:{col:0x18191d,metal:.12,rough:.38,emb:['#18191d','#000000','#c2c6d4'],sprite:['#858794','#3d3e48','#1e1f23','#0a0a0c'],ui:['#858794','#1e1f23','#0a0a0c']}},
+  gold:   {name:'Gold & Onyx',   a:{col:0xd8a648,metal:.75,rough:.30,emb:['#c9992f','#451a03','#ffffff'],sprite:['#fff0bd','#e8bb63','#a9761f','#5f4210'],ui:['#ffe9a8','#d3a33d','#8a5e14']},
+                                  b:{col:0x221a14,metal:.42,rough:.35,emb:['#1c140e','#070503','#ffe6a4'],sprite:['#ffe6a4','#786a5e','#1c1611','#080605'],ui:['#ffe6a4','#2a201a','#0e0a07']}},
+  redblack:{name:'Red & Black',  a:{col:0xc92e22,metal:.10,rough:.30,emb:['#b8281c','#3b0703','#ffffff'],sprite:['#ff9a8c','#d84a3c','#8e1f15','#4a0d08'],ui:['#ff9a8c','#c9382b','#6d150d']},
+                                  b:{col:0x161619,metal:.16,rough:.36,emb:['#18181c','#050506','#ffffff'],sprite:['#e2e8f0','#6f6f78','#131316','#050506'],ui:['#e2e8f0','#26262b','#0a0a0c']}},
+  marble: {name:'Marble & Slate',a:{col:0xedeae5,metal:.04,rough:.30,emb:['#d8d3ca','#0f172a','#0f172a'],sprite:['#ffffff','#ebe9e6','#bcb8b3','#7d7873'],ui:['#ffffff','#e2dfda','#9c968f']},
+                                  b:{col:0x273240,metal:.14,rough:.35,emb:['#222c3a','#0e131a','#ffffff'],sprite:['#e2e8f0','#7f90a8','#1f2833','#0a0e14'],ui:['#e2e8f0','#33404f','#141a22']}},
+  jade:   {name:'Jade & Ruby',   a:{col:0x339b6b,metal:.12,rough:.28,emb:['#2b8a5d','#052e16','#ffffff'],sprite:['#b7f5d6','#55b98a','#1f6b48','#0d3a26'],ui:['#b7f5d6','#48a97b','#1f5a3f']},
+                                  b:{col:0x9e1834,metal:.14,rough:.30,emb:['#8c132c','#3f0412','#ffffff'],sprite:['#ffa8bd','#c23a5c','#6e1230','#33060f'],ui:['#ffa8bd','#a72446','#4d0b1b']}},
 };
 const SETTINGS=(function(){
   const d={board:'walnut',pieces:'classic',hints:true,anim:1,coords:true,sideFirst:1,autoRotate:true};
@@ -448,19 +450,15 @@ function boardTexture(themeKey){
     const dark=(r+col)%2===1;
     const px=P0+col*CS, py=P0+r*CS;
     const cols=dark?T.dark:T.light;
-    if(T.grain) woodGrain(x,px,py,CS,CS,cols[0],cols[1],cols[2],26,(r+col)%4?(dark?0:Math.PI/2):(dark?Math.PI/2:0),r*8+col+1+(dark?0:100));
+    if(T.grain) woodGrain(x,px,py,CS,CS,cols[0],cols[1],cols[2],28,0,r*8+col+1+(dark?0:100));
     else        flatFill(x,px,py,CS,CS,cols,r*8+col+1);
-    // inlay bevel
-    const g=x.createLinearGradient(px,py,px,py+CS);
-    g.addColorStop(0,'rgba(0,0,0,.30)'); g.addColorStop(.12,'rgba(0,0,0,0)');
-    g.addColorStop(.88,'rgba(255,240,200,0)'); g.addColorStop(1,'rgba(255,235,195,.14)');
-    x.fillStyle=g; x.fillRect(px,py,CS,CS);
-    x.strokeStyle='rgba(40,20,8,.35)'; x.lineWidth=2; x.strokeRect(px+1,py+1,CS-2,CS-2);
+    // subtle clean square separation
+    x.strokeStyle='rgba(40,20,8,.18)'; x.lineWidth=1.5; x.strokeRect(px+0.5,py+0.5,CS-1,CS-1);
   }
   // gold inlay line around board
   x.strokeStyle=T.line; x.lineWidth=S*0.0045;
   x.strokeRect(P0-U*0.13,P0-U*0.13,PS+U*0.26,PS+U*0.26);
-  x.strokeStyle='rgba(30,14,4,.6)'; x.lineWidth=S*0.0025;
+  x.strokeStyle='rgba(30,14,4,.4)'; x.lineWidth=S*0.0025;
   x.strokeRect(P0-U*0.2,P0-U*0.2,PS+U*0.4,PS+U*0.4);
   // coordinates on frame (properly oriented for both sides of the board)
   const files='ABCDEFGH', ranks='87654321';
@@ -498,10 +496,6 @@ function boardTexture(themeKey){
       x.restore();
     }
   }
-  // outer edge darkening (AO)
-  const vg=x.createRadialGradient(S/2,S/2,S*0.32,S/2,S/2,S*0.72);
-  vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.45)');
-  x.fillStyle=vg; x.fillRect(0,0,S,S);
   const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.anisotropy=16; return t;
 }
 
@@ -512,347 +506,188 @@ function emblemTexture(king,pal){
   const base=pal[0], dk=pal[1], lt=pal[2];
   const cx=S/2, cy=S/2;
 
-  // Detect dark piece palette for high-contrast metallic engraving
+  // Detect dark piece palette
   const hex = base.replace('#','');
   const rVal = parseInt(hex.substr(0,2),16)||0;
   const gVal = parseInt(hex.substr(2,2),16)||0;
   const bVal = parseInt(hex.substr(4,2),16)||0;
   const isDark = (0.299*rVal + 0.587*gVal + 0.114*bVal) < 130;
 
-  // COLOR MAP: Base disc background
-  const bgGrad=x.createRadialGradient(cx-S*0.12,cy-S*0.14,S*0.02,cx,cy,S*0.5);
+  // 1. BASE DISC & NATURAL WOOD FIBERS (Clipped to circular piece top)
+  x.save();
+  x.beginPath(); x.arc(cx, cy, S*0.495, 0, Math.PI*2); x.clip();
   if(isDark){
-    bgGrad.addColorStop(0,'#3a4252');
-    bgGrad.addColorStop(0.55,base);
-    bgGrad.addColorStop(0.90,base);
-    bgGrad.addColorStop(1.0,'#06080d');
+    woodGrain(x, 0, 0, S, S, base, '#040507', '#2e313b', 46, 0, 77);
   } else {
-    bgGrad.addColorStop(0,'#ffffff');
-    bgGrad.addColorStop(0.50,'#f1f5f9');
-    bgGrad.addColorStop(0.88,base);
-    bgGrad.addColorStop(1.0,dk);
+    woodGrain(x, 0, 0, S, S, base, dk||'#7d5424', lt||'#fae8c0', 42, 0, 42);
   }
-  x.fillStyle=bgGrad;
-  x.beginPath(); x.arc(cx,cy,S/2,0,Math.PI*2); x.fill();
 
-  // BUMP MAP: Base height (128 mid-gray) with subtle recessed disc bevel
-  bx.fillStyle='#808080'; bx.fillRect(0,0,S,S);
-  const bBg=bx.createRadialGradient(cx,cy,S*0.44,cx,cy,S*0.5);
-  bBg.addColorStop(0,'rgba(128,128,128,0)');
-  bBg.addColorStop(1,'rgba(30,30,30,0.6)');
-  bx.fillStyle=bBg; bx.beginPath(); bx.arc(cx,cy,S/2,0,Math.PI*2); bx.fill();
+  // Directional wood sheen (soft lighting gradient from top-left)
+  const sheen = x.createLinearGradient(cx - S*0.35, cy - S*0.35, cx + S*0.35, cy + S*0.35);
+  sheen.addColorStop(0, isDark ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.24)');
+  sheen.addColorStop(0.50, 'rgba(255,255,255,0.0)');
+  sheen.addColorStop(1.0, isDark ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.22)');
+  x.fillStyle = sheen;
+  x.fillRect(0, 0, S, S);
 
-  // Concentric milled decorative rings
-  const rings=[0.472, 0.442, 0.412];
-  rings.forEach((rRatio, idx)=>{
-    const rr=S*rRatio;
-    x.beginPath(); x.arc(cx,cy,rr,0,Math.PI*2);
-    x.lineWidth=S*(idx===0?0.014:0.008);
-    x.strokeStyle=isDark?lt:dk;
-    x.globalAlpha=idx===0?(isDark?0.90:0.85):(isDark?0.70:0.65);
+  // 2. CONCENTRIC LATHE TERRACING GRADIENTS (Poki Master Checkers milled dish)
+  const ringRadii = [0.435, 0.355, 0.275, 0.195, 0.120, 0.055];
+  ringRadii.forEach((rRatio) => {
+    const rr = S * rRatio;
+    const terrace = x.createRadialGradient(cx, cy, Math.max(0, rr - S*0.045), cx, cy, rr);
+    terrace.addColorStop(0, 'rgba(0,0,0,0)');
+    terrace.addColorStop(0.55, isDark ? 'rgba(255,255,255,0.06)' : 'rgba(50,22,4,0.14)');
+    terrace.addColorStop(1.0, isDark ? 'rgba(0,0,0,0.65)' : 'rgba(50,22,4,0.40)');
+    x.fillStyle = terrace;
+    x.beginPath(); x.arc(cx, cy, rr, 0, Math.PI*2); x.fill();
+  });
+  x.restore();
+
+  // 3. BUMP MAP ELEVATION BASE
+  bx.fillStyle = '#808080'; bx.fillRect(0, 0, S, S);
+  const bBase = bx.createRadialGradient(cx, cy, 0, cx, cy, S*0.5);
+  bBase.addColorStop(0, '#757575');
+  bBase.addColorStop(0.85, '#959595');
+  bBase.addColorStop(0.96, '#dedede');
+  bBase.addColorStop(1.0, '#262626');
+  bx.fillStyle = bBase;
+  bx.beginPath(); bx.arc(cx, cy, S*0.495, 0, Math.PI*2); bx.fill();
+
+  // 4. PRECISION MILLED GROOVES (SOLID OPAQUE CONTRAST)
+  ringRadii.forEach((rRatio, idx) => {
+    const rr = S * rRatio;
+
+    // Etched deep groove shadow line (bold, deep & crisp)
+    x.beginPath(); x.arc(cx, cy, rr, 0, Math.PI*2);
+    x.lineWidth = S * (idx === 0 ? 0.030 : 0.024);
+    x.strokeStyle = isDark ? '#000000' : (dk || '#1a0902');
     x.stroke();
 
-    bx.beginPath(); bx.arc(cx,cy,rr,0,Math.PI*2);
-    bx.lineWidth=S*0.012;
-    bx.strokeStyle=idx%2===0?'#252525':'#f0f0f0';
+    // Dark pieces get vivid platinum-silver specular ridge reflection
+    if(isDark){
+      x.beginPath(); x.arc(cx, cy, rr - S*0.0075, 0, Math.PI*2);
+      x.lineWidth = S * (idx === 0 ? 0.013 : 0.010);
+      x.strokeStyle = lt || 'rgba(205,212,230,0.95)';
+      x.stroke();
+    }
+
+    // Physical bump map indentation & peak ridge
+    bx.beginPath(); bx.arc(cx, cy, rr, 0, Math.PI*2);
+    bx.lineWidth = S * 0.022;
+    bx.strokeStyle = '#000000';
+    bx.stroke();
+
+    bx.beginPath(); bx.arc(cx, cy, rr - S*0.008, 0, Math.PI*2);
+    bx.lineWidth = S * 0.011;
+    bx.strokeStyle = '#ffffff';
     bx.stroke();
   });
-  x.globalAlpha=1;
+
+  // Center bullseye core
+  x.beginPath(); x.arc(cx, cy, S * 0.032, 0, Math.PI*2);
+  x.fillStyle = isDark ? '#000000' : (dk || '#1a0902');
+  x.fill();
+  if(isDark){
+    x.beginPath(); x.arc(cx - S*0.006, cy - S*0.006, S * 0.010, 0, Math.PI*2);
+    x.fillStyle = 'rgba(205,212,230,0.90)';
+    x.fill();
+  }
+  bx.beginPath(); bx.arc(cx, cy, S * 0.032, 0, Math.PI*2);
+  bx.fillStyle = '#000000'; bx.fill();
+
+  // Outer rim bevel border
+  x.beginPath(); x.arc(cx, cy, S * 0.485, 0, Math.PI*2);
+  x.lineWidth = S * 0.026;
+  x.strokeStyle = isDark ? 'rgba(0,0,0,0.98)' : 'rgba(26,9,2,0.85)';
+  x.stroke();
+  if(isDark){
+    x.beginPath(); x.arc(cx, cy, S * 0.475, 0, Math.PI*2);
+    x.lineWidth = S * 0.008;
+    x.strokeStyle = 'rgba(180,188,210,0.65)';
+    x.stroke();
+  }
 
   if(king){
-    // Clean, crisp Royal Gold Medallion border ring
-    const rg=x.createLinearGradient(cx,cy-S*0.46,cx,cy+S*0.46);
-    rg.addColorStop(0,'#ffe79a'); rg.addColorStop(0.35,'#d49d28'); rg.addColorStop(0.7,'#8c5a08'); rg.addColorStop(1,'#4a2c02');
-    x.beginPath(); x.arc(cx,cy,S*0.435,0,Math.PI*2);
-    x.lineWidth=S*0.024; x.strokeStyle=rg; x.stroke();
+    // ---------- KING PIECE: CRISP ROYAL CROWN OUTLINE ----------
+    const strokeCol = isDark ? (lt || '#ffffff') : (dk || '#261405');
+    const lw = S * 0.026;
 
-    x.beginPath(); x.arc(cx,cy,S*0.40,0,Math.PI*2);
-    x.lineWidth=S*0.008; x.strokeStyle='rgba(255,236,160,0.85)'; x.stroke();
+    // Peak tip & valley points
+    const p0 = { x: cx - S*0.22, y: cy - S*0.06, r: S*0.020 };
+    const v0 = { x: cx - S*0.13, y: cy + S*0.025 };
+    const p1 = { x: cx - S*0.11, y: cy - S*0.15, r: S*0.024 };
+    const v1 = { x: cx - S*0.05, y: cy - S*0.015 };
+    const p2 = { x: cx,          y: cy - S*0.23, r: S*0.028 };
+    const v2 = { x: cx + S*0.05, y: cy - S*0.015 };
+    const p3 = { x: cx + S*0.11, y: cy - S*0.15, r: S*0.024 };
+    const v3 = { x: cx + S*0.13, y: cy + S*0.025 };
+    const p4 = { x: cx + S*0.22, y: cy - S*0.06, r: S*0.020 };
 
-    // Bump for medallion outer rings
-    bx.beginPath(); bx.arc(cx,cy,S*0.435,0,Math.PI*2);
-    bx.lineWidth=S*0.024; bx.strokeStyle='#e0e0e0'; bx.stroke();
-    bx.beginPath(); bx.arc(cx,cy,S*0.40,0,Math.PI*2);
-    bx.lineWidth=S*0.008; bx.strokeStyle='#ffffff'; bx.stroke();
+    const bLeft = cx - S*0.22, bRight = cx + S*0.22;
+    const bTopY = cy + S*0.075, bBotY = cy + S*0.165;
 
-    // Bold Iconic Royal Crown Dimensions
-    const w = S * 0.35;
-    const baseY = cy + S * 0.26;
-    const bandH = S * 0.10;
-    const bandTop = baseY - bandH;
-    const topY = cy - S * 0.30;
-    const sidePeakY = cy - S * 0.14;
-    const innerDipY = cy + S * 0.05;
+    const drawCrown = (ctx, col, width) => {
+      ctx.save();
+      ctx.strokeStyle = col;
+      ctx.lineWidth = width;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
 
-    // Crown Body Path helper
-    const crownPath=(ctx)=>{
+      // 1. Peaks outline
       ctx.beginPath();
-      ctx.moveTo(cx - w, bandTop);
-      ctx.lineTo(cx - w, sidePeakY);
-      ctx.lineTo(cx - w * 0.48, innerDipY);
-      ctx.lineTo(cx, topY);
-      ctx.lineTo(cx + w * 0.48, innerDipY);
-      ctx.lineTo(cx + w, sidePeakY);
-      ctx.lineTo(cx + w, bandTop);
+      ctx.moveTo(bLeft, bTopY);
+      ctx.lineTo(p0.x, p0.y);
+      ctx.lineTo(v0.x, v0.y);
+      ctx.lineTo(p1.x, p1.y);
+      ctx.lineTo(v1.x, v1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.lineTo(v2.x, v2.y);
+      ctx.lineTo(p3.x, p3.y);
+      ctx.lineTo(v3.x, v3.y);
+      ctx.lineTo(p4.x, p4.y);
+      ctx.lineTo(bRight, bTopY);
+      ctx.stroke();
+
+      // 2. Base headband frame
+      ctx.beginPath();
+      ctx.moveTo(bLeft, bTopY);
+      ctx.quadraticCurveTo(cx, bTopY + S*0.025, bRight, bTopY);
+      ctx.lineTo(bRight, bBotY);
+      ctx.quadraticCurveTo(cx, bBotY + S*0.025, bLeft, bBotY);
       ctx.closePath();
+      ctx.stroke();
+
+      // 3. Peak tip circles (finials)
+      [p0, p1, p2, p3, p4].forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+
+      // 4. Headband interior diamonds
+      const diamonds = [
+        { x: cx - S*0.13, y: (bTopY + bBotY)/2 + S*0.008 },
+        { x: cx,          y: (bTopY + bBotY)/2 + S*0.013 },
+        { x: cx + S*0.13, y: (bTopY + bBotY)/2 + S*0.008 }
+      ];
+      diamonds.forEach(d => {
+        const dw = S * 0.020, dh = S * 0.020;
+        ctx.beginPath();
+        ctx.moveTo(d.x, d.y - dh);
+        ctx.lineTo(d.x + dw, d.y);
+        ctx.lineTo(d.x, d.y + dh);
+        ctx.lineTo(d.x - dw, d.y);
+        ctx.closePath();
+        ctx.stroke();
+      });
+
+      ctx.restore();
     };
 
-    // Crown Drop Shadow
-    x.save();
-    x.shadowColor='rgba(0,0,0,0.85)';
-    x.shadowBlur=S*0.04;
-    x.shadowOffsetY=S*0.02;
-
-    crownPath(x);
-    const cg=x.createLinearGradient(cx, topY, cx, baseY);
-    cg.addColorStop(0,'#ffffff');
-    cg.addColorStop(0.18,'#ffea9e');
-    cg.addColorStop(0.48,'#e5a720');
-    cg.addColorStop(0.80,'#ab700a');
-    cg.addColorStop(1,'#5c3703');
-    x.fillStyle=cg;
-    x.fill();
-    x.restore();
-
-    // Crown Bump Map
-    crownPath(bx);
-    const bcg=bx.createLinearGradient(cx, topY, cx, baseY);
-    bcg.addColorStop(0,'#ffffff'); bcg.addColorStop(0.5,'#e8e8e8'); bcg.addColorStop(1,'#b5b5b5');
-    bx.fillStyle=bcg; bx.fill();
-    bx.lineWidth=S*0.024; bx.strokeStyle='#303030'; bx.stroke();
-
-    // Sharp outer strokes on color canvas
-    x.lineWidth=S*0.024; x.strokeStyle='#200f01'; x.stroke();
-    x.lineWidth=S*0.009; x.strokeStyle='#fff8d0'; x.stroke();
-
-    // Crown Base Headband
-    const bg2=x.createLinearGradient(cx, bandTop, cx, baseY);
-    bg2.addColorStop(0,'#6b3e05'); bg2.addColorStop(0.45,'#dba024'); bg2.addColorStop(1,'#ffeaa6');
-    x.fillStyle=bg2;
-    const bxPos=cx - w, bw=w * 2;
-    x.beginPath();
-    x.rect(bxPos, bandTop, bw, bandH);
-    x.fill();
-    x.lineWidth=S*0.012; x.strokeStyle='#1a0a01'; x.stroke();
-
-    bx.fillStyle='#f0f0f0'; bx.beginPath(); bx.rect(bxPos, bandTop, bw, bandH); bx.fill();
-    bx.lineWidth=S*0.012; bx.strokeStyle='#404040'; bx.stroke();
-
-    // 3 Large Embedded Royal Gemstones
-    const gemR = S * 0.032;
-    const gems=[
-      {x: cx - w * 0.58, y: bandTop + bandH/2, col:'#ff2e2e'},
-      {x: cx,           y: bandTop + bandH/2, col:'#ffffff'},
-      {x: cx + w * 0.58, y: bandTop + bandH/2, col:'#2075ff'}
-    ];
-    gems.forEach(g=>{
-      x.beginPath(); x.arc(g.x, g.y, gemR, 0, Math.PI*2);
-      x.fillStyle=g.col; x.fill();
-      x.lineWidth=S*0.008; x.strokeStyle='#140801'; x.stroke();
-      x.beginPath(); x.arc(g.x - gemR*0.28, g.y - gemR*0.28, gemR*0.35, 0, Math.PI*2);
-      x.fillStyle='rgba(255,255,255,0.95)'; x.fill();
-
-      // Bump for gem dome
-      const gbg=bx.createRadialGradient(g.x, g.y, 0, g.x, g.y, gemR);
-      gbg.addColorStop(0,'#ffffff'); gbg.addColorStop(1,'#656565');
-      bx.beginPath(); bx.arc(g.x, g.y, gemR, 0, Math.PI*2);
-      bx.fillStyle=gbg; bx.fill();
-    });
-
-    // 3 Large Spherical Gold Pearls on Peak Tips
-    const tips=[
-      {x: cx - w, y: sidePeakY, r: S * 0.040},
-      {x: cx,     y: topY,      r: S * 0.050},
-      {x: cx + w, y: sidePeakY, r: S * 0.040}
-    ];
-    tips.forEach(t=>{
-      const pg=x.createRadialGradient(t.x - t.r*0.3, t.y - t.r*0.3, 0, t.x, t.y, t.r);
-      pg.addColorStop(0,'#ffffff'); pg.addColorStop(0.55,'#ffd978'); pg.addColorStop(1,'#8c5a08');
-      x.beginPath(); x.arc(t.x, t.y, t.r, 0, Math.PI*2); x.fill();
-      x.lineWidth=S*0.009; x.strokeStyle='#200f01'; x.stroke();
-
-      const bpg=bx.createRadialGradient(t.x - t.r*0.2, t.y - t.r*0.2, 0, t.x, t.y, t.r);
-      bpg.addColorStop(0,'#ffffff'); bpg.addColorStop(1,'#505050');
-      bx.beginPath(); bx.arc(t.x, t.y, t.r, 0, Math.PI*2); bx.fillStyle=bpg; bx.fill();
-    });
-  }else{
-    // Regular piece: Premium Faceted 8-Point Royal Tournament Star Medallion
-    const N=8;
-    const rOuter=S*0.33, rInner=S*0.14;
-    const ptsOuter=[], ptsInner=[];
-
-    for(let i=0;i<N;i++){
-      const aOuter = -Math.PI/2 + (i * 2 * Math.PI / N);
-      const aInner = aOuter + (Math.PI / N);
-      ptsOuter.push({ x: cx + Math.cos(aOuter)*rOuter, y: cy + Math.sin(aOuter)*rOuter });
-      ptsInner.push({ x: cx + Math.cos(aInner)*rInner, y: cy + Math.sin(aInner)*rInner });
-    }
-
-    // Outer Beaded / Compass Ring
-    x.beginPath(); x.arc(cx,cy,S*0.375,0,Math.PI*2);
-    x.lineWidth=S*0.010; x.strokeStyle=isDark?lt:dk; x.globalAlpha=isDark?0.85:0.80; x.stroke(); x.globalAlpha=1;
-
-    // Small compass marker pips around perimeter
-    for(let i=0;i<16;i++){
-      const a = i * Math.PI / 8;
-      const pr = S * 0.375;
-      const px = cx + Math.cos(a)*pr, py = cy + Math.sin(a)*pr;
-      x.beginPath(); x.arc(px,py,S*(i%2===0?0.014:0.008),0,Math.PI*2);
-      x.fillStyle=isDark?lt:dk; x.globalAlpha=i%2===0?(isDark?0.95:0.90):(isDark?0.75:0.65); x.fill(); x.globalAlpha=1;
-
-      bx.beginPath(); bx.arc(px,py,S*0.012,0,Math.PI*2);
-      bx.fillStyle='#f0f0f0'; bx.fill();
-    }
-
-    // Draw Faceted Star: Alternating Light & Dark Beveled Triangles
-    for(let i=0;i<N;i++){
-      const prevInner = ptsInner[(i - 1 + N) % N];
-      const curOuter = ptsOuter[i];
-      const curInner = ptsInner[i];
-
-      // Left facet (Highlight side: gleaming bright pearl/silver/gold)
-      x.beginPath();
-      x.moveTo(cx, cy);
-      x.lineTo(prevInner.x, prevInner.y);
-      x.lineTo(curOuter.x, curOuter.y);
-      x.closePath();
-      const gradL = x.createLinearGradient(cx, cy, curOuter.x, curOuter.y);
-      if(isDark){
-        gradL.addColorStop(0, '#ffffff');
-        gradL.addColorStop(0.5, lt);
-        gradL.addColorStop(1, '#8ea1b8');
-      } else {
-        gradL.addColorStop(0, '#ffffff');
-        gradL.addColorStop(0.45, '#f8fafc');
-        gradL.addColorStop(1, '#cbd5e1');
-      }
-      x.fillStyle = gradL;
-      x.fill();
-      x.lineWidth = S * 0.006;
-      x.strokeStyle = isDark ? lt : dk;
-      x.globalAlpha = isDark ? 0.70 : 0.80;
-      x.stroke();
-      x.globalAlpha = 1.0;
-
-      // Left bump facet (High relief: 245)
-      bx.beginPath();
-      bx.moveTo(cx, cy);
-      bx.lineTo(prevInner.x, prevInner.y);
-      bx.lineTo(curOuter.x, curOuter.y);
-      bx.closePath();
-      bx.fillStyle = '#f8f8f8';
-      bx.fill();
-
-      // Right facet (Shaded side: deep chiseled shadow contrast)
-      x.beginPath();
-      x.moveTo(cx, cy);
-      x.lineTo(curOuter.x, curOuter.y);
-      x.lineTo(curInner.x, curInner.y);
-      x.closePath();
-      if(isDark){
-        x.fillStyle = '#06080e';
-        x.globalAlpha = 0.85;
-        x.fill();
-        x.globalAlpha = 1.0;
-        x.lineWidth = S * 0.006;
-        x.strokeStyle = lt;
-        x.globalAlpha = 0.75;
-        x.stroke();
-        x.globalAlpha = 1.0;
-      } else {
-        const gradR = x.createLinearGradient(cx, cy, curOuter.x, curOuter.y);
-        gradR.addColorStop(0, dk);
-        gradR.addColorStop(0.70, dk);
-        gradR.addColorStop(1, '#0f172a');
-        x.fillStyle = dk;
-        x.globalAlpha = 0.85;
-        x.fill();
-        x.globalAlpha = 1.0;
-        x.lineWidth = S * 0.006;
-        x.strokeStyle = dk;
-        x.globalAlpha = 0.90;
-        x.stroke();
-        x.globalAlpha = 1.0;
-      }
-
-      // Right bump facet (Lower relief: 90)
-      bx.beginPath();
-      bx.moveTo(cx, cy);
-      bx.lineTo(curOuter.x, curOuter.y);
-      bx.lineTo(curInner.x, curInner.y);
-      bx.closePath();
-      bx.fillStyle = '#787878';
-      bx.fill();
-    }
-
-    // Crisp Outer Star Boundary Contour
-    x.beginPath();
-    for(let i=0;i<N;i++){
-      const po=ptsOuter[i], pi=ptsInner[i];
-      if(i===0) x.moveTo(po.x, po.y); else x.lineTo(po.x, po.y);
-      x.lineTo(pi.x, pi.y);
-    }
-    x.closePath();
-    x.lineWidth = S * 0.016;
-    x.strokeStyle = isDark ? lt : dk;
-    x.globalAlpha = 1.0;
-    x.stroke();
-    x.lineWidth = S * 0.006;
-    x.strokeStyle = isDark ? '#ffffff' : '#ffffff';
-    x.globalAlpha = 0.90;
-    x.stroke();
-    x.globalAlpha = 1.0;
-
-    // Bump star perimeter ridge
-    bx.beginPath();
-    for(let i=0;i<N;i++){
-      const po=ptsOuter[i], pi=ptsInner[i];
-      if(i===0) bx.moveTo(po.x, po.y); else bx.lineTo(po.x, po.y);
-      bx.lineTo(pi.x, pi.y);
-    }
-    bx.closePath();
-    bx.lineWidth = S * 0.014;
-    bx.strokeStyle = '#252525';
-    bx.stroke();
-
-    // Central 3D Raised Pearl Boss / Medallion Hub
-    const hubR = S * 0.082;
-    // Hub Drop Shadow
-    x.save();
-    x.shadowColor = 'rgba(0,0,0,0.65)';
-    x.shadowBlur = S * 0.03;
-    x.shadowOffsetY = S * 0.015;
-    x.beginPath(); x.arc(cx, cy, hubR, 0, Math.PI*2);
-    const hubGrad = x.createRadialGradient(cx - hubR*0.35, cy - hubR*0.35, hubR*0.05, cx, cy, hubR);
-    hubGrad.addColorStop(0, '#ffffff');
-    hubGrad.addColorStop(0.35, isDark ? lt : '#f8fafc');
-    hubGrad.addColorStop(0.75, base);
-    hubGrad.addColorStop(1.0, isDark ? '#05070a' : dk);
-    x.fillStyle = hubGrad;
-    x.fill();
-    x.restore();
-
-    // Hub Bezel ring & specular dot
-    x.beginPath(); x.arc(cx, cy, hubR, 0, Math.PI*2);
-    x.lineWidth = S * 0.014;
-    x.strokeStyle = isDark ? lt : dk;
-    x.globalAlpha = 0.95;
-    x.stroke();
-    x.globalAlpha = 1.0;
-
-    x.beginPath(); x.arc(cx - hubR*0.32, cy - hubR*0.32, hubR*0.30, 0, Math.PI*2);
-    x.fillStyle = 'rgba(255,255,255,0.98)';
-    x.fill();
-
-    // Hub Bump Map (smooth high dome)
-    const hubBump = bx.createRadialGradient(cx - hubR*0.2, cy - hubR*0.2, 0, cx, cy, hubR);
-    hubBump.addColorStop(0, '#ffffff');
-    hubBump.addColorStop(0.75, '#e0e0e0');
-    hubBump.addColorStop(1.0, '#404040');
-    bx.beginPath(); bx.arc(cx, cy, hubR, 0, Math.PI*2);
-    bx.fillStyle = hubBump; bx.fill();
-    bx.lineWidth = S * 0.012; bx.strokeStyle = '#1a1a1a'; bx.stroke();
+    drawCrown(x, strokeCol, lw);
+    drawCrown(bx, '#ffffff', lw);
   }
+
   const map=new THREE.CanvasTexture(c);
   map.colorSpace=THREE.SRGBColorSpace;
   map.anisotropy=16;
@@ -876,15 +711,9 @@ function sparkTexture(){
 function envTexture(){
   const W=1024,H=512,c=cnv(W,H),x=c.getContext('2d');
   const g=x.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'#3a3d45'); g.addColorStop(.42,'#1e2026'); g.addColorStop(.62,'#101216'); g.addColorStop(1,'#07080a');
+  g.addColorStop(0,'#1c1814'); g.addColorStop(.42,'#14100c'); g.addColorStop(.62,'#0c0805'); g.addColorStop(1,'#080503');
   x.fillStyle=g; x.fillRect(0,0,W,H);
-  // crisp neutral studio light sources
-  const mk=(cx,cy,r,col,a)=>{ const rg=x.createRadialGradient(cx,cy,0,cx,cy,r);
-    rg.addColorStop(0,col); rg.addColorStop(1,'rgba(0,0,0,0)'); x.globalAlpha=a; x.fillStyle=rg;
-    x.beginPath(); x.arc(cx,cy,r,0,7); x.fill(); x.globalAlpha=1; };
-  mk(W*0.28,H*0.20,W*0.20,'rgba(255,255,255,1)',1);
-  mk(W*0.72,H*0.30,W*0.14,'rgba(230,240,255,.9)',.9);
-  mk(W*0.52,H*0.05,W*0.30,'rgba(245,250,255,.7)',.7);
+  // soft uniform diffuse ambient fill without spotlight discs
   const t=new THREE.CanvasTexture(c); t.mapping=THREE.EquirectangularReflectionMapping;
   t.colorSpace=THREE.SRGBColorSpace; return t;
 }
@@ -898,8 +727,8 @@ renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=0.96;
 
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x0a0705);
-scene.fog=new THREE.Fog(0x120a05,42,90);
+scene.background=new THREE.Color(0x241006);
+scene.fog=new THREE.Fog(0x241006,75,175);
 
 const camera=new THREE.PerspectiveCamera(42,1,0.1,200);
 
@@ -908,18 +737,19 @@ const envRT=pmrem.fromEquirectangular(envTexture());
 scene.environment=envRT.texture;
 
 /* ------------------------------ lights --------------------------------- */
-scene.add(new THREE.HemisphereLight(0xf2f6fb,0x141822,0.60));
-const key=new THREE.DirectionalLight(0xffffff,1.65);
-key.position.set(7.5,15,8.5); key.castShadow=true;
+scene.add(new THREE.AmbientLight(0xffffff,0.55));
+scene.add(new THREE.HemisphereLight(0xffffff,0x666677,0.30));
+const key=new THREE.DirectionalLight(0xffffff,0.60);
+key.position.set(0,24,0); key.castShadow=true;
 key.shadow.mapSize.set(1024,1024);
 key.shadow.camera.left=-8.6; key.shadow.camera.right=8.6;
 key.shadow.camera.top=8.6; key.shadow.camera.bottom=-8.6;
-key.shadow.camera.near=6; key.shadow.camera.far=34;
-key.shadow.bias=-0.0004; key.shadow.normalBias=0.015;
+key.shadow.camera.near=6; key.shadow.camera.far=38;
+key.shadow.bias=-0.0002; key.shadow.normalBias=0.01;
 scene.add(key);
-const fill=new THREE.DirectionalLight(0xcde0fb,0.45); fill.position.set(-9,7,-7); scene.add(fill);
-const backLight=new THREE.DirectionalLight(0xe8f0fc,0.65); backLight.position.set(0,8,-11); scene.add(backLight);
-const lamp=new THREE.PointLight(0xfffaed,3.8,20,1.8); lamp.position.set(-2.5,7.5,3); scene.add(lamp);
+const fillL=new THREE.DirectionalLight(0xf5f5fa,0.18); fillL.position.set(-10,18,0); scene.add(fillL);
+const fillR=new THREE.DirectionalLight(0xf5f5fa,0.18); fillR.position.set(10,18,0); scene.add(fillR);
+const fillB=new THREE.DirectionalLight(0xf5f5fa,0.15); fillB.position.set(0,18,0); scene.add(fillB);
 
 /* ============================ WORLD GEOMETRY ============================ */
 const BOARD_TOP=0.44;                  // y of playing surface
@@ -929,19 +759,9 @@ let TABLE_IMG=null,BOARD_IMG=null; const BOARD_REF={};
 /* table */
 {
   const tex=tableTexture(); TABLE_IMG=tex.image;
-  const mat=new THREE.MeshStandardMaterial({map:tex,bumpMap:tex,bumpScale:0.035,roughness:.72,metalness:.05,color:0xb79a7e});
-  mat.color.set(0xb79a7e);
+  const mat=new THREE.MeshBasicMaterial({map:tex});
   const g=new THREE.PlaneGeometry(70,70);
-  const m=new THREE.Mesh(g,mat); m.rotation.x=-Math.PI/2; m.receiveShadow=true; world.add(m);
-  // soft pool of light on the table
-  const glowC=cnv(256,256), gx=glowC.getContext('2d');
-  const rg=gx.createRadialGradient(128,128,10,128,128,128);
-  rg.addColorStop(0,'rgba(255,216,160,.18)'); rg.addColorStop(1,'rgba(255,200,140,0)');
-  gx.fillStyle=rg; gx.fillRect(0,0,256,256);
-  const gt=new THREE.CanvasTexture(glowC); gt.colorSpace=THREE.SRGBColorSpace;
-  const glow=new THREE.Mesh(new THREE.PlaneGeometry(34,34),
-    new THREE.MeshBasicMaterial({map:gt,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));
-  glow.rotation.x=-Math.PI/2; glow.position.y=0.012; world.add(glow);
+  const m=new THREE.Mesh(g,mat); m.rotation.x=-Math.PI/2; world.add(m);
 }
 
 /* board body: extruded rounded square with bevel */
@@ -957,13 +777,13 @@ let TABLE_IMG=null,BOARD_IMG=null; const BOARD_REF={};
   geo.rotateX(-Math.PI/2);
   const btex=boardTexture(); BOARD_IMG=btex.image;
   btex.repeat.set(1/10,1/10); btex.offset.set(0.5,0.5); btex.wrapS=btex.wrapT=THREE.ClampToEdgeWrapping;
-  const capMat=new THREE.MeshStandardMaterial({map:btex,bumpMap:btex,bumpScale:0.012,roughness:.42,metalness:.04});
+  const capMat=new THREE.MeshBasicMaterial({map:btex});
   BOARD_REF.capMat=capMat;
   const sideTex=tableTexture(); sideTex.repeat.set(2,0.5);
-  const sideMat=new THREE.MeshStandardMaterial({map:sideTex,color:BOARD_THEMES[SETTINGS.board].side,roughness:.55,metalness:.06});
+  const sideMat=new THREE.MeshBasicMaterial({map:sideTex,color:BOARD_THEMES[SETTINGS.board].side});
   BOARD_REF.sideMat=sideMat;
   const board=new THREE.Mesh(geo,[capMat,sideMat]);
-  board.position.y=BOARD_TOP-0.41; board.castShadow=true; board.receiveShadow=true;
+  board.position.y=BOARD_TOP-0.41;
   world.add(board);
 }
 
@@ -993,22 +813,22 @@ function pieceProfile(){
 }
 const PROFILE=pieceProfile();
 const bodyGeo=new THREE.LatheGeometry(PROFILE,36);
-const inlayGeo=new THREE.CircleGeometry(0.358,36).rotateX(-Math.PI/2);
+const inlayGeo=new THREE.CircleGeometry(0.365,36).rotateX(-Math.PI/2);
 
-const matGold=new THREE.MeshStandardMaterial({color:0xffffff,metalness:.04,roughness:.16,envMapIntensity:1.25});
-const matDark=new THREE.MeshStandardMaterial({color:0x111111,metalness:.25,roughness:.28,envMapIntensity:1.10});
+const matGold=new THREE.MeshStandardMaterial({color:0xffffff,metalness:.04,roughness:.25,envMapIntensity:0.65});
+const matDark=new THREE.MeshStandardMaterial({color:0x111111,metalness:.15,roughness:.35,envMapIntensity:0.45});
 const emblemTex={g0:null,g1:null,d0:null,d1:null};
 const inlayMat={
-  g0:new THREE.MeshStandardMaterial({metalness:.06,roughness:.16}),
+  g0:new THREE.MeshStandardMaterial({metalness:.06,roughness:.25}),
   g1:new THREE.MeshStandardMaterial({metalness:.85,roughness:.18}),
-  d0:new THREE.MeshStandardMaterial({metalness:.22,roughness:.28}),
+  d0:new THREE.MeshStandardMaterial({metalness:.12,roughness:.36}),
   d1:new THREE.MeshStandardMaterial({metalness:.85,roughness:.18})
 };
 function applyPieceSet(){
   const P=PIECE_SETS[SETTINGS.pieces];
-  matGold.color.setHex(P.a.col); matGold.metalness=P.a.metal; matGold.roughness=P.a.rough;
-  matDark.color.setHex(P.b.col); matDark.metalness=P.b.metal; matDark.roughness=P.b.rough;
-  matGold.envMapIntensity = P.a.metal>.5?1.20:0.92; matDark.envMapIntensity = P.b.metal>.5?1.10:0.85;
+  matGold.color.setHex(P.a.col); matGold.metalness=P.a.metal; matGold.roughness=Math.max(0.22, P.a.rough);
+  matDark.color.setHex(P.b.col); matDark.metalness=Math.min(0.20, P.b.metal); matDark.roughness=Math.max(0.32, P.b.rough);
+  matGold.envMapIntensity = P.a.metal>.5?0.85:0.55; matDark.envMapIntensity = P.b.metal>.5?0.65:0.40;
   for(const k of ['g0','g1','d0','d1']){
     if(emblemTex[k]){
       if(emblemTex[k].map) emblemTex[k].map.dispose();
@@ -1020,13 +840,13 @@ function applyPieceSet(){
   for(const k of ['g0','g1','d0','d1']){
     inlayMat[k].map=emblemTex[k].map;
     inlayMat[k].bumpMap=emblemTex[k].bump;
-    inlayMat[k].bumpScale=(k==='g1'||k==='d1')?0.038:0.028;
+    inlayMat[k].bumpScale=(k==='g1'||k==='d1')?0.038:0.032;
     inlayMat[k].needsUpdate=true;
   }
-  inlayMat.g0.metalness=Math.max(.05,P.a.metal*.9); inlayMat.g0.roughness=P.a.rough;
-  inlayMat.d0.metalness=Math.max(.15,P.b.metal*.9); inlayMat.d0.roughness=P.b.rough;
-  inlayMat.g1.metalness=0.85; inlayMat.g1.roughness=0.18;
-  inlayMat.d1.metalness=0.85; inlayMat.d1.roughness=0.18;
+  inlayMat.g0.metalness=0.0;  inlayMat.g0.roughness=0.50;
+  inlayMat.d0.metalness=0.06; inlayMat.d0.roughness=0.38;
+  inlayMat.g1.metalness=0.0;  inlayMat.g1.roughness=0.42;
+  inlayMat.d1.metalness=0.06; inlayMat.d1.roughness=0.36;
   // HUD discs
   const css=(pal)=>`radial-gradient(circle at 34% 30%,${pal[0]},${pal[1]} 50%,${pal[2]})`;
   $('youDisc').style.background=css(P.a.ui); $('oppDisc').style.background=css(P.b.ui);
@@ -1039,34 +859,169 @@ function makePiece(side){                       // side: 1 gold, -1 dark
   const g=new THREE.Group();
   const mat = side>0?matGold:matDark;
   const body=new THREE.Mesh(bodyGeo,mat); body.castShadow=true; body.receiveShadow=true; g.add(body);
+
   const inlay=new THREE.Mesh(inlayGeo, side>0?inlayMat.g0:inlayMat.d0);
-  inlay.position.y=0.1225; inlay.castShadow=false; inlay.receiveShadow=true; g.add(inlay);
+  inlay.position.y=0.123; inlay.castShadow=false; inlay.receiveShadow=true; g.add(inlay);
   g.userData={side,king:false,body,inlay};
   return g;
 }
 
 /* ----------------------------- highlights ------------------------------ */
 const hlGroup=new THREE.Group(); world.add(hlGroup);
-const selRing=new THREE.Mesh(new THREE.RingGeometry(0.42,0.49,48).rotateX(-Math.PI/2),
-  new THREE.MeshBasicMaterial({color:0xffd070,transparent:true,opacity:.9,depthWrite:false}));
-selRing.visible=false; selRing.position.y=BOARD_TOP+0.006; world.add(selRing);
 
-const lastFrom=new THREE.Mesh(new THREE.PlaneGeometry(0.94,0.94).rotateX(-Math.PI/2),
-  new THREE.MeshBasicMaterial({color:0xffcf85,transparent:true,opacity:.16,depthWrite:false}));
+function makeSelTileTexture(){
+  const S=512, c=cnv(S,S), x=c.getContext('2d');
+  
+  // 1. Full square luminous color wash base
+  x.fillStyle = 'rgba(255, 255, 255, 0.40)';
+  x.fillRect(0, 0, S, S);
+
+  // 2. Soft glowing halo bloom in center radiating past the piece silhouette
+  const halo = x.createRadialGradient(S/2, S/2, S*0.05, S/2, S/2, S*0.48);
+  halo.addColorStop(0, 'rgba(255, 255, 255, 0.58)');
+  halo.addColorStop(0.35, 'rgba(255, 255, 255, 0.42)');
+  halo.addColorStop(0.70, 'rgba(255, 255, 255, 0.18)');
+  halo.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
+  x.fillStyle = halo;
+  x.fillRect(0, 0, S, S);
+
+  // 3. Crisp outer beveled border rim
+  x.lineWidth = 6;
+  x.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+  x.strokeRect(3, 3, S-6, S-6);
+
+  // 4. Subtle elegant inset framing
+  x.lineWidth = 2;
+  x.strokeStyle = 'rgba(255, 255, 255, 0.40)';
+  x.strokeRect(10, 10, S-20, S-20);
+
+  // 5. Polished corner brackets
+  const cr = 28;
+  x.lineWidth = 4;
+  x.strokeStyle = 'rgba(255, 255, 255, 0.90)';
+  // Top-left
+  x.beginPath(); x.moveTo(6, 6+cr); x.lineTo(6, 6); x.lineTo(6+cr, 6); x.stroke();
+  // Top-right
+  x.beginPath(); x.moveTo(S-6-cr, 6); x.lineTo(S-6, 6); x.lineTo(S-6, 6+cr); x.stroke();
+  // Bottom-left
+  x.beginPath(); x.moveTo(6, S-6-cr); x.lineTo(6, S-6); x.lineTo(6+cr, S-6); x.stroke();
+  // Bottom-right
+  x.beginPath(); x.moveTo(S-6-cr, S-6); x.lineTo(S-6, S-6); x.lineTo(S-6, S-6-cr); x.stroke();
+
+  const t=new THREE.CanvasTexture(c);
+  t.colorSpace=THREE.SRGBColorSpace;
+  t.anisotropy=8;
+  return t;
+}
+
+function makeContactShadowTexture(){
+  const S=128, c=cnv(S,S), x=c.getContext('2d');
+  const g=x.createRadialGradient(S/2,S/2,0,S/2,S/2,S/2);
+  g.addColorStop(0,'rgba(0,0,0,0.68)');
+  g.addColorStop(0.5,'rgba(0,0,0,0.28)');
+  g.addColorStop(1,'rgba(0,0,0,0)');
+  x.fillStyle=g;
+  x.fillRect(0,0,S,S);
+  const t=new THREE.CanvasTexture(c);
+  t.colorSpace=THREE.SRGBColorSpace;
+  return t;
+}
+
+const selTileTex=makeSelTileTexture();
+const selTileMat=new THREE.MeshBasicMaterial({map:selTileTex,color:0x38bdf8,transparent:true,opacity:.85,depthWrite:false});
+const selTile=new THREE.Mesh(new THREE.PlaneGeometry(0.992,0.992).rotateX(-Math.PI/2), selTileMat);
+selTile.visible=false; selTile.position.y=BOARD_TOP+0.005; world.add(selTile);
+
+const selShadowTex=makeContactShadowTexture();
+const selShadowMat=new THREE.MeshBasicMaterial({map:selShadowTex,transparent:true,opacity:.55,depthWrite:false});
+const selShadow=new THREE.Mesh(new THREE.PlaneGeometry(0.86,0.86).rotateX(-Math.PI/2), selShadowMat);
+selShadow.visible=false; selShadow.position.y=BOARD_TOP+0.004; world.add(selShadow);
+
+const lastFrom=new THREE.Mesh(new THREE.PlaneGeometry(0.992,0.992).rotateX(-Math.PI/2),
+  new THREE.MeshBasicMaterial({color:0x38bdf8,transparent:true,opacity:.22,depthWrite:false}));
 const lastTo=lastFrom.clone(); lastFrom.visible=lastTo.visible=false;
 lastFrom.position.y=lastTo.position.y=BOARD_TOP+0.004; world.add(lastFrom,lastTo);
 
-const dotGeo=new THREE.CylinderGeometry(0.15,0.15,0.03,24);
-const dotMat=new THREE.MeshStandardMaterial({color:0x7ce08a,emissive:0x2c7a38,roughness:.4,transparent:true,opacity:.95});
-const capGeo=new THREE.TorusGeometry(0.36,0.045,10,32).rotateX(-Math.PI/2);
-const capMatH=new THREE.MeshStandardMaterial({color:0xff9a52,emissive:0x8a3208,roughness:.4,transparent:true,opacity:1});
+const dotGeo=new THREE.CylinderGeometry(0.14,0.14,0.024,32);
+const dotMat=new THREE.MeshStandardMaterial({color:0x38bdf8,emissive:0x0284c7,roughness:.15,metalness:.2,transparent:true,opacity:.96});
+
+function makeCapTileTexture(){
+  const S=512, c=cnv(S,S), x=c.getContext('2d');
+  
+  // 1. Full square luminous ruby color wash base
+  x.fillStyle = 'rgba(255, 255, 255, 0.36)';
+  x.fillRect(0, 0, S, S);
+
+  // 2. Soft glowing halo bloom radiating from center
+  const halo = x.createRadialGradient(S/2, S/2, S*0.05, S/2, S/2, S*0.48);
+  halo.addColorStop(0, 'rgba(255, 255, 255, 0.65)');
+  halo.addColorStop(0.35, 'rgba(255, 255, 255, 0.44)');
+  halo.addColorStop(0.70, 'rgba(255, 255, 255, 0.18)');
+  halo.addColorStop(1.0, 'rgba(255, 255, 255, 0.0)');
+  x.fillStyle = halo;
+  x.fillRect(0, 0, S, S);
+
+  // 3. Crisp outer beveled border rim
+  x.lineWidth = 6;
+  x.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+  x.strokeRect(3, 3, S-6, S-6);
+
+  // 4. Subtle elegant inset framing
+  x.lineWidth = 2;
+  x.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+  x.strokeRect(10, 10, S-20, S-20);
+
+  // 5. Polished corner brackets
+  const cr = 28;
+  x.lineWidth = 4;
+  x.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+  // Top-left
+  x.beginPath(); x.moveTo(6, 6+cr); x.lineTo(6, 6); x.lineTo(6+cr, 6); x.stroke();
+  // Top-right
+  x.beginPath(); x.moveTo(S-6-cr, 6); x.lineTo(S-6, 6); x.lineTo(S-6, 6+cr); x.stroke();
+  // Bottom-left
+  x.beginPath(); x.moveTo(6, S-6-cr); x.lineTo(6, S-6); x.lineTo(6+cr, S-6); x.stroke();
+  // Bottom-right
+  x.beginPath(); x.moveTo(S-6-cr, S-6); x.lineTo(S-6, S-6); x.lineTo(S-6, S-6-cr); x.stroke();
+
+  // 6. Central delicate landing diamond pip
+  const cx = S/2, cy = S/2, dSize = 14;
+  x.fillStyle = 'rgba(255, 255, 255, 0.95)';
+  x.beginPath();
+  x.moveTo(cx, cy - dSize);
+  x.lineTo(cx + dSize, cy);
+  x.lineTo(cx, cy + dSize);
+  x.lineTo(cx - dSize, cy);
+  x.closePath();
+  x.fill();
+
+  const t=new THREE.CanvasTexture(c);
+  t.colorSpace=THREE.SRGBColorSpace;
+  t.anisotropy=8;
+  return t;
+}
+
+const capTileTex=makeCapTileTexture();
+const capTileMat=new THREE.MeshBasicMaterial({map:capTileTex,color:0xff2a55,transparent:true,opacity:.85,depthWrite:false});
+const capTileGeo=new THREE.PlaneGeometry(0.992,0.992).rotateX(-Math.PI/2);
+
 const markers=[];
 function clearMarkers(){ markers.forEach(m=>{hlGroup.remove(m);}); markers.length=0; }
 function addMarker(idx,isCap){
-  const m=new THREE.Mesh(isCap?capGeo:dotGeo,isCap?capMatH:dotMat);
-  const p=sqPos(idx); m.position.set(p.x,BOARD_TOP+ (isCap?0.05:0.02),p.z);
-  m.userData.base=m.position.y; m.userData.t=Math.random()*6;
-  hlGroup.add(m); markers.push(m);
+  const p=sqPos(idx);
+  if(isCap){
+    const m=new THREE.Mesh(capTileGeo, capTileMat.clone());
+    m.position.set(p.x, BOARD_TOP + 0.006, p.z);
+    m.userData={base:BOARD_TOP + 0.006, t:Math.random()*6, isCap:true};
+    hlGroup.add(m);
+    markers.push(m);
+  } else {
+    const m=new THREE.Mesh(dotGeo,dotMat);
+    m.position.set(p.x, BOARD_TOP + (G.view==='2d'?0.014:0.02), p.z);
+    m.userData={base:BOARD_TOP + 0.02, t:Math.random()*6, isCap:false};
+    hlGroup.add(m);
+    markers.push(m);
+  }
 }
 
 /* ----------------------------- particles ------------------------------- */
@@ -1188,8 +1143,8 @@ function applyMove(b,m){
 
 /* ================================ AI =================================== */
 const AI={
-  depthFor(d){ return d===0?2:d===1?5:8; },
-  budget(d){ return d===0?120:d===1?320:750; },
+  depthFor(d){ return d===0?2:d===1?4:6; },
+  budget(d){ return d===0?35:d===1?70:130; },
   nodes:0, deadline:0, stop:false,
 
   evaluate(b){
@@ -1224,13 +1179,13 @@ const AI={
   },
 
   search(b,side,depth,alpha,beta,ply){
-    if((++this.nodes & 1023)===0 && performance.now()>this.deadline) this.stop=true;
+    if((++this.nodes & 127)===0 && performance.now()>this.deadline) this.stop=true;
     const moves=genMoves(b,side);
     if(!moves.length) return -100000+ply;                 // side to move loses
     const forced = moves.length===1;
     if(depth<=0 && !(moves[0].caps.length && ply<16) && !forced) return side*this.evaluate(b);
     if(this.stop) return side*this.evaluate(b);
-    if(ply>22) return side*this.evaluate(b);
+    if(ply>20) return side*this.evaluate(b);
     // move ordering: most captures first
     if(moves.length>1) moves.sort((x,y)=>y.caps.length-x.caps.length);
     let best=-1e9;
@@ -1369,9 +1324,9 @@ function animateMove(m, done){
     const st=steps[si++];
     const a=sqPos(prev), b=sqPos(st.to);
     const jump = st.cap!=null;
-    const dur = jump?0.42:0.34;
-    const lift = jump?0.88:0.28;
-    const rotSpin = jump? rnd(0.5,1.1)*(Math.random()<.5?-1:1) : rnd(0.15,0.35);
+    const dur = jump?0.26:0.20;
+    const lift = jump?0.60:0.20;
+    const rotSpin = jump? rnd(0.4,0.8)*(Math.random()<.5?-1:1) : rnd(0.1,0.25);
     const startRot=mesh.rotation.y;
     mesh.userData.motion={from:a,to:b,k:0,jump};
     let capDone=false;
@@ -1383,8 +1338,8 @@ function animateMove(m, done){
       const arc=Math.sin(Math.PI*k);
       mesh.position.y=BOARD_TOP + arc*lift;
       mesh.rotation.y=lerp(startRot+rotSpin*e, 0, e);
-      mesh.rotation.z=(b.x-a.x)*Math.sin(Math.PI*k)*(jump?0.08:0.045);
-      if(jump && !capDone && k>0.5){
+      mesh.rotation.z=(b.x-a.x)*Math.sin(Math.PI*k)*(jump?0.06:0.03);
+      if(jump && !capDone && k>0.45){
         capDone=true;
         removePiece(st.cap,(b.x-a.x)*0.5,(b.z-a.z)*0.5);
       }
@@ -1395,9 +1350,9 @@ function animateMove(m, done){
       mesh.userData.motion=null;
       Audio2.place();
       // settle squash
-      tween(0.18,(k)=>{ const s=1+Math.sin(Math.PI*k)*0.06; mesh.scale.set(s,1-(s-1)*1.4,s); },
+      tween(0.10,(k)=>{ const s=1+Math.sin(Math.PI*k)*0.04; mesh.scale.set(s,1-(s-1)*1.2,s); },
         ()=>mesh.scale.set(1,1,1));
-      burstAt(b.x,BOARD_TOP+0.02,b.z,0.5,0.25,0.4,0xffdca0);
+      burstAt(b.x,BOARD_TOP+0.02,b.z,0.4,0.2,0.3,0xffdca0);
       prev=st.to;
       doStep();
     });
@@ -1409,18 +1364,18 @@ function animateMove(m, done){
       setKing(mesh,true);
       mesh.rotation.y=0;
       Audio2.crown();
-      tween(0.42,(k)=>{
+      tween(0.24,(k)=>{
         const e=Math.sin(Math.PI*k);
-        mesh.position.y=BOARD_TOP + e*0.22;
-        const s=1 + e*0.10;
-        mesh.scale.set(s,1+e*0.06,s);
+        mesh.position.y=BOARD_TOP + e*0.18;
+        const s=1 + e*0.08;
+        mesh.scale.set(s,1+e*0.05,s);
       },()=>{
         mesh.position.y=BOARD_TOP;
         mesh.rotation.y=0;
         mesh.scale.set(1,1,1);
         Audio2.place();
       });
-      tween(0.52,()=>{},done);
+      tween(0.28,()=>{},done);
     } else done();
   };
   // pick-up
@@ -1440,29 +1395,29 @@ function removePiece(i,dx=0,dz=0){
   dx/=len; dz/=len;
   const spinSign=(dx+dz)>=0?1:-1;
   const startRot=mesh.rotation.x;
-  const recoil={x:from.x+dx*0.45,y:BOARD_TOP+0.55,z:from.z+dz*0.45};
+  const recoil={x:from.x+dx*0.35,y:BOARD_TOP+0.45,z:from.z+dz*0.35};
   Audio2.capture();
   impactAt(from.x,from.z,side,dx,dz);
   // Recoil first, then tumble across to the captured-piece area.
-  tween(0.76,(k)=>{
+  tween(0.40,(k)=>{
     if(k<0.20){
       const e=easeOut(k/0.20);
       mesh.position.set(lerp(from.x,recoil.x,e),lerp(from.y,recoil.y,e),lerp(from.z,recoil.z,e));
     }else{
       const q=(k-0.20)/0.80, e=easeInOut(q);
-      mesh.position.set(lerp(recoil.x,t.x,e),lerp(recoil.y,t.y,e)+Math.sin(Math.PI*q)*0.70,lerp(recoil.z,t.z,e));
+      mesh.position.set(lerp(recoil.x,t.x,e),lerp(recoil.y,t.y,e)+Math.sin(Math.PI*q)*0.55,lerp(recoil.z,t.z,e));
     }
-    mesh.rotation.x=startRot+spinSign*Math.PI*2.15*easeOut(k);
-    mesh.rotation.z=spinSign*Math.sin(Math.PI*k)*0.38;
+    mesh.rotation.x=startRot+spinSign*Math.PI*2.0*easeOut(k);
+    mesh.rotation.z=spinSign*Math.sin(Math.PI*k)*0.25;
   },()=>{
     mesh.position.set(t.x,t.y,t.z); mesh.rotation.set(0,rnd(0,6.28),0);
     mesh.userData.capturedFlying=false;
     Audio2.place();
-    tween(0.22,k=>{
-      const bounce=Math.sin(Math.PI*k)*0.20*(1-k);
+    tween(0.12,k=>{
+      const bounce=Math.sin(Math.PI*k)*0.14*(1-k);
       mesh.position.y=t.y+bounce;
       mesh.userData.trayBounce=bounce;
-      const squash=Math.sin(Math.PI*k)*0.08*(1-k);
+      const squash=Math.sin(Math.PI*k)*0.06*(1-k);
       mesh.scale.set(1+squash,1-squash,1+squash);
     },()=>{mesh.position.y=t.y;mesh.userData.trayBounce=0;mesh.scale.set(1,1,1);});
   });
@@ -1489,9 +1444,10 @@ function fitCamera(){
   const aspect=camera.aspect;
   PORTRAIT = aspect < 0.92;
   const is2D = G.view === '2d';
-  cam.pitchTarget = is2D ? 1.48
+  cam.pitchTarget = is2D ? 1.5707
                          : (cam.menu ? (PORTRAIT?0.82:0.66)
                                      : (PORTRAIT?1.14 : (aspect<1.25?1.00:0.92)));
+  if(is2D && !cam.menu) cam.azTarget = 0;
   buildFitPoints();
   const p=cam.pitchTarget, sp=Math.sin(p), cp=Math.cos(p);
   const keep=camera.position.clone();
@@ -1512,9 +1468,9 @@ function fitCamera(){
   cam.radiusTarget = d*(cam.menu?1.05:1.0);
 }
 function updateCamera(dt){
-  cam.az=lerp(cam.az,cam.azTarget,1-Math.pow(0.02,dt));
-  cam.radius=lerp(cam.radius,cam.radiusTarget,1-Math.pow(0.01,dt));
-  cam.pitch=lerp(cam.pitch,cam.pitchTarget,1-Math.pow(0.02,dt));
+  cam.az=lerp(cam.az,cam.azTarget,1-Math.pow(0.001,dt));
+  cam.radius=lerp(cam.radius,cam.radiusTarget,1-Math.pow(0.001,dt));
+  cam.pitch=lerp(cam.pitch,cam.pitchTarget,1-Math.pow(0.001,dt));
   const pitch=cam.pitch;
   const az=cam.az;
   const r=cam.radius;
@@ -1632,8 +1588,6 @@ function onTap(cx,cy){
 function select(sq,moves){
   G.selected=sq; G.legal=moves;
   clearMarkers();
-  const p=sqPos(sq);
-  selRing.position.set(p.x,BOARD_TOP+0.006,p.z); selRing.visible=true;
   if(SETTINGS.hints) moves.forEach(m=>addMarker(m.to,m.caps.length>0));
   // show the pieces that would be captured
   moves.forEach(m=>m.caps.forEach(ci=>{
@@ -1645,7 +1599,9 @@ function deselect(){
   if(G.selected>=0){
     for(let i=0;i<64;i++){ const m=G.meshes[i]; if(m) m.userData.doomed=false; }
   }
-  G.selected=-1; G.legal=[]; clearMarkers(); selRing.visible=false;
+  G.selected=-1; G.legal=[]; clearMarkers();
+  selTile.visible=false;
+  selShadow.visible=false;
 }
 
 let toastTimer=0;
@@ -1698,7 +1654,7 @@ function scheduleAI(){
     if(!m){ G.busy=false; checkEnd(); return; }
     G.busy=false;
     playMove(m);
-  }, (380+Math.random()*320)/(SETTINGS.anim||1));
+  }, 80/(SETTINGS.anim||1));
 }
 
 function checkEnd(){
@@ -1912,7 +1868,7 @@ window.addEventListener('keydown',e=>{
 /* ============================== RESIZE ================================= */
 function resize(){
   const w=window.innerWidth,h=window.innerHeight;
-  const dpr=Math.min(window.devicePixelRatio||1,2);
+  const dpr=Math.min(window.devicePixelRatio||1,1.75);
   renderer.setPixelRatio(dpr);
   renderer.setSize(w,h,false);
   camera.aspect=w/h;
@@ -1929,10 +1885,11 @@ function applyBoardTheme(){
   const t=boardTexture(SETTINGS.board);
   t.repeat.set(1/10,1/10); t.offset.set(0.5,0.5); t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;
   const old=BOARD_REF.capMat.map;
-  BOARD_REF.capMat.map=t; BOARD_REF.capMat.bumpMap=t; BOARD_REF.capMat.needsUpdate=true;
+  BOARD_REF.capMat.map=t; BOARD_REF.capMat.needsUpdate=true;
   if(old) old.dispose();
   BOARD_REF.sideMat.color.setHex(T.side);
-  selRing.material.color.setHex(T.hl);
+  BOARD_REF.sideMat.needsUpdate=true;
+  selTile.material.color.setHex(T.hl);
   BOARD_IMG=t.image;
 }
 function setBoardTheme(k){ if(!BOARD_THEMES[k]) return; SETTINGS.board=k; saveSettings(); applyBoardTheme(); syncSettingsUI(); }
@@ -1971,18 +1928,19 @@ function frame(now){
   // marker pulse
   const t=now*0.004;
   for(const m of markers){
-    m.position.y = m.userData.base + Math.sin(t*1.6+m.userData.t)*0.022;
-    m.rotation.y += dt*1.2;
-    m.material.opacity = 0.75+Math.sin(t*2+m.userData.t)*0.2;
-  }
-  if(selRing.visible){
-    selRing.material.opacity=0.55+Math.sin(t*3)*0.3;
-    selRing.rotation.y+=dt*0.6;
-  }
-  // selected piece hover + doomed piece shiver
-  if(G.selected>=0){
-    const mesh=G.meshes[G.selected];
-    if(mesh) mesh.position.y=BOARD_TOP+0.06+Math.sin(t*3)*0.03;
+    if(m.userData.isCap){
+      const pulse = Math.sin(t*3.2 + m.userData.t);
+      m.material.opacity = 0.72 + pulse*0.22;
+      m.position.y = BOARD_TOP + 0.006;
+    } else {
+      if(G.view!=='2d'){
+        m.position.y = m.userData.base + Math.sin(t*1.6+m.userData.t)*0.022;
+        m.rotation.y += dt*1.2;
+      } else {
+        m.position.y = BOARD_TOP + 0.014;
+      }
+      m.material.opacity = 0.78 + Math.sin(t*2+m.userData.t)*0.2;
+    }
   }
   for(let i=0;i<64;i++){
     const m=G.meshes[i];
@@ -1993,7 +1951,7 @@ function frame(now){
 }
 
 /* ============================== BOOT =================================== */
-selRing.material.color.setHex(BOARD_THEMES[SETTINGS.board].hl);
+selTile.material.color.setHex(BOARD_THEMES[SETTINGS.board].hl);
 resize();
 (function(){ const v=G.view; G.view = v==='2d'?'3d':'2d'; setView(v,false); })();
 toMenu();

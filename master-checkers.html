@@ -28,28 +28,28 @@
   .ibtn.txt{font-family:'Cinzel',Georgia,serif;font-size:13px;font-weight:700;letter-spacing:.06em}
   #vig{display:none}
   #ui{position:fixed;inset:0;z-index:5;pointer-events:none;overflow:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-  .screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .35s ease;pointer-events:none;padding:clamp(12px,3vh,24px) 16px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(190,148,72,.35) transparent}
-  .screen>*{flex:0 0 auto}
-  #menu{justify-content:center;overflow:hidden;scrollbar-width:none;-ms-overflow-style:none}
+  .screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .35s ease;pointer-events:none;padding:clamp(10px,2.5vh,24px) 16px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(190,148,72,.35) transparent}
+  .screen>*{flex:0 0 auto;margin:auto 0}
+  #menu{justify-content:center;overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none}
   #menu::-webkit-scrollbar{display:none}
   .screen.show{opacity:1;visibility:visible;pointer-events:auto}
   .screen::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,rgba(20,10,4,.6),rgba(8,4,2,.88));z-index:-1}
   #menu::before{background:radial-gradient(ellipse at 50% 46%,rgba(16,8,3,.34) 20%,rgba(11,5,2,.66) 60%,rgba(5,2,1,.85) 100%)}
 
   /* ---------- logo ---------- */
-  .logo{text-align:center;margin-bottom:clamp(10px,2.6vh,26px);user-select:none}
+  .logo{text-align:center;margin-bottom:clamp(8px,2vh,22px);user-select:none}
   .logo span{display:block;font-family:Georgia,"Times New Roman",serif;font-weight:700;letter-spacing:.06em;
     background:linear-gradient(#fff3c9 2%,#f4cf76 26%,#c08e2b 52%,#8a5d13 62%,#efc86c 78%,#ffeaa9 96%);
     -webkit-background-clip:text;background-clip:text;color:transparent;
     filter:drop-shadow(0 3px 0 rgba(66,38,8,.85)) drop-shadow(0 7px 14px rgba(0,0,0,.65));}
-  .logo .l1{font-size:clamp(32px,8vw,78px);line-height:.98}
-  .logo .l2{font-size:clamp(25px,6.2vw,62px);line-height:1.02;letter-spacing:.08em}
-  .logo .rule{width:min(62vw,400px);height:2px;margin:clamp(8px,1.4vh,12px) auto 0;background:linear-gradient(90deg,transparent,#c9992f,#f3dc9a,#c9992f,transparent);opacity:.85}
+  .logo .l1{font-size:clamp(30px,7.5vw,72px);line-height:.98}
+  .logo .l2{font-size:clamp(22px,5.8vw,56px);line-height:1.02;letter-spacing:.08em}
+  .logo .rule{width:min(62vw,400px);height:2px;margin:clamp(6px,1.2vh,10px) auto 0;background:linear-gradient(90deg,transparent,#c9992f,#f3dc9a,#c9992f,transparent);opacity:.85}
 
   /* ---------- wooden buttons ---------- */
   .wbtn{pointer-events:auto;position:relative;display:flex;align-items:center;justify-content:center;gap:10px;
-    width:min(88vw,360px);min-height:clamp(44px,6.2vh,56px);padding:clamp(8px,1.2vh,12px) 18px;white-space:nowrap;margin:clamp(4px,0.9vh,7px) 0;cursor:pointer;
-    font-family:Georgia,serif;font-size:clamp(13px,3.2vw,17px);font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+    width:min(88vw,360px);min-height:clamp(40px,5.8vh,52px);padding:clamp(6px,1vh,11px) 18px;white-space:nowrap;margin:clamp(3px,0.8vh,6px) 0;cursor:pointer;
+    font-family:Georgia,serif;font-size:clamp(12px,3vw,16px);font-weight:700;letter-spacing:.07em;text-transform:uppercase;
     color:#ffeec2;text-shadow:0 2px 2px rgba(40,18,2,.9);
     border:2px solid #7d5a22;border-radius:7px;
     background:linear-gradient(#6d4520,#4e2f14 46%,#3d2410 54%,#5b381a);
@@ -59,9 +59,9 @@
   .wbtn:hover{filter:brightness(1.14)}
   .wbtn:active{transform:translateY(4px);box-shadow:inset 0 1px 0 rgba(255,214,140,.25),inset 0 -2px 6px rgba(0,0,0,.6),0 1px 0 #26160a,0 4px 10px rgba(0,0,0,.5)}
   .wbtn.gold{background:linear-gradient(#a97a24,#7d5313 46%,#6a440f 54%,#94681c);border-color:#d8b05a}
-  .wbtn.small{width:min(40vw,160px);min-height:clamp(40px,5.5vh,48px);font-size:clamp(12px,3vw,15px)}
+  .wbtn.small{width:min(40vw,160px);min-height:clamp(36px,5vh,44px);font-size:clamp(11px,2.8vw,14px)}
   .wbtn .ic{font-size:1.15em;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
-  .caption{font-family:Georgia,serif;letter-spacing:.24em;text-transform:uppercase;font-size:clamp(11px,3vw,15px);color:#d8b678;margin-bottom:18px;text-shadow:0 2px 3px rgba(0,0,0,.8)}
+  .caption{font-family:Georgia,serif;letter-spacing:.24em;text-transform:uppercase;font-size:clamp(11px,3vw,15px);color:#d8b678;margin-bottom:14px;text-shadow:0 2px 3px rgba(0,0,0,.8);text-align:center}
   .row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
   .foot{position:absolute;bottom:16px;left:0;right:0;text-align:center;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#7a6242}
 
@@ -105,61 +105,55 @@
   #toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
 
   /* ---------- panels ---------- */
-  .panel{position:relative;display:flex;flex-direction:column;align-items:center;padding:30px 30px 26px;border-radius:12px;
+  .panel{position:relative;display:flex;flex-direction:column;align-items:center;padding:24px 24px 20px;border-radius:12px;
     background:linear-gradient(#5a3719,#3a2210 48%,#2a170a);border:2px solid #8a6529;
-    box-shadow:inset 0 1px 0 rgba(255,214,140,.25),0 18px 46px rgba(0,0,0,.7);max-width:min(92vw,430px)}
+    box-shadow:inset 0 1px 0 rgba(255,214,140,.25),0 18px 46px rgba(0,0,0,.7);max-width:min(92vw,430px);
+    margin:auto 0;max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
   .panel::after{content:"";position:absolute;inset:6px;border-radius:7px;border:1px solid rgba(255,220,150,.13);pointer-events:none}
-  .panel.wide{max-width:min(94vw,520px);width:100%;padding:22px 22px 20px;max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;align-items:stretch}
-  .panel.wide .caption{text-align:center;margin-bottom:10px}
-  .opt-h{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#a98c5c;margin:12px 0 8px}
-  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:9px}
-  .sw{pointer-events:auto;cursor:pointer;border:2px solid rgba(190,148,72,.35);border-radius:8px;padding:6px 6px 5px;background:rgba(0,0,0,.25);
-    display:flex;flex-direction:column;align-items:center;gap:5px;transition:border-color .15s,transform .1s,box-shadow .15s}
+  .panel.wide{max-width:min(94vw,520px);width:100%;padding:20px 20px 18px;max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;align-items:stretch;margin:auto 0}
+  .panel.wide .caption{text-align:center;margin-bottom:8px}
+  .opt-h{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#a98c5c;margin:10px 0 6px}
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+  .sw{pointer-events:auto;cursor:pointer;border:2px solid rgba(190,148,72,.35);border-radius:8px;padding:5px 5px 4px;background:rgba(0,0,0,.25);
+    display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color .15s,transform .1s,box-shadow .15s}
   .sw:hover{border-color:rgba(240,200,110,.7)}
   .sw.on{border-color:#f0cd7e;box-shadow:0 0 0 1px #f0cd7e inset,0 0 14px rgba(240,205,126,.3)}
   .sw:active{transform:scale(.97)}
-  .sw canvas{width:64px;height:64px;border-radius:5px;display:block;box-shadow:0 2px 6px rgba(0,0,0,.5)}
-  .sw span{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#e2cba0;white-space:nowrap}
-  .optrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid rgba(190,148,72,.18);font-size:13px;letter-spacing:.04em;color:#e7d3a8}
-  .tog{pointer-events:auto;width:48px;height:26px;border-radius:13px;border:1px solid #7d5a22;background:#2a180a;position:relative;cursor:pointer;flex:0 0 auto;transition:background .2s}
-  .tog::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:linear-gradient(#a08b66,#6d5a3b);transition:left .2s,background .2s}
+  .sw canvas{width:58px;height:58px;border-radius:5px;display:block;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+  .sw span{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#e2cba0;white-space:nowrap}
+  .optrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0;border-top:1px solid rgba(190,148,72,.18);font-size:12.5px;letter-spacing:.04em;color:#e7d3a8}
+  .tog{pointer-events:auto;width:46px;height:24px;border-radius:12px;border:1px solid #7d5a22;background:#2a180a;position:relative;cursor:pointer;flex:0 0 auto;transition:background .2s}
+  .tog::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:linear-gradient(#a08b66,#6d5a3b);transition:left .2s,background .2s}
   .tog.on{background:linear-gradient(#a97a24,#7d5313)}
-  .tog.on::after{left:25px;background:linear-gradient(#fff0c6,#e2bd6b)}
+  .tog.on::after{left:24px;background:linear-gradient(#fff0c6,#e2bd6b)}
   .seg.mini{margin:0}
-  .seg.mini .segb{padding:6px 12px;font-size:12px}
-  .result{font-family:Georgia,serif;font-size:clamp(26px,7vw,44px);letter-spacing:.05em;text-transform:uppercase;
+  .seg.mini .segb{padding:5px 10px;font-size:11.5px}
+  .result{font-family:Georgia,serif;font-size:clamp(24px,6.5vw,40px);letter-spacing:.05em;text-transform:uppercase;
     background:linear-gradient(#fff3c9,#f0c86c 45%,#a5741d);-webkit-background-clip:text;background-clip:text;color:transparent;
-    filter:drop-shadow(0 2px 0 rgba(48,26,4,.9));margin-bottom:6px;text-align:center}
+    filter:drop-shadow(0 2px 0 rgba(48,26,4,.9));margin-bottom:4px;text-align:center}
   .result.lose{background:linear-gradient(#ffd8d0,#d78b76 45%,#8d3d2b);-webkit-background-clip:text;background-clip:text}
-  .stats{display:flex;gap:26px;margin:12px 0 20px}
+  .stats{display:flex;gap:22px;margin:10px 0 16px}
   .stat{text-align:center}
-  .stat .k{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#b19468}
-  .stat .v{font-family:Georgia,serif;font-size:21px;color:#f4dda6;margin-top:2px}
-  @media (max-width:560px){
-    .bar{padding:9px 10px}
-    .pp{padding:6px 11px 6px 7px;gap:8px}
-    .disc{width:25px;height:25px}
-    .pname{font-size:11.5px}.pcap{font-size:10px}
-    .ibtn{width:38px;height:38px;font-size:16px}
-    #turnPill{font-size:11px;padding:6px 14px;top:auto;bottom:66px}
-    #timer{bottom:12px;font-size:15px;padding:5px 15px}
-  }
-  @media (max-height:520px){
-    .logo{margin-bottom:12px}.logo .l1{font-size:clamp(28px,7vh,60px)}.logo .l2{font-size:clamp(22px,5.6vh,48px)}
-    .wbtn{min-height:42px;margin:5px 0;padding:8px 16px}
-    .seg{margin-top:10px}
+  .stat .k{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:#b19468}
+  .stat .v{font-family:Georgia,serif;font-size:19px;color:#f4dda6;margin-top:2px}
+
+  @media (max-height:560px){
+    .screen{padding:6px 12px;justify-content:center}
+    #menu{padding:8px 12px;justify-content:center}
+    .logo{margin-bottom:4px}.logo .l1{font-size:clamp(22px,6vh,40px)}.logo .l2{font-size:clamp(16px,4.5vh,30px)}
+    .wbtn{min-height:34px;margin:2px 0;padding:4px 12px;font-size:12px}
+    .seg{margin-top:4px}
     .foot{display:none}
-    .panel{padding:16px 18px 14px}
-    .panel.wide{max-height:calc(100dvh - 16px)}
-    .stats{margin:6px 0 12px}
-    #turnPill{top:auto;bottom:8px;font-size:11px;padding:5px 12px}
-    #timer{bottom:auto;top:10px;font-size:13px;padding:4px 12px}
-    .bar.bot .pp{margin-bottom:0}
+    .panel{padding:12px 14px 10px;max-height:calc(100dvh - 12px);margin:auto 0}
+    .panel.wide{max-height:calc(100dvh - 10px);padding:10px 12px 8px;margin:auto 0}
+    .stats{margin:3px 0 6px}
+    .swatches{gap:6px}
+    .sw canvas{width:46px;height:46px}
   }
-  @media (max-width:380px){
-    .pp .pinfo{display:none}
-    .ibtn{width:34px;height:34px;font-size:14px}
-    .icons{gap:6px}
+  @media (max-width:420px){
+    .ibtn{width:36px;height:36px;font-size:15px}
+    .icons{gap:5px}
+    .drawer{width:88vw}
   }
   .field-row{width:100%;display:flex;flex-direction:column;gap:5px;margin:8px 0}
   .field-lbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#d8b678;display:flex;align-items:center;gap:8px}
@@ -174,47 +168,64 @@
     transition:opacity .3s ease,visibility .3s;z-index:20;pointer-events:none;backdrop-filter:blur(3px)}
   .drawer-overlay.open{opacity:1;visibility:visible;pointer-events:auto}
   
-  .drawer{position:fixed;top:0;left:0;bottom:0;width:min(90vw,360px);z-index:21;
+  .drawer{position:fixed;top:0;left:0;bottom:0;width:min(92vw,360px);z-index:21;
     background:linear-gradient(180deg,#3b2210,#261408 40%,#1a0d05);border-right:2px solid #8a6529;
     box-shadow:6px 0 28px rgba(0,0,0,.8),inset -1px 0 0 rgba(255,214,140,.2);
     display:flex;flex-direction:column;transform:translateX(-105%);transition:transform .3s cubic-bezier(.16,1,.3,1);
     pointer-events:auto;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom) env(safe-area-inset-left);
-    overflow:hidden}
+    overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;scrollbar-color:rgba(190,148,72,.35) transparent}
   .drawer.open{transform:translateX(0)}
   
-  .drawer-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 12px;
+  .drawer-header{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;
     border-bottom:1px solid rgba(190,148,72,.3);background:rgba(0,0,0,.25)}
-  .drawer-title{font-family:Georgia,serif;font-size:16px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#f6e6bd;
+  .drawer-title{font-family:'Cinzel',Georgia,serif;font-size:15px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#f6e6bd;
     display:flex;align-items:center;gap:8px}
-  .drawer-close{cursor:pointer;width:34px;height:34px;border-radius:6px;border:1px solid rgba(190,148,72,.4);
-    background:rgba(0,0,0,.35);color:#f0d69a;font-size:16px;display:flex;align-items:center;justify-content:center;
+  .drawer-close{cursor:pointer;width:32px;height:32px;border-radius:6px;border:1px solid rgba(190,148,72,.4);
+    background:rgba(0,0,0,.35);color:#f0d69a;font-size:15px;display:flex;align-items:center;justify-content:center;
     transition:filter .15s,transform .1s}
   .drawer-close:hover{filter:brightness(1.25);background:rgba(70,35,14,.6)}
   
-  .drawer-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px;background:rgba(0,0,0,.2);
+  .drawer-stats{flex:0 0 auto;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 14px;background:rgba(0,0,0,.2);
     border-bottom:1px solid rgba(190,148,72,.18)}
   .dstat{display:flex;flex-direction:column;gap:2px}
   .dk{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#b19468}
-  .dv{font-family:Georgia,serif;font-size:14px;color:#f4dda6;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dv{font-family:'Outfit',sans-serif;font-size:13px;color:#f4dda6;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   
-  .moves-section{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;padding:10px 14px}
-  .moves-hdr{display:grid;grid-template-columns:36px 1fr 1fr;gap:8px;padding:6px 10px;font-size:11px;
+  .moves-section{flex:1 1 auto;display:flex;flex-direction:column;min-height:80px;padding:8px 12px;overflow:hidden}
+  .moves-hdr{flex:0 0 auto;display:grid;grid-template-columns:32px 1fr 1fr;gap:6px;padding:5px 8px;font-size:10px;
     letter-spacing:.14em;text-transform:uppercase;color:#cbb183;border-bottom:1px solid rgba(190,148,72,.25);
     background:rgba(0,0,0,.3);border-radius:4px 4px 0 0}
-  .moves-list{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:4px 0;scrollbar-width:thin;
-    scrollbar-color:rgba(190,148,72,.35) transparent;min-height:120px}
-  .move-row{display:grid;grid-template-columns:36px 1fr 1fr;gap:8px;padding:5px 10px;font-family:Georgia,serif;
-    font-size:13px;color:#e7d3a8;border-radius:4px;transition:background .12s}
+  .moves-list{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:3px 0;scrollbar-width:thin;
+    scrollbar-color:rgba(190,148,72,.35) transparent;min-height:50px}
+  .move-row{display:grid;grid-template-columns:32px 1fr 1fr;gap:6px;padding:4px 8px;font-family:'Outfit',Georgia,serif;
+    font-size:12px;color:#e7d3a8;border-radius:4px;transition:background .12s}
   .move-row:nth-child(even){background:rgba(0,0,0,.15)}
   .move-row:hover{background:rgba(240,205,126,.12)}
-  .move-num{color:#a88a5b;font-size:12px}
+  .move-num{color:#a88a5b;font-size:11px}
   .move-cell{display:flex;align-items:center;gap:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .move-cell.latest{color:#ffe49e;font-weight:700;text-shadow:0 0 8px rgba(240,205,126,.4)}
-  .no-moves{text-align:center;padding:30px 10px;color:#9b8058;font-size:13px;font-style:italic;letter-spacing:.05em}
+  .no-moves{text-align:center;padding:20px 10px;color:#9b8058;font-size:12px;font-style:italic;letter-spacing:.05em}
 
-  .drawer-actions{padding:12px 16px 14px;border-top:1px solid rgba(190,148,72,.3);display:flex;flex-direction:column;
-    gap:8px;align-items:center;background:rgba(0,0,0,.25)}
-  .drawer-actions .wbtn{width:100%;min-height:38px;margin:0;font-size:13px}
+  .drawer-actions{flex:0 0 auto;padding:10px 12px 12px;border-top:1px solid rgba(190,148,72,.3);display:grid;
+    grid-template-columns:1fr 1fr;gap:7px;background:rgba(0,0,0,.3)}
+  .drawer-actions .wbtn{width:100%;min-height:36px;margin:0;font-size:12px;padding:6px 6px;letter-spacing:.04em;gap:6px;white-space:nowrap}
+  .drawer-actions .wbtn .ic{font-size:1.05em}
+
+  @media (max-height:560px){
+    .drawer-header{padding:6px 12px 5px}
+    .drawer-title{font-size:12px}
+    .drawer-close{width:26px;height:26px;font-size:12px}
+    .drawer-stats{padding:5px 12px;gap:4px}
+    .dv{font-size:11px}
+    .moves-section{padding:4px 8px}
+    .moves-hdr{padding:3px 6px;font-size:9px}
+    .moves-list{min-height:40px}
+    .move-row{padding:2px 6px;font-size:11px}
+    .drawer-actions{padding:6px 8px 8px;gap:5px}
+    .drawer-actions .wbtn{min-height:28px;font-size:10px;padding:3px 4px;gap:4px}
+    .drawer-actions .wbtn .ic{font-size:.95em}
+  }
 
   @media (hover:none){
     .wbtn:hover,.ibtn:hover,.sw:hover{filter:none}
@@ -492,16 +503,16 @@ const BOARD_THEMES={
   neon:    {name:'Midnight',frame:['#0e1020','#06070f','#1b1f3a'], dark:['#243055','#161d38','#35457a'], light:['#8fa4d8','#6e83b9','#b4c4ee'], line:'rgba(150,180,255,.65)', label:'rgba(170,195,255,.8)',  side:0x11132a, grain:false, hl:0x38bdf8},
 };
 const PIECE_SETS={
-  classic:{name:'Wood & Ebony', a:{col:0xdcae64,metal:.04,rough:.36,emb:['#dcae64','#2c1404','#fff5dc'],sprite:['#fae8c0','#d6b377','#a68042','#6b4f24'],ui:['#fae8c0','#d6b377','#8a622c']},
-                                  b:{col:0x18191d,metal:.12,rough:.38,emb:['#18191d','#000000','#c2c6d4'],sprite:['#858794','#3d3e48','#1e1f23','#0a0a0c'],ui:['#858794','#1e1f23','#0a0a0c']}},
-  gold:   {name:'Gold & Onyx',   a:{col:0xd8a648,metal:.75,rough:.30,emb:['#c9992f','#451a03','#ffffff'],sprite:['#fff0bd','#e8bb63','#a9761f','#5f4210'],ui:['#ffe9a8','#d3a33d','#8a5e14']},
-                                  b:{col:0x221a14,metal:.42,rough:.35,emb:['#1c140e','#070503','#ffe6a4'],sprite:['#ffe6a4','#786a5e','#1c1611','#080605'],ui:['#ffe6a4','#2a201a','#0e0a07']}},
-  redblack:{name:'Red & Black',  a:{col:0xc92e22,metal:.10,rough:.30,emb:['#b8281c','#3b0703','#ffffff'],sprite:['#ff9a8c','#d84a3c','#8e1f15','#4a0d08'],ui:['#ff9a8c','#c9382b','#6d150d']},
-                                  b:{col:0x161619,metal:.16,rough:.36,emb:['#18181c','#050506','#ffffff'],sprite:['#e2e8f0','#6f6f78','#131316','#050506'],ui:['#e2e8f0','#26262b','#0a0a0c']}},
-  marble: {name:'Marble & Slate',a:{col:0xedeae5,metal:.04,rough:.30,emb:['#d8d3ca','#0f172a','#0f172a'],sprite:['#ffffff','#ebe9e6','#bcb8b3','#7d7873'],ui:['#ffffff','#e2dfda','#9c968f']},
-                                  b:{col:0x273240,metal:.14,rough:.35,emb:['#222c3a','#0e131a','#ffffff'],sprite:['#e2e8f0','#7f90a8','#1f2833','#0a0e14'],ui:['#e2e8f0','#33404f','#141a22']}},
-  jade:   {name:'Jade & Ruby',   a:{col:0x339b6b,metal:.12,rough:.28,emb:['#2b8a5d','#052e16','#ffffff'],sprite:['#b7f5d6','#55b98a','#1f6b48','#0d3a26'],ui:['#b7f5d6','#48a97b','#1f5a3f']},
-                                  b:{col:0x9e1834,metal:.14,rough:.30,emb:['#8c132c','#3f0412','#ffffff'],sprite:['#ffa8bd','#c23a5c','#6e1230','#33060f'],ui:['#ffa8bd','#a72446','#4d0b1b']}},
+  classic:{name:'Wood & Ebony', a:{col:0xdfb065,metal:.08,rough:.22,emb:['#dfb065','#351806','#fff8e7'],sprite:['#fae8c0','#d6b377','#a68042','#6b4f24'],ui:['#fae8c0','#d6b377','#8a622c']},
+                                  b:{col:0x464e5e,metal:.18,rough:.24,emb:['#4c5466','#0e1117','#d4dff2'],sprite:['#858794','#3d3e48','#1e1f23','#0a0a0c'],ui:['#858794','#1e1f23','#0a0a0c']}},
+  gold:   {name:'Gold & Onyx',   a:{col:0xdeb34e,metal:.85,rough:.18,emb:['#deb34e','#451a03','#ffffff'],sprite:['#fff0bd','#e8bb63','#a9761f','#5f4210'],ui:['#ffe9a8','#d3a33d','#8a5e14']},
+                                  b:{col:0x483e34,metal:.45,rough:.20,emb:['#52463b','#120e0a','#eddcc8'],sprite:['#ffe6a4','#786a5e','#1c1611','#080605'],ui:['#ffe6a4','#2a201a','#0e0a07']}},
+  redblack:{name:'Red & Black',  a:{col:0xd62828,metal:.18,rough:.20,emb:['#c81e1e','#400505','#ffffff'],sprite:['#ff9a8c','#d84a3c','#8e1f15','#4a0d08'],ui:['#ff9a8c','#c9382b','#6d150d']},
+                                  b:{col:0x444856,metal:.20,rough:.22,emb:['#4c5060','#101116','#dce0f0'],sprite:['#e2e8f0','#6f6f78','#131316','#050506'],ui:['#e2e8f0','#26262b','#0a0a0c']}},
+  marble: {name:'Marble & Slate',a:{col:0xf4f1eb,metal:.06,rough:.20,emb:['#eae5dc','#1e293b','#ffffff'],sprite:['#ffffff','#ebe9e6','#bcb8b3','#7d7873'],ui:['#ffffff','#e2dfda','#9c968f']},
+                                  b:{col:0x48566c,metal:.22,rough:.22,emb:['#52627a','#101520','#d8e6fa'],sprite:['#e2e8f0','#7f90a8','#1f2833','#0a0e14'],ui:['#e2e8f0','#33404f','#141a22']}},
+  jade:   {name:'Jade & Ruby',   a:{col:0x10b981,metal:.20,rough:.18,emb:['#059669','#022c22','#ffffff'],sprite:['#b7f5d6','#55b98a','#1f6b48','#0d3a26'],ui:['#b7f5d6','#48a97b','#1f5a3f']},
+                                  b:{col:0xb82345,metal:.22,rough:.18,emb:['#c4284d','#400512','#ffd0db'],sprite:['#ffa8bd','#c23a5c','#6e1230','#33060f'],ui:['#ffa8bd','#a72446','#4d0b1b']}},
 };
 const SETTINGS=(function(){
   const d={board:'walnut',pieces:'classic',hints:true,coords:true,sideFirst:1,autoRotate:true};
@@ -605,179 +616,280 @@ function emblemTexture(king,pal){
   const bVal = parseInt(hex.substr(4,2),16)||0;
   const isDark = (0.299*rVal + 0.587*gVal + 0.114*bVal) < 130;
 
-  // 1. BASE DISC & NATURAL WOOD FIBERS (Clipped to circular piece top)
+  // 1. BASE DISC WITH PURE, UNIFORM SATIN TONE (Zero white glare or hot-spots)
   x.save();
   x.beginPath(); x.arc(cx, cy, S*0.495, 0, Math.PI*2); x.clip();
-  if(isDark){
-    woodGrain(x, 0, 0, S, S, base, '#040507', '#2e313b', 46, 0, 77);
-  } else {
-    woodGrain(x, 0, 0, S, S, base, dk||'#7d5424', lt||'#fae8c0', 42, 0, 42);
-  }
-
-  // Directional wood sheen (soft lighting gradient from top-left)
-  const sheen = x.createLinearGradient(cx - S*0.35, cy - S*0.35, cx + S*0.35, cy + S*0.35);
-  sheen.addColorStop(0, isDark ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.24)');
-  sheen.addColorStop(0.50, 'rgba(255,255,255,0.0)');
-  sheen.addColorStop(1.0, isDark ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.22)');
-  x.fillStyle = sheen;
+  
+  // Solid rich base color
+  x.fillStyle = base;
   x.fillRect(0, 0, S, S);
 
-  // 2. CONCENTRIC LATHE TERRACING GRADIENTS (Poki Master Checkers milled dish)
-  const ringRadii = [0.435, 0.355, 0.275, 0.195, 0.120, 0.055];
-  ringRadii.forEach((rRatio) => {
-    const rr = S * rRatio;
-    const terrace = x.createRadialGradient(cx, cy, Math.max(0, rr - S*0.045), cx, cy, rr);
-    terrace.addColorStop(0, 'rgba(0,0,0,0)');
-    terrace.addColorStop(0.55, isDark ? 'rgba(255,255,255,0.06)' : 'rgba(50,22,4,0.14)');
-    terrace.addColorStop(1.0, isDark ? 'rgba(0,0,0,0.65)' : 'rgba(50,22,4,0.40)');
-    x.fillStyle = terrace;
-    x.beginPath(); x.arc(cx, cy, rr, 0, Math.PI*2); x.fill();
-  });
+  // Soft subtle perimeter edge shading only (completely free of center white glare)
+  const edgeVignette = x.createRadialGradient(cx, cy, S*0.35, cx, cy, S*0.495);
+  edgeVignette.addColorStop(0, 'rgba(0,0,0,0)');
+  edgeVignette.addColorStop(0.85, isDark ? 'rgba(0,0,0,0.22)' : 'rgba(0,0,0,0.10)');
+  edgeVignette.addColorStop(1.0, isDark ? 'rgba(0,0,0,0.50)' : 'rgba(0,0,0,0.28)');
+  x.fillStyle = edgeVignette;
+  x.beginPath(); x.arc(cx, cy, S*0.495, 0, Math.PI*2); x.fill();
   x.restore();
 
-  // 3. BUMP MAP ELEVATION BASE
+  // 2. BUMP MAP ELEVATION BASE (Flat neutral 50% gray baseline)
   bx.fillStyle = '#808080'; bx.fillRect(0, 0, S, S);
-  const bBase = bx.createRadialGradient(cx, cy, 0, cx, cy, S*0.5);
-  bBase.addColorStop(0, '#757575');
-  bBase.addColorStop(0.85, '#959595');
-  bBase.addColorStop(0.96, '#dedede');
-  bBase.addColorStop(1.0, '#262626');
-  bx.fillStyle = bBase;
-  bx.beginPath(); bx.arc(cx, cy, S*0.495, 0, Math.PI*2); bx.fill();
 
-  // 4. PRECISION MILLED GROOVES (SOLID OPAQUE CONTRAST)
-  ringRadii.forEach((rRatio, idx) => {
-    const rr = S * rRatio;
+  // 3. TOURNAMENT CONCENTRIC LATHE-TURNED GROOVES (High contrast & clarity)
+  const rOuter = S * 0.435;
+  const rMid   = S * 0.300;
+  const rInner = S * 0.170;
 
-    // Etched deep groove shadow line (bold, deep & crisp)
-    x.beginPath(); x.arc(cx, cy, rr, 0, Math.PI*2);
-    x.lineWidth = S * (idx === 0 ? 0.030 : 0.024);
-    x.strokeStyle = isDark ? '#000000' : (dk || '#1a0902');
-    x.stroke();
+  const darkGroove = '#06070a';
+  const darkRib = lt || '#d4dff2';
 
-    // Dark pieces get vivid platinum-silver specular ridge reflection
-    if(isDark){
-      x.beginPath(); x.arc(cx, cy, rr - S*0.0075, 0, Math.PI*2);
-      x.lineWidth = S * (idx === 0 ? 0.013 : 0.010);
-      x.strokeStyle = lt || 'rgba(205,212,230,0.95)';
-      x.stroke();
-    }
+  // Outer perimeter rim framing
+  x.beginPath(); x.arc(cx, cy, S * 0.485, 0, Math.PI*2);
+  x.lineWidth = S * 0.008;
+  x.strokeStyle = isDark ? darkRib : (dk || 'rgba(30,12,3,0.70)');
+  x.stroke();
 
-    // Physical bump map indentation & peak ridge
-    bx.beginPath(); bx.arc(cx, cy, rr, 0, Math.PI*2);
-    bx.lineWidth = S * 0.022;
-    bx.strokeStyle = '#000000';
+  // Outer ring groove
+  x.beginPath(); x.arc(cx, cy, rOuter, 0, Math.PI*2);
+  x.lineWidth = S * 0.026;
+  x.strokeStyle = isDark ? darkGroove : (dk || 'rgba(30,12,3,0.80)');
+  x.stroke();
+
+  x.beginPath(); x.arc(cx, cy, rOuter - S*0.010, 0, Math.PI*2);
+  x.lineWidth = S * 0.010;
+  x.strokeStyle = isDark ? darkRib : 'rgba(50,20,5,0.35)';
+  x.stroke();
+
+  // Mid ring groove
+  x.beginPath(); x.arc(cx, cy, rMid, 0, Math.PI*2);
+  x.lineWidth = S * 0.022;
+  x.strokeStyle = isDark ? darkGroove : (dk || 'rgba(30,12,3,0.75)');
+  x.stroke();
+
+  x.beginPath(); x.arc(cx, cy, rMid - S*0.009, 0, Math.PI*2);
+  x.lineWidth = S * 0.009;
+  x.strokeStyle = isDark ? darkRib : 'rgba(50,20,5,0.30)';
+  x.stroke();
+
+  // Bump for outer & mid rings
+  [rOuter, rMid].forEach((r, idx) => {
+    bx.beginPath(); bx.arc(cx, cy, r, 0, Math.PI*2);
+    bx.lineWidth = S * (idx===0?0.018:0.014);
+    bx.strokeStyle = '#303030';
     bx.stroke();
 
-    bx.beginPath(); bx.arc(cx, cy, rr - S*0.008, 0, Math.PI*2);
-    bx.lineWidth = S * 0.011;
-    bx.strokeStyle = '#ffffff';
+    bx.beginPath(); bx.arc(cx, cy, r - S*(idx===0?0.010:0.009), 0, Math.PI*2);
+    bx.lineWidth = S * (idx===0?0.010:0.008);
+    bx.strokeStyle = '#909090';
     bx.stroke();
   });
 
-  // Center bullseye core
-  x.beginPath(); x.arc(cx, cy, S * 0.032, 0, Math.PI*2);
-  x.fillStyle = isDark ? '#000000' : (dk || '#1a0902');
-  x.fill();
-  if(isDark){
-    x.beginPath(); x.arc(cx - S*0.006, cy - S*0.006, S * 0.010, 0, Math.PI*2);
-    x.fillStyle = 'rgba(205,212,230,0.90)';
-    x.fill();
-  }
-  bx.beginPath(); bx.arc(cx, cy, S * 0.032, 0, Math.PI*2);
-  bx.fillStyle = '#000000'; bx.fill();
+  if(!king){
+    // =========================================================================
+    // REGULAR PIECE: AUTHENTIC TOURNAMENT CONCENTRIC BULLSEYE (Clean & High Contrast)
+    // =========================================================================
+    
+    // Inner center dish groove
+    x.beginPath(); x.arc(cx, cy, rInner, 0, Math.PI*2);
+    x.lineWidth = S * 0.018;
+    x.strokeStyle = isDark ? darkGroove : (dk || 'rgba(30,12,3,0.70)');
+    x.stroke();
 
+    x.beginPath(); x.arc(cx, cy, rInner - S*0.008, 0, Math.PI*2);
+    x.lineWidth = S * 0.008;
+    x.strokeStyle = isDark ? darkRib : 'rgba(50,20,5,0.25)';
+    x.stroke();
 
+    // Bump for inner ring
+    bx.beginPath(); bx.arc(cx, cy, rInner, 0, Math.PI*2);
+    bx.lineWidth = S * 0.012;
+    bx.strokeStyle = '#303030';
+    bx.stroke();
 
-  if(king){
-    // ---------- KING PIECE: CRISP ROYAL CROWN OUTLINE ----------
-    const strokeCol = isDark ? (lt || '#ffffff') : (dk || '#261405');
-    const lw = S * 0.026;
+    bx.beginPath(); bx.arc(cx, cy, rInner - S*0.008, 0, Math.PI*2);
+    bx.lineWidth = S * 0.008;
+    bx.strokeStyle = '#909090';
+    bx.stroke();
 
-    // Peak tip & valley points
-    const p0 = { x: cx - S*0.22, y: cy - S*0.06, r: S*0.020 };
-    const v0 = { x: cx - S*0.13, y: cy + S*0.025 };
-    const p1 = { x: cx - S*0.11, y: cy - S*0.15, r: S*0.024 };
-    const v1 = { x: cx - S*0.05, y: cy - S*0.015 };
-    const p2 = { x: cx,          y: cy - S*0.23, r: S*0.028 };
-    const v2 = { x: cx + S*0.05, y: cy - S*0.015 };
-    const p3 = { x: cx + S*0.11, y: cy - S*0.15, r: S*0.024 };
-    const v3 = { x: cx + S*0.13, y: cy + S*0.025 };
-    const p4 = { x: cx + S*0.22, y: cy - S*0.06, r: S*0.020 };
+    // Clean center pip (solid recessed matte tone, zero glare)
+    const rCenter = S * 0.065;
+    x.fillStyle = isDark ? '#10141e' : 'rgba(0,0,0,0.12)';
+    x.beginPath(); x.arc(cx, cy, rCenter, 0, Math.PI*2); x.fill();
+    x.lineWidth = S * 0.008;
+    x.strokeStyle = isDark ? darkRib : 'rgba(40,15,3,0.45)';
+    x.stroke();
 
-    const bLeft = cx - S*0.22, bRight = cx + S*0.22;
-    const bTopY = cy + S*0.075, bBotY = cy + S*0.165;
+    // Bump for center
+    bx.fillStyle = '#555555';
+    bx.beginPath(); bx.arc(cx, cy, rCenter, 0, Math.PI*2); bx.fill();
 
-    const drawCrown = (ctx, col, width) => {
-      ctx.save();
-      ctx.strokeStyle = col;
-      ctx.lineWidth = width;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
+  } else {
+    // =========================================================================
+    // KING PIECE: EMBOSSED ROYAL SOVEREIGN CROWN (Rich, Matte Velvet & Gold)
+    // =========================================================================
+    const trayR = S * 0.220;
+    
+    // Royal velvet backdrop
+    const vGrad = x.createRadialGradient(cx, cy, 0, cx, cy, trayR);
+    vGrad.addColorStop(0, isDark ? '#6b0f27' : '#3b1275');
+    vGrad.addColorStop(0.75, isDark ? '#430415' : '#240a50');
+    vGrad.addColorStop(1.0, isDark ? '#140207' : '#0c041c');
+    x.fillStyle = vGrad;
+    x.beginPath(); x.arc(cx, cy, trayR, 0, Math.PI*2); x.fill();
 
-      // 1. Peaks outline
+    x.lineWidth = S * 0.010;
+    x.strokeStyle = isDark ? 'rgba(217,119,6,0.85)' : '#d97706';
+    x.stroke();
+
+    // Crown geometry
+    const crownHalfW = S * 0.155;
+    const bTopY = cy + S * 0.045;
+    const bBotY = cy + S * 0.105;
+    const leftX = cx - crownHalfW;
+    const rightX = cx + crownHalfW;
+
+    const p0 = { x: cx - S*0.130, y: cy - S*0.050, r: S*0.020 };
+    const v0 = { x: cx - S*0.065, y: cy + S*0.015 };
+    const p1 = { x: cx,           y: cy - S*0.135, r: S*0.026 };
+    const v1 = { x: cx + S*0.065, y: cy + S*0.015 };
+    const p2 = { x: cx + S*0.130, y: cy - S*0.050, r: S*0.020 };
+
+    // Drop shadow behind crown
+    x.save();
+    x.shadowColor = 'rgba(0,0,0,0.80)';
+    x.shadowBlur = S * 0.020;
+    x.shadowOffsetX = 0;
+    x.shadowOffsetY = S * 0.006;
+
+    function traceSovereignCrown(ctx){
       ctx.beginPath();
-      ctx.moveTo(bLeft, bTopY);
+      ctx.moveTo(leftX, bTopY);
       ctx.lineTo(p0.x, p0.y);
       ctx.lineTo(v0.x, v0.y);
       ctx.lineTo(p1.x, p1.y);
       ctx.lineTo(v1.x, v1.y);
       ctx.lineTo(p2.x, p2.y);
-      ctx.lineTo(v2.x, v2.y);
-      ctx.lineTo(p3.x, p3.y);
-      ctx.lineTo(v3.x, v3.y);
-      ctx.lineTo(p4.x, p4.y);
-      ctx.lineTo(bRight, bTopY);
-      ctx.stroke();
-
-      // 2. Base headband frame
-      ctx.beginPath();
-      ctx.moveTo(bLeft, bTopY);
-      ctx.quadraticCurveTo(cx, bTopY + S*0.025, bRight, bTopY);
-      ctx.lineTo(bRight, bBotY);
-      ctx.quadraticCurveTo(cx, bBotY + S*0.025, bLeft, bBotY);
+      ctx.lineTo(rightX, bTopY);
+      ctx.lineTo(rightX, bBotY);
+      ctx.quadraticCurveTo(cx, bBotY + S*0.016, leftX, bBotY);
       ctx.closePath();
-      ctx.stroke();
+    }
 
-      // 3. Peak tip circles (finials)
-      [p0, p1, p2, p3, p4].forEach(p => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.stroke();
-      });
+    const crownGrad = x.createLinearGradient(cx, p1.y, cx, bBotY);
+    crownGrad.addColorStop(0, '#fbbf24');
+    crownGrad.addColorStop(0.35, '#f59e0b');
+    crownGrad.addColorStop(0.75, '#d97706');
+    crownGrad.addColorStop(1.0, '#78350f');
+    traceSovereignCrown(x);
+    x.fillStyle = crownGrad;
+    x.fill();
+    x.restore();
 
-      // 4. Headband interior diamonds
-      const diamonds = [
-        { x: cx - S*0.13, y: (bTopY + bBotY)/2 + S*0.008 },
-        { x: cx,          y: (bTopY + bBotY)/2 + S*0.013 },
-        { x: cx + S*0.13, y: (bTopY + bBotY)/2 + S*0.008 }
-      ];
-      diamonds.forEach(d => {
-        const dw = S * 0.020, dh = S * 0.020;
-        ctx.beginPath();
-        ctx.moveTo(d.x, d.y - dh);
-        ctx.lineTo(d.x + dw, d.y);
-        ctx.lineTo(d.x, d.y + dh);
-        ctx.lineTo(d.x - dw, d.y);
-        ctx.closePath();
-        ctx.stroke();
-      });
+    // Headband Rim
+    const bandGrad = x.createLinearGradient(leftX, bTopY, rightX, bBotY);
+    bandGrad.addColorStop(0, '#b45309');
+    bandGrad.addColorStop(0.5, '#f59e0b');
+    bandGrad.addColorStop(1.0, '#78350f');
+    x.fillStyle = bandGrad;
+    x.beginPath();
+    x.moveTo(leftX, bTopY);
+    x.quadraticCurveTo(cx, bTopY + S*0.012, rightX, bTopY);
+    x.lineTo(rightX, bBotY);
+    x.quadraticCurveTo(cx, bBotY + S*0.012, leftX, bBotY);
+    x.closePath();
+    x.fill();
 
-      ctx.restore();
-    };
+    // Crown Outline
+    traceSovereignCrown(x);
+    x.lineWidth = S * 0.008;
+    x.strokeStyle = '#281203';
+    x.stroke();
 
-    drawCrown(x, strokeCol, lw);
-    drawCrown(bx, '#ffffff', lw);
+    x.beginPath();
+    x.moveTo(leftX, bTopY);
+    x.quadraticCurveTo(cx, bTopY + S*0.012, rightX, bTopY);
+    x.lineWidth = S * 0.005;
+    x.strokeStyle = '#451a03';
+    x.stroke();
+
+    // Three Jewels on Headband (Ruby, Emerald, Sapphire)
+    const crownJewels = [
+      { x: cx - S*0.085, y: (bTopY+bBotY)/2 + S*0.002, col: '#dc2626' },
+      { x: cx,           y: (bTopY+bBotY)/2 + S*0.006, col: '#059669' },
+      { x: cx + S*0.085, y: (bTopY+bBotY)/2 + S*0.002, col: '#2563eb' }
+    ];
+    crownJewels.forEach(j => {
+      const jw = S * 0.014, jh = S * 0.016;
+      x.fillStyle = '#f59e0b';
+      x.beginPath(); x.arc(j.x, j.y, jw * 1.35, 0, Math.PI*2); x.fill();
+      x.lineWidth = S * 0.002;
+      x.strokeStyle = '#451a03';
+      x.stroke();
+
+      x.fillStyle = j.col;
+      x.beginPath();
+      x.moveTo(j.x, j.y - jh);
+      x.lineTo(j.x + jw, j.y);
+      x.lineTo(j.x, j.y + jh);
+      x.lineTo(j.x - jw, j.y);
+      x.closePath();
+      x.fill();
+    });
+
+    // Spire Finial Pearls
+    [p0, p1, p2].forEach(p => {
+      const pGrad = x.createRadialGradient(p.x, p.y, 1, p.x, p.y, p.r);
+      pGrad.addColorStop(0, '#fef08a');
+      pGrad.addColorStop(0.70, '#f59e0b');
+      pGrad.addColorStop(1.0, '#92400e');
+      x.fillStyle = pGrad;
+      x.beginPath(); x.arc(p.x, p.y, p.r, 0, Math.PI*2); x.fill();
+      x.lineWidth = S * 0.0035;
+      x.strokeStyle = '#281203';
+      x.stroke();
+    });
+
+    // Imperial Cross atop center spire
+    const crX = p1.x, crY = p1.y - p1.r - S*0.018;
+    const crW = S*0.012, crH = S*0.026;
+    x.fillStyle = '#fbbf24';
+    x.fillRect(crX - crW/2, crY - crH/2, crW, crH);
+    x.fillRect(crX - crH/2, crY - crW/2, crH, crW);
+    x.lineWidth = S * 0.002;
+    x.strokeStyle = '#451a03';
+    x.strokeRect(crX - crW/2, crY - crH/2, crW, crH);
+    x.strokeRect(crX - crH/2, crY - crW/2, crH, crW);
+
+    // Bump map for King Crown
+    traceSovereignCrown(bx);
+    bx.fillStyle = '#9e9e9e';
+    bx.fill();
+    [p0, p1, p2].forEach(p => {
+      bx.fillStyle = '#b0b0b0';
+      bx.beginPath(); bx.arc(p.x, p.y, p.r, 0, Math.PI*2); bx.fill();
+    });
+    crownJewels.forEach(j => {
+      bx.fillStyle = '#b8b8b8';
+      bx.beginPath(); bx.arc(j.x, j.y, S*0.012, 0, Math.PI*2); bx.fill();
+    });
+    bx.fillStyle = '#b0b0b0';
+    bx.fillRect(crX - crW/2, crY - crH/2, crW, crH);
+    bx.fillRect(crX - crH/2, crY - crW/2, crH, crW);
   }
 
   const map=new THREE.CanvasTexture(c);
   map.colorSpace=THREE.SRGBColorSpace;
-  map.anisotropy=16;
+  map.minFilter=THREE.LinearMipmapLinearFilter;
+  map.magFilter=THREE.LinearFilter;
   map.generateMipmaps=true;
+  map.anisotropy=16;
 
   const bump=new THREE.CanvasTexture(bc);
-  bump.anisotropy=16;
+  bump.minFilter=THREE.LinearMipmapLinearFilter;
+  bump.magFilter=THREE.LinearFilter;
   bump.generateMipmaps=true;
+  bump.anisotropy=16;
   return { map, bump };
 }
 
@@ -803,7 +915,7 @@ function envTexture(){
 /* ============================== RENDERER ================================ */
 const canvas=$('c');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.75));
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2.0));
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFShadowMap;
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=0.96;
@@ -819,19 +931,19 @@ const envRT=pmrem.fromEquirectangular(envTexture());
 scene.environment=envRT.texture;
 
 /* ------------------------------ lights --------------------------------- */
-scene.add(new THREE.AmbientLight(0xffffff,0.55));
-scene.add(new THREE.HemisphereLight(0xffffff,0x666677,0.30));
-const key=new THREE.DirectionalLight(0xffffff,0.60);
-key.position.set(0,24,0); key.castShadow=true;
+scene.add(new THREE.AmbientLight(0xffffff,0.72));
+scene.add(new THREE.HemisphereLight(0xfff8ee,0x555566,0.38));
+const key=new THREE.DirectionalLight(0xfff5e6,0.42);
+key.position.set(-5,24,9); key.castShadow=true;
 key.shadow.mapSize.set(1024,1024);
 key.shadow.camera.left=-8.6; key.shadow.camera.right=8.6;
 key.shadow.camera.top=8.6; key.shadow.camera.bottom=-8.6;
 key.shadow.camera.near=6; key.shadow.camera.far=38;
 key.shadow.bias=-0.0002; key.shadow.normalBias=0.01;
 scene.add(key);
-const fillL=new THREE.DirectionalLight(0xf5f5fa,0.18); fillL.position.set(-10,18,0); scene.add(fillL);
-const fillR=new THREE.DirectionalLight(0xf5f5fa,0.18); fillR.position.set(10,18,0); scene.add(fillR);
-const fillB=new THREE.DirectionalLight(0xf5f5fa,0.15); fillB.position.set(0,18,0); scene.add(fillB);
+const fillL=new THREE.DirectionalLight(0xf5f5fa,0.16); fillL.position.set(-10,18,-4); scene.add(fillL);
+const fillR=new THREE.DirectionalLight(0xf5f5fa,0.16); fillR.position.set(10,18,-4); scene.add(fillR);
+const fillB=new THREE.DirectionalLight(0xffeedd,0.14); fillB.position.set(0,18,-10); scene.add(fillB);
 
 /* ============================ WORLD GEOMETRY ============================ */
 const BOARD_TOP=0.44;                  // y of playing surface
@@ -872,45 +984,60 @@ let TABLE_IMG=null,BOARD_IMG=null; const BOARD_REF={};
 /* -------------------------- piece construction ------------------------- */
 function pieceProfile(){
   // lathe profile of a solid luxury tournament checkers stone (x = radius, y = height)
-  const R=0.385, H=0.122, pts=[];
-  pts.push(new THREE.Vector2(0.0,0));
-  pts.push(new THREE.Vector2(R-0.032,0));
+  const R=0.395, H=0.200, pts=[];
+  pts.push(new THREE.Vector2(0.0, 0.002));
+  pts.push(new THREE.Vector2(R-0.045, 0.002));
   // bottom bevel
   for(let i=0;i<=4;i++){
     const a=-Math.PI/2+ (i/4)*(Math.PI/2);
-    pts.push(new THREE.Vector2(R-0.032+Math.cos(a)*0.032, 0.032+Math.sin(a)*0.032));
+    pts.push(new THREE.Vector2(R-0.045+Math.cos(a)*0.042, 0.042+Math.sin(a)*0.042));
   }
-  // subtle milled side grip rib
-  pts.push(new THREE.Vector2(R,H*0.40));
-  pts.push(new THREE.Vector2(R-0.012,H*0.50));
-  pts.push(new THREE.Vector2(R,H*0.60));
-  // top bevel
+  // 4 precision CNC milled knurled grip grooves on side perimeter
+  pts.push(new THREE.Vector2(R, H*0.22));
+  pts.push(new THREE.Vector2(R-0.012, H*0.30));
+  pts.push(new THREE.Vector2(R, H*0.38));
+  pts.push(new THREE.Vector2(R-0.012, H*0.46));
+  pts.push(new THREE.Vector2(R, H*0.54));
+  pts.push(new THREE.Vector2(R-0.012, H*0.62));
+  pts.push(new THREE.Vector2(R, H*0.70));
+  pts.push(new THREE.Vector2(R-0.012, H*0.78));
+  pts.push(new THREE.Vector2(R, H*0.84));
+  // bullnose upper rim bevel
   for(let i=0;i<=4;i++){
     const a=(i/4)*(Math.PI/2);
-    pts.push(new THREE.Vector2(R-0.032+Math.cos(a)*0.032, H-0.032+Math.sin(a)*0.032));
+    pts.push(new THREE.Vector2(R-0.040+Math.cos(a)*0.038, H-0.038+Math.sin(a)*0.038));
   }
-  // flat top face
-  pts.push(new THREE.Vector2(0.0,H));
+  // deep carved recess well (drops well below inlay plane to eliminate Z-fighting)
+  pts.push(new THREE.Vector2(R-0.050, H-0.012));
+  pts.push(new THREE.Vector2(R-0.070, H-0.036));
+  pts.push(new THREE.Vector2(0.0, H-0.036));
   return pts;
 }
 const PROFILE=pieceProfile();
-const bodyGeo=new THREE.LatheGeometry(PROFILE,36);
-const inlayGeo=new THREE.CircleGeometry(0.365,36).rotateX(-Math.PI/2);
+const bodyGeo=new THREE.LatheGeometry(PROFILE,44);
+const inlayGeo=new THREE.CircleGeometry(0.338,44).rotateX(-Math.PI/2);
 
-const matGold=new THREE.MeshStandardMaterial({color:0xffffff,metalness:.04,roughness:.25,envMapIntensity:0.65});
-const matDark=new THREE.MeshStandardMaterial({color:0x111111,metalness:.15,roughness:.35,envMapIntensity:0.45});
+const crownRimGeo=new THREE.TorusGeometry(0.355, 0.015, 16, 44).rotateX(Math.PI/2);
+const crownRimMat=new THREE.MeshPhysicalMaterial({color:0xd97706,metalness:0.25,roughness:0.65,clearcoat:0.0,clearcoatRoughness:1.0,reflectivity:0.10});
+
+const pieceShadowTex=makeContactShadowTexture();
+const pieceShadowMat=new THREE.MeshBasicMaterial({map:pieceShadowTex,transparent:true,opacity:0.55,depthWrite:false});
+const pieceShadowGeo=new THREE.PlaneGeometry(0.88,0.88).rotateX(-Math.PI/2);
+
+const matGold=new THREE.MeshPhysicalMaterial({color:0xffffff,metalness:0.0,roughness:0.80,clearcoat:0.0,clearcoatRoughness:1.0,reflectivity:0.05,envMapIntensity:0.05});
+const matDark=new THREE.MeshPhysicalMaterial({color:0x111111,metalness:0.0,roughness:0.80,clearcoat:0.0,clearcoatRoughness:1.0,reflectivity:0.05,envMapIntensity:0.05});
 const emblemTex={g0:null,g1:null,d0:null,d1:null};
 const inlayMat={
-  g0:new THREE.MeshStandardMaterial({metalness:.06,roughness:.25}),
-  g1:new THREE.MeshStandardMaterial({metalness:.85,roughness:.18}),
-  d0:new THREE.MeshStandardMaterial({metalness:.12,roughness:.36}),
-  d1:new THREE.MeshStandardMaterial({metalness:.85,roughness:.18})
+  g0:new THREE.MeshPhysicalMaterial({metalness:0.0,roughness:0.82,clearcoat:0.0,clearcoatRoughness:1.0,reflectivity:0.05}),
+  g1:new THREE.MeshPhysicalMaterial({metalness:0.0,roughness:0.82,clearcoat:0.0,clearcoatRoughness:1.0,reflectivity:0.05}),
+  d0:new THREE.MeshPhysicalMaterial({metalness:0.0,roughness:0.82,clearcoat:0.0,clearcoatRoughness:1.0,reflectivity:0.05}),
+  d1:new THREE.MeshPhysicalMaterial({metalness:0.0,roughness:0.82,clearcoat:0.0,clearcoatRoughness:1.0,reflectivity:0.05})
 };
 function applyPieceSet(){
   const P=PIECE_SETS[SETTINGS.pieces];
-  matGold.color.setHex(P.a.col); matGold.metalness=P.a.metal; matGold.roughness=Math.max(0.22, P.a.rough);
-  matDark.color.setHex(P.b.col); matDark.metalness=Math.min(0.20, P.b.metal); matDark.roughness=Math.max(0.32, P.b.rough);
-  matGold.envMapIntensity = P.a.metal>.5?0.85:0.55; matDark.envMapIntensity = P.b.metal>.5?0.65:0.40;
+  matGold.color.setHex(P.a.col); matGold.metalness=0.0; matGold.roughness=0.80;
+  matDark.color.setHex(P.b.col); matDark.metalness=0.0; matDark.roughness=0.80;
+  matGold.envMapIntensity = 0.05; matDark.envMapIntensity = 0.05;
   for(const k of ['g0','g1','d0','d1']){
     if(emblemTex[k]){
       if(emblemTex[k].map) emblemTex[k].map.dispose();
@@ -922,13 +1049,12 @@ function applyPieceSet(){
   for(const k of ['g0','g1','d0','d1']){
     inlayMat[k].map=emblemTex[k].map;
     inlayMat[k].bumpMap=emblemTex[k].bump;
-    inlayMat[k].bumpScale=(k==='g1'||k==='d1')?0.038:0.032;
+    inlayMat[k].bumpScale=0.0015;
+    inlayMat[k].metalness=0.0;
+    inlayMat[k].roughness=0.82;
+    inlayMat[k].clearcoat=0.0;
     inlayMat[k].needsUpdate=true;
   }
-  inlayMat.g0.metalness=0.0;  inlayMat.g0.roughness=0.50;
-  inlayMat.d0.metalness=0.06; inlayMat.d0.roughness=0.38;
-  inlayMat.g1.metalness=0.0;  inlayMat.g1.roughness=0.42;
-  inlayMat.d1.metalness=0.06; inlayMat.d1.roughness=0.36;
   // HUD discs
   const css=(pal)=>`radial-gradient(circle at 34% 30%,${pal[0]},${pal[1]} 50%,${pal[2]})`;
   if($('youDisc')) $('youDisc').style.background=css(P.a.ui);
@@ -941,11 +1067,29 @@ applyPieceSet();
 function makePiece(side){                       // side: 1 gold, -1 dark
   const g=new THREE.Group();
   const mat = side>0?matGold:matDark;
+
+  // Contact ambient occlusion shadow
+  const pShadow=new THREE.Mesh(pieceShadowGeo,pieceShadowMat);
+  pShadow.position.y=0.002;
+  g.add(pShadow);
+
   const body=new THREE.Mesh(bodyGeo,mat); body.castShadow=true; body.receiveShadow=true; g.add(body);
 
+  const kingStack=new THREE.Mesh(bodyGeo,mat);
+  kingStack.position.y=0.200;
+  kingStack.castShadow=true; kingStack.receiveShadow=true;
+  kingStack.visible=false;
+  g.add(kingStack);
+
+  const crownRim=new THREE.Mesh(crownRimGeo,crownRimMat);
+  crownRim.position.y=0.382;
+  crownRim.castShadow=false; crownRim.receiveShadow=true;
+  crownRim.visible=false;
+  g.add(crownRim);
+
   const inlay=new THREE.Mesh(inlayGeo, side>0?inlayMat.g0:inlayMat.d0);
-  inlay.position.y=0.123; inlay.castShadow=false; inlay.receiveShadow=true; g.add(inlay);
-  g.userData={side,king:false,body,inlay};
+  inlay.position.y=0.186; inlay.castShadow=false; inlay.receiveShadow=true; g.add(inlay);
+  g.userData={side,king:false,body,kingStack,crownRim,inlay};
   return g;
 }
 
@@ -1430,7 +1574,14 @@ function setKing(mesh,on){
   mesh.userData.king=on;
   const side=mesh.userData.side;
   mesh.rotation.y=pieceFacing(side);
+  if(mesh.userData.kingStack){
+    mesh.userData.kingStack.visible = !!on;
+  }
+  if(mesh.userData.crownRim){
+    mesh.userData.crownRim.visible = !!on;
+  }
   if(mesh.userData.inlay){
+    mesh.userData.inlay.position.y = on ? 0.386 : 0.186;
     mesh.userData.inlay.material = side>0 ? (on?inlayMat.g1:inlayMat.g0) : (on?inlayMat.d1:inlayMat.d0);
   }
 }
@@ -1456,10 +1607,10 @@ function trayTarget(side,n){
   const dir = side>0? 1 : -1;
   if(PORTRAIT){
     const col=n%6, row=Math.floor(n/6)%2, layer=Math.floor(n/12);
-    return { x:-2.5+col*1.0, y:0.002+layer*0.14, z: dir*(5.35+row*0.95) };
+    return { x:-2.5+col*1.0, y:0.002+layer*0.21, z: dir*(5.35+row*0.95) };
   }
   const col=n%2, row=Math.floor(n/2)%6, layer=Math.floor(n/12);
-  return { x: dir*(5.75+col*0.9), y:0.002+layer*0.14, z:-2.3+row*0.92 };
+  return { x: dir*(5.75+col*0.9), y:0.002+layer*0.21, z:-2.3+row*0.92 };
 }
 function relayoutTrays(){
   [1,-1].forEach(side=>{
@@ -1607,40 +1758,63 @@ function buildFitPoints(){
 function fitCamera(){
   const aspect=camera.aspect;
   const h=window.innerHeight||800;
-  // Calculate top bar height in NDC coordinates (+ safety breathing margin)
-  const topBarH = 68;
+  const is2D = G.view === '2d';
+  
+  // Real measured top bar height (with fallback)
+  const topBarEl = document.querySelector('.bar.top');
+  const topBarH = (topBarEl && topBarEl.offsetHeight) ? topBarEl.offsetHeight : 56;
   const topBarNDC = (topBarH / h) * 2;
-  const topLimit = 1.0 - topBarNDC; // Top edge of board must strictly stay below this
-  const botLimit = -0.92;           // Bottom margin
   
   PORTRAIT = aspect < 0.92;
-  const is2D = G.view === '2d';
+  const isWideLandscape = aspect > 1.75;
   cam.pitchTarget = is2D ? 1.5707
-                         : (cam.menu ? (PORTRAIT?0.82:0.66)
-                                     : (PORTRAIT?1.14 : (aspect<1.25?1.00:0.92)));
-  if(is2D && !cam.menu) cam.azTarget = 0;
-  
-  // Center the look target visually in the space below the top bar
-  const vShift = is2D ? -0.38 : (PORTRAIT ? -0.26 : -0.28);
-  cam.look.set(0, 0.35, cam.menu ? 0 : vShift);
+                         : (cam.menu ? (PORTRAIT ? 0.82 : (isWideLandscape ? 0.72 : 0.66))
+                                     : (PORTRAIT ? 1.14 : (isWideLandscape ? 1.06 : (aspect < 1.25 ? 1.00 : 0.94))));
   
   buildFitPoints();
   const p=cam.pitchTarget, sp=Math.sin(p), cp=Math.cos(p);
   const keep=camera.position.clone();
   let d=14;
   for(let it=0;it<12;it++){
-    camera.position.set(cam.look.x, cam.look.y + sp*d, cam.look.z + cp*d);
+    // Calculate exact visual vertical shift for perfect top/bottom centering in usable space
+    let vShift = 0;
+    if(!cam.menu){
+      if(is2D){
+        const vHeight = 2 * Math.max(1, d - 0.35) * Math.tan((camera.fov * Math.PI) / 360);
+        vShift = (vHeight * (topBarH / h)) / 2;
+      } else {
+        vShift = PORTRAIT ? 0.12 : (isWideLandscape ? 0.08 : 0.14);
+      }
+    }
+
+    const testAz = cam.azTarget;
+    const lx = -Math.sin(testAz) * vShift;
+    const lz = -Math.cos(testAz) * vShift;
+    cam.look.set(lx, 0.35, lz);
+    
+    camera.position.set(lx + Math.sin(testAz)*cp*d, 0.35 + sp*d, lz + Math.cos(testAz)*cp*d);
     camera.lookAt(cam.look); camera.updateMatrixWorld(true);
+    
+    const maxHalfNDC = is2D ? (1.0 - topBarNDC / 2) * 0.93 : 0.92;
+    const botLimit = is2D ? -(1.0 - topBarNDC / 2) * 0.93 : (isWideLandscape ? -0.84 : -0.78);
+    const topLimit = 1.0 - topBarNDC;
+
     let ratio=0;
     for(const q of _fitPts){
       _fitTmp.copy(q.v).project(camera);
-      // Horizontal constraint
       const rx = Math.abs(_fitTmp.x) / q.lim;
-      // Top vertical constraint (must never enter top bar)
-      const ryTop = _fitTmp.y / topLimit;
-      // Bottom vertical constraint
-      const ryBot = -_fitTmp.y / Math.abs(botLimit);
-      const r = Math.max(rx, ryTop, ryBot);
+      
+      let ry = 0;
+      if(is2D){
+        const midNDC = -topBarNDC / 2;
+        ry = Math.abs(_fitTmp.y - midNDC) / maxHalfNDC;
+      } else {
+        const ryTop = _fitTmp.y / topLimit;
+        const ryBot = -_fitTmp.y / Math.abs(botLimit);
+        ry = Math.max(ryTop, ryBot);
+      }
+      
+      const r = Math.max(rx, ry);
       if(r > ratio) ratio = r;
     }
     if(Math.abs(ratio-1)<0.003) break;
@@ -1656,10 +1830,32 @@ function updateCamera(dt){
   const pitch=cam.pitch;
   const az=cam.az;
   const r=cam.radius;
+  
+  const is2D = G.view === '2d';
+  const h = window.innerHeight || 800;
+  const aspect = camera.aspect;
+  const isWideLandscape = aspect > 1.75;
+  const topBarEl = document.querySelector('.bar.top');
+  const topBarH = (topBarEl && topBarEl.offsetHeight) ? topBarEl.offsetHeight : 56;
+  
+  let vShift = 0;
+  if(!cam.menu){
+    if(is2D){
+      const vHeight = 2 * Math.max(1, r - 0.35) * Math.tan((camera.fov * Math.PI) / 360);
+      vShift = (vHeight * (topBarH / h)) / 2;
+    } else {
+      vShift = PORTRAIT ? 0.12 : (isWideLandscape ? 0.08 : 0.14);
+    }
+  }
+  
+  const lx = -Math.sin(az) * vShift;
+  const lz = -Math.cos(az) * vShift;
+  cam.look.set(lx, 0.35, lz);
+
   camera.position.set(
-    cam.look.x + Math.sin(az)*Math.cos(pitch)*r,
-    cam.look.y + Math.sin(pitch)*r,
-    cam.look.z + Math.cos(az)*Math.cos(pitch)*r
+    lx + Math.sin(az)*Math.cos(pitch)*r,
+    0.35 + Math.sin(pitch)*r,
+    lz + Math.cos(az)*Math.cos(pitch)*r
   );
   camera.lookAt(cam.look);
 }
@@ -1895,7 +2091,7 @@ function playMove(m, humanStep){
     G.chainFrom=-1;
     G.turn=-G.turn;
     G.busy=false;
-    if(G.mode==='friend') cam.azTarget+=Math.PI;
+    if(G.mode==='friend' && SETTINGS.autoRotate) cam.azTarget+=Math.PI;
     updateHUD();
     checkEnd();
     if(!G.over) scheduleAI();
@@ -2159,7 +2355,17 @@ bindBtn($('btnSettings2'),()=>openSettings('game'));
 bindBtn($('settingsBack'),()=>{ if(settingsReturn==='game') showGame(); else show('menu'); });
 $('togHints').addEventListener('click',()=>{ Audio2.ui(); SETTINGS.hints=!SETTINGS.hints; saveSettings(); syncSettingsUI(); if(G.selected>=0){ const sq=G.selected, lg=G.legal; deselect(); select(sq,lg); } });
 $('togCoords').addEventListener('click',()=>{ Audio2.ui(); SETTINGS.coords=!SETTINGS.coords; saveSettings(); applyBoardTheme(); syncSettingsUI(); });
-$('togAutoRotate').addEventListener('click',()=>{ Audio2.ui(); SETTINGS.autoRotate=!SETTINGS.autoRotate; saveSettings(); syncSettingsUI(); });
+$('togAutoRotate').addEventListener('click',()=>{
+  Audio2.ui();
+  SETTINGS.autoRotate=!SETTINGS.autoRotate;
+  saveSettings();
+  if(!SETTINGS.autoRotate && G.mode!=='menu'){
+    cam.azTarget = 0;
+  } else if(SETTINGS.autoRotate && G.mode==='friend'){
+    cam.azTarget = G.turn === 1 ? 0 : Math.PI;
+  }
+  syncSettingsUI();
+});
 $('togSound').addEventListener('click',()=>{ Audio2.toggle(); updateSoundBtn(); syncSettingsUI(); });
 document.querySelectorAll('#viewSeg2 .segb').forEach(b=>b.addEventListener('click',()=>{ Audio2.resume(); Audio2.ui(); setView(b.dataset.v,false); syncSettingsUI(); }));
 
@@ -2193,7 +2399,7 @@ window.addEventListener('keydown',e=>{
 /* ============================== RESIZE ================================= */
 function resize(){
   const w=window.innerWidth,h=window.innerHeight;
-  const dpr=Math.min(window.devicePixelRatio||1,1.75);
+  const dpr=Math.min(window.devicePixelRatio||1,2.0);
   renderer.setPixelRatio(dpr);
   renderer.setSize(w,h,false);
   camera.aspect=w/h;

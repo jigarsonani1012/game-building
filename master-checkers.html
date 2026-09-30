@@ -5,24 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#1a0f07" />
 <title>Master Checkers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js"}}</script>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-variant-numeric:lining-nums tabular-nums;font-feature-settings:"lnum" 1,"tnum" 1}
   ::-webkit-scrollbar{width:6px;height:6px}
   ::-webkit-scrollbar-track{background:transparent}
   ::-webkit-scrollbar-thumb{background:rgba(190,148,72,.35);border-radius:4px}
   ::-webkit-scrollbar-thumb:hover{background:rgba(240,205,126,.6)}
-  html,body{width:100%;height:100%;height:100dvh;overflow:hidden;background:#120a05;font-family:"Trebuchet MS","Gill Sans",Georgia,serif;color:#f4e3c1;overscroll-behavior:none;touch-action:none;scrollbar-width:none}
+  html,body{width:100%;height:100%;height:100dvh;overflow:hidden;background:#120a05;font-family:'Outfit',"Trebuchet MS","Gill Sans",Georgia,serif;color:#f4e3c1;overscroll-behavior:none;touch-action:none;scrollbar-width:none}
   #c{display:block;position:fixed;inset:0;width:100%;height:100%}
   .seg{pointer-events:auto;display:flex;margin-top:clamp(8px,1.8vh,14px);border:2px solid #7d5a22;border-radius:7px;overflow:hidden;
     background:linear-gradient(#3b2410,#221308);box-shadow:inset 0 2px 6px rgba(0,0,0,.6),0 4px 0 #26160a}
-  .seg .lbl{display:flex;align-items:center;padding:0 13px;font-size:10px;letter-spacing:.2em;color:#9c8155;text-transform:uppercase}
-  .segb{cursor:pointer;border:0;background:transparent;color:#ab8d5e;font-family:Georgia,serif;font-weight:700;
+  .seg .lbl{display:flex;align-items:center;padding:0 13px;font-size:10px;letter-spacing:.2em;color:#9c8155;text-transform:uppercase;font-family:'Outfit',sans-serif}
+  .segb{cursor:pointer;border:0;background:transparent;color:#ab8d5e;font-family:'Cinzel',Georgia,serif;font-weight:700;
     font-size:clamp(12px,2.6vw,14px);letter-spacing:.12em;padding:clamp(6px,1.2vh,10px) clamp(12px,2.5vw,18px);transition:color .18s,background .18s}
   .segb+.segb{border-left:1px solid rgba(190,148,72,.35)}
   .segb:hover{color:#f0d69a}
   .segb.on{color:#2a1708;background:linear-gradient(#f0cd7e,#c79733);text-shadow:0 1px 0 rgba(255,246,214,.5)}
-  .ibtn.txt{font-family:Georgia,serif;font-size:13px;font-weight:700;letter-spacing:.06em}
+  .ibtn.txt{font-family:'Cinzel',Georgia,serif;font-size:13px;font-weight:700;letter-spacing:.06em}
   #vig{display:none}
   #ui{position:fixed;inset:0;z-index:5;pointer-events:none;overflow:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
   .screen{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .35s ease;pointer-events:none;padding:clamp(12px,3vh,24px) 16px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(190,148,72,.35) transparent}
@@ -63,39 +66,38 @@
   .foot{position:absolute;bottom:16px;left:0;right:0;text-align:center;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#7a6242}
 
   /* ---------- HUD ---------- */
-  #hud{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .4s ease}
+  #hud{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .4s ease;pointer-events:none}
   #hud.show{opacity:1;visibility:visible}
-  .bar{position:absolute;left:0;right:0;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:12px 14px}
-  .bar.top{top:0}
-  .bar.bot{bottom:0;align-items:flex-end}
-  .pp{pointer-events:none;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 9px;border-radius:9px;
-    background:linear-gradient(rgba(58,35,16,.92),rgba(30,17,7,.94));border:1px solid rgba(190,148,72,.5);
-    box-shadow:inset 0 1px 0 rgba(255,214,140,.18),0 6px 14px rgba(0,0,0,.5);transition:border-color .3s,box-shadow .3s,transform .3s}
-  .pp.active{border-color:#e8c476;box-shadow:inset 0 1px 0 rgba(255,225,160,.3),0 0 18px rgba(228,180,90,.35),0 6px 14px rgba(0,0,0,.5);transform:scale(1.03)}
-  .disc{width:30px;height:30px;border-radius:50%;flex:0 0 auto;position:relative}
-  .disc::after{content:"";position:absolute;inset:6px;border-radius:50%;border:1px solid rgba(255,255,255,.18)}
-  .disc.gold{background:radial-gradient(circle at 34% 30%,#ffe9a8,#d3a33d 48%,#8a5e14);box-shadow:inset 0 -2px 4px rgba(60,32,0,.6),0 2px 4px rgba(0,0,0,.5)}
-  .disc.dark{background:radial-gradient(circle at 34% 30%,#6a5c50,#2a201a 52%,#0e0a07);box-shadow:inset 0 -2px 4px rgba(0,0,0,.7),0 2px 4px rgba(0,0,0,.5)}
-  .pinfo{display:flex;flex-direction:column;line-height:1.25}
-  .pname{font-family:Georgia,serif;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#f3dfb4}
-  .pcap{font-size:11px;letter-spacing:.08em;color:#b2966a;text-transform:uppercase}
-  .pcap b{color:#f0d296}
-  .icons{display:flex;gap:8px}
-  .ibtn{pointer-events:auto;width:42px;height:42px;display:flex;align-items:center;justify-content:center;cursor:pointer;
+  .bar{position:absolute;left:0;right:0}
+  .bar.top{
+    top:0;pointer-events:auto;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:8px clamp(12px,2.5vw,20px);
+    min-height:56px;
+    background:linear-gradient(180deg, rgba(28,15,6,.98) 0%, rgba(18,9,4,.94) 85%, rgba(12,6,2,.90) 100%);
+    border-bottom:1px solid rgba(190,148,72,.35);
+    box-shadow:0 4px 22px rgba(0,0,0,.75);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    z-index:10;
+  }
+  .bar.bot{bottom:0;display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding:12px 14px}
+  .icons{display:flex;gap:8px;align-items:center}
+  .ibtn{pointer-events:auto;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;
     border-radius:8px;border:1px solid rgba(190,148,72,.55);background:linear-gradient(rgba(64,39,18,.95),rgba(32,18,8,.95));
     box-shadow:inset 0 1px 0 rgba(255,214,140,.2),0 4px 10px rgba(0,0,0,.5);color:#f0d69a;font-size:18px;line-height:1;transition:filter .15s,transform .1s}
   .ibtn:hover{filter:brightness(1.25)}
   .ibtn:active{transform:translateY(2px)}
   .ibtn.off{color:#7d6743}
   .ibtn.disabled{opacity:.35;pointer-events:none;filter:grayscale(.7) brightness(.85);cursor:not-allowed}
-  #turnPill{position:absolute;top:14px;left:50%;transform:translateX(-50%);padding:8px 20px;border-radius:20px;
-    font-family:Georgia,serif;font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:#f6e6bd;white-space:nowrap;
-    background:linear-gradient(rgba(52,31,13,.93),rgba(26,15,6,.95));border:1px solid rgba(196,153,74,.55);
-    box-shadow:0 5px 14px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,214,140,.2)}
-  #timer{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);padding:7px 20px;border-radius:8px;
-    font-family:Georgia,serif;font-size:17px;letter-spacing:.16em;color:#f2ddaa;
-    background:linear-gradient(rgba(52,31,13,.9),rgba(26,15,6,.94));border:1px solid rgba(196,153,74,.45);
-    box-shadow:0 5px 14px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,214,140,.16)}
+  #turnPill{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    padding:7px 18px;border-radius:20px;
+    font-family:'Cinzel',Georgia,serif;font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#f6e6bd;white-space:nowrap;
+    background:linear-gradient(rgba(52,31,13,.95),rgba(26,15,6,.98));border:1px solid rgba(196,153,74,.6);
+    box-shadow:0 4px 12px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,214,140,.25);
+    pointer-events:none;
+  }
   #toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);padding:11px 24px;border-radius:8px;
     font-family:Georgia,serif;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:#ffd9a2;
     background:rgba(88,26,16,.92);border:1px solid rgba(233,163,90,.6);box-shadow:0 8px 22px rgba(0,0,0,.6);
@@ -277,15 +279,15 @@
   <div id="hud">
     <div class="bar top">
       <div class="ibtn" id="btnHamburger" title="Moves & Menu">☰</div>
+      <div id="turnPill">Your turn</div>
       <div class="icons">
         <div class="ibtn txt" id="btnView" title="Switch view">2D</div>
-        <div class="ibtn" id="btnSound" title="Sound">♪</div>
+        <div class="ibtn" id="btnSound" title="Sound: On"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;pointer-events:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg></div>
         <div class="ibtn" id="btnSettings2" title="Customize">⚙</div>
         <div class="ibtn" id="btnRestart" title="Restart">↻</div>
         <div class="ibtn" id="btnHome" title="Main menu">⌂</div>
       </div>
     </div>
-    <div id="turnPill">Your turn</div>
     <div id="toast">Capture is mandatory</div>
   </div>
 
@@ -1069,8 +1071,30 @@ const lastTo=new THREE.Mesh(new THREE.PlaneGeometry(0.992,0.992).rotateX(-Math.P
 lastFrom.visible=lastTo.visible=false;
 lastFrom.position.y=lastTo.position.y=BOARD_TOP+0.004; world.add(lastFrom,lastTo);
 
-const dotGeo=new THREE.CylinderGeometry(0.14,0.14,0.024,32);
-const dotMat=new THREE.MeshStandardMaterial({color:0x22c55e,emissive:0x16a34a,emissiveIntensity:0.6,roughness:.15,metalness:.1,transparent:true,opacity:.96});
+function makeDotTexture(){
+  const S=128, c=cnv(S,S), x=c.getContext('2d');
+  const cx=S/2, cy=S/2, r=S*0.44;
+  
+  // Clean, uniform emerald green disc with smooth antialiased edge
+  const g=x.createRadialGradient(cx, cy, r - 2.5, cx, cy, r + 1);
+  g.addColorStop(0, '#22c55e');
+  g.addColorStop(0.88, '#22c55e');
+  g.addColorStop(1.0, 'rgba(34, 197, 94, 0)');
+  
+  x.fillStyle=g;
+  x.beginPath();
+  x.arc(cx, cy, r + 1, 0, Math.PI * 2);
+  x.fill();
+
+  const t=new THREE.CanvasTexture(c);
+  t.colorSpace=THREE.SRGBColorSpace;
+  t.anisotropy=8;
+  return t;
+}
+
+const dotTex=makeDotTexture();
+const dotGeo=new THREE.PlaneGeometry(0.38,0.38).rotateX(-Math.PI/2);
+const dotMat=new THREE.MeshBasicMaterial({map:dotTex,transparent:true,opacity:0.88,depthWrite:false});
 
 function makeCapTileTexture(){
   const S=512, c=cnv(S,S), x=c.getContext('2d');
@@ -1143,9 +1167,9 @@ function addMarker(idx,isCap){
     hlGroup.add(m);
     markers.push(m);
   } else {
-    const m=new THREE.Mesh(dotGeo,dotMat);
-    m.position.set(p.x, BOARD_TOP + (G.view==='2d'?0.014:0.02), p.z);
-    m.userData={base:BOARD_TOP + 0.02, t:Math.random()*6, isCap:false};
+    const m=new THREE.Mesh(dotGeo,dotMat.clone());
+    m.position.set(p.x, BOARD_TOP + (G.view==='2d'?0.014:0.016), p.z);
+    m.userData={base:BOARD_TOP + 0.016, t:Math.random()*6, isCap:false};
     hlGroup.add(m);
     markers.push(m);
   }
@@ -1568,37 +1592,59 @@ const cam={az:0, azTarget:0, pitch:0.93, pitchTarget:0.93, radius:15.4, radiusTa
 const _fitPts=[]; const _fitTmp=new THREE.Vector3();
 function buildFitPoints(){
   _fitPts.length=0;
-  const b=4.92, h=0.55;
+  const is2D = G.view === '2d';
+  const b = is2D ? 4.55 : 4.75, h = 0.55;
+  const lim = is2D ? 0.94 : (PORTRAIT ? 0.94 : 0.92);
   for(const x of [-b,b]) for(const z of [-b,b]){
-    _fitPts.push({v:new THREE.Vector3(x,0,z),lim:0.90});
-    _fitPts.push({v:new THREE.Vector3(x,h,z),lim:0.90});
+    _fitPts.push({v:new THREE.Vector3(x,0,z),lim:lim});
+    _fitPts.push({v:new THREE.Vector3(x,h,z),lim:lim});
   }
-  if(PORTRAIT){ for(const z of [-6.55,6.55]) for(const x of [-2.9,2.9]) _fitPts.push({v:new THREE.Vector3(x,0.12,z),lim:1.0}); }
-  else        { for(const x of [-6.9,6.9])   for(const z of [-2.6,2.6]) _fitPts.push({v:new THREE.Vector3(x,0.12,z),lim:1.0}); }
+  if(!is2D){
+    if(PORTRAIT){ for(const z of [-5.6,5.6]) for(const x of [-2.5,2.5]) _fitPts.push({v:new THREE.Vector3(x,0.12,z),lim:0.97}); }
+    else        { for(const x of [-6.0,6.0])   for(const z of [-2.3,2.3]) _fitPts.push({v:new THREE.Vector3(x,0.12,z),lim:0.97}); }
+  }
 }
 function fitCamera(){
   const aspect=camera.aspect;
+  const h=window.innerHeight||800;
+  // Calculate top bar height in NDC coordinates (+ safety breathing margin)
+  const topBarH = 68;
+  const topBarNDC = (topBarH / h) * 2;
+  const topLimit = 1.0 - topBarNDC; // Top edge of board must strictly stay below this
+  const botLimit = -0.92;           // Bottom margin
+  
   PORTRAIT = aspect < 0.92;
   const is2D = G.view === '2d';
   cam.pitchTarget = is2D ? 1.5707
                          : (cam.menu ? (PORTRAIT?0.82:0.66)
                                      : (PORTRAIT?1.14 : (aspect<1.25?1.00:0.92)));
   if(is2D && !cam.menu) cam.azTarget = 0;
+  
+  // Center the look target visually in the space below the top bar
+  const vShift = is2D ? -0.38 : (PORTRAIT ? -0.26 : -0.28);
+  cam.look.set(0, 0.35, cam.menu ? 0 : vShift);
+  
   buildFitPoints();
   const p=cam.pitchTarget, sp=Math.sin(p), cp=Math.cos(p);
   const keep=camera.position.clone();
   let d=14;
-  for(let it=0;it<9;it++){
-    camera.position.set(0,sp*d,cp*d);
+  for(let it=0;it<12;it++){
+    camera.position.set(cam.look.x, cam.look.y + sp*d, cam.look.z + cp*d);
     camera.lookAt(cam.look); camera.updateMatrixWorld(true);
     let ratio=0;
     for(const q of _fitPts){
       _fitTmp.copy(q.v).project(camera);
-      const r=Math.max(Math.abs(_fitTmp.x),Math.abs(_fitTmp.y))/q.lim;
-      if(r>ratio) ratio=r;
+      // Horizontal constraint
+      const rx = Math.abs(_fitTmp.x) / q.lim;
+      // Top vertical constraint (must never enter top bar)
+      const ryTop = _fitTmp.y / topLimit;
+      // Bottom vertical constraint
+      const ryBot = -_fitTmp.y / Math.abs(botLimit);
+      const r = Math.max(rx, ryTop, ryBot);
+      if(r > ratio) ratio = r;
     }
-    if(Math.abs(ratio-1)<0.004) break;
-    d=clamp(d*Math.pow(ratio,0.85),8,60);
+    if(Math.abs(ratio-1)<0.003) break;
+    d = clamp(d * Math.pow(ratio, 0.88), 8, 60);
   }
   camera.position.copy(keep);
   cam.radiusTarget = d*(cam.menu?1.05:1.0);
@@ -1610,7 +1656,11 @@ function updateCamera(dt){
   const pitch=cam.pitch;
   const az=cam.az;
   const r=cam.radius;
-  camera.position.set(Math.sin(az)*Math.cos(pitch)*r, Math.sin(pitch)*r, Math.cos(az)*Math.cos(pitch)*r);
+  camera.position.set(
+    cam.look.x + Math.sin(az)*Math.cos(pitch)*r,
+    cam.look.y + Math.sin(pitch)*r,
+    cam.look.z + Math.cos(az)*Math.cos(pitch)*r
+  );
   camera.lookAt(cam.look);
 }
 function viewForSide(side){ return side>0?0:Math.PI; }
@@ -2039,10 +2089,23 @@ bindBtn($('confirmRestartNo'),()=>showGame());
 bindBtn($('btnHome'),()=>{ if(G.over) toMenu(); else show('confirm'); });
 bindBtn($('confirmYes'),()=>toMenu());
 bindBtn($('confirmNo'),()=>showGame());
+const SOUND_ICON_ON = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;pointer-events:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>`;
+const SOUND_ICON_OFF = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;pointer-events:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`;
+
+function updateSoundBtn(){
+  const on = Audio2.on;
+  const btn = $('btnSound');
+  if(btn){
+    btn.classList.toggle('off', !on);
+    btn.innerHTML = on ? SOUND_ICON_ON : SOUND_ICON_OFF;
+    btn.title = on ? 'Sound: On' : 'Sound: Muted';
+  }
+}
+
 $('btnSound').addEventListener('click',()=>{
-  const on=Audio2.toggle();
-  $('btnSound').classList.toggle('off',!on);
-  $('btnSound').textContent = on?'♪':'✕';
+  Audio2.toggle();
+  updateSoundBtn();
+  syncSettingsUI();
 });
 /* ---------------------------- settings UI ------------------------------ */
 let settingsReturn='menu';
@@ -2086,6 +2149,7 @@ function syncSettingsUI(){
   $('togCoords').classList.toggle('on',!!SETTINGS.coords);
   $('togAutoRotate').classList.toggle('on',!!SETTINGS.autoRotate);
   $('togSound').classList.toggle('on',Audio2.on);
+  updateSoundBtn();
   document.querySelectorAll('#viewSeg2 .segb').forEach(b=>b.classList.toggle('on',b.dataset.v===G.view));
 }
 function openSettings(from){ settingsReturn=from; syncSettingsUI(); show('settings'); }
@@ -2096,7 +2160,7 @@ bindBtn($('settingsBack'),()=>{ if(settingsReturn==='game') showGame(); else sho
 $('togHints').addEventListener('click',()=>{ Audio2.ui(); SETTINGS.hints=!SETTINGS.hints; saveSettings(); syncSettingsUI(); if(G.selected>=0){ const sq=G.selected, lg=G.legal; deselect(); select(sq,lg); } });
 $('togCoords').addEventListener('click',()=>{ Audio2.ui(); SETTINGS.coords=!SETTINGS.coords; saveSettings(); applyBoardTheme(); syncSettingsUI(); });
 $('togAutoRotate').addEventListener('click',()=>{ Audio2.ui(); SETTINGS.autoRotate=!SETTINGS.autoRotate; saveSettings(); syncSettingsUI(); });
-$('togSound').addEventListener('click',()=>{ const on=Audio2.toggle(); $('btnSound').classList.toggle('off',!on); $('btnSound').textContent=on?'♪':'✕'; syncSettingsUI(); });
+$('togSound').addEventListener('click',()=>{ Audio2.toggle(); updateSoundBtn(); syncSettingsUI(); });
 document.querySelectorAll('#viewSeg2 .segb').forEach(b=>b.addEventListener('click',()=>{ Audio2.resume(); Audio2.ui(); setView(b.dataset.v,false); syncSettingsUI(); }));
 
 $('btnView').addEventListener('click',()=>{ Audio2.resume(); Audio2.ui(); setView(G.view==='2d'?'3d':'2d',true); });
@@ -2104,8 +2168,7 @@ document.querySelectorAll('#viewSeg .segb').forEach(b=>{
   b.addEventListener('click',()=>{ Audio2.resume(); Audio2.ui(); setView(b.dataset.v,false); });
 });
 window.addEventListener('keydown',e=>{ if(e.key==='v'||e.key==='V') setView(G.view==='2d'?'3d':'2d',true); });
-$('btnSound').classList.toggle('off',!Audio2.on);
-$('btnSound').textContent=Audio2.on?'♪':'✕';
+updateSoundBtn();
 window.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     if($('drawer').classList.contains('open')){
@@ -2195,12 +2258,11 @@ function frame(now){
       m.position.y = BOARD_TOP + 0.006;
     } else {
       if(G.view!=='2d'){
-        m.position.y = m.userData.base + Math.sin(t*1.6+m.userData.t)*0.022;
-        m.rotation.y += dt*1.2;
+        m.position.y = m.userData.base + Math.sin(t*1.6+m.userData.t)*0.006;
       } else {
         m.position.y = BOARD_TOP + 0.014;
       }
-      m.material.opacity = 0.78 + Math.sin(t*2+m.userData.t)*0.2;
+      m.material.opacity = 0.82 + Math.sin(t*2.4+m.userData.t)*0.16;
     }
   }
   for(let i=0;i<64;i++){

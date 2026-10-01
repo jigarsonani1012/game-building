@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#1a0f07" />
+<title>Master Checkers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js"}}</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="vig"></div>
+<div id="ui">
+
+  <section id="menu" class="screen show">
+    <div class="logo"><span class="l1">MASTER</span><span class="l2">CHECKERS</span><div class="rule"></div></div>
+    <button class="wbtn gold" id="btnCpu"><span class="ic">♟</span>Play with computer</button>
+    <button class="wbtn" id="btnFriend"><span class="ic">⚔</span>Play with a friend</button>
+    <button class="wbtn" id="btnSettings"><span class="ic">⚙</span>Customize</button>
+    <button class="wbtn" id="btnRules"><span class="ic">?</span>How to play</button>
+    <div class="seg" id="viewSeg"><span class="lbl">View</span>
+      <button class="segb on" data-v="3d">3D</button><button class="segb" data-v="2d">2D</button></div>
+  </section>
+
+  <section id="diff" class="screen">
+    <div class="panel" style="width:min(90vw,380px);align-items:center">
+      <div class="caption" style="margin-bottom:14px">Choose difficulty</div>
+      <button class="wbtn" data-d="0">Easy</button>
+      <button class="wbtn" data-d="1">Medium</button>
+      <button class="wbtn" data-d="2">Hard</button>
+      <button class="wbtn small" id="diffBack" style="margin-top:16px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+    </div>
+  </section>
+
+  <section id="friendSetup" class="screen">
+    <div class="panel" style="width:min(90vw,380px)">
+      <div class="caption" style="margin-bottom:14px">Player Names</div>
+      <div class="field-row">
+        <label class="field-lbl" for="p1Input"><span class="disc gold" style="width:18px;height:18px"></span>Player 1 (Gold)</label>
+        <input type="text" id="p1Input" class="winput" maxlength="14" placeholder="Player 1" />
+      </div>
+      <div class="field-row">
+        <label class="field-lbl" for="p2Input"><span class="disc dark" style="width:18px;height:18px"></span>Player 2 (Dark)</label>
+        <input type="text" id="p2Input" class="winput" maxlength="14" placeholder="Player 2" />
+      </div>
+      <div class="row" style="width:100%;max-width:100%;margin-top:18px;gap:10px">
+        <button class="wbtn small" id="friendBack"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>Back</button>
+        <button class="wbtn small gold" id="btnStartFriend"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>Play</button>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="rules" class="screen">
+    <div class="panel wide rules-modal-panel">
+      <div class="rules-modal-header">
+        <div class="rules-header-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 2L9.5 8.5 3 9.5 8 14l-1.5 7 5.5-3.5 5.5 3.5-1.5-7 5-4.5-6.5-1L12 2z"/></svg>
+          OFFICIAL RULES
+        </div>
+        <div class="rules-title">HOW TO PLAY CHECKERS</div>
+        <div class="rules-divider"></div>
+      </div>
+
+      <!-- Segmented Tab Navigation -->
+      <div class="rules-tabs-nav">
+        <button class="rules-tab-btn active" data-rtab="movement">
+          <svg viewBox="0 0 24 24"><path d="M12 2a4 4 0 0 0-4 4c0 1.62 1 3 2.4 3.7A4 4 0 0 0 7 13.5v.5h10v-.5a4 4 0 0 0-3.4-3.8C15 9 16 7.62 16 6a4 4 0 0 0-4-4zm-6 16v2h12v-2c0-1.1-.9-2-2-2H8c-1.1 0-2 .9-2 2z"/></svg>
+          <span>Movement</span>
+        </button>
+        <button class="rules-tab-btn" data-rtab="captures">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="14.5" y1="17.5" x2="3" y2="6"></line><path d="m10 13 4 4"></path><path d="m14 17-2 2"></path><path d="m2 2 3 3"></path><line x1="9.5" y1="6.5" x2="21" y2="18"></line><path d="m14 11-4-4"></path><path d="m10 7 2-2"></path><path d="m22 22-3-3"></path></svg>
+          <span>Captures</span>
+        </button>
+        <button class="rules-tab-btn" data-rtab="kings">
+          <svg viewBox="0 0 24 24"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg>
+          <span>Kings</span>
+        </button>
+        <button class="rules-tab-btn" data-rtab="victory">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"></circle><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path></svg>
+          <span>Strategy</span>
+        </button>
+      </div>
+
+      <!-- Tab Content Area -->
+      <div class="rules-tab-content active" id="rtab-movement">
+        <div class="rules-card">
+          <div class="rcard-hdr">
+            <span class="rcard-tag">DIAGONAL STEPS</span>
+            <h3 class="rcard-title">Standard Movement</h3>
+          </div>
+          <p class="rcard-desc">Checkers is played exclusively on the <b>32 dark squares</b> of the board. Normal pieces advance <b>1 step diagonally forward</b> into an unoccupied adjacent square.</p>
+          
+          <div class="diagram-wrap">
+            <div class="rcard-diagram">
+              <div class="rdiag-cell light"></div>
+              <div class="rdiag-cell dark target"><div class="target-dot"></div><span>Target ↖</span></div>
+              <div class="rdiag-cell light"></div>
+              <div class="rdiag-cell dark target"><div class="target-dot"></div><span>Target ↗</span></div>
+              <div class="rdiag-cell dark"></div>
+              <div class="rdiag-cell light"></div>
+              <div class="rdiag-cell dark"><div class="diag-piece gold">♟</div></div>
+              <div class="rdiag-cell light"></div>
+            </div>
+            <div class="diag-arrow-indicator">↖ ↗ Forward Diagonal Steps</div>
+          </div>
+        </div>
+
+        <div class="rules-card highlight">
+          <div class="rcard-hdr">
+            <span class="rcard-tag info">SMART CONTROLS</span>
+            <h3 class="rcard-title">Selecting & Moving</h3>
+          </div>
+          <p class="rcard-desc">Tap any piece to select it. Glowing green target markers highlight all legal destinations. Tap the green marker to move smoothly.</p>
+        </div>
+      </div>
+
+      <div class="rules-tab-content" id="rtab-captures">
+        <div class="rules-card alert-card">
+          <div class="rcard-hdr">
+            <span class="rcard-tag alert">MANDATORY RULE</span>
+            <h3 class="rcard-title">Jumping & Capturing</h3>
+          </div>
+          <p class="rcard-desc">When an opponent piece is diagonally adjacent and the square directly behind it is empty, you must <b>jump over and capture</b> it.</p>
+          
+          <div class="diagram-wrap">
+            <div class="rcard-diagram">
+              <div class="rdiag-cell dark"></div>
+              <div class="rdiag-cell light"></div>
+              <div class="rdiag-cell dark target"><div class="target-dot"></div><span>Land ↗</span></div>
+              <div class="rdiag-cell light"></div>
+              <div class="rdiag-cell light"></div>
+              <div class="rdiag-cell dark"><div class="diag-piece dark-p">♟<span class="diag-badge-cap">✕ CAP</span></div></div>
+              <div class="rdiag-cell light"></div>
+              <div class="rdiag-cell dark"></div>
+              <div class="rdiag-cell dark"><div class="diag-piece gold">♟</div></div>
+              <div class="rdiag-cell light"></div>
+              <div class="rdiag-cell dark"></div>
+              <div class="rdiag-cell light"></div>
+            </div>
+            <div class="diag-arrow-indicator" style="color:#f87171">↷ Jump Over Enemy Piece</div>
+          </div>
+
+          <div class="rcard-callout">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-text"><b>Strict Rule:</b> If any capture is available on your turn, you <b>must</b> take it. Standard non-jump moves are prohibited until all captures are resolved.</div>
+          </div>
+        </div>
+
+        <div class="rules-card">
+          <div class="rcard-hdr">
+            <span class="rcard-tag">MULTI-JUMPS</span>
+            <h3 class="rcard-title">Continuous Chain Jumps</h3>
+          </div>
+          <p class="rcard-desc">If a piece lands from a jump and another jump is immediately open, you <b>must continue jumping</b> in the exact same turn until all consecutive captures are completed.</p>
+        </div>
+      </div>
+
+      <div class="rules-tab-content" id="rtab-kings">
+        <div class="rules-card">
+          <div class="rcard-hdr">
+            <span class="rcard-tag gold-tag">PROMOTION</span>
+            <h3 class="rcard-title">Crowning a King 👑</h3>
+          </div>
+          <p class="rcard-desc">When a regular piece reaches the opponent's farthest back row (the King's Row), it is promoted and crowned with the royal emblem.</p>
+          
+          <div class="diagram-wrap">
+            <div class="rcard-diagram grid-3">
+              <div class="rdiag-cell dark target"><div class="target-dot"></div><span>↖</span></div>
+              <div class="rdiag-cell light"></div>
+              <div class="rdiag-cell dark target"><div class="target-dot"></div><span>↗</span></div>
+              <div class="rdiag-cell light"></div>
+              <div class="rdiag-cell dark"><div class="diag-piece king-p">👑</div></div>
+              <div class="rdiag-cell light"></div>
+              <div class="rdiag-cell dark target"><div class="target-dot"></div><span>↙</span></div>
+              <div class="rdiag-cell light"></div>
+              <div class="rdiag-cell dark target"><div class="target-dot"></div><span>↘</span></div>
+            </div>
+            <div class="diag-arrow-indicator">360° Omnidirectional Move & Jump</div>
+          </div>
+        </div>
+
+        <div class="rules-card">
+          <div class="rcard-hdr">
+            <span class="rcard-tag">360° POWER</span>
+            <h3 class="rcard-title">Backwards & Forwards Diagonal</h3>
+          </div>
+          <p class="rcard-desc">Unlike normal pieces that only step forward, <b>Kings can move and jump both forwards and backwards diagonally</b>, making them formidable attackers.</p>
+        </div>
+      </div>
+
+      <div class="rules-tab-content" id="rtab-victory">
+        <div class="rules-card">
+          <div class="rcard-hdr">
+            <span class="rcard-tag trophy-tag">WINNING</span>
+            <h3 class="rcard-title">How to Win</h3>
+          </div>
+          <ul class="rcard-list">
+            <li><b>Total Wipeout:</b> Capture all 12 of your opponent's pieces.</li>
+            <li><b>Trap & Blockade:</b> Surround and block your opponent so they have zero legal moves remaining.</li>
+          </ul>
+        </div>
+
+        <div class="rules-card">
+          <div class="rcard-hdr">
+            <span class="rcard-tag info">SHORTCUTS & CONTROLS</span>
+            <h3 class="rcard-title">Game Tools</h3>
+          </div>
+          <div class="rcard-grid-2">
+            <div class="rcontrol-item">
+              <span class="rctrl-key"><span>📐</span> 2D / 3D VIEW [V]</span>
+              <span class="rctrl-desc">Toggle between 3D table perspective and 2D tournament top-down.</span>
+            </div>
+            <div class="rcontrol-item">
+              <span class="rctrl-key"><span>📜</span> MOVES LOG [M]</span>
+              <span class="rctrl-desc">Open the side drawer to inspect algebraic move notation and match history.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rules-modal-footer">
+        <button class="wbtn small gold" id="rulesBack"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Got It · Back</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="hud">
+    <div class="bar top">
+      <div class="top-left">
+        <div class="ibtn" id="btnHamburger" title="Moves & Menu">☰</div>
+      </div>
+      <div class="top-center">
+        <div id="turnPill">Your turn</div>
+      </div>
+      <div class="icons">
+        <div class="ibtn" id="btnRestart" title="Restart match"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;pointer-events:none"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg></div>
+        <div class="ibtn" id="btnSound" title="Sound: On"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;pointer-events:none"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg></div>
+        <div class="ibtn" id="btnSettings2" title="Customize / Settings"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:block;pointer-events:none"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></div>
+      </div>
+    </div>
+    <div id="toast">Capture is mandatory</div>
+  </div>
+
+  <!-- Side Drawer / Moves History & Game Menu -->
+  <div id="drawerOverlay" class="drawer-overlay"></div>
+  <aside id="drawer" class="drawer">
+    <div class="drawer-header">
+      <div class="drawer-title"><span>📜</span> Moves & Menu</div>
+      <button class="drawer-close" id="drawerClose" title="Close">✕</button>
+    </div>
+    
+    <div class="drawer-stats">
+      <div class="dstat"><span class="dk">Mode</span><span class="dv" id="dMode">vs Computer</span></div>
+      <div class="dstat" style="text-align:right"><span class="dk">Moves</span><span class="dv" id="dMoves">0</span></div>
+    </div>
+
+    <div class="moves-section">
+      <div class="moves-hdr">
+        <span>#</span>
+        <span id="mhdrP1">Gold</span>
+        <span id="mhdrP2">Dark</span>
+      </div>
+      <div class="moves-list" id="movesList">
+        <div class="no-moves">No moves played yet</div>
+      </div>
+    </div>
+
+    <div class="drawer-actions">
+      <button class="wbtn small" id="drawerRules"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>How to play</button>
+      <button class="wbtn small" id="drawerRestart"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>Restart Match</button>
+      <button class="wbtn small gold" id="drawerHome" style="grid-column:1/-1"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Main Menu</button>
+    </div>
+  </aside>
+
+  <section id="settings" class="screen">
+    <div class="panel wide">
+      <div class="caption">Customize</div>
+      <div class="opt-h">Board</div>
+      <div class="swatches" id="boardSw"></div>
+      <div class="opt-h">Options</div>
+      <div class="optrow"><span>Show legal moves</span><button class="tog" id="togHints"></button></div>
+      <div class="optrow"><span>Board coordinates</span><button class="tog" id="togCoords"></button></div>
+      <div class="optrow"><span>Auto rotation</span><button class="tog" id="togAutoRotate"></button></div>
+      <div class="optrow"><span>Sound</span><button class="tog" id="togSound"></button></div>
+      <div class="optrow"><span>View</span>
+        <div class="seg mini" id="viewSeg2"><button class="segb" data-v="3d">3D</button><button class="segb" data-v="2d">2D</button></div></div>
+
+
+      <div class="row">
+        <button class="wbtn small" id="settingsHome"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Main Menu</button>
+        <button class="wbtn small gold" id="settingsBack"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Done</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="over" class="screen">
+    <div class="panel over-panel">
+      <div class="over-crest-wrapper">
+        <div class="over-laurel left">
+          <svg viewBox="0 0 24 48" fill="currentColor"><path d="M22 4c-3 4-7 10-7 18 0 8 4 14 7 18-2-1-6-4-8-8-3-6-4-12-2-19 2-7 6-11 7-9zM18 10c-2 3-5 8-5 14 0 6 3 11 5 14-2-1-5-3-6-7-2-5-3-9-1-14 2-5 5-8 7-7z"/></svg>
+        </div>
+        <div class="over-badge" id="overBadge">
+          <div class="badge-halo"></div>
+          <svg id="overIconWin" width="38" height="38" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/><circle cx="12" cy="4" r="1.5" fill="#fff"/><circle cx="3" cy="5" r="1.2" fill="#fff"/><circle cx="21" cy="5" r="1.2" fill="#fff"/></svg>
+          <svg id="overIconLose" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="8" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="8" y2="15"/></svg>
+        </div>
+        <div class="over-laurel right">
+          <svg viewBox="0 0 24 48" fill="currentColor"><path d="M2 4c3 4 7 10 7 18 0 8-4 14-7 18 2-1 6-4 8-8 3-6 4-12 2-19-2-7-6-11-7-9zM6 10c2 3 5 8 5 14 0 6-3 11-5 14 2-1 5-3 6-7 2-5 3-9 1-14-2-5-5-8-7-7z"/></svg>
+        </div>
+      </div>
+      <div class="over-tag-pill" id="overTag">MATCH FINISHED</div>
+      <div class="result" id="overTitle">You win!</div>
+      <div class="caption over-caption" id="overSub">Every enemy piece captured</div>
+      <div class="stats over-stats">
+        <div class="stat stat-card"><div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M10 2h4"/><path d="m19 5-1.5 1.5"/></svg></div><div class="k">Time</div><div class="v" id="overTime">00:00</div></div>
+        <div class="stat stat-card"><div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/></svg></div><div class="k">Kings</div><div class="v" id="overKings">0</div></div>
+        <div class="stat stat-card"><div class="stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div><div class="k">Moves</div><div class="v" id="overMoves">0</div></div>
+      </div>
+      <div class="row over-actions">
+        <button class="wbtn small gold" id="btnRematch"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>Rematch</button>
+        <button class="wbtn small" id="btnMenu2"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Menu</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="confirm" class="screen">
+    <div class="panel">
+      <div class="caption" style="margin-bottom:6px">Leave the match?</div>
+      <div style="font-size:13px;color:#cdb98d;letter-spacing:.06em;margin-bottom:4px;text-align:center">Your current game will be lost.</div>
+      <div class="row">
+        <button class="wbtn small gold" id="confirmYes">Quit</button>
+        <button class="wbtn small" id="confirmNo">Keep playing</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="confirmRestart" class="screen">
+    <div class="panel">
+      <div class="caption" style="margin-bottom:6px">Restart match?</div>
+      <div style="font-size:13px;color:#cdb98d;letter-spacing:.06em;margin-bottom:4px;text-align:center">Your current game progress will be reset.</div>
+      <div class="row">
+        <button class="wbtn small gold" id="confirmRestartYes">Restart</button>
+        <button class="wbtn small" id="confirmRestartNo">Keep playing</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+<script type="module" src="script.js"></script>
+</body>
+</html>

@@ -87,14 +87,19 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
 .wbtn .bicon{width:calc(var(--u)*3.4);height:calc(var(--u)*3.4);flex:none;filter:drop-shadow(0 calc(var(--u)*.25) 0 rgba(0,0,0,.3));vertical-align:middle;display:inline-block;transition:transform .18s cubic-bezier(.34,1.56,.64,1)}
 .wbtn:hover .bicon{transform:scale(1.15) rotate(-3deg)}
 .sub{font-family:var(--font2);font-weight:600;color:#6b4221;font-size:calc(var(--u)*2);margin:calc(var(--u)*.6) 0}
+.panel .btns{display:flex;justify-content:center;gap:calc(var(--u)*1.2);margin-top:calc(var(--u)*1.4)}
+.panel .btns .wbtn{min-width:calc(var(--u)*16);padding:calc(var(--u)*.8) calc(var(--u)*1.8) calc(var(--u)*.68);font-size:calc(var(--u)*2.2);border-radius:calc(var(--u)*1.4);border-width:calc(var(--u)*.38);box-shadow:0 calc(var(--u)*.45) 0 var(--sh),0 calc(var(--u)*.8) calc(var(--u)*.6) rgba(0,0,0,.2);gap:calc(var(--u)*.8)}
+.panel .btns .wbtn:active{transform:translateY(calc(var(--u)*.3))}
+#daily .btns{display:flex;justify-content:center;gap:calc(var(--u)*1.2);margin-top:calc(var(--u)*1.3)}
+#daily .btns .wbtn{flex:1;max-width:calc(var(--u)*20);min-width:0}
 
 /* title */
 #title{justify-content:center;padding:calc(var(--u)*1) calc(var(--u)*2);overflow-y:auto;touch-action:pan-y}
-#logo{text-align:center;line-height:.88;animation:logoIn .8s cubic-bezier(.2,1.4,.4,1);margin-bottom:calc(var(--u)*.6);margin-top:calc(var(--u)*.4)}
+#logo{text-align:center;line-height:.88;animation:logoIn .8s cubic-bezier(.2,1.4,.4,1);margin-bottom:calc(var(--u)*2.4);margin-top:calc(var(--u)*.4)}
 @keyframes logoIn{0%{transform:translateY(-60%) scale(.6);opacity:0}100%{transform:none;opacity:1}}
 #logo .l1{display:block;font-size:calc(var(--u)*8.5);color:#ffd21f;-webkit-text-stroke:calc(var(--u)*.75) #5a3413;paint-order:stroke fill;text-shadow:0 calc(var(--u)*.85) 0 #3e230c;letter-spacing:.02em}
 #logo .l2{display:inline-block;font-size:calc(var(--u)*6.2);color:#fff;-webkit-text-stroke:calc(var(--u)*.65) #5a3413;paint-order:stroke fill;text-shadow:0 calc(var(--u)*.75) 0 #3e230c;letter-spacing:.06em;transform:rotate(-3deg)}
-#tMenu{display:flex;flex-direction:column;align-items:center;gap:calc(var(--u)*.9);width:min(92vw,calc(var(--u)*48));margin:0 auto}
+#tMenu{display:flex;flex-direction:column;align-items:center;gap:calc(var(--u)*1);width:min(92vw,calc(var(--u)*48));margin:0 auto}
 #tMenu > .wbtn{width:100%}
 #tMenuGrid{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*.8);width:100%}
 #tMenuGrid .wbtn{min-width:0;width:100%;padding:calc(var(--u)*.9) calc(var(--u)*1.1) calc(var(--u)*.75);font-size:calc(var(--u)*2.2);border-radius:calc(var(--u)*1.5);gap:calc(var(--u)*.8)}
@@ -121,16 +126,19 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
 .pill{display:flex;align-items:center;gap:calc(var(--u)*.7);background:rgba(40,25,10,.55);border:calc(var(--u)*.3) solid #fff;border-radius:999px;padding:calc(var(--u)*.4) calc(var(--u)*1.6) calc(var(--u)*.4) calc(var(--u)*.5);color:#fff;font-size:calc(var(--u)*2.6)}
 
 /* level select */
-#levels{justify-content:flex-start;padding:calc(var(--u)*2) calc(var(--u)*2) calc(var(--u)*2);background:linear-gradient(rgba(30,18,6,.35),rgba(30,18,6,.6));overflow-y:auto;touch-action:pan-y}
+#levels{justify-content:flex-start;padding:calc(var(--u)*2) calc(var(--u)*2) calc(var(--u)*2);background:transparent;overflow-y:auto;touch-action:pan-y}
 #lvTop{width:min(96vw,calc(var(--u)*110));display:flex;align-items:center;justify-content:space-between;margin-bottom:calc(var(--u)*1.4)}
 #lvTitle{font-size:calc(var(--u)*5);color:#fff;-webkit-text-stroke:calc(var(--u)*.6) #4a2a10;paint-order:stroke fill;text-shadow:0 calc(var(--u)*.5) 0 #4a2a10}
-.world, .worldCard{width:min(96vw,calc(var(--u)*110));margin-bottom:calc(var(--u)*2);padding:calc(var(--u)*1.4) calc(var(--u)*1.6) calc(var(--u)*1.8);border-radius:calc(var(--u)*2.2);border:calc(var(--u)*.45) solid rgba(255,255,255,.85);box-shadow:0 calc(var(--u)*.6) 0 rgba(0,0,0,.25)}
+.world, .worldCard{
+  width:min(96vw,calc(var(--u)*110));
+  margin-bottom:calc(var(--u)*2);
+  padding:calc(var(--u)*.8) 0 calc(var(--u)*1.8);
+  background:transparent;
+  border:none;
+  box-shadow:none;
+}
 .world h3, .worldCard h3{margin:0 0 calc(var(--u)*1.2);color:#fff;font-weight:400;font-size:calc(var(--u)*3);letter-spacing:.06em;-webkit-text-stroke:calc(var(--u)*.35) rgba(0,0,0,.45);paint-order:stroke fill}
 .world h3 small, .worldCard h3 small{font-family:var(--font2);font-weight:700;font-size:.6em;opacity:.9;margin-left:.6em;-webkit-text-stroke:0}
-.world.w0, .worldCard.w0{background:linear-gradient(135deg,#7fd36a,#3f9a39)}
-.world.w1, .worldCard.w1{background:linear-gradient(135deg,#ffc070,#d77a34)}
-.world.w2, .worldCard.w2{background:linear-gradient(135deg,#9fdcff,#5a9ed6)}
-.world.w3, .worldCard.w3{background:linear-gradient(135deg,#ff5a36,#a81e10)}
 .grid{display:grid;grid-template-columns:repeat(8,1fr);gap:calc(var(--u)*1.2)}
 @media (max-aspect-ratio:1/1){.grid{grid-template-columns:repeat(4,1fr)}}
 .lv{position:relative;aspect-ratio:1;border-radius:calc(var(--u)*1.6);border:calc(var(--u)*.4) solid #fff;background:linear-gradient(#ffe39a,#f7b53c);box-shadow:0 calc(var(--u)*.5) 0 #a8660c;color:#fff;font-size:calc(var(--u)*3.6);-webkit-text-stroke:calc(var(--u)*.4) #7a4a10;paint-order:stroke fill;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;transition:transform .08s}
@@ -191,15 +199,25 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
 #ammoTray .cnt{color:#fff;font-size:calc(var(--u)*2.4);-webkit-text-stroke:calc(var(--u)*.3) #3a2410;paint-order:stroke fill}
 
 /* World selection tabs & chests */
-#worldTabs{display:flex;gap:calc(var(--u)*.8);width:min(96vw,calc(var(--u)*110));margin-bottom:calc(var(--u)*1.2);overflow-x:auto;padding-bottom:calc(var(--u)*.4);touch-action:pan-x}
-.wtab{flex:1;min-width:calc(var(--u)*15);padding:calc(var(--u)*.8) calc(var(--u)*1.2);border-radius:calc(var(--u)*1.4);border:calc(var(--u)*.3) solid rgba(255,255,255,.75);background:rgba(40,25,10,.62);color:#fff;font-size:calc(var(--u)*1.9);white-space:nowrap;transition:all .18s;box-shadow:0 calc(var(--u)*.35) 0 rgba(0,0,0,.2)}
-.wtab.act{background:linear-gradient(#ffe36a,#f7a71b);color:#3a2410;border-color:#fff;box-shadow:0 calc(var(--u)*.45) 0 #9c5c00;transform:translateY(calc(var(--u)*-.2))}
+#worldTabs{display:flex;gap:calc(var(--u)*.8);width:min(96vw,calc(var(--u)*110));margin-top:calc(var(--u)*-.4);margin-bottom:calc(var(--u)*.8);overflow-x:auto;padding:calc(var(--u)*.6) calc(var(--u)*.2) calc(var(--u)*.6);touch-action:pan-x}
+.wtab{flex:1;min-width:calc(var(--u)*15);padding:calc(var(--u)*.8) calc(var(--u)*1.2);border-radius:calc(var(--u)*1.4);border:calc(var(--u)*.3) solid rgba(255,255,255,.55);background:rgba(25,18,35,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font-size:calc(var(--u)*1.9);white-space:nowrap;transition:all .18s;box-shadow:0 calc(var(--u)*.35) 0 rgba(0,0,0,.25)}
+.wtab.act{background:linear-gradient(#ffe36a,#f7a71b);color:#3a2410;border-color:#fff;box-shadow:0 calc(var(--u)*.45) 0 #9c5c00}
 .worldHeader{display:flex;align-items:center;justify-content:space-between;margin-bottom:calc(var(--u)*1.3);color:#fff}
 .worldTitle{font-size:calc(var(--u)*3.1);letter-spacing:.05em;-webkit-text-stroke:calc(var(--u)*.4) #3a2410;paint-order:stroke fill}
+.worldTitle small{display:block;font-family:var(--font2);font-weight:700;font-size:.42em;letter-spacing:.08em;opacity:.85;-webkit-text-stroke:0;margin-top:calc(var(--u)*.2)}
+.worldStarsBadge{font-family:var(--font2);font-weight:700;font-size:calc(var(--u)*1.55);background:rgba(0,0,0,.3);border:calc(var(--u)*.2) solid rgba(255,255,255,.5);border-radius:999px;padding:calc(var(--u)*.4) calc(var(--u)*1.2)}
+.diffBadge{background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.4)}
+.worldRight{flex-wrap:wrap;justify-content:flex-end;row-gap:calc(var(--u)*.6)}
 .worldRight{display:flex;align-items:center;gap:calc(var(--u)*1)}
 .worldChestBtn{display:inline-flex;align-items:center;gap:calc(var(--u)*.6);background:linear-gradient(#ffe36a,#f59e12);color:#3a2410;border:calc(var(--u)*.28) solid #fff;padding:calc(var(--u)*.45) calc(var(--u)*1.2);border-radius:calc(var(--u)*1.2);font-size:calc(var(--u)*1.75);box-shadow:0 calc(var(--u)*.3) 0 #995500;transition:transform .08s}
 .worldChestBtn:active{transform:translateY(calc(var(--u)*.25))}
 .worldChestBtn.claimed{background:#baa990;color:#5f4f3c;box-shadow:none;border-color:#ded1bf;cursor:default}
+.chestProgWrap{width:100%;height:calc(var(--u)*1.3);background:rgba(0,0,0,.28);border:calc(var(--u)*.2) solid rgba(255,255,255,.55);border-radius:999px;overflow:hidden;margin:0 0 calc(var(--u)*1.2)}
+.chestProgFill{height:100%;width:0;background:linear-gradient(90deg,#ffe36a,#f59e12);transition:width .5s ease-out}
+.chestProgFill.full{background:linear-gradient(90deg,#8be85e,#3fb52c)}
+.lv.cur::after{content:'NEXT';position:absolute;top:calc(var(--u)*-1.1);left:50%;transform:translateX(-50%);background:#ef4b4b;color:#fff;font-family:var(--font2);font-weight:700;font-size:calc(var(--u)*1.1);letter-spacing:.06em;padding:calc(var(--u)*.2) calc(var(--u)*.8);border-radius:999px;border:calc(var(--u)*.2) solid #fff;box-shadow:0 calc(var(--u)*.2) 0 #9e2323;white-space:nowrap}
+.comingSoon{animation:comingSoonFloat 2.4s ease-in-out infinite}
+@keyframes comingSoonFloat{50%{transform:translateY(calc(var(--u)*-.6))}}
 
 /* Inspection button */
 #bInspect{background:linear-gradient(#7cd6ff,#249bdc);--sh:#126194}
@@ -216,11 +234,19 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
 .breakdownRow b{color:#3a2410;font-family:var(--font)}
 
 /* Field Guide Modal */
-#guideModal .panel{max-height:86vh;overflow-y:auto;text-align:left;width:min(94vw,calc(var(--u)*84));touch-action:pan-y}
-.guideNav{display:flex;gap:calc(var(--u)*.8);margin-bottom:calc(var(--u)*1.4);border-bottom:calc(var(--u)*.25) solid #e0c8a5;padding-bottom:calc(var(--u)*.8)}
+#guideModal .panel{max-height:90vh;overflow:visible;text-align:left;width:min(94vw,calc(var(--u)*76));padding:calc(var(--u)*5.2) calc(var(--u)*2.4) calc(var(--u)*1.8);display:flex;flex-direction:column}
+#guideContent{max-height:56vh;overflow-y:auto;touch-action:pan-y;padding:calc(var(--u)*.4) calc(var(--u)*.2);margin-bottom:calc(var(--u)*.4)}
+.guideNav{display:flex;gap:calc(var(--u)*.8);margin-bottom:calc(var(--u)*1.2);border-bottom:calc(var(--u)*.25) solid #e0c8a5;padding-bottom:calc(var(--u)*.8);flex:none}
 .gtab{padding:calc(var(--u)*.7) calc(var(--u)*1.4);border-radius:calc(var(--u)*1.2);border:calc(var(--u)*.25) solid #9c6c39;background:#fef5e6;color:#5c3514;font-size:calc(var(--u)*1.8);transition:all .15s}
 .gtab.act{background:#8a5328;color:#fff;border-color:#4e2c12}
-.guideCardGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(calc(var(--u)*24),1fr));gap:calc(var(--u)*1.2)}
+.guideCardGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:calc(var(--u)*1.2)}
+.guideCardGrid > .guideCard:last-child:nth-child(odd){grid-column:1/-1;max-width:calc(var(--u)*40);margin:0 auto;width:100%}
+@media (max-width:640px),(max-aspect-ratio:1/1){
+  .guideCardGrid{grid-template-columns:1fr}
+  .guideCardGrid > .guideCard:last-child:nth-child(odd){grid-column:auto;max-width:none}
+  #guideModal .panel{width:min(94vw,calc(var(--u)*54))}
+  #guideContent{max-height:50vh}
+}
 .guideCard{background:#fff;border-radius:calc(var(--u)*1.6);border:calc(var(--u)*.3) solid #d8b88d;padding:calc(var(--u)*1.2);display:flex;align-items:center;gap:calc(var(--u)*1.2);box-shadow:0 calc(var(--u)*.3) 0 rgba(0,0,0,.08)}
 .guideCard img,.guideCard canvas{width:calc(var(--u)*6.4);height:calc(var(--u)*6.4);flex:none}
 .guideInfo{font-family:var(--font2);font-size:calc(var(--u)*1.45);color:#5c3a1d;line-height:1.3}
@@ -394,8 +420,8 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
     <div id="dailyClaim"></div>
     <p id="dailyNote">Clear the fortress to earn a daily coin bonus. Improve your best score any time.</p>
     <div class="btns">
-      <button class="wbtn o" id="bDailyBack" style="min-width:calc(var(--u)*17)">BACK</button>
-      <button class="wbtn g" id="bDailyStart" style="min-width:calc(var(--u)*23)">PLAY TODAY</button>
+      <button class="wbtn o" id="bDailyBack">BACK</button>
+      <button class="wbtn g" id="bDailyStart">PLAY TODAY</button>
     </div>
   </div>
 </div>
@@ -412,7 +438,7 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
     <div class="pill" style="position:absolute;right:calc(var(--u)*1.6);top:calc(var(--u)*1.4);background:rgba(90,52,19,.85)"><span class="coin">$</span><span id="shCoins">0</span></div>
     <p class="sub" style="margin-top:0">Each slingshot hits certain materials harder.</p>
     <div id="shopList"></div>
-    <div class="btns"><button class="wbtn o" id="bShopClose" style="min-width:calc(var(--u)*20)">BACK</button></div>
+    <div class="btns"><button class="wbtn o" id="bShopClose">BACK</button></div>
   </div>
 </div>
 
@@ -501,7 +527,7 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
       <button class="gtab" id="gtabTactics">TACTICS</button>
     </div>
     <div id="guideContent"></div>
-    <div class="btns" style="justify-content:center;margin-top:calc(var(--u)*1.6)"><button class="wbtn g" id="bGuideClose" style="min-width:calc(var(--u)*20)">GOT IT!</button></div>
+    <div class="btns"><button class="wbtn g" id="bGuideClose">GOT IT!</button></div>
   </div>
 </div>
 
@@ -512,7 +538,7 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
     <canvas id="cardIcon" width="200" height="200"></canvas>
     <div class="big" id="cardName" style="font-size:calc(var(--u)*4.4)">BOMB</div>
     <p class="sub" id="cardDesc">Tap while flying to explode!</p>
-    <div class="btns"><button class="wbtn g" id="bCardOk" style="min-width:calc(var(--u)*20)">GOT IT!</button></div>
+    <div class="btns"><button class="wbtn g" id="bCardOk">GOT IT!</button></div>
   </div>
 </div>
 
@@ -756,14 +782,18 @@ const LEVELS = [
   { w: 3, ammo: ['rock', 'bomb', 'shuriken', 'missile', 'bomb', 'rock'], build(b) { b.ground(13, 27, 0.6); b.fort(15.5, 0.6, [{ w: 3.2, h: 1.4, in: ['h', 'tnt'], mid: true, mat: 'stone', beam: 'wood' }, { w: 2.2, h: 1.3, in: 'e', mat: 'stone' }], 'gem'); b.fort(20.5, 0.6, [{ w: 4.8, h: 1.5, in: ['h', 'tnt', 'h'], mid: true, mat: 'stone' }, { w: 3.6, h: 1.4, in: ['e', 'cake'], mid: true, mat: 'stone', beam: 'stone' }, { w: 2.4, h: 1.3, in: 'h', mat: 'wood' }], 'gem'); b.fort(25.5, 0.6, [{ w: 2.6, h: 1.4, in: ['tnt', 'e'], mid: true, mat: 'stone' }, { w: 2.2, h: 1.2, in: 'cake' }], 'e'); b.boulder(18.5, 0.6, 0.6); b.boulder(22.5, 0.6, 0.6); } }
 ];
 
-/* Procedural endless fortress generator for Level 33+ */
+/* Procedural fortress generator for extra realm levels and Endless */
 function generateProceduralLevel(idx) {
   const seed = stringSeed('fortress-proc-' + (idx + 1));
   const rng = mulberry32(seed);
-  const worldIndex = (Math.floor(idx / 8)) % 4;
-  const archetype = idx % 7;
-  const difficulty = 1 + Math.min(8, Math.floor((idx - 28) / 4));
-  const enemyCount = clamp(3 + Math.floor(difficulty * 0.65), 3, 7);
+  const worldIndex = (Math.floor(idx / 16)) % 4;
+  const archetype = idx % 12;
+  // Difficulty climbs with progress; enemyCount and toughness are separately clamped.
+  const difficulty = 1 + Math.max(0, Math.floor((idx - 28) / 4));
+  const enemyCount = clamp(3 + Math.floor(difficulty * 0.55), 3, 9);
+  // Fraction of plain enemies upgraded to helmeted/tankier ones as difficulty rises.
+  const tough = clamp((difficulty - 1) / 16, 0, 0.7);
+  const pick = () => (rng() < tough ? 'h' : 'e');
 
   const ammo = ['rock'];
   if (archetype === 0) ammo.push('bomb', 'rock', 'shuriken');
@@ -772,9 +802,16 @@ function generateProceduralLevel(idx) {
   else if (archetype === 3) ammo.push('bomb', 'bomb', 'rock');
   else if (archetype === 4) ammo.push('rock', 'missile', 'shuriken');
   else if (archetype === 5) ammo.push('missile', 'bomb', 'rock');
-  else ammo.push('bomb', 'shuriken', 'missile', 'rock');
+  else if (archetype === 6) ammo.push('bomb', 'shuriken', 'missile', 'rock');
+  else if (archetype === 7) ammo.push('rock', 'bomb', 'rock', 'shuriken');
+  else if (archetype === 8) ammo.push('bomb', 'missile', 'bomb');
+  else if (archetype === 9) ammo.push('rock', 'shuriken', 'rock', 'missile');
+  else if (archetype === 10) ammo.push('shuriken', 'shuriken', 'missile');
+  else ammo.push('missile', 'bomb', 'shuriken', 'rock');
 
   if (difficulty >= 3 && ammo.length < 5) ammo.push('rock');
+  if (difficulty >= 6 && ammo.length < 6) ammo.push('bomb');
+  if (difficulty >= 10 && ammo.length < 7) ammo.push('missile');
 
   return {
     w: worldIndex,
@@ -787,9 +824,11 @@ function generateProceduralLevel(idx) {
       const center = 16.5 + (rng() - 0.5) * 2.2;
       let left = enemyCount;
 
+      const jit = () => (rng() - 0.5) * 0.3;
+
       if (archetype === 0) {
-        const h1 = b.fort(center - 3.2, 0, [{ w: 2.2, h: 1.4, in: 'e', mat: matMain }, { w: 2.2, h: 1.3, in: 'tnt', mat: matAlt }], 'e');
-        const h2 = b.fort(center + 3.2, 0, [{ w: 2.2, h: 1.4, in: 'e', mat: matMain }, { w: 2.2, h: 1.3, in: 'cake', mat: matAlt }], 'e');
+        const h1 = b.fort(center - 3.2, 0, [{ w: 2.2 + jit(), h: 1.4 + jit(), in: pick(), mat: matMain }, { w: 2.2, h: 1.3, in: 'tnt', mat: matAlt }], pick());
+        const h2 = b.fort(center + 3.2, 0, [{ w: 2.2 + jit(), h: 1.4 + jit(), in: pick(), mat: matMain }, { w: 2.2, h: 1.3, in: 'cake', mat: matAlt }], pick());
         left -= 4;
         const bridgeY = Math.min(h1, h2) - 0.15;
         b.beam(matMain, center - 3.2, center + 3.2, bridgeY, 0.32);
@@ -799,20 +838,20 @@ function generateProceduralLevel(idx) {
       } else if (archetype === 1) {
         b.ground(center - 3.5, center + 3.5, 0.9);
         b.fort(center, 0.9, [
-          { w: 4.8, h: 1.4, in: ['e', 'tnt', 'e'], mid: true, mat: 'stone' },
-          { w: 3.4, h: 1.3, in: ['e', 'cake'], mid: true, mat: matMain },
+          { w: 4.8 + jit(), h: 1.4, in: [pick(), 'tnt', pick()], mid: true, mat: 'stone' },
+          { w: 3.4, h: 1.3, in: [pick(), 'cake'], mid: true, mat: matMain },
           { w: 2.2, h: 1.2, in: 'h', mat: matAlt }
-        ], 'e');
+        ], pick());
         b.boulder(center + 2.8, 0.9, 0.5);
         left -= 5;
       } else if (archetype === 2) {
-        b.fort(center, 0, [{ w: 3.2, h: 1.3, in: ['e', 'tnt'], mid: true, mat: matMain }], 'e');
+        b.fort(center, 0, [{ w: 3.2, h: 1.3, in: [pick(), 'tnt'], mid: true, mat: matMain }], pick());
         left -= 2;
-        b.balloonPlat(center - 2.8, 5.4, 2.2, matAlt, 1.4, ['e']);
-        b.balloonPlat(center + 2.8, 6.2, 2.2, matMain, 1.5, ['e', 'gem']);
+        b.balloonPlat(center - 2.8, 5.4 + jit() * 2, 2.2, matAlt, 1.4, [pick()]);
+        b.balloonPlat(center + 2.8, 6.2 + jit() * 2, 2.2, matMain, 1.5, [pick(), 'gem']);
         left -= 2;
       } else if (archetype === 3) {
-        b.pyramid(matMain, center, 0, 5, 0.75, ['e', 'tnt', 'e']);
+        b.pyramid(matMain, center, 0, 5, 0.75, [pick(), 'tnt', pick()]);
         b.item('cake', center, 3.8);
         b.enemy(center, 4.2, true);
         left -= 3;
@@ -820,8 +859,8 @@ function generateProceduralLevel(idx) {
         b.ground(center - 1.5, center + 1.5, 1.8);
         const colTop = b.col('stone', center, 1.8, 3.8, 0.6);
         b.beam(matMain, center - 3.8, center + 3.8, colTop - 0.3, 0.3);
-        b.enemy(center - 2.6, colTop);
-        b.enemy(center + 2.6, colTop);
+        b.enemy(center - 2.6, colTop, rng() < tough);
+        b.enemy(center + 2.6, colTop, rng() < tough);
         b.enemy(center, colTop, true);
         b.boulder(center - 3.2, colTop + 0.3, 0.45);
         b.boulder(center + 3.2, colTop + 0.3, 0.45);
@@ -831,24 +870,80 @@ function generateProceduralLevel(idx) {
           { w: 4.2, h: 1.5, in: ['h', 'tnt', 'h'], mid: true, mat: 'stone', beam: 'wood' },
           { w: 3.0, h: 1.2, in: 'cake', mat: 'ice', beam: 'ice' }
         ], 'gem');
-        b.fort(center + 4.2, 0, [{ w: 2.0, h: 1.3, in: 'e', mat: matMain }]);
+        b.fort(center + 4.2, 0, [{ w: 2.0, h: 1.3, in: pick(), mat: matMain }]);
+        left -= 3;
+      } else if (archetype === 6) {
+        b.fort(center - 3.4, 0, [{ w: 2.0, h: 1.3, in: pick(), mat: matMain }], pick());
+        b.fort(center, 0, [{ w: 2.4, h: 1.4, in: ['tnt', pick()], mid: true, mat: 'stone' }], 'h');
+        b.fort(center + 3.4, 0, [{ w: 2.0, h: 1.3, in: pick(), mat: matAlt }], 'cake');
+        left -= 4;
+      } else if (archetype === 7) {
+        // Rising staircase of three separate ground platforms, each taller than the last
+        b.ground(center - 8, center - 4.5, 0.6);
+        b.fort(center - 6.25, 0.6, [{ w: 2, h: 1.2, in: pick(), mat: matMain }]);
+        b.ground(center - 2.5, center + 1, 1.8);
+        b.fort(center - 0.75, 1.8, [{ w: 2.2, h: 1.3, in: [pick(), 'tnt'], mid: true, mat: matAlt }], pick());
+        b.ground(center + 3, center + 7, 3.2);
+        b.fort(center + 5, 3.2, [{ w: 2, h: 1.3, in: 'h', mat: 'stone' }], 'gem');
+        left -= 4;
+      } else if (archetype === 8) {
+        // Twin stubby pyramids flanking a boulder no-man's-land
+        b.pyramid(matMain, center - 3.6, 0, 3, 0.7, [pick()]);
+        b.pyramid(matAlt, center + 3.6, 0, 3, 0.7, [pick()]);
+        b.boulder(center, 0, 0.6);
+        b.boulder(center - 1.1, 0, 0.45);
+        b.item('cake', center + 1.1, 1.2);
+        left -= 2;
+      } else if (archetype === 9) {
+        // Single tall tower, four stacked floors, guarded at the base
+        b.fort(center, 0, [
+          { w: 2.6, h: 1.3, in: pick(), mat: matMain },
+          { w: 2.2, h: 1.2, in: 'tnt', mat: matAlt },
+          { w: 1.9, h: 1.2, in: pick(), mat: matMain },
+          { w: 1.6, h: 1.1, in: 'gem', mat: matAlt }
+        ], 'h');
+        b.boulder(center - 2.4, 0, 0.5);
+        b.boulder(center + 2.4, 0, 0.5);
+        left -= 2;
+      } else if (archetype === 10) {
+        // Three-step balloon chain climbing higher each hop
+        b.balloonPlat(center - 3.6, 4.6 + jit() * 2, 2, matMain, 1.3, [pick()]);
+        b.balloonPlat(center, 6.0 + jit() * 2, 2.2, matAlt, 1.4, [pick(), 'tnt']);
+        b.balloonPlat(center + 3.6, 7.4 + jit() * 2, 2, matMain, 1.5, [pick(), 'gem']);
         left -= 3;
       } else {
-        b.fort(center - 3.4, 0, [{ w: 2.0, h: 1.3, in: 'e', mat: matMain }], 'e');
-        b.fort(center, 0, [{ w: 2.4, h: 1.4, in: ['tnt', 'e'], mid: true, mat: 'stone' }], 'h');
-        b.fort(center + 3.4, 0, [{ w: 2.0, h: 1.3, in: 'e', mat: matAlt }], 'cake');
-        left -= 4;
+        // Wide bridge gauntlet: two guard towers with a hanging enemy duo between them
+        const t1 = b.fort(center - 4.5, 0, [{ w: 2.2, h: 1.5, in: pick(), mat: matMain }, { w: 2.2, h: 1.3, in: pick(), mat: matAlt }]);
+        const t2 = b.fort(center + 4.5, 0, [{ w: 2.2, h: 1.5, in: pick(), mat: matMain }, { w: 2.2, h: 1.3, in: 'cake', mat: matAlt }]);
+        const bridgeY = Math.min(t1, t2) - 0.2;
+        b.beam('stone', center - 4.5, center + 4.5, bridgeY, 0.35);
+        b.enemy(center - 1.2, bridgeY + 0.3, true);
+        b.enemy(center + 1.2, bridgeY + 0.3, true);
+        left -= 5;
       }
 
       while (left > 0) {
-        b.enemy(center + (rng() - 0.5) * 6, 0.05, rng() < 0.35);
+        b.enemy(center + (rng() - 0.5) * 6, 0.05, rng() < Math.max(0.35, tough));
         left--;
       }
     }
   };
 }
+const HANDCRAFTED_BY_WORLD = [
+  LEVELS.slice(0, 8),
+  LEVELS.slice(8, 16),
+  LEVELS.slice(16, 24),
+  LEVELS.slice(24, 32)
+];
 function getLevel(idx) {
-  if (idx < LEVELS.length) return LEVELS[idx];
+  if (idx < 64) {
+    const w = Math.floor(idx / 16);
+    const localIdx = idx % 16;
+    if (localIdx < 8 && HANDCRAFTED_BY_WORLD[w] && HANDCRAFTED_BY_WORLD[w][localIdx]) {
+      return HANDCRAFTED_BY_WORLD[w][localIdx];
+    }
+    return generateProceduralLevel(idx);
+  }
   return generateProceduralLevel(idx);
 }
 
@@ -2247,12 +2342,12 @@ function goTitle() {
   $('hud').classList.add('hide');
   $('tCoins').textContent = save.coins; syncSoundIcons();
   const nxt = nextLevelToPlay();
-  if (nxt < 32) {
-    const nw = Math.floor(nxt / 8);
-    const nlv = (nxt % 8) + 1;
+  if (nxt < 64) {
+    const nw = Math.floor(nxt / 16);
+    const nlv = (nxt % 16) + 1;
     $('bPlayLv').textContent = THEMES[nw].name + ' · LEVEL ' + nlv;
   } else {
-    $('bPlayLv').textContent = 'ENDLESS · LEVEL ' + (nxt - 31);
+    $('bPlayLv').textContent = 'ENDLESS · LEVEL ' + (nxt - 63);
   }
   updateDailyPreview();
   G.tsTarget = 1; G.timeScale = 1; G.tapTut = null;
@@ -2263,49 +2358,66 @@ let activeWorldTab = 0;
 let activeEndlessPage = 0;
 function buildLevelSelect() {
   save.worldChests = save.worldChests || {};
+  if (activeWorldTab < 4) {
+    G.theme = THEMES[activeWorldTab];
+    buildBackground(G.theme, activeWorldTab * 17 + 5);
+    document.body.style.background = G.theme.sky[0];
+  }
   const tabsWrap = $('worldTabs');
   const worldNames = ['🌲 FOREST', '🏜️ CANYON', '❄️ TUNDRA', '🌋 VOLCANO', '🏰 ENDLESS'];
   tabsWrap.innerHTML = worldNames.map((name, idx) => `<button class="wtab${idx === activeWorldTab ? ' act' : ''}" data-w="${idx}">${name}</button>`).join('');
   tabsWrap.querySelectorAll('.wtab').forEach((btn) => {
-    btn.onclick = () => { audio.click(); activeWorldTab = parseInt(btn.dataset.w, 10); buildLevelSelect(); };
+    btn.onclick = () => {
+      audio.click();
+      const newTab = parseInt(btn.dataset.w, 10);
+      activeWorldTab = newTab;
+      if (newTab < 4) {
+        G.theme = THEMES[newTab];
+        buildBackground(G.theme, newTab * 17 + 5);
+        document.body.style.background = G.theme.sky[0];
+      }
+      buildLevelSelect();
+    };
   });
 
   const wrap = $('lvWorlds'); wrap.innerHTML = '';
   const w = activeWorldTab;
   const card = document.createElement('div');
-  card.className = 'worldCard' + (w < 4 ? ' w' + w : '');
+  card.className = 'worldCard w' + w;
 
   if (w < 4) {
-    let gotStars = 0; for (let i = w * 8; i < w * 8 + 8; i++) gotStars += save.stars[i] || 0;
-    const canClaim = gotStars >= 18 && !save.worldChests[w];
+    let gotStars = 0; for (let i = w * 16; i < w * 16 + 16; i++) gotStars += save.stars[i] || 0;
+    const canClaim = gotStars >= 36 && !save.worldChests[w];
     const isClaimed = !!save.worldChests[w];
-    const chestLabel = isClaimed ? '✓ 18★ CLAIMED' : canClaim ? '🎁 CLAIM 150 COINS' : `★ 18 CHEST (${gotStars}/18)`;
+    const chestLabel = isClaimed ? '✓ 36★ CLAIMED' : canClaim ? '🎁 CLAIM 250 COINS' : `★ 36 CHEST (${gotStars}/36)`;
+    const chestPct = Math.min(100, Math.round((gotStars / 36) * 100));
 
     card.innerHTML = `
       <div class="worldHeader">
         <div class="worldTitle">${THEMES[w].name} REALM</div>
         <div class="worldRight">
-          <div class="worldStarsBadge">★ ${gotStars} / 24</div>
+          <div class="worldStarsBadge">★ ${gotStars} / 48</div>
           <button class="worldChestBtn${isClaimed ? ' claimed' : canClaim ? ' pulse' : ''}" id="bWorldChest">${chestLabel}</button>
         </div>
       </div>
+      <div class="chestProgWrap"><div class="chestProgFill${chestPct >= 100 ? ' full' : ''}" style="width:${chestPct}%"></div></div>
       <div class="grid" id="worldGrid"></div>
     `;
     const chestBtn = card.querySelector('#bWorldChest');
     if (canClaim) {
       chestBtn.onclick = () => {
         audio.chime();
-        save.coins += 150;
+        save.coins += 250;
         save.worldChests[w] = true;
         persist();
         buildLevelSelect();
       };
     }
     const grid = card.querySelector('#worldGrid');
-    for (let i = w * 8; i < w * 8 + 8; i++) {
+    for (let i = w * 16; i < w * 16 + 16; i++) {
       const b = document.createElement('button');
       const locked = i + 1 > save.unlocked;
-      const realmLv = (i % 8) + 1;
+      const realmLv = (i % 16) + 1;
       b.className = 'lv' + (locked ? ' lock' : '') + (i + 1 === save.unlocked && !save.stars[i] ? ' cur' : '');
       if (locked) b.innerHTML = I.lock;
       else {
@@ -2317,7 +2429,7 @@ function buildLevelSelect() {
     }
   } else {
     // Endless Procedural Siege (Infinite scaling in pages of 16)
-    const startEndless = 32;
+    const startEndless = 64;
     const maxUnlockedEndless = Math.max(1, (save.unlocked || 1) - startEndless);
     const maxAvailablePage = Math.floor((maxUnlockedEndless - 1) / 16);
     // Only one page of still-locked levels is previewable ahead of progress;
@@ -2337,13 +2449,18 @@ function buildLevelSelect() {
     const displayEndNum = displayStartNum + 15;
     const isComingSoon = activeEndlessPage >= comingSoonPage;
 
-    card.style.background = 'linear-gradient(135deg,#3c2858,#180c26)';
+    const pageDifficulty = 1 + Math.floor((pageStart - 28) / 4);
+    const tierLabel = pageDifficulty <= 1 ? 'STARTING OUT' : pageDifficulty <= 4 ? 'GETTING TOUGH' : pageDifficulty <= 9 ? 'HARD' : pageDifficulty <= 16 ? 'BRUTAL' : 'NIGHTMARE';
+
     card.innerHTML = `
       <div class="worldHeader">
-        <div class="worldTitle">ENDLESS SIEGE</div>
-        <div class="worldStarsBadge">PAGE ${activeEndlessPage + 1} · LEVELS ${displayStartNum}–${displayEndNum}</div>
+        <div class="worldTitle">ENDLESS SIEGE <small>INFINITE CHALLENGE</small></div>
+        <div class="worldRight">
+          <div class="worldStarsBadge">PAGE ${activeEndlessPage + 1} · LEVELS ${displayStartNum}–${displayEndNum}</div>
+          <div class="worldStarsBadge diffBadge">⚔ ${tierLabel}</div>
+        </div>
       </div>
-      <p style="color:#e9d8ff;font-family:var(--font2);font-size:calc(var(--u)*1.7);margin:0 0 calc(var(--u)*1.2)">Procedural fortresses with infinite scaling. Each fortress is dynamically architected with unique layouts, aerial platforms, and physics challenges!</p>
+      <p style="color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6);font-family:var(--font2);font-weight:600;font-size:calc(var(--u)*1.7);margin:0 0 calc(var(--u)*1.2)">Procedural fortresses with infinite scaling. Each fortress is dynamically architected with unique layouts, aerial platforms, and physics challenges!</p>
       ${isComingSoon
         ? `<div class="comingSoon" style="text-align:center;padding:calc(var(--u)*4) calc(var(--u)*2);color:#e9d8ff;font-family:var(--font2)">
              <div style="font-size:calc(var(--u)*3.2);margin-bottom:calc(var(--u)*1)">🔒</div>
@@ -2571,12 +2688,12 @@ function startLevel(idx) {
   const spec = getLevel(idx);
   G.ammo = spec.ammo.slice();
   G.stars = starThresholds(); G.starsLit = 0; placeHudStars();
-  if (idx < 32) {
-    const world = Math.floor(idx / 8);
-    const realmLv = (idx % 8) + 1;
+  if (idx < 64) {
+    const world = Math.floor(idx / 16);
+    const realmLv = (idx % 16) + 1;
     $('hLevel').textContent = THEMES[world].name + ' · LV ' + realmLv;
   } else {
-    $('hLevel').textContent = 'ENDLESS · LV ' + (idx - 31);
+    $('hLevel').textContent = 'ENDLESS · LV ' + (idx - 63);
   }
   $('hScoreWrap').classList.remove('hide'); $('hBar').classList.remove('hide'); $('hCreat').classList.remove('hide'); $('hPvp').classList.add('hide');
   lastCreat = -1; trayKey = ''; creatureIcon($('creatIcon')); updateCreatures();
@@ -2647,14 +2764,14 @@ function winLevel() {
     coins = stars * 10 + G.items + (prev === 0 ? 25 : 0);
     save.stars[idx] = Math.max(prev, stars); save.best[idx] = best;
     save.unlocked = Math.max(save.unlocked || 1, idx + 2);
-    const world = Math.floor(idx / 8), isChapterEnd = (idx + 1) % 8 === 0 && idx < 32;
-    const realmLv = (idx % 8) + 1;
+    const world = Math.floor(idx / 16), isChapterEnd = (idx + 1) % 16 === 0 && idx < 64;
+    const realmLv = (idx % 16) + 1;
     if (isChapterEnd && !save.chapterRewards[world]) {
-      chapterBonus = 100; coins += chapterBonus; save.chapterRewards[world] = true;
+      chapterBonus = 150; coins += chapterBonus; save.chapterRewards[world] = true;
       $('winNewChapter').textContent = THEMES[world].name + ' REALM CONQUERED · +' + chapterBonus + ' COINS';
       $('winNewChapter').classList.remove('hide');
     }
-    $('winSign').textContent = isChapterEnd ? THEMES[world].name + ' COMPLETE!' : idx >= 32 ? 'ENDLESS · LEVEL ' + (idx - 31) : THEMES[world].name + ' · LEVEL ' + realmLv;
+    $('winSign').textContent = isChapterEnd ? THEMES[world].name + ' COMPLETE!' : idx >= 64 ? 'ENDLESS · LEVEL ' + (idx - 63) : THEMES[world].name + ' · LEVEL ' + realmLv;
     $('winNew').textContent = 'NEW BEST!';
     if (isChapterEnd) {
       const nextWorld = world + 1;

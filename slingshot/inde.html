@@ -109,8 +109,6 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
 #tMenu > .wbtn{width:100%}
 #tMenuGrid{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u)*.8);width:100%}
 #tMenuGrid .wbtn{min-width:0;width:100%;padding:calc(var(--u)*.9) calc(var(--u)*1.1) calc(var(--u)*.75);font-size:calc(var(--u)*2.2);border-radius:calc(var(--u)*1.5);gap:calc(var(--u)*.8)}
-#dailyMeta{position:absolute;right:calc(var(--u)*1.6);top:calc(var(--u)*8);color:#fff;text-align:right;font-family:var(--font2);font-weight:700;font-size:calc(var(--u)*1.5);text-shadow:0 2px 3px rgba(0,0,0,.4);line-height:1.4}
-#dailyMeta b{color:#ffe36a}
 .wbtn.d{background:linear-gradient(#74dcf5,#2499cf);--sh:#17688d}
 .dailyPreview{width:100%;height:calc(var(--u)*13);display:block;margin:calc(var(--u)*-.6) auto calc(var(--u)*.5);border-radius:calc(var(--u)*1.4);background:linear-gradient(#91d9ff,#e9f9ff 72%,#8bbb54 72%,#5c9634);border:calc(var(--u)*.3) solid #fff}
 #dailyTitle{font-size:calc(var(--u)*2.1);color:#fff;-webkit-text-stroke:calc(var(--u)*.35) #4a2a10;paint-order:stroke fill;text-shadow:0 calc(var(--u)*.25) 0 #4a2a10}
@@ -230,36 +228,45 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
 #worldTabs{display:flex;gap:calc(var(--u)*.8);width:min(96vw,calc(var(--u)*110));margin-top:calc(var(--u)*-.4);margin-bottom:calc(var(--u)*.8);overflow-x:auto;padding:calc(var(--u)*.6) calc(var(--u)*.2) calc(var(--u)*.6);touch-action:pan-x}
 .wtab{flex:1;min-width:calc(var(--u)*15);padding:calc(var(--u)*.8) calc(var(--u)*1.2);border-radius:calc(var(--u)*1.4);border:calc(var(--u)*.3) solid rgba(255,255,255,.55);background:rgba(25,18,35,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font-size:calc(var(--u)*1.9);white-space:nowrap;transition:all .18s;box-shadow:0 calc(var(--u)*.35) 0 rgba(0,0,0,.25)}
 .wtab.act{background:linear-gradient(#ffe36a,#f7a71b);color:#3a2410;border-color:#fff;box-shadow:0 calc(var(--u)*.45) 0 #9c5c00}
-.worldHeader{display:flex;align-items:center;justify-content:space-between;margin-bottom:calc(var(--u)*1.3);color:#fff}
-.worldTitle{font-size:calc(var(--u)*3.1);letter-spacing:.05em;-webkit-text-stroke:calc(var(--u)*.4) #3a2410;paint-order:stroke fill}
-.worldTitle small{display:block;font-family:var(--font2);font-weight:700;font-size:.42em;letter-spacing:.08em;opacity:.85;-webkit-text-stroke:0;margin-top:calc(var(--u)*.2)}
-.worldStarsBadge{font-family:var(--font2);font-weight:700;font-size:calc(var(--u)*1.55);background:rgba(0,0,0,.3);border:calc(var(--u)*.2) solid rgba(255,255,255,.5);border-radius:999px;padding:calc(var(--u)*.4) calc(var(--u)*1.2)}
-.diffBadge{background:rgba(0,0,0,.45);border-color:rgba(255,255,255,.4)}
-.worldRight{flex-wrap:wrap;justify-content:flex-end;row-gap:calc(var(--u)*.6)}
-.worldRight{display:flex;align-items:center;gap:calc(var(--u)*1)}
+.worldHeader{display:flex;align-items:center;justify-content:space-between;gap:calc(var(--u)*1.2);margin-bottom:calc(var(--u)*1.4);color:#fff}
+.worldTitle{font-size:calc(var(--u)*3.1);letter-spacing:.05em;-webkit-text-stroke:calc(var(--u)*.4) #3a2410;paint-order:stroke fill;white-space:nowrap}
+.worldStarsBadge{font-family:var(--font2);font-weight:700;font-size:calc(var(--u)*1.55);background:rgba(0,0,0,.35);border:calc(var(--u)*.2) solid rgba(255,255,255,.55);border-radius:999px;padding:calc(var(--u)*.45) calc(var(--u)*1.3);white-space:nowrap;display:inline-flex;align-items:center}
+.diffBadge{background:rgba(20,12,28,.65);border-color:#ffd21f;color:#ffd21f}
+.worldRight{display:flex;align-items:center;justify-content:flex-end;gap:calc(var(--u)*.8);flex-wrap:nowrap;flex-shrink:0}
+.endlessBanner{display:flex;align-items:center;gap:calc(var(--u)*1);background:rgba(25,18,35,.6);border:calc(var(--u)*.25) solid rgba(255,255,255,.45);border-radius:calc(var(--u)*1.3);padding:calc(var(--u)*.8) calc(var(--u)*1.4);margin:0 0 calc(var(--u)*1.5);color:#fff;font-family:var(--font2);font-weight:600;font-size:calc(var(--u)*1.55);line-height:1.35;text-shadow:0 1px 2px rgba(0,0,0,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-sizing:border-box;width:100%}
+.endlessBanner .ebIcon{font-size:calc(var(--u)*2.6);flex:none;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+.endlessBanner .ebText{flex:1}
+@media (max-width:680px){
+  .worldHeader{flex-wrap:wrap;gap:calc(var(--u)*.6);margin-bottom:calc(var(--u)*1)}
+  .worldTitle{font-size:calc(var(--u)*2.6)}
+  .worldRight{width:100%;justify-content:flex-start}
+  .endlessBanner{font-size:calc(var(--u)*1.35);padding:calc(var(--u)*.6) calc(var(--u)*1);margin-bottom:calc(var(--u)*1.2)}
+}
 .worldChestBtn{display:inline-flex;align-items:center;gap:calc(var(--u)*.6);background:linear-gradient(#ffe36a,#f59e12);color:#3a2410;border:calc(var(--u)*.28) solid #fff;padding:calc(var(--u)*.45) calc(var(--u)*1.2);border-radius:calc(var(--u)*1.2);font-size:calc(var(--u)*1.75);box-shadow:0 calc(var(--u)*.3) 0 #995500;transition:transform .08s}
 .worldChestBtn:active{transform:translateY(calc(var(--u)*.25))}
 .worldChestBtn.claimed{background:#baa990;color:#5f4f3c;box-shadow:none;border-color:#ded1bf;cursor:default}
 .chestProgWrap{width:100%;height:calc(var(--u)*1.3);background:rgba(0,0,0,.28);border:calc(var(--u)*.2) solid rgba(255,255,255,.55);border-radius:999px;overflow:hidden;margin:0 0 calc(var(--u)*1.2)}
 .chestProgFill{height:100%;width:0;background:linear-gradient(90deg,#ffe36a,#f59e12);transition:width .5s ease-out}
 .chestProgFill.full{background:linear-gradient(90deg,#8be85e,#3fb52c)}
-.lv.cur::after{content:'NEXT';position:absolute;top:calc(var(--u)*-1.1);left:50%;transform:translateX(-50%);background:#ef4b4b;color:#fff;font-family:var(--font2);font-weight:700;font-size:calc(var(--u)*1.1);letter-spacing:.06em;padding:calc(var(--u)*.2) calc(var(--u)*.8);border-radius:999px;border:calc(var(--u)*.2) solid #fff;box-shadow:0 calc(var(--u)*.2) 0 #9e2323;white-space:nowrap}
-.comingSoon{animation:comingSoonFloat 2.4s ease-in-out infinite}
-@keyframes comingSoonFloat{50%{transform:translateY(calc(var(--u)*-.6))}}
+/* Coming soon state in Endless Siege */
+.comingSoonCard{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(20,14,28,.88);border:calc(var(--u)*.35) solid #ffd21f;border-radius:calc(var(--u)*2);padding:calc(var(--u)*3.5) calc(var(--u)*2.8);margin:calc(var(--u)*1.4) auto calc(var(--u)*1.6);max-width:min(92vw,calc(var(--u)*65));box-shadow:0 calc(var(--u)*.7) 0 rgba(0,0,0,.45),0 calc(var(--u)*1.4) calc(var(--u)*2) rgba(0,0,0,.35);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:comingSoonFloat 2.6s ease-in-out infinite}
+.csIcon{font-size:calc(var(--u)*4.6);margin-bottom:calc(var(--u)*.6);filter:drop-shadow(0 4px 8px rgba(0,0,0,.6))}
+.csTitle{font-family:var(--font);font-size:calc(var(--u)*3.4);color:#ffd21f;letter-spacing:.06em;-webkit-text-stroke:calc(var(--u)*.4) #3a2410;paint-order:stroke fill;text-shadow:0 calc(var(--u)*.35) 0 #2a1505;margin-bottom:calc(var(--u)*.6)}
+.csDesc{font-family:var(--font2);font-weight:700;font-size:calc(var(--u)*1.8);color:#f5f6fa;line-height:1.4;text-shadow:0 1px 3px rgba(0,0,0,.7);max-width:calc(var(--u)*52)}
+.csDesc b{color:#ffeaa7}
+@keyframes comingSoonFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(calc(var(--u)*-.6))}}
 
-/* Inspection button */
-#bInspect{background:linear-gradient(#7cd6ff,#249bdc);--sh:#126194}
+/* Inspection button: only show on compact/mobile/touch devices where scouting is needed */
+#bInspect{display:none;background:linear-gradient(#7cd6ff,#249bdc);--sh:#126194}
+@media (pointer:coarse), (max-width:860px), (max-aspect-ratio:16/10){
+  #bInspect{display:flex}
+}
 #bInspect.act{background:linear-gradient(#ffd24a,#f59012);--sh:#9c5600;animation:actPulse 1s ease-in-out infinite}
 
 /* Destruction progress bar on fail */
 #failBarWrap{width:100%;height:calc(var(--u)*1.8);background:rgba(40,25,10,.25);border:calc(var(--u)*.25) solid #7a4a22;border-radius:999px;overflow:hidden;margin:calc(var(--u)*.8) 0 calc(var(--u)*.4)}
 #failBarFill{height:100%;width:0;background:linear-gradient(90deg,#ff7638,#3ebd2a);transition:width .6s ease-out}
 #failDestroyPct{font-family:var(--font2);font-weight:700;color:#6b4221;font-size:calc(var(--u)*1.7);margin-bottom:calc(var(--u)*.4)}
-
-/* Score breakdown on win */
-#winBreakdown{margin:calc(var(--u)*.4) 0 calc(var(--u)*.6);background:rgba(255,255,255,.55);border-radius:calc(var(--u)*1.4);padding:calc(var(--u)*.8) calc(var(--u)*1.4);border:calc(var(--u)*.2) solid #d6b485}
-.breakdownRow{display:flex;justify-content:space-between;color:#5a3717;font-family:var(--font2);font-weight:700;font-size:calc(var(--u)*1.6);margin:calc(var(--u)*.2) 0}
-.breakdownRow b{color:#3a2410;font-family:var(--font)}
 
 /* Field Guide Modal */
 #guideModal .panel{max-height:90vh;overflow:visible;text-align:left;width:min(94vw,calc(var(--u)*76));padding:calc(var(--u)*5.2) calc(var(--u)*2.4) calc(var(--u)*1.8);display:flex;flex-direction:column}
@@ -434,7 +441,6 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
       </button>
     </div>
   </div>
-  <div id="dailyMeta"></div>
 </div>
 
 <div id="daily" class="screen dim hide">
@@ -515,10 +521,6 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
     <div id="winNewChapter" class="hide"></div>
     <div id="winDaily" class="hide"></div>
     <div class="row2"><div>SCORE<b id="winScore">0</b></div><div>BEST<b id="winBest">0</b></div></div>
-    <div id="winBreakdown">
-      <div class="breakdownRow"><span>DESTRUCTION</span><b id="winBreakDestruct">+0</b></div>
-      <div class="breakdownRow"><span>RESERVE AMMO</span><b id="winBreakAmmo">+0</b></div>
-    </div>
     <div id="winNew" class="newbest hide">NEW BEST!</div>
     <div class="coinline"><span class="coin">$</span><span id="winCoins">+0</span></div>
     <div class="btns">
@@ -598,7 +600,7 @@ let gameplayRng = Math.random;
 function gameRandom() { return gameplayRng(); }
 
 /* ---------------- icons ---------------- */
-const STAR = '<svg viewBox="0 0 48 48"><path class="f" d="M24 3.5l6.1 12.9 14.1 1.8-10.4 9.8 2.7 14L24 35.1 11.5 42l2.7-14L3.8 18.2l14.1-1.8z" stroke="#4a2a10" stroke-width="3.4" stroke-linejoin="round"/><path d="M17 17.5l4-8" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity=".55"/></svg>';
+const STAR = '<svg viewBox="0 0 48 48"><path class="f" d="M24 3.5l6.1 12.9 14.1 1.8-10.4 9.8 2.7 14L24 35.1 11.5 42l2.7-14L3.8 18.2l14.1-1.8z" stroke="#4a2a10" stroke-width="3.4" stroke-linejoin="round"/></svg>';
 const I = {
   pause: '<svg viewBox="0 0 24 24"><rect x="5" y="4" width="5" height="16" rx="1.6" fill="#fff" stroke="#8a4f00" stroke-width="1.4"/><rect x="14" y="4" width="5" height="16" rx="1.6" fill="#fff" stroke="#8a4f00" stroke-width="1.4"/></svg>',
   restart: '<svg viewBox="0 0 24 24"><path d="M12 3.5A8.5 8.5 0 1 0 19.8 8l2.7-.8L16.5 2 13 8.2l2.6 1.2A4.8 4.8 0 1 1 12 7.2Z" fill="#fff" stroke="#103e72" stroke-width="1.4" stroke-linejoin="round"/><path d="M5.5 12A6.5 6.5 0 0 1 9.5 6.2" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".7"/></svg>',
@@ -1453,6 +1455,7 @@ function kit() {
 function newWorld() {
   world = new pl.World({ gravity: Vec2(0, -10) });
   ents = []; terrain = []; parts = []; pops = []; trail = []; lastTrail = []; queue = { slow: [], expl: [] };
+  G.ammoBonusTotal = 0;
   const g = world.createBody({ type: 'static', position: Vec2(20, -5) });
   g.createFixture(pl.Box(140, 5), { friction: 0.9 });
   g.setUserData({ kind: 'ground' });
@@ -1564,7 +1567,16 @@ function damageEntity(e, dmg, other, pos) {
 function killEntity(e) {
   if (e.dead) return;
   e.dead = true;
-  if (e.kind === 'enemy') { e.deathAge = 0; e.popReady = false; }
+  if (e.kind === 'enemy') {
+    e.deathAge = 0; e.popReady = false;
+    const remaining = aliveEnemies(e.team);
+    if (remaining === 0 && (G.state === 'play' || G.state === 'turnwait')) {
+      G.tsTarget = 0.32;
+      G.slowEnd = Math.max(G.slowEnd || 0, G.realT + 0.75);
+      shake = Math.max(shake, 10);
+      if (navigator.vibrate) { try { navigator.vibrate([28, 45, 32]); } catch (err) {} }
+    }
+  }
 }
 function registerCombo(e, x, y) {
   if (G.mode !== 'campaign' && G.mode !== 'daily') return;
@@ -1930,6 +1942,87 @@ function s2w(sx, sy) { return { x: sx / ppm + camL, y: (groundY - sy) / ppm }; }
    PARALLAX BACKGROUND
    ===================================================================== */
 let bg = null;
+const CLOUD_CACHE = {};
+function getCloudSprite(variant, isVolcano) {
+  const key = `${variant}_${isVolcano ? 'v' : 'd'}`;
+  if (CLOUD_CACHE[key]) return CLOUD_CACHE[key];
+  const c = document.createElement('canvas');
+  const w = 260, h = 140;
+  c.width = w; c.height = h;
+  const cx = c.getContext('2d');
+  
+  const shadowColor = isVolcano ? '#1e0c08' : '#d2e2f3';
+  const bodyColor = isVolcano ? '#3c1813' : '#ffffff';
+  const highlightColor = isVolcano ? '#54241d' : '#ffffff';
+
+  const cloudShapes = [
+    // 0: Classic 3-tier billowy cloud
+    [
+      { x: 130, y: 72, r: 38 },
+      { x: 80, y: 84, r: 28 },
+      { x: 180, y: 84, r: 28 },
+      { x: 48, y: 94, r: 18 },
+      { x: 212, y: 94, r: 18 },
+      { x: 104, y: 54, r: 26 },
+      { x: 154, y: 56, r: 24 },
+      { x: 110, y: 94, r: 22 },
+      { x: 150, y: 94, r: 22 }
+    ],
+    // 1: Wide sweeping cloud
+    [
+      { x: 105, y: 74, r: 34 },
+      { x: 158, y: 70, r: 36 },
+      { x: 60, y: 84, r: 24 },
+      { x: 202, y: 82, r: 26 },
+      { x: 30, y: 94, r: 16 },
+      { x: 230, y: 94, r: 16 },
+      { x: 132, y: 52, r: 28 },
+      { x: 88, y: 92, r: 22 },
+      { x: 130, y: 94, r: 24 },
+      { x: 175, y: 92, r: 22 }
+    ],
+    // 2: Fluffy compact cloud
+    [
+      { x: 130, y: 72, r: 36 },
+      { x: 86, y: 80, r: 28 },
+      { x: 174, y: 80, r: 28 },
+      { x: 54, y: 92, r: 18 },
+      { x: 206, y: 92, r: 18 },
+      { x: 108, y: 54, r: 26 },
+      { x: 148, y: 58, r: 24 },
+      { x: 130, y: 92, r: 22 }
+    ]
+  ];
+
+  const puffs = cloudShapes[variant % cloudShapes.length];
+
+  // 1. Underside ambient depth layer (offset downwards)
+  cx.fillStyle = shadowColor;
+  for (const p of puffs) {
+    cx.beginPath();
+    cx.arc(p.x, p.y + 4.5, p.r, 0, Math.PI * 2);
+    cx.fill();
+  }
+
+  // 2. Solid pure cloud body
+  cx.fillStyle = bodyColor;
+  for (const p of puffs) {
+    cx.beginPath();
+    cx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    cx.fill();
+  }
+
+  // 3. Top-left soft highlight for extra puffiness
+  cx.fillStyle = highlightColor;
+  for (const p of puffs) {
+    cx.beginPath();
+    cx.arc(p.x - p.r * 0.14, p.y - p.r * 0.16, p.r * 0.72, 0, Math.PI * 2);
+    cx.fill();
+  }
+
+  CLOUD_CACHE[key] = c;
+  return c;
+}
 function buildBackground(theme, seed) {
   const r = mulberry32(seed || 5), far = [], mid = [], clouds = [], deco = [];
   for (let x = -400; x < 2800; x += 140 + r() * 160) far.push({ x: x, w: 220 + r() * 260, h: 90 + r() * 170 });
@@ -1989,23 +2082,21 @@ function drawBackground(dt) {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
     ctx.beginPath(); ctx.arc(sunX - sunR * 0.28, sunY - sunR * 0.28, sunR * 0.28, 0, 6.28); ctx.fill();
   }
-  
-  // Fluffy, natural cartoon clouds
-  for (const c of bg.clouds) {
-    c.x += c.v * dt; const x = ((c.x - camL * ppm * 0.08) % 2800 + 2800) % 2800 - 200, y = groundY * c.y, s = c.s * sc;
+
+  // Fluffy, natural cartoon clouds (seamless offscreen cached sprites)
+  for (let i = 0; i < bg.clouds.length; i++) {
+    const c = bg.clouds[i];
+    c.x += c.v * dt;
+    const x = ((c.x - camL * ppm * 0.08) % 2800 + 2800) % 2800 - 200;
+    const y = groundY * c.y;
+    const s = c.s * sc * 0.9;
+    const sprite = getCloudSprite(i, isVolcano);
+    const sw = sprite.width * s;
+    const sh = sprite.height * s;
+    
     ctx.save();
-    if (isVolcano) {
-      ctx.fillStyle = 'rgba(52, 22, 18, 0.45)';
-    } else {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    }
-    ctx.beginPath();
-    ctx.arc(x, y, 22 * s, 0, 6.28);
-    ctx.arc(x - 20 * s, y + 3 * s, 16 * s, 0, 6.28);
-    ctx.arc(x + 20 * s, y + 4 * s, 16 * s, 0, 6.28);
-    ctx.arc(x + 9 * s, y - 11 * s, 17 * s, 0, 6.28);
-    ctx.arc(x - 9 * s, y - 8 * s, 15 * s, 0, 6.28);
-    ctx.fill();
+    ctx.globalAlpha = isVolcano ? 0.45 : 0.92;
+    ctx.drawImage(sprite, x - sw * 0.5, y - sh * 0.5, sw, sh);
     ctx.restore();
   }
   // far mountains / mesas / volcanic calderas
@@ -2042,7 +2133,9 @@ function drawBackground(dt) {
     if (th.deco === 'tree') {
       ctx.fillStyle = '#6b4424'; ctx.fillRect(x - 3 * s, y - 34 * s, 6 * s, 34 * s);
       ctx.fillStyle = d.v < 0.5 ? th.midDark : '#58ad48';
-      ctx.beginPath(); ctx.arc(x, y - 44 * s, 20 * s, 0, 6.28); ctx.arc(x - 13 * s, y - 34 * s, 14 * s, 0, 6.28); ctx.arc(x + 13 * s, y - 34 * s, 14 * s, 0, 6.28); ctx.fill();
+      for (const [tx, ty, tr] of [[x, y - 44 * s, 20 * s], [x - 13 * s, y - 34 * s, 14 * s], [x + 13 * s, y - 34 * s, 14 * s]]) {
+        ctx.beginPath(); ctx.arc(tx, ty, tr, 0, 6.28); ctx.fill();
+      }
     } else if (th.deco === 'cactus') {
       if (d.v > 0.55) continue;
       ctx.fillStyle = '#5e9c4a'; const h = 40 * s;
@@ -2943,7 +3036,6 @@ function updateDailyPreview() {
   [...$('dailyStars').children].forEach((el, i) => { el.classList.toggle('on', i < d.stars); el.innerHTML = STAR; });
   $('bDailyStart').textContent = d.claimed ? 'REPLAY TODAY' : 'PLAY TODAY';
   $('bDailySub').textContent = d.stars ? 'TODAY · ' + d.stars + ' / 3 STARS' : 'TODAY’S SHARED FORTRESS';
-  $('dailyMeta').innerHTML = d.claimed ? '<b>✓ DAILY CLEAR</b><br>Best ' + d.best.toLocaleString('en-US') : 'DAILY CHALLENGE<br><b>+' + dailyRewardFor(3, 0) + ' COINS</b>';
 }
 function makeDailyConfig(date) {
   const day = dayNumber(date), seed = stringSeed('slingshot-daily-' + date), rng = mulberry32(seed);
@@ -3179,18 +3271,21 @@ function buildLevelSelect() {
 
     card.innerHTML = `
       <div class="worldHeader">
-        <div class="worldTitle">ENDLESS SIEGE <small>INFINITE CHALLENGE</small></div>
+        <div class="worldTitle">ENDLESS SIEGE</div>
         <div class="worldRight">
-          <div class="worldStarsBadge">PAGE ${activeEndlessPage + 1} · LEVELS ${displayStartNum}–${displayEndNum}</div>
+          <div class="worldStarsBadge">LV ${displayStartNum}–${displayEndNum}</div>
           <div class="worldStarsBadge diffBadge">⚔ ${tierLabel}</div>
         </div>
       </div>
-      <p style="color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6);font-family:var(--font2);font-weight:600;font-size:calc(var(--u)*1.7);margin:0 0 calc(var(--u)*1.2)">Procedural fortresses with infinite scaling. Each fortress is dynamically architected with unique layouts, aerial platforms, and physics challenges!</p>
+      <div class="endlessBanner">
+        <span class="ebIcon">🏰</span>
+        <span class="ebText">Procedural fortresses with infinite scaling. Each fortress is dynamically architected with unique layouts, aerial platforms & physics challenges!</span>
+      </div>
       ${isComingSoon
-        ? `<div class="comingSoon" style="text-align:center;padding:calc(var(--u)*4) calc(var(--u)*2);color:#e9d8ff;font-family:var(--font2)">
-             <div style="font-size:calc(var(--u)*3.2);margin-bottom:calc(var(--u)*1)">🔒</div>
-             <div style="font-size:calc(var(--u)*2);font-weight:700;margin-bottom:calc(var(--u)*0.6)">COMING SOON</div>
-             <div style="font-size:calc(var(--u)*1.5);opacity:.85">Keep clearing levels to unlock more fortresses — new pages open as you play!</div>
+        ? `<div class="comingSoonCard">
+             <div class="csIcon">🔒</div>
+             <div class="csTitle">COMING SOON</div>
+             <div class="csDesc">Conquer previous fortresses to unlock this chapter! New siege pages unlock as you play.</div>
            </div>`
         : `<div class="grid" id="endlessGrid"></div>`}
       <div class="pageControls">
@@ -3529,7 +3624,7 @@ function winLevel() {
       $('chapterLine').classList.remove('hide');
     }
   }
-  const recordImproved = G.mode === 'daily' ? G.dailyNewBest : G.score > prevBest;
+  const recordImproved = prevBest > 0 && G.score > prevBest;
   save.coins += coins;
   persist();
   countUp($('winScore'), G.score, 1000);
@@ -3719,7 +3814,13 @@ function campaignFlow(dt) {
       else if (!G.proj) { G.state = 'failwait'; G.stateT = 0; }
     }
   } else if (st === 'winwait') {
-    if (G.stateT > 1.7 && (calm() || G.stateT > 4)) { if (G.proj) clearShot(); G.state = 'bonus'; G.stateT = 0; G.bonusLeft = G.ammo.length + (G.loaded ? 1 : 0); G.bonusT = 0.3; }
+    if (G.stateT > 1.7 && (calm() || G.stateT > 4)) {
+      if (G.proj) clearShot();
+      G.state = 'bonus'; G.stateT = 0;
+      G.bonusLeft = G.ammo.length + (G.loaded ? 1 : 0);
+      G.ammoBonusTotal = G.bonusLeft * 10000;
+      G.bonusT = 0.3;
+    }
   } else if (st === 'bonus') {
     G.bonusT -= dt;
     if (G.bonusT <= 0) {
@@ -3746,8 +3847,6 @@ function pvpFlow(dt) {
    INPUT
    ===================================================================== */
 function pointerWorld(e) { return s2w(e.clientX, e.clientY); }
-/* Aiming: press ANYWHERE and drag. The pull follows the finger relative to where it was
-   pressed, with a comfortable screen-size based sensitivity on small screens. */
 function aimPxPerUnit() { return Math.max(ppm, clamp(Math.min(W, H) * 0.3, 120, 300) / MAXPULL); }
 function setAimFromPointer(cx, cy) {
   const k = aimPxPerUnit(), R = restPos(curSide());
@@ -3755,7 +3854,12 @@ function setAimFromPointer(cx, cy) {
   if (l > MAXPULL) { dx *= MAXPULL / l; dy *= MAXPULL / l; }
   G.pouch = { x: R.x + dx, y: Math.max(G.moundH + 0.25, R.y + dy) };
   G.predDirty = true;
-  const pull = Math.min(l, MAXPULL) / MAXPULL; if (Math.abs(pull - G.lastPull) > 0.12) { audio.stretch(pull); G.lastPull = pull; }
+  const pull = Math.min(l, MAXPULL) / MAXPULL;
+  if (Math.abs(pull - G.lastPull) > 0.12) {
+    audio.stretch(pull);
+    if (pull > 0.88 && G.lastPull <= 0.88 && navigator.vibrate) { try { navigator.vibrate(8); } catch (err) {} }
+    G.lastPull = pull;
+  }
 }
 cv.addEventListener('pointerdown', (e) => {
   audio.init(); audio.startMusic();

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -219,7 +219,7 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
 #ammoTray .am:active{transform:scale(.92)}
 #ammoTray .am img{width:100%;height:100%;display:block;filter:drop-shadow(0 2px 0 rgba(0,0,0,.35))}
 #ammoTray .am.cur{width:calc(var(--u)*5.4);height:calc(var(--u)*5.4);border-radius:50%;background:radial-gradient(circle,rgba(255,227,106,.65),rgba(255,227,106,0) 70%)}
-#ammoTray .am.sp::after{content:'★';position:absolute;right:-18%;top:-22%;font-size:calc(var(--u)*1.6);color:#ffd21f;-webkit-text-stroke:calc(var(--u)*.2) #5a3413;paint-order:stroke fill}
+#ammoTray .am.sp::after{content:'Γÿà';position:absolute;right:-18%;top:-22%;font-size:calc(var(--u)*1.6);color:#ffd21f;-webkit-text-stroke:calc(var(--u)*.2) #5a3413;paint-order:stroke fill}
 #ammoTray .am.used{opacity:.25;filter:grayscale(1);pointer-events:none}
 #ammoTray .lbl{color:#fff;font-size:calc(var(--u)*1.6);line-height:1;letter-spacing:.05em;writing-mode:vertical-rl;transform:rotate(180deg);opacity:.9}
 #ammoTray .cnt{color:#fff;font-size:calc(var(--u)*2.4);-webkit-text-stroke:calc(var(--u)*.3) #3a2410;paint-order:stroke fill}
@@ -330,7 +330,7 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
   <div id="hTC">
     <div id="hScoreWrap"><div id="hScore">0</div><div id="hDestruct">DESTRUCTION: <b id="hDestructN">0%</b></div></div>
     <div id="hBar"><div id="hFill"></div><div class="hstar" id="hs1"></div><div class="hstar" id="hs2"></div><div class="hstar" id="hs3"></div></div>
-    <div id="hCreat"><canvas id="creatIcon" width="72" height="72"></canvas><span id="hCreatN">×0</span></div>
+    <div id="hCreat"><canvas id="creatIcon" width="72" height="72"></canvas><span id="hCreatN">├ù0</span></div>
     <div id="hPvp" class="hide"><div class="pv" id="pv1">P1 <span id="pv1n">3</span></div><div class="pv" id="pv2">P2 <span id="pv2n">3</span></div></div>
   </div>
   <div id="hTR"><button class="hbtn" id="bInspect" aria-label="Inspect fortress" title="Inspect fortress"></button><button class="hbtn" id="bRestart" aria-label="Restart"></button></div>
@@ -338,7 +338,7 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
   <div id="ammoTray" title="Your shots"></div>
   <button id="abilityBtn" aria-label="Use special power"><img id="abImg" alt="" /><span id="abTxt">TAP!</span></button>
 </div>
-<div id="objective"><canvas id="objIcon" width="120" height="120"></canvas><div><div class="o1">DEFEAT ALL</div><div class="o2" id="objN">3 CREATURES</div><div class="o3" id="objSub">Drag the loaded stone back · release to shoot</div></div></div>
+<div id="objective"><canvas id="objIcon" width="120" height="120"></canvas><div><div class="o1">DEFEAT ALL</div><div class="o2" id="objN">3 CREATURES</div><div class="o3" id="objSub">Drag the loaded stone back ┬╖ release to shoot</div></div></div>
 <div id="banner"></div>
 <div id="hand"></div>
 
@@ -461,7 +461,7 @@ button{font-family:var(--font);cursor:pointer;-webkit-user-select:none;user-sele
 </div>
 
 <div id="levels" class="screen hide">
-  <div id="lvTop"><button class="hbtn" id="bLvBack" aria-label="Back"></button><div id="lvTitle">SELECT LEVEL</div><div class="pill"><span class="coin">$</span><span id="lvStars">0</span>★</div></div>
+  <div id="lvTop"><button class="hbtn" id="bLvBack" aria-label="Back"></button><div id="lvTitle">SELECT LEVEL</div><div class="pill"><span class="coin">$</span><span id="lvStars">0</span>Γÿà</div></div>
   <div id="worldTabs"></div>
   <div id="lvWorlds"></div>
   <div id="lvToast" class="lvToast hide"></div>
@@ -775,7 +775,7 @@ const THEMES = [
    ===================================================================== */
 const LEVELS = [
   /* ===================================================================
-     🌲 REALM 1: FOREST (Levels 1 - 16) · Oak Timber & Verdant Ridges
+     ≡ƒî▓ REALM 1: FOREST (Levels 1 - 16) ┬╖ Oak Timber & Verdant Ridges
      =================================================================== */
   // Level 1: First Shot - Basic wooden tower
   { w: 0, ammo: ['rock', 'rock', 'rock'], build(b) { b.fort(15, 0, [{ w: 2.4, h: 1.3, in: 'e' }], 'e'); } },
@@ -811,7 +811,7 @@ const LEVELS = [
   { w: 0, ammo: ['bomb', 'missile', 'shuriken', 'bomb', 'rock'], build(b) { b.ground(13, 27, 0.6); b.fort(15.5, 0.6, [{ w: 3.2, h: 1.4, in: ['h', 'tnt'], mid: true, mat: 'stone', beam: 'wood' }, { w: 2.2, h: 1.3, in: 'h', mat: 'wood' }], 'cake'); b.fort(20.5, 0.6, [{ w: 4.8, h: 1.5, in: ['h', 'tnt', 'h'], mid: true, mat: 'stone' }, { w: 3.6, h: 1.4, in: ['h', 'gem'], mid: true, mat: 'stone', beam: 'stone' }, { w: 2.4, h: 1.3, in: 'h', mat: 'wood' }], 'gem'); b.fort(25.5, 0.6, [{ w: 2.6, h: 1.4, in: ['h', 'e'], mid: true, mat: 'wood' }], 'e'); b.boulder(18.5, 0.6, 0.6); b.boulder(22.5, 0.6, 0.6); } },
 
   /* ===================================================================
-     🏜️ REALM 2: CANYON (Levels 17 - 32) · Red Sandstone & Desert Mesas
+     ≡ƒÅ£∩╕Å REALM 2: CANYON (Levels 17 - 32) ┬╖ Red Sandstone & Desert Mesas
      =================================================================== */
   // Level 17: Desert Ridge
   { w: 1, ammo: ['rock', 'bomb', 'rock'], build(b) { b.ground(14, 19, 1); b.fort(16.5, 1, [{ w: 3.6, h: 1.3, in: ['e', 'tnt', 'h'], mid: true, mat: 'stone' }]); b.boulder(19.6, 0, 0.55); } },
@@ -847,7 +847,7 @@ const LEVELS = [
   { w: 1, ammo: ['bomb', 'missile', 'bomb', 'shuriken', 'rock'], build(b) { b.ground(13, 27, 0.6); b.fort(15.5, 0.6, [{ w: 3.4, h: 1.4, in: ['h', 'tnt'], mid: true, mat: 'stone' }, { w: 2.4, h: 1.3, in: 'h', mat: 'stone' }], 'cake'); b.fort(20.5, 0.6, [{ w: 5.2, h: 1.6, in: ['h', 'tnt', 'h'], mid: true, mat: 'stone' }, { w: 3.8, h: 1.4, in: ['h', 'gem'], mid: true, mat: 'stone', beam: 'stone' }, { w: 2.4, h: 1.3, in: 'h', mat: 'wood' }], 'gem'); b.fort(25.5, 0.6, [{ w: 2.8, h: 1.4, in: ['h', 'tnt'], mid: true, mat: 'stone' }, { w: 2.2, h: 1.2, in: 'h' }], 'e'); b.boulder(18.5, 0.6, 0.65); b.boulder(22.5, 0.6, 0.65); } },
 
   /* ===================================================================
-     ❄️ REALM 3: TUNDRA (Levels 33 - 48) · Nordic Slate & Sapphire Glaciers
+     Γ¥ä∩╕Å REALM 3: TUNDRA (Levels 33 - 48) ┬╖ Nordic Slate & Sapphire Glaciers
      =================================================================== */
   // Level 33: Frozen Foundation
   { w: 2, ammo: ['shuriken', 'shuriken', 'rock'], build(b) { b.fort(15, 0, [{ w: 3.6, h: 1.4, in: ['h', 'e'], mid: true, mat: 'ice' }, { w: 2.4, h: 1.3, in: 'gem', mat: 'ice' }], 'e'); b.fort(19.6, 0, [{ w: 2, h: 1.4, in: 'h', mat: 'ice' }]); } },
@@ -883,7 +883,7 @@ const LEVELS = [
   { w: 2, ammo: ['bomb', 'missile', 'shuriken', 'bomb', 'missile'], build(b) { b.ground(13, 27, 0.6); b.fort(15, 0.6, [{ w: 3.0, h: 1.4, in: ['h', 'tnt'], mid: true, mat: 'stone' }, { w: 2.2, h: 1.3, in: 'h', mat: 'ice' }], 'cake'); b.fort(20, 0.6, [{ w: 5.4, h: 1.6, in: ['h', 'tnt', 'h'], mid: true, mat: 'stone' }, { w: 3.8, h: 1.4, in: ['h', 'h'], mid: true, mat: 'ice', beam: 'stone' }, { w: 2.4, h: 1.3, in: 'h', mat: 'stone' }], 'gem'); b.fort(25, 0.6, [{ w: 3.0, h: 1.4, in: ['h', 'tnt'], mid: true, mat: 'ice' }, { w: 2.2, h: 1.2, in: 'h', mat: 'stone' }], 'e'); b.balloonPlat(20, 7.0, 2.4, 'ice', 1.5, ['h', 'gem']); b.boulder(17.5, 0.6, 0.65); b.boulder(22.5, 0.6, 0.65); } },
 
   /* ===================================================================
-     🌋 REALM 4: VOLCANO (Levels 49 - 64) · Basalt Magma Rock & Obsidian Citadel
+     ≡ƒîï REALM 4: VOLCANO (Levels 49 - 64) ┬╖ Basalt Magma Rock & Obsidian Citadel
      =================================================================== */
   // Level 49: Magma Ridge
   { w: 3, ammo: ['bomb', 'rock', 'missile'], build(b) { b.ground(14, 21, 1.2); b.fort(17.5, 1.2, [{ w: 3.8, h: 1.4, in: ['h', 'tnt', 'h'], mid: true, mat: 'stone' }, { w: 2.4, h: 1.2, in: 'cake', mat: 'wood' }], 'h'); b.boulder(20.5, 1.2, 0.6); } },
@@ -922,7 +922,7 @@ const LEVELS = [
 /* ---------------- 16-Archetype Infinite Procedural Siege Engine ---------------- */
 function generateProceduralLevel(idx) {
   const seed = stringSeed('fortress-proc-' + (idx + 1));
-  const rng = mulberry32(seed);
+  let rng = mulberry32(seed);
   const worldIndex = (Math.floor(idx / 16)) % 4;
   const archetype = idx % 16;
   const endlessNum = idx >= 64 ? (idx - 63) : 1;
@@ -932,38 +932,38 @@ function generateProceduralLevel(idx) {
   const pick = () => (rng() < tough ? 'h' : 'e');
 
   const ammo = ['rock'];
-  if (archetype === 0) ammo.push('bomb', 'rock', 'shuriken');
-  else if (archetype === 1) ammo.push('shuriken', 'bomb', 'rock');
-  else if (archetype === 2) ammo.push('shuriken', 'missile', 'bomb');
+  if (archetype === 0) ammo.push('bomb', 'rock', 'bomb');
+  else if (archetype === 1) ammo.push('bomb', 'bomb', 'rock');
+  else if (archetype === 2) ammo.push('bomb', 'missile', 'bomb');
   else if (archetype === 3) ammo.push('bomb', 'bomb', 'rock');
-  else if (archetype === 4) ammo.push('rock', 'missile', 'shuriken');
+  else if (archetype === 4) ammo.push('rock', 'missile', 'bomb');
   else if (archetype === 5) ammo.push('missile', 'bomb', 'rock');
-  else if (archetype === 6) ammo.push('bomb', 'shuriken', 'missile', 'rock');
-  else if (archetype === 7) ammo.push('rock', 'bomb', 'rock', 'shuriken');
+  else if (archetype === 6) ammo.push('bomb', 'bomb', 'missile', 'rock');
+  else if (archetype === 7) ammo.push('rock', 'bomb', 'rock', 'bomb');
   else if (archetype === 8) ammo.push('bomb', 'missile', 'bomb');
-  else if (archetype === 9) ammo.push('rock', 'shuriken', 'rock', 'missile');
-  else if (archetype === 10) ammo.push('shuriken', 'shuriken', 'missile');
-  else if (archetype === 11) ammo.push('missile', 'bomb', 'shuriken', 'rock');
-  else if (archetype === 12) ammo.push('bomb', 'missile', 'bomb', 'shuriken');
-  else if (archetype === 13) ammo.push('shuriken', 'bomb', 'missile', 'bomb');
+  else if (archetype === 9) ammo.push('rock', 'bomb', 'rock', 'missile');
+  else if (archetype === 10) ammo.push('bomb', 'bomb', 'missile');
+  else if (archetype === 11) ammo.push('missile', 'bomb', 'bomb', 'rock');
+  else if (archetype === 12) ammo.push('bomb', 'missile', 'bomb', 'bomb');
+  else if (archetype === 13) ammo.push('bomb', 'bomb', 'missile', 'bomb');
   else if (archetype === 14) ammo.push('missile', 'missile', 'bomb', 'rock');
-  else ammo.push('bomb', 'missile', 'bomb', 'shuriken', 'rock');
+  else ammo.push('bomb', 'missile', 'bomb', 'bomb', 'rock');
 
-  if (difficulty >= 3 && ammo.length < 5) ammo.push('rock');
-  if (difficulty >= 6 && ammo.length < 6) ammo.push('bomb');
-  if (difficulty >= 10 && ammo.length < 7) ammo.push('missile');
+  if (difficulty >= 3 && ammo.length < 4) ammo.push('rock');
+  if (difficulty >= 6 && ammo.length < 4) ammo.push('bomb');
+  if (difficulty >= 10 && ammo.length < 4) ammo.push('missile');
 
   return {
     w: worldIndex,
     procedural: true,
     levelNum: idx + 1,
-    ammo: ammo,
+    ammo: ammo.slice(0, 4),
     build(b) {
+      rng = mulberry32(seed + procAttempt * 7919);
       const matMain = worldIndex === 2 ? 'ice' : worldIndex === 1 ? 'stone' : worldIndex === 3 ? 'stone' : 'wood';
       const matAlt = worldIndex === 2 ? 'stone' : worldIndex === 1 ? 'wood' : worldIndex === 3 ? 'ice' : 'stone';
       const center = 16.5 + (rng() - 0.5) * 2.2;
       let left = enemyCount;
-      const terrainStart = terrain.length;
       const jit = () => (rng() - 0.5) * 0.25;
 
       if (archetype === 0) {
@@ -1090,7 +1090,7 @@ function generateProceduralLevel(idx) {
         // High Altitude Sniper Fortress & Boulder Launchpad
         b.ground(center - 4.5, center + 4.5, 2.4);
         b.fort(center, 2.4, [
-          { w: 4.6, h: 1.5, in: ['h', 'tnt', 'h'], mid: true, mat: 'stone' },
+          { w: 4.6, h: 1.5, in: ['h', 'tnt', 'h'], mat: 'stone' },
           { w: 2.8, h: 1.3, in: 'cake', mat: matMain }
         ], 'gem');
         b.boulder(center - 3.2, 2.4, 0.65);
@@ -1107,25 +1107,29 @@ function generateProceduralLevel(idx) {
         left -= 6;
       }
 
-      // Safe enemy scatter for remaining counts
-      const blocked = terrain.slice(terrainStart).filter(t => t.h >= 1.2).map(t => [t.x0 - 0.6, t.x1 + 0.6]);
-      function openX(lo, hi) {
-        for (let tries = 0; tries < 20; tries++) {
-          const x = lo + rng() * (hi - lo);
-          if (!blocked.some(([a, b2]) => x >= a && x <= b2)) return x;
+      left = Math.max(left, 2);
+      const perches = perchCandidates();
+      for (let k = 0; k < left; k++) {
+        let placed = false;
+        for (let tries = 0; tries < 60 && !placed; tries++) {
+          const c = pickPerch(perches, rng);
+          if (!c) break;
+          b.enemy(c.x, c.y, rng() < Math.max(0.35, tough));
+          const e = ents[ents.length - 1], p = e.body.getPosition();
+          const crowded = ents.some(o => o !== e && o.kind === 'enemy' && Math.hypot(o.body.getPosition().x - p.x, o.body.getPosition().y - p.y) < 1.1);
+          const inside = obstaclesNow().some(o => o(p.x, p.y + 0.2));
+          if (!crowded && !inside && shotClear(e)) placed = true;
+          else dropEnemy(e);
         }
-        return lo;
       }
-      while (left > 0) {
-        b.enemy(openX(center - 3, center + 3), 0.05, rng() < Math.max(0.35, tough));
-        left--;
-      }
+
     }
   };
 }
 
 function getLevel(idx) {
-  if (idx < LEVELS.length) return LEVELS[idx];
+  const realm = Math.floor(idx / 16), local = idx % 16;
+  if (idx < 64 && local < 8) return LEVELS[realm * 8 + local];
   return generateProceduralLevel(idx);
 }
 
@@ -1137,7 +1141,7 @@ const TUT = { 1: 'DRAG BACK & RELEASE!' };
 const cv = $('c'); let ctx = cv.getContext('2d');
 let W = 0, H = 0, DPR = 1;
 function resize() {
-  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  DPR = Math.min(window.devicePixelRatio || 1, 1.5);
   W = window.innerWidth; H = window.innerHeight;
   cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
   fitCamera(true);
@@ -1393,7 +1397,7 @@ function kit() {
       const body = world.createBody({ type: 'dynamic', position: Vec2(x, y0 + r), angularDamping: 0.3 });
       body.createFixture(pl.Circle(r), { density: 2.2, friction: 0.8, restitution: 0.05 });
       const hp = 200 * r;
-      const e = { kind: 'block', mat: 'stone', round: true, r: r, w: 2 * r, h: 2 * r, hp: hp, maxHp: hp, body: body, seed: (Math.random() * 1e6) | 0, pts: 900 };
+      const e = { kind: 'block', mat: 'stone', round: true, r: r, w: 2 * r, h: 2 * r, hp: hp, maxHp: hp, body: body, seed: (Math.random() * 1e6) | 0, pts: 400 };
       body.setUserData(e); ents.push(e); return y0 + 2 * r;
     },
     place(what, x, y, width) {
@@ -1584,7 +1588,7 @@ function registerCombo(e, x, y) {
   else G.comboCount = 1;
   G.comboUntil = G.realT + 1.25;
   if (G.comboCount >= 2) {
-    const n = G.comboCount, bonus = Math.min(3000, (n - 1) * 400);
+    const n = G.comboCount, bonus = Math.min(1000, (n - 1) * 200);
     addScore(bonus, x, y + 0.35, '#ffe36a', true);
     const titles = ['', '', 'DOUBLE STRIKE!', 'TRIPLE SMASH!', 'DEMOLITION!', 'WRECKING BALL!', 'UNSTOPPABLE!'];
     const label = n < titles.length ? titles[n] : 'SMASH ×' + n;
@@ -1672,19 +1676,19 @@ function removeEntity(e) {
   } else if (e.kind === 'enemy') {
     const col = e.team === 1 ? '#ff8f8f' : e.team === 2 ? '#8fc0ff' : G.theme === THEMES[2] ? '#c9a6ff' : G.theme === THEMES[1] ? '#ffc07a' : '#9ae66a';
     puff(px, py, 12, col, 0.45, 2.2); puff(px, py, 5, '#ffffff', 0.35, 1.6); spark(px, py, 8, '#fff');
-    audio.pop(); addScore(5000, px, py + 0.4, col, true); registerCombo(e, px, py + 0.4);
+    audio.pop(); addScore(1000, px, py + 0.4, col, true); registerCombo(e, px, py + 0.4);
     if (G.mode === 'pvp') updatePvpHUD();
   } else if (e.kind === 'tnt') {
     for (let k = 0; k < 10; k++) chip(px, py, ['#d32f2f', '#8a1c1c', '#f2c14e'][k % 3], 1.6);
     queue.expl.push({ x: px, y: py, R: 3.4, P: 13 });
-    addScore(1000, px, py, '#ffd25a'); registerCombo(e, px, py);
+    addScore(500, px, py, '#ffd25a'); registerCombo(e, px, py);
   } else if (e.kind === 'item') {
     spark(px, py, 14, e.type === 'gem' ? '#8ff5ff' : '#ffd1e6'); puff(px, py, 5, '#fff', 0.3, 1.5);
     audio.chime(); G.items += e.type === 'gem' ? 5 : 3;
-    addScore(e.type === 'gem' ? 2000 : 3000, px, py + 0.3, e.type === 'gem' ? '#8ff5ff' : '#ff9ccf', true);
+    addScore(e.type === 'gem' ? 800 : 1000, px, py + 0.3, e.type === 'gem' ? '#8ff5ff' : '#ff9ccf', true);
     registerCombo(e, px, py + 0.3);
   } else if (e.kind === 'balloon') {
-    puff(px, py, 5, e.color, 0.25, 2); audio.balloon(); addScore(300, px, py, '#fff');
+    puff(px, py, 5, e.color, 0.25, 2); audio.balloon(); addScore(150, px, py, '#fff');
   } else if (e.kind === 'proj') { puff(px, py, 6, '#fff', 0.35, 1.2); }
 }
 function spawnBlockDebris(e) {
@@ -1874,8 +1878,8 @@ function projDone(e, dt) {
   return e.done;
 }
 function loadNext() {
-  if (G.mode === 'campaign' || G.mode === 'daily') { if (!G.ammo.length) return; G.loaded = G.ammo.shift(); }
-  else { const pool = ['rock', 'rock', 'bomb', 'shuriken', 'missile']; G.loaded = pool[(Math.random() * pool.length) | 0]; }
+  if (!G.ammo.length) return;
+  G.loaded = G.ammo.shift();
   G.loadT = 0; audio.load();
   const R = restPos(curSide()); G.pouch = { x: R.x, y: R.y }; G.pouchV = { x: 0, y: 0 };
   const P = PROJ[G.loaded];
@@ -2143,16 +2147,9 @@ function drawBackground(dt) {
       ctx.fillRect(x - 15 * s, y - h * 0.62, 10 * s, 5 * s); ctx.fillRect(x - 15 * s, y - h * 0.85, 5 * s, h * 0.28);
       ctx.fillRect(x + 5 * s, y - h * 0.45, 10 * s, 5 * s); ctx.fillRect(x + 10 * s, y - h * 0.7, 5 * s, h * 0.28);
     } else if (th.deco === 'volcano') {
-      ctx.fillStyle = '#1c0806'; const h = 50 * s;
-      ctx.beginPath(); ctx.moveTo(x - 20 * s, y); ctx.lineTo(x - 7 * s, y - h); ctx.lineTo(x + 7 * s, y - h); ctx.lineTo(x + 20 * s, y); ctx.closePath(); ctx.fill();
-      // Molten lava crater
-      ctx.fillStyle = '#ff5722'; ctx.beginPath(); ctx.ellipse(x, y - h, 7 * s, 3 * s, 0, 0, 6.28); ctx.fill();
-      ctx.fillStyle = '#ffe044'; ctx.beginPath(); ctx.ellipse(x, y - h, 4 * s, 1.6 * s, 0, 0, 6.28); ctx.fill();
-      // Lava cascade
-      ctx.strokeStyle = '#ff6a20'; ctx.lineWidth = 2.2 * s; ctx.beginPath();
-      ctx.moveTo(x - 2 * s, y - h + 2 * s); ctx.quadraticCurveTo(x - 6 * s, y - h * 0.5, x - 10 * s, y); ctx.stroke();
-      ctx.strokeStyle = '#ffe460'; ctx.lineWidth = 1.1 * s; ctx.beginPath();
-      ctx.moveTo(x - 2 * s, y - h + 2 * s); ctx.quadraticCurveTo(x - 6 * s, y - h * 0.5, x - 10 * s, y); ctx.stroke();
+      ctx.fillStyle = '#2a0d09'; const h = 22 * s;
+      ctx.beginPath(); ctx.moveTo(x - 36 * s, y); ctx.quadraticCurveTo(x - 18 * s, y - h * 1.1, x - 8 * s, y - h); ctx.lineTo(x + 8 * s, y - h); ctx.quadraticCurveTo(x + 18 * s, y - h * 1.1, x + 36 * s, y); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#7a2a12'; ctx.beginPath(); ctx.ellipse(x, y - h, 6 * s, 1.8 * s, 0, 0, 6.28); ctx.fill();
     } else {
       ctx.fillStyle = '#4f7f6a'; const h = 54 * s;
       for (let k = 0; k < 3; k++) { const yy = y - h * (0.25 + k * 0.25), ww = (20 - k * 5) * s; ctx.beginPath(); ctx.moveTo(x - ww, yy + 12 * s); ctx.lineTo(x, yy - 14 * s); ctx.lineTo(x + ww, yy + 12 * s); ctx.fill(); }
@@ -2902,12 +2899,16 @@ function updateHUDScore() {
   $('hFill').style.width = clamp((G.score / s3) * 100, 0, 100) + '%';
   let lit = 0; for (let k = 0; k < 3; k++) if (G.score >= G.stars[k]) lit = k + 1;
   for (let k = 0; k < 3; k++) { const el = $('hs' + (k + 1)); const on = k < lit; if (on && !el.classList.contains('on')) { el.classList.add('on'); audio.star(k); } else if (!on) el.classList.remove('on'); }
-  G.starsLit = lit;
+  G.starsLit = aliveEnemies() === 0 ? lit : 0;
 }
 function placeHudStars() { for (let k = 0; k < 3; k++) $('hs' + (k + 1)).style.left = clamp((G.stars[k] / G.stars[2]) * 100, 8, 100) + '%'; }
+const PVP_PIG = '<svg class="pvPig" viewBox="0 0 20 20"><circle cx="10" cy="11" r="7.5" fill="#9be36a" stroke="#2e6b1a" stroke-width="1.4"/><circle cx="7" cy="10" r="1.2" fill="#1d2a12"/><circle cx="13" cy="10" r="1.2" fill="#1d2a12"/><ellipse cx="10" cy="13.5" rx="2.4" ry="1.6" fill="#2e6b1a"/></svg>';
+function pigRow(n) { return PVP_PIG.repeat(n); }
 function updatePvpHUD() {
-  $('pv1n').textContent = aliveEnemies(2); $('pv2n').textContent = aliveEnemies(1);
+  $('pv1').querySelector('.pvLeft').innerHTML = pigRow(aliveEnemies(2));
+  $('pv2').querySelector('.pvLeft').innerHTML = pigRow(aliveEnemies(1));
   $('pv1').classList.toggle('act', G.turn === 0); $('pv2').classList.toggle('act', G.turn === 1);
+  $('pv1').classList.toggle('hide', G.turn !== 0); $('pv2').classList.toggle('hide', G.turn !== 1);
 }
 const ICON = {};
 function projIcon(type) {
@@ -3041,7 +3042,7 @@ function makeDailyConfig(date) {
   const day = dayNumber(date), seed = stringSeed('slingshot-daily-' + date), rng = mulberry32(seed);
   const difficulty = 1 + ((day % 3) + 3) % 3, enemies = 2 + difficulty;
   // Every player gets the same daily loadout regardless of campaign unlocks.
-  const ammo = difficulty === 1 ? ['rock', 'rock', 'rock'] : difficulty === 2 ? ['rock', 'bomb', 'rock', 'rock'] : ['rock', 'shuriken', 'bomb', 'missile'];
+  const ammo = difficulty === 1 ? ['rock', 'rock', 'rock'] : difficulty === 2 ? ['rock', 'bomb', 'rock', 'rock'] : ['rock', 'bomb', 'missile', 'rock'];
   return { date: date, day: day, seed: seed, rng: rng, difficulty: difficulty, enemies: enemies, themeIndex: dailyWorldIndex(date), ammo: ammo, title: ['BASIC AIM', 'CHAIN REACTION', 'FORTRESS BREAKER'][difficulty - 1] };
 }
 function buildDailyWorld(cfg) {
@@ -3340,6 +3341,11 @@ function drawSlingIcon(canvas, sk) {
   for (const [a, b, c, d] of [[s * 0.5, s * 0.92, s * 0.5, s * 0.55], [s * 0.5, s * 0.55, s * 0.25, s * 0.18], [s * 0.5, s * 0.55, s * 0.75, s * 0.18]]) { line(a, b, c, d, w + 4, sk.dark); line(a, b, c, d, w, sk.wood); }
   g.strokeStyle = sk.band; g.lineWidth = s * 0.05; g.beginPath(); g.moveTo(s * 0.25, s * 0.2); g.quadraticCurveTo(s * 0.5, s * 0.42, s * 0.75, s * 0.2); g.stroke();
 }
+const MAT_ICON = {
+  wood: '<svg class="mico" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8" ry="9" fill="#c98a4b" stroke="#6b3d17" stroke-width="1.5"/><ellipse cx="12" cy="12" rx="4.5" ry="5" fill="#e6b27a" stroke="#6b3d17" stroke-width="1"/><circle cx="12" cy="12" r="1.6" fill="#8a5328"/></svg>',
+  stone: '<svg class="mico" viewBox="0 0 24 24"><path d="M5 9l4-5h7l3 4-1 8-6 3-6-3z" fill="#9aa4ae" stroke="#4c535b" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 4l2 6M14 8l-2 5" stroke="#5f6770" stroke-width="1" fill="none"/></svg>',
+  ice: '<svg class="mico" viewBox="0 0 24 24" fill="none" stroke="#2f87c4" stroke-width="2" stroke-linecap="round"><path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9"/><path d="M9.5 4.5L12 7l2.5-2.5M9.5 19.5L12 17l2.5 2.5"/></svg>'
+};
 function buildShop() {
   $('shCoins').textContent = save.coins;
   const list = $('shopList'); list.innerHTML = '';
@@ -3355,9 +3361,9 @@ function buildShop() {
       <div class="nm">${sk.name}</div>
       <div class="ds">${sk.desc}</div>
       <div style="width:100%;font-size:calc(var(--u)*1.4);color:#6b4221;font-family:var(--font2);font-weight:700;margin-top:calc(var(--u)*.4);line-height:1.4">
-        <div>🪵 Wood: <b>${bWood}</b></div>
-        <div>🪨 Stone: <b>${bStone}</b></div>
-        <div>❄️ Ice: <b>${bIce}</b></div>
+        <div class="mrow">${MAT_ICON.wood} Wood: <b>${bWood}</b></div>
+        <div class="mrow">${MAT_ICON.stone} Stone: <b>${bStone}</b></div>
+        <div class="mrow">${MAT_ICON.ice} Ice: <b>${bIce}</b></div>
       </div>
     `);
     const btn = document.createElement('button');
@@ -3472,12 +3478,22 @@ function buildLevel(idx, menu) {
   G.dailyConfig = null; G.dailyNewBest = false;
   gameplayRng = mulberry32((0x6d2b79f5 ^ Math.imul(idx + 1, 0x9e3779b1)) >>> 0);
   G.comboCount = 0; G.comboUntil = 0;
-  newWorld();
-  const L = getLevel(idx);
-  G.theme = THEMES[L.w % THEMES.length]; buildBackground(G.theme, idx * 31 + 7);
-  mound(0);
-  L.build(kit());
-  computeExtents();
+  let L = null;
+  for (let attempt = 0; ; attempt++) {
+    procAttempt = attempt;
+    newWorld();
+    L = getLevel(idx);
+    G.theme = THEMES[L.w % THEMES.length]; buildBackground(G.theme, idx * 31 + 7);
+    mound(0);
+    L.build(kit());
+    computeExtents();
+    settleWorld(60);
+    if (!L.procedural) break;
+    settleWorld(90);
+    pruneUnreachable();
+    if (aliveEnemies() >= 2 || attempt >= 3) break;
+  }
+  G.shotBudget = Math.min(L.ammo.length, Math.max(2, Math.ceil(aliveEnemies() / 2) + 1));
   G.levelIdx = idx; G.proj = null; G.extras = []; G.aim = null; G.loaded = null; G.pouch = restPos(0);
   G.score = 0; G.items = 0; G.shots = 0; G.time = 0; G.damageOn = false; G.stateT = 0; userPan = 0; G.bonusScore = 0;
   G.milestone50 = false; G.milestone85 = false;
@@ -3490,8 +3506,6 @@ function buildLevel(idx, menu) {
   G.currentBlockHp = totalHp;
   updateDestructionMeter();
 
-  // settle the structure quietly before anything can break
-  settleWorld(60);
   if (menu) { fitCamera(true); document.body.style.background = G.theme.sky[0]; }
 }
 function updateDestructionMeter() {
@@ -3499,8 +3513,6 @@ function updateDestructionMeter() {
   const init = G.initialBlockHp || 1;
   const current = Math.max(0, G.currentBlockHp || 0);
   const pct = clamp(Math.round((1 - current / init) * 100), 0, 100);
-  const el = $('hDestructN');
-  if (el) el.textContent = pct + '%';
   if (pct >= 50 && !G.milestone50) {
     G.milestone50 = true;
     popText(G.maxX * 0.5, G.maxY * 0.6 + 1.2, '50% DEMOLISHED!', '#ffe36a', true);
@@ -3515,11 +3527,11 @@ function updateDestructionMeter() {
 }
 function starThresholds() {
   let enemyPts = 0, blockPts = 0;
-  for (const e of ents) { if (e.kind === 'enemy') enemyPts += 5000; else if (e.kind === 'block') blockPts += e.pts; else if (e.kind === 'item') blockPts += 2500; }
+  for (const e of ents) { if (e.kind === 'enemy') enemyPts += 1000; else if (e.kind === 'block') blockPts += e.pts; else if (e.kind === 'item') blockPts += 900; }
   const spec = G.mode === 'daily' && G.dailyConfig ? G.dailyConfig : getLevel(G.levelIdx);
-  const spare = Math.max(0, spec.ammo.length - 1);
-  const s1 = enemyPts, s2 = Math.round((enemyPts + blockPts * 0.25 + 5000 * Math.min(1, spare)) / 1000) * 1000, s3 = Math.round((enemyPts + blockPts * 0.5 + 10000 * Math.min(1, spare)) / 1000) * 1000;
-  return [s1, Math.max(s1 + 2000, s2), Math.max(s2 + 3000, s3)];
+  const spare = Math.max(0, G.ammo.length - 1);
+  const s1 = enemyPts, s2 = Math.round((enemyPts + blockPts * 0.25 + 1000 * Math.min(1, spare)) / 100) * 100, s3 = Math.round((enemyPts + blockPts * 0.5 + 2000 * Math.min(1, spare)) / 100) * 100;
+  return [s1, Math.max(s1 + 1000, s2), Math.max(s2 + 1500, s3)];
 }
 function startLevel(idx) {
   G.mode = 'campaign';
@@ -3531,9 +3543,9 @@ function startLevel(idx) {
   if (idx < 64) {
     const world = Math.floor(idx / 16);
     const realmLv = (idx % 16) + 1;
-    $('hLevel').textContent = THEMES[world].name + ' · LV ' + realmLv;
+    $('hLevel').textContent = THEMES[world].name + ' ┬╖ LV ' + realmLv;
   } else {
-    $('hLevel').textContent = 'ENDLESS · LV ' + (idx - 63);
+    $('hLevel').textContent = 'ENDLESS ┬╖ LV ' + (idx - 63);
   }
   $('hScoreWrap').classList.remove('hide'); $('hBar').classList.remove('hide'); $('hCreat').classList.remove('hide'); $('hPvp').classList.add('hide');
   lastCreat = -1; trayKey = ''; creatureIcon($('creatIcon')); updateCreatures();
@@ -3595,7 +3607,7 @@ function winLevel() {
     }
     save.daily = rec; best = rec.best;
     $('winSign').textContent = 'DAILY FORTRESS';
-    $('winDaily').textContent = coins ? 'FIRST CLEAR · TODAY’S REWARD' : G.dailyNewBest ? 'NEW DAILY PERSONAL BEST' : 'FREE REPLAY · NO EXTRA REWARD';
+    $('winDaily').textContent = coins ? 'FIRST CLEAR ┬╖ TODAYΓÇÖS REWARD' : G.dailyNewBest ? 'NEW DAILY PERSONAL BEST' : 'FREE REPLAY ┬╖ NO EXTRA REWARD';
     $('winDaily').classList.remove('hide');
     $('winNew').textContent = 'NEW DAILY BEST!';
   } else {
@@ -3613,10 +3625,10 @@ function winLevel() {
     const realmLv = (idx % 16) + 1;
     if (isChapterEnd && !save.chapterRewards[world]) {
       chapterBonus = 150; coins += chapterBonus; save.chapterRewards[world] = true;
-      $('winNewChapter').textContent = THEMES[world].name + ' REALM CONQUERED · +' + chapterBonus + ' COINS';
+      $('winNewChapter').textContent = THEMES[world].name + ' REALM CONQUERED ┬╖ +' + chapterBonus + ' COINS';
       $('winNewChapter').classList.remove('hide');
     }
-    $('winSign').textContent = isChapterEnd ? THEMES[world].name + ' COMPLETE!' : idx >= 64 ? 'ENDLESS · LEVEL ' + (idx - 63) : THEMES[world].name + ' · LEVEL ' + realmLv;
+    $('winSign').textContent = isChapterEnd ? THEMES[world].name + ' COMPLETE!' : idx >= 64 ? 'ENDLESS ┬╖ LEVEL ' + (idx - 63) : THEMES[world].name + ' ┬╖ LEVEL ' + realmLv;
     $('winNew').textContent = 'NEW BEST!';
     if (isChapterEnd) {
       const nextWorld = world + 1;
@@ -3629,6 +3641,7 @@ function winLevel() {
   persist();
   countUp($('winScore'), G.score, 1000);
   $('winNew').classList.toggle('hide', !recordImproved);
+  $('winBestBox').classList.toggle('hide', prevBest === 0);
   $('bWNext').classList.add('pulse');
   $('winBest').textContent = best.toLocaleString('en-US'); $('winCoins').textContent = '+' + coins;
   $('bWNext').style.visibility = G.mode === 'campaign' ? 'visible' : 'hidden';
@@ -3808,7 +3821,7 @@ function campaignFlow(dt) {
   if (st === 'play') {
     if (aliveEnemies() === 0) { G.state = 'winwait'; G.stateT = 0; showHint(''); G.tsTarget = 0.3; G.slowEnd = G.realT + 0.9; banner('ALL CLEAR!'); return; }
     if (!G.loaded) {
-      // No longer waits on the previous shot (G.proj) to finish flying/settling —
+      // No longer waits on the previous shot (G.proj) to finish flying/settling ΓÇö
       // only the brief pouch-reset animation gates the next load.
       if (G.ammo.length) { G.afterShot = (G.afterShot || 0) + dt; if (G.afterShot > 0.25) loadNext(); }
       else if (!G.proj) { G.state = 'failwait'; G.stateT = 0; }
@@ -3869,7 +3882,7 @@ cv.addEventListener('pointerdown', (e) => {
   e.preventDefault();
   // Since a previous shot can still be mid-flight when the next one is ready,
   // a tap on the pouch must always start the next pull rather than detonate
-  // whatever the last shot was — only fall back to the ability-tap otherwise.
+  // whatever the last shot was ΓÇö only fall back to the ability-tap otherwise.
   if (G.loaded && G.loadT >= 1 && !G.aim) {
     const w = pointerWorld(e), R = restPos(curSide());
     const onPouch = Math.hypot(w.x - G.pouch.x, w.y - G.pouch.y) * ppm < Math.max(68, ppm * 1.5)
@@ -3898,7 +3911,7 @@ window.addEventListener('pointerup', endPointer);
 window.addEventListener('pointercancel', (e) => { if (G.aim && e.pointerId === G.aim.id) G.aim = null; if (G.pan && e.pointerId === G.pan.id) G.pan = null; });
 window.addEventListener('blur', () => { if (G.aim && !G.aim.kb) G.aim = null; G.pan = null; });
 $('abilityBtn').addEventListener('pointerdown', (e) => { e.preventDefault(); e.stopPropagation(); audio.init(); const p = abilityProj(); if (p) triggerAbility(p); });
-$('ammoTray').addEventListener('click', () => { const t = G.loaded; if (t) showHint(PROJ[t].name + (PROJ[t].hint ? ' · ' + PROJ[t].hint : ' · A trusty stone')); });
+$('ammoTray').addEventListener('click', () => { const t = G.loaded; if (t) showHint(PROJ[t].name + (PROJ[t].hint ? ' ┬╖ ' + PROJ[t].hint : ' ┬╖ A trusty stone')); });
 cv.addEventListener('contextmenu', (e) => e.preventDefault());
 function kbAimApply() {
   const R = restPos(curSide()), dir = curSide() === 1 ? -1 : 1, pull = MAXPULL * G.kb.pow;
@@ -3939,7 +3952,7 @@ function toggleInspect() {
   if (btn) btn.classList.toggle('act', inspecting);
   if (inspecting) {
     userPan = G.maxX - viewW() * 0.72;
-    showHint('SCOUTING FORTRESS · TAP INSPECT AGAIN OR DRAG TO AIM');
+    showHint('SCOUTING FORTRESS ┬╖ TAP INSPECT AGAIN OR DRAG TO AIM');
   } else {
     userPan = 0;
     showHint('');

@@ -450,49 +450,43 @@ function generateProceduralLevel(idx) {
 
       if (archetype === 0) {
         // Twin Citadel & High Drawbridge
-        const h1 = b.fort(center - 3.4, 0, [{ w: 2.2 + jit(), h: 1.4, in: pick(), mat: matMain }, { w: 2.2, h: 1.3, in: 'tnt', mat: matAlt }], pick());
-        const h2 = b.fort(center + 3.4, 0, [{ w: 2.2 + jit(), h: 1.4, in: pick(), mat: matMain }, { w: 2.2, h: 1.3, in: 'cake', mat: matAlt }], pick());
-        left -= 4;
-        const bridgeY = Math.min(h1, h2) - 0.15;
-        b.beam(matMain, center - 3.4, center + 3.4, bridgeY, 0.35);
+        const h1 = b.fort(center - 3.2, 0, [{ w: 2.2 + jit(), h: 1.4, in: pick(), mat: matMain }, { w: 2.2, h: 1.3, in: 'tnt', mat: matAlt }], pick());
+        const h2 = b.fort(center + 3.2, 0, [{ w: 2.2 + jit(), h: 1.4, in: pick(), mat: matMain }, { w: 2.2, h: 1.3, in: 'cake', mat: matAlt }], pick());
+        const bridgeY = Math.min(h1, h2);
+        b.beam(matMain, center - 3.2, center + 3.2, bridgeY, 0.35);
         b.enemy(center, bridgeY + 0.35, true);
         b.item('gem', center, bridgeY + 1.15);
-        left--;
       } else if (archetype === 1) {
         // Terraced Mountain Redoubt with Rolling Boulder
         b.ground(center - 4.0, center + 4.0, 1.0);
         b.fort(center, 1.0, [
-          { w: 5.0 + jit(), h: 1.5, in: [pick(), 'tnt', pick()], mid: true, mat: 'stone' },
-          { w: 3.6, h: 1.3, in: [pick(), 'cake'], mid: true, mat: matMain },
+          { w: 4.8 + jit(), h: 1.5, in: [pick(), 'tnt', pick()], mid: true, mat: 'stone' },
+          { w: 3.4, h: 1.3, in: [pick(), 'cake'], mid: true, mat: matMain },
           { w: 2.2, h: 1.2, in: 'h', mat: matAlt }
         ], pick());
-        b.boulder(center + 2.8, 1.0, 0.55);
-        b.boulder(center - 2.8, 1.0, 0.55);
-        left -= 5;
+        b.boulder(center + 2.2, 1.0, 0.5);
+        b.boulder(center - 2.2, 1.0, 0.5);
       } else if (archetype === 2) {
         // Airborne Zeppelin Bastions
         b.fort(center, 0, [{ w: 3.4, h: 1.4, in: [pick(), 'tnt'], mid: true, mat: matMain }], pick());
-        left -= 2;
-        b.balloonPlat(center - 3.0, 5.6 + jit() * 1.5, 2.2, matAlt, 1.4, [pick()]);
-        b.balloonPlat(center + 3.0, 6.4 + jit() * 1.5, 2.2, matMain, 1.5, [pick(), 'gem']);
-        left -= 2;
+        b.balloonPlat(center - 3.0, 5.8, 2.2, matAlt, 1.4, [pick()]);
+        b.balloonPlat(center + 3.0, 6.4, 2.2, matMain, 1.5, [pick(), 'gem']);
       } else if (archetype === 3) {
         // Ziggurat of Peril
         b.pyramid(matMain, center, 0, 5, 0.78, [pick(), 'tnt', pick()]);
         b.item('cake', center, 3.9);
         b.enemy(center, 4.3, true);
-        left -= 3;
       } else if (archetype === 4) {
         // High Guard Columns & Heavy Spanning Truss
         b.ground(center - 1.8, center + 1.8, 1.8);
-        const colTop = b.col('stone', center, 1.8, 3.8, 0.65);
-        b.beam(matMain, center - 4.0, center + 4.0, colTop - 0.35, 0.35);
-        b.enemy(center - 2.8, colTop, rng() < tough);
-        b.enemy(center + 2.8, colTop, rng() < tough);
-        b.enemy(center, colTop, true);
-        b.boulder(center - 3.4, colTop + 0.35, 0.5);
-        b.boulder(center + 3.4, colTop + 0.35, 0.5);
-        left -= 3;
+        const colTop = b.col('stone', center, 1.8, 3.2, 0.65);
+        b.beam(matMain, center - 3.6, center + 3.6, colTop, 0.35);
+        const beamTop = colTop + 0.35;
+        b.enemy(center - 2.4, beamTop, rng() < tough);
+        b.enemy(center + 2.4, beamTop, rng() < tough);
+        b.enemy(center, beamTop, true);
+        b.boulder(center - 3.0, beamTop, 0.45);
+        b.boulder(center + 3.0, beamTop, 0.45);
       } else if (archetype === 5) {
         // Pillbox Bunker & Satellite Watchtower
         b.fort(center, 0, [
@@ -500,13 +494,11 @@ function generateProceduralLevel(idx) {
           { w: 3.0, h: 1.3, in: 'cake', mat: 'ice', beam: 'ice' }
         ], 'gem');
         b.fort(center + 4.5, 0, [{ w: 2.2, h: 1.3, in: pick(), mat: matMain }]);
-        left -= 3;
       } else if (archetype === 6) {
         // Triple Bastion Colosseum
         b.fort(center - 3.6, 0, [{ w: 2.2, h: 1.3, in: pick(), mat: matMain }], pick());
         b.fort(center, 0, [{ w: 2.6, h: 1.4, in: ['tnt', pick()], mid: true, mat: 'stone' }], 'h');
         b.fort(center + 3.6, 0, [{ w: 2.2, h: 1.3, in: pick(), mat: matAlt }], 'cake');
-        left -= 4;
       } else if (archetype === 7) {
         // Ascending Triple Staircase Plateau
         b.ground(center - 8.5, center - 5.0, 0.8);
@@ -515,59 +507,51 @@ function generateProceduralLevel(idx) {
         b.fort(center - 0.8, 2.0, [{ w: 2.4, h: 1.4, in: [pick(), 'tnt'], mid: true, mat: matAlt }], pick());
         b.ground(center + 3.2, center + 7.5, 3.4);
         b.fort(center + 5.35, 3.4, [{ w: 2.2, h: 1.4, in: 'h', mat: 'stone' }], 'gem');
-        left -= 4;
       } else if (archetype === 8) {
         // Twin Pyramids Flanking Boulder Chasm
         b.pyramid(matMain, center - 3.8, 0, 3, 0.72, [pick()]);
         b.pyramid(matAlt, center + 3.8, 0, 3, 0.72, [pick()]);
-        b.boulder(center, 0, 0.65);
-        b.boulder(center - 1.2, 0, 0.5);
-        b.item('cake', center + 1.2, 1.3);
-        left -= 2;
+        b.boulder(center - 0.7, 0, 0.55);
+        b.boulder(center + 0.7, 0, 0.55);
+        b.item('cake', center, 1.2);
       } else if (archetype === 9) {
         // 4-Floor Skyscraper Spire
         b.fort(center, 0, [
-          { w: 2.8, h: 1.4, in: pick(), mat: matMain },
-          { w: 2.4, h: 1.3, in: 'tnt', mat: matAlt },
+          { w: 3.2, h: 1.4, in: pick(), mat: matMain },
+          { w: 2.6, h: 1.3, in: 'tnt', mat: matAlt },
           { w: 2.0, h: 1.2, in: pick(), mat: matMain },
-          { w: 1.7, h: 1.1, in: 'gem', mat: matAlt }
+          { w: 1.6, h: 1.1, in: 'gem', mat: matAlt }
         ], 'h');
-        b.boulder(center - 2.6, 0, 0.55);
-        b.boulder(center + 2.6, 0, 0.55);
-        left -= 2;
+        b.boulder(center - 2.6, 0, 0.5);
+        b.boulder(center + 2.6, 0, 0.5);
       } else if (archetype === 10) {
         // 3-Step Balloon Armada Climbing in Altitude
-        b.balloonPlat(center - 3.8, 4.8 + jit() * 1.5, 2.0, matMain, 1.3, [pick()]);
-        b.balloonPlat(center, 6.2 + jit() * 1.5, 2.2, matAlt, 1.4, [pick(), 'tnt']);
-        b.balloonPlat(center + 3.8, 7.6 + jit() * 1.5, 2.0, matMain, 1.5, [pick(), 'gem']);
-        left -= 3;
+        b.balloonPlat(center - 3.6, 5.0, 2.0, matMain, 1.3, [pick()]);
+        b.balloonPlat(center, 6.2, 2.2, matAlt, 1.4, [pick(), 'tnt']);
+        b.balloonPlat(center + 3.6, 7.4, 2.0, matMain, 1.5, [pick(), 'gem']);
       } else if (archetype === 11) {
         // Wide Bridge with Centered Command Post
-        const t1 = b.fort(center - 4.6, 0, [{ w: 2.2, h: 1.5, in: pick(), mat: matMain }, { w: 2.2, h: 1.3, in: pick(), mat: matAlt }]);
-        const t2 = b.fort(center + 4.6, 0, [{ w: 2.2, h: 1.5, in: pick(), mat: matMain }, { w: 2.2, h: 1.3, in: 'cake', mat: matAlt }]);
-        const bridgeY = Math.min(t1, t2) - 0.2;
-        b.beam('stone', center - 4.6, center + 4.6, bridgeY, 0.38);
-        b.enemy(center - 1.4, bridgeY + 0.35, true);
-        b.enemy(center + 1.4, bridgeY + 0.35, true);
-        left -= 5;
+        const t1 = b.fort(center - 3.8, 0, [{ w: 2.2, h: 1.5, in: pick(), mat: matMain }, { w: 2.2, h: 1.3, in: pick(), mat: matAlt }]);
+        const t2 = b.fort(center + 3.8, 0, [{ w: 2.2, h: 1.5, in: pick(), mat: matMain }, { w: 2.2, h: 1.3, in: 'cake', mat: matAlt }]);
+        const bridgeY = Math.min(t1, t2);
+        b.beam('stone', center - 3.8, center + 3.8, bridgeY, 0.38);
+        b.enemy(center, bridgeY + 0.38, true);
       } else if (archetype === 12) {
         // Honeycomb Labyrinth Citadel
         b.ground(center - 4.2, center + 4.2, 0.7);
         b.fort(center, 0.7, [
-          { w: 5.4, h: 1.5, in: ['h', 'tnt', 'h'], mid: true, mat: 'stone' },
-          { w: 4.0, h: 1.4, in: ['h', 'cake'], mid: true, mat: matMain, beam: 'stone' },
+          { w: 5.2, h: 1.5, in: ['h', 'tnt', 'h'], mid: true, mat: 'stone' },
+          { w: 3.8, h: 1.4, in: ['h', 'cake'], mid: true, mat: matMain, beam: 'stone' },
           { w: 2.4, h: 1.2, in: 'gem', mat: matAlt }
         ], 'h');
-        b.boulder(center - 3.0, 0.7, 0.55);
-        b.boulder(center + 3.0, 0.7, 0.55);
-        left -= 4;
+        b.boulder(center - 2.8, 0.7, 0.5);
+        b.boulder(center + 2.8, 0.7, 0.5);
       } else if (archetype === 13) {
         // Suspended Pendulum Trap over Basalt Base
         b.fort(center - 3.2, 0, [{ w: 2.2, h: 1.4, in: 'h', mat: 'stone' }]);
         b.fort(center + 3.2, 0, [{ w: 2.2, h: 1.4, in: 'h', mat: 'stone' }]);
-        b.balloonPlat(center, 6.4, 2.6, matMain, 1.5, ['h', 'tnt']);
+        b.balloonPlat(center, 6.4, 2.4, matMain, 1.5, ['h', 'tnt']);
         b.item('gem', center, 0.4);
-        left -= 3;
       } else if (archetype === 14) {
         // High Altitude Sniper Fortress & Boulder Launchpad
         b.ground(center - 4.5, center + 4.5, 2.4);
@@ -575,43 +559,23 @@ function generateProceduralLevel(idx) {
           { w: 4.6, h: 1.5, in: ['h', 'tnt', 'h'], mat: 'stone' },
           { w: 2.8, h: 1.3, in: 'cake', mat: matMain }
         ], 'gem');
-        b.boulder(center - 3.2, 2.4, 0.65);
-        b.boulder(center + 3.2, 2.4, 0.65);
-        left -= 3;
+        b.boulder(center - 3.0, 2.4, 0.55);
+        b.boulder(center + 3.0, 2.4, 0.55);
       } else {
         // The Boss Megafortress - Supreme 3-Tower Bastion
         b.ground(center - 5.5, center + 5.5, 0.8);
         b.fort(center - 3.6, 0.8, [{ w: 2.6, h: 1.4, in: ['h', 'tnt'], mid: true, mat: 'stone' }, { w: 2.0, h: 1.2, in: 'h', mat: matAlt }], 'cake');
         b.fort(center, 0.8, [{ w: 4.8, h: 1.6, in: ['h', 'tnt', 'h'], mid: true, mat: 'stone' }, { w: 3.4, h: 1.4, in: ['h', 'gem'], mid: true, mat: 'stone', beam: 'stone' }, { w: 2.2, h: 1.2, in: 'h', mat: matMain }], 'gem');
         b.fort(center + 3.6, 0.8, [{ w: 2.6, h: 1.4, in: ['h', 'tnt'], mid: true, mat: 'stone' }, { w: 2.0, h: 1.2, in: 'h', mat: matAlt }], 'h');
-        b.boulder(center - 1.8, 0.8, 0.65);
-        b.boulder(center + 1.8, 0.8, 0.65);
-        left -= 6;
+        b.boulder(center - 1.8, 0.8, 0.55);
+        b.boulder(center + 1.8, 0.8, 0.55);
       }
-
-      left = Math.max(left, 2);
-      const perches = perchCandidates();
-      for (let k = 0; k < left; k++) {
-        let placed = false;
-        for (let tries = 0; tries < 60 && !placed; tries++) {
-          const c = pickPerch(perches, rng);
-          if (!c) break;
-          b.enemy(c.x, c.y, rng() < Math.max(0.35, tough));
-          const e = ents[ents.length - 1], p = e.body.getPosition();
-          const crowded = ents.some(o => o !== e && o.kind === 'enemy' && Math.hypot(o.body.getPosition().x - p.x, o.body.getPosition().y - p.y) < 1.1);
-          const inside = obstaclesNow().some(o => o(p.x, p.y + 0.2));
-          if (!crowded && !inside && shotClear(e)) placed = true;
-          else dropEnemy(e);
-        }
-      }
-
     }
   };
 }
 
 function getLevel(idx) {
-  const realm = Math.floor(idx / 16), local = idx % 16;
-  if (idx < 64 && local < 8) return LEVELS[realm * 8 + local];
+  if (idx < LEVELS.length) return LEVELS[idx];
   return generateProceduralLevel(idx);
 }
 
@@ -1273,11 +1237,21 @@ function physicsStep() {
 // visibly drifting/jittering into place after the player can already see
 // and shoot at it, which reads as the structure being "broken" or "vague".
 function settleWorld(steps) {
+  G.damageOn = false;
   for (let k = 0; k < steps; k++) physicsStep();
   for (let bd = world.getBodyList(); bd; bd = bd.getNext()) {
     if (!bd.isDynamic()) continue;
     bd.setLinearVelocity(Vec2(0, 0));
     bd.setAngularVelocity(0);
+  }
+  parts = [];
+  pops = [];
+  queue.slow = [];
+  queue.expl = [];
+  for (const e of ents) {
+    if (e.maxHp) e.hp = e.maxHp;
+    if (e.hurt) e.hurt = 0;
+    if (e.scoreGiven) e.scoreGiven = 0;
   }
 }
 
@@ -1384,13 +1358,13 @@ function levelBounds() {
 function fitCamera(snap) {
   const isMobile = W < 768 || H < 520;
   const isPortrait = H > W;
-  groundY = H * (isPortrait ? 0.77 : (isMobile ? 0.83 : 0.86));
-  const topMargin = isMobile ? Math.max(50, H * 0.1) : Math.max(70, H * 0.13);
+  groundY = H * (isPortrait ? 0.78 : (isMobile ? 0.83 : 0.86));
+  const topMargin = isMobile ? Math.max(48, H * 0.1) : Math.max(70, H * 0.13);
   const b = levelBounds(), fitW = W / (b.R - b.L), fitH = (groundY - topMargin) / b.T;
   const fit = Math.min(fitW, fitH);
-  const minP = Math.min(W, H) / (G.mode === 'pvp' ? (isMobile ? 18 : 24) : (isMobile ? 13.5 : 19));
-  ppm = Math.max(fit, minP);
-  fitsAll = ppm <= fit + 0.01;
+  const minP = Math.min(W, H) / (G.mode === 'pvp' ? (isMobile ? 18 : 24) : (isPortrait ? 15 : (isMobile ? 18 : 21)));
+  ppm = isPortrait ? Math.max(fit, minP) : fit;
+  fitsAll = ppm <= fit + 0.05;
   camTarget = camFor('aim');
   if (snap) camL = camTarget;
 }
@@ -1407,23 +1381,29 @@ function updateCamera(dt) {
   let tgt = camFor('aim');
   const b = levelBounds(), vw = viewW();
   if (!fitsAll) {
-    if (G.state === 'intro') { const u = clamp((G.stateT - 0.6) / 1.4, 0, 1); tgt = lerp(camFor('end'), camFor('aim'), easeInOut(u)); camL = tgt; }
-    else {
+    if (G.state === 'intro') {
+      const u = clamp((G.stateT - 0.6) / 1.4, 0, 1);
+      tgt = lerp(camFor('end'), camFor('aim'), easeInOut(u));
+      camL = tgt;
+    } else {
       const f = G.proj && !G.proj.done ? G.proj : G.extras.find((e) => !e.done && !e.removed);
-      if (G.aim && G.pred) {
-        const pts = G.pred.pts, end = G.pred.hit || pts[pts.length - 1];
-        const leadRatio = W < 768 ? 0.68 : 0.78;
-        tgt = curSide() === 1 ? camFor(Math.min(camFor('aim'), end.x - vw * (1 - leadRatio))) : camFor(Math.max(camFor('aim'), end.x - vw * leadRatio));
+      if (G.aim) {
+        // While the player is pulling the slingshot, keep the aim anchor steady
+        // so the slingshot never drifts or jitters under the finger!
+        tgt = camFor('aim');
       } else if (f && !f.removed) {
         const x = f.body.getPosition().x;
         const vx = f.body.getLinearVelocity().x;
         tgt = camFor(x - vw * (vx >= 0 ? 0.36 : 0.64));
+      } else if (userPan) {
+        tgt = camFor(userPan);
       }
-      else if (userPan) tgt = camFor(userPan);
       const lerpSpeed = G.proj ? 7.2 : 5.8;
       camL += (tgt - camL) * (1 - Math.exp(-dt * lerpSpeed));
     }
-  } else camL = tgt;
+  } else {
+    camL = tgt;
+  }
   camL = clamp(camL, b.L - vw, b.R);
 }
 function w2s(x, y) { return [(x - camL) * ppm, groundY - y * ppm]; }
@@ -3020,11 +3000,10 @@ function buildLevel(idx, menu) {
     mound(0);
     L.build(kit());
     computeExtents();
-    settleWorld(60);
+    settleWorld(36);
     if (!L.procedural) break;
-    settleWorld(90);
     pruneUnreachable();
-    if (aliveEnemies() >= 2 || attempt >= 3) break;
+    if (aliveEnemies() >= 2 || attempt >= 2) break;
   }
   G.shotBudget = Math.min(L.ammo.length, Math.max(2, Math.ceil(aliveEnemies() / 2) + 1));
   G.levelIdx = idx; G.proj = null; G.extras = []; G.aim = null; G.loaded = null; G.pouch = restPos(0);
@@ -3462,7 +3441,9 @@ function pointerWorld(e) { return s2w(e.clientX, e.clientY); }
 function aimPxPerUnit() { return Math.max(ppm, clamp(Math.min(W, H) * 0.3, 120, 300) / MAXPULL); }
 function setAimFromPointer(cx, cy) {
   const k = aimPxPerUnit(), R = restPos(curSide());
-  let dx = (cx - G.aim.sx) / k, dy = -(cy - G.aim.sy) / k; const l = Math.hypot(dx, dy);
+  const anchor = w2s(R.x, R.y);
+  let dx = (cx - anchor[0]) / k, dy = -(cy - anchor[1]) / k;
+  const l = Math.hypot(dx, dy);
   if (l > MAXPULL) { dx *= MAXPULL / l; dy *= MAXPULL / l; }
   G.pouch = { x: R.x + dx, y: Math.max(G.moundH + 0.25, R.y + dy) };
   G.predDirty = true;
@@ -3484,11 +3465,11 @@ cv.addEventListener('pointerdown', (e) => {
   // whatever the last shot was — only fall back to the ability-tap otherwise.
   if (G.loaded && G.loadT >= 1 && !G.aim) {
     const w = pointerWorld(e), R = restPos(curSide());
-    const onPouch = Math.hypot(w.x - G.pouch.x, w.y - G.pouch.y) * ppm < Math.max(68, ppm * 1.5)
-      || Math.hypot(w.x - R.x, w.y - R.y) * ppm < Math.max(68, ppm * 1.5);
+    const onPouch = Math.hypot(w.x - G.pouch.x, w.y - G.pouch.y) * ppm < Math.max(76, ppm * 1.6)
+      || Math.hypot(w.x - R.x, w.y - R.y) * ppm < Math.max(76, ppm * 1.6);
     if (onPouch) {
-      const anchor = w2s(R.x, R.y);
-      G.aim = { id: e.pointerId, sx: anchor[0], sy: anchor[1] }; G.lastPull = 0;
+      G.aim = { id: e.pointerId };
+      G.lastPull = 0;
       try { cv.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
       setAimFromPointer(e.clientX, e.clientY);
       return;

@@ -1332,11 +1332,11 @@
 
       const THEMES = [
         {
-          top: "#8fa3ff",
-          bottom: "#b8c9ff",
-          safe: "#2ed17b",
-          dark: "#22252a",
-          pole: "#f4f7fa",
+          top: "#6d80f5",
+          bottom: "#97aaff",
+          safe: "#32d77a",
+          dark: "#262930",
+          pole: "#edf1f5",
         },
         {
           top: "#ffe6ef",
@@ -1537,14 +1537,14 @@
       };
       const GAME = {
           segments: 12,
-          inner: 0.44,
-          outer: 1.55,
-          height: 0.28,
-          spacing: 0.33,
+          inner: 0.45,
+          outer: 1.65,
+          height: 0.34,
+          spacing: 0.40,
           ballR: 0.28,
-          ballZ: 1.05,
+          ballZ: 1.08,
           gravity: 40,
-          bounceH: 0.7,
+          bounceH: 0.75,
           maxDebris: 250,
         },
         SEG = (Math.PI * 2) / GAME.segments,
@@ -1601,8 +1601,8 @@
           count = Math.min(32 + Math.floor(level * 2.5), 110),
           rows = [],
           safe = () => rows.push({ deadly: Array(GAME.segments).fill(false) }),
-          chance = clamp(0.65 + level * 0.012, 0.65, 0.92),
-          minSafe = level < 6 ? 6 : level < 18 ? 5 : 4;
+          chance = clamp(0.70 + level * 0.012, 0.70, 0.95),
+          minSafe = level < 4 ? 6 : level < 14 ? 5 : 3;
 
         // Starting safe landing zone
         for (let i = 0; i < (level < 4 ? 5 : 3); i++) safe();
@@ -1611,15 +1611,19 @@
         let currentOffset = Math.floor(r() * GAME.segments);
         while (rows.length < count - 2) {
           const types = ["arc", "arc"];
-          if (level >= 4) types.push("arc");
-          if (level >= 8) types.push("split");
-          if (level >= 16) types.push("triple");
+          if (level >= 3) types.push("arc");
+          if (level >= 6) types.push("split");
+          if (level >= 14) types.push("triple");
 
-          const type = types[Math.floor(r() * types.length)],
-            width = 1 + Math.floor(r() * clamp(2 + Math.floor(level / 5), 2, 5)),
-            hostile = r() < chance,
+          const type = types[Math.floor(r() * types.length)];
+          // Deadly width aligns with whole lobes (6 segments = 2 lobes, 8-9 segments = 3 lobes)
+          let width = 6;
+          if (level >= 3) width = r() < 0.5 ? 6 : 8;
+          if (level >= 8) width = r() < 0.4 ? 6 : r() < 0.7 ? 8 : 9;
+
+          const hostile = r() < chance,
             sectionLength = Math.min(
-              12 + Math.floor(r() * 16),
+              16 + Math.floor(r() * 18),
               count - 2 - rows.length
             );
 
@@ -1637,13 +1641,11 @@
             rows.push({ deadly });
           }
 
-          // Subtle offset drift or 1-floor safe breather between sections
-          if (r() < 0.6) {
-            currentOffset = mod(currentOffset + (r() < 0.5 ? 1 : -1) * (1 + Math.floor(r() * 2)), GAME.segments);
-          }
-          if (r() < 0.4 && rows.length < count - 2) {
+          // Between long sections: 1-floor safe breather
+          if (r() < 0.5 && rows.length < count - 2) {
             safe();
           }
+          currentOffset = mod(currentOffset + (r() < 0.5 ? 3 : -3), GAME.segments);
         }
         safe();
 
@@ -1698,6 +1700,9 @@
         }
         bounce() {
           this.tone(300, 0.08, "sine", 0.12, 180);
+        }
+        warn() {
+          this.tone(140, 0.16, "triangle", 0.24, 75);
         }
         break(c) {
           const p = 220 * Math.pow(1.055, Math.min(c, 24));
@@ -2101,10 +2106,14 @@
           ];
         }
         radius(a, type) {
-          if (type === "clover") return GAME.outer * (1 + 0.18 * Math.cos(a * 4));
-          if (type === "flower5") return GAME.outer * (1 + 0.15 * Math.cos(a * 5));
-          if (type === "hexagon") return GAME.outer * (1 + 0.12 * Math.cos(a * 6));
-          if (type === "star") return GAME.outer * (1 + 0.16 * Math.sin(a * 5));
+          if (type === "clover")
+            return GAME.outer * (1 + 0.24 * Math.cos(a * 4) - 0.05 * Math.cos(a * 8));
+          if (type === "flower5")
+            return GAME.outer * (1 + 0.20 * Math.cos(a * 5) - 0.04 * Math.cos(a * 10));
+          if (type === "hexagon")
+            return GAME.outer * (1 + 0.14 * Math.cos(a * 6) - 0.03 * Math.cos(a * 12));
+          if (type === "star")
+            return GAME.outer * (1 + 0.22 * Math.sin(a * 5));
           if (type === "square") {
             const x = a + Math.PI / 4;
             return (
@@ -2120,10 +2129,10 @@
           return new THREE.Vector3(Math.cos(a) * r, 0, -Math.sin(a) * r);
         }
         wedge(i, type) {
-          const gap = 0.007,
+          const gap = 0.005,
             start = i * SEG + gap,
             end = (i + 1) * SEG - gap,
-            steps = 16,
+            steps = 24,
             sh = new THREE.Shape();
           for (let p = 0; p <= steps; p++) {
             const a = start + ((end - start) * p) / steps,
@@ -2137,15 +2146,15 @@
           }
           sh.closePath();
           const geo = new THREE.ExtrudeGeometry(sh, {
-            depth: GAME.height - 0.03,
+            depth: GAME.height - 0.04,
             bevelEnabled: true,
-            bevelThickness: 0.015,
-            bevelSize: 0.015,
-            bevelSegments: 2,
-            curveSegments: 8,
+            bevelThickness: 0.02,
+            bevelSize: 0.02,
+            bevelSegments: 3,
+            curveSegments: 12,
           });
           geo.rotateX(-Math.PI / 2);
-          geo.translate(0, -GAME.height / 2 + 0.015, 0);
+          geo.translate(0, -GAME.height / 2 + 0.02, 0);
           return geo;
         }
         geometries(type) {
@@ -2184,29 +2193,36 @@
         build() {
           this.clear();
           this.platforms = [];
-          const stepAngle = this.data.twist || 0.22;
+          const stepAngle = (this.data.twist || 0.20) * Math.sign(this.data.rotation || 1);
           this.data.rows.forEach((row, i) => {
             const y = -i * GAME.spacing,
               twistAngle = i * stepAngle,
-              group = new THREE.Group();
+              group = new THREE.Group(),
+              darkMeshes = [],
+              safeMeshes = [];
             group.position.y = y;
             group.rotation.y = twistAngle;
-            row.deadly.forEach((dark, k) =>
-              group.add(
-                new THREE.Mesh(
-                  this.wedges[k],
-                  dark ? this.darkMat : this.safeMat,
-                ),
-              ),
-            );
+            row.deadly.forEach((dark, k) => {
+              const m = new THREE.Mesh(
+                this.wedges[k],
+                dark ? this.darkMat : this.safeMat,
+              );
+              group.add(m);
+              if (dark) darkMeshes.push(m);
+              else safeMeshes.push(m);
+            });
             this.tower.add(group);
             this.platforms.push({
               row,
               y,
               top: y + GAME.height / 2,
               group,
+              darkMeshes,
+              safeMeshes,
               gone: false,
               twistAngle,
+              warned: false,
+              warnScale: 1,
             });
           });
           this.baseTop = -this.platforms.length * GAME.spacing - 0.1;
@@ -2413,13 +2429,13 @@
           if (sm) {
             this.holdTime += dt;
             const target = this.feverActive
-              ? 13
-              : 7.5 + Math.min(1, this.holdTime / 0.9) * 3.5;
+              ? 22
+              : 14 + Math.min(1, this.holdTime / 0.45) * 5.5;
             this.vy = Math.min(this.vy, -target);
           }
           this.ballY += this.vy * dt;
           let guard = 0;
-          while (guard++ < 15) {
+          while (guard++ < 20) {
             const p = this.platforms[this.current],
               bottom = this.ballY - GAME.ballR;
             if (p && bottom <= p.top && this.vy < 0) {
@@ -2429,8 +2445,23 @@
                   this.break(p);
                   continue;
                 }
-                this.die();
-                return;
+                // Landed on deadly dark segment
+                if (!p.warned) {
+                  p.warned = true;
+                  p.warnTime = 0;
+                  this.hold = false;
+                  this.holdAllowed = false;
+                  sound.warn();
+                  vibrate([35, 45]);
+                  this.shake = 0.55;
+                  this.ballY = p.top + GAME.ballR;
+                  this.bounce(p);
+                  this.sparks(this.ball.position, 0xff3344, 14, 3.8);
+                  break;
+                } else {
+                  this.die();
+                  return;
+                }
               }
               this.ballY = p.top + GAME.ballR;
               this.bounce(p);
@@ -2452,9 +2483,9 @@
           this.combo++;
           this.score += this.feverActive ? 2 : 1;
           if (this.feverActive)
-            this.feverTime = Math.min(3, this.feverTime + 0.08);
+            this.feverTime = Math.min(3, this.feverTime + 0.1);
           else {
-            this.fever = Math.min(1, this.fever + 0.1);
+            this.fever = Math.min(1, this.fever + 0.12);
             if (this.fever >= 1) this.fire();
           }
           this.camTarget = this.platforms[this.current]
@@ -2660,6 +2691,21 @@
               this.splatterAnim.splice(i, 1);
             }
           }
+          if (this.platforms) {
+            this.platforms.forEach((p) => {
+              if (p.gone || !p.group) return;
+              if (p.warnTime !== undefined && p.warnTime < 0.38) {
+                p.warnTime += dt;
+                const t = Math.min(1, p.warnTime / 0.38);
+                const pop = Math.sin(t * Math.PI) * 0.25;
+                const s = 1.0 + pop;
+                p.group.scale.set(s, 1.0, s);
+                if (t >= 1) {
+                  p.group.scale.set(1.0, 1.0, 1.0);
+                }
+              }
+            });
+          }
           if ((this.currentSkin?.rainbow || this.currentSkin?.id === "prism") && !this.feverActive) {
             this.hue = ((this.hue || 0) + dt * 0.45) % 1;
             this.ballMat.color.setHSL(this.hue, 1.0, 0.58);
@@ -2697,7 +2743,7 @@
         cameraUpdate(dt, snap = false) {
           this.camY = snap
             ? this.camTarget
-            : lerp(this.camY, this.camTarget, Math.min(1, dt * 11));
+            : lerp(this.camY, this.camTarget, Math.min(1, dt * 15));
           this.shake = Math.max(0, this.shake - dt * 2.2);
           const x = (Math.random() - 0.5) * this.shake * 0.3,
             y = (Math.random() - 0.5) * this.shake * 0.3;
@@ -2796,8 +2842,11 @@
         closeSheet();
         closeModal();
         sound.unlock();
-        if (active === "home" || active === "ready") {
+        if (game) {
+          game.holdAllowed = true;
           game.start();
+        }
+        if (active === "home" || active === "ready") {
           reviveUsed = false;
           credited = 0;
           page("playing");
@@ -3016,10 +3065,13 @@
       const isUI = (t) => Boolean(t.closest("button,.sheet,.panel"));
       dom.app.addEventListener("pointerdown", (e) => {
         if (isUI(e.target) || !game) return;
+        game.holdAllowed = true;
         if (active === "home" || active === "ready") {
           start();
           game.holdSet(true);
-        } else if (active === "playing") game.holdSet(true);
+        } else if (active === "playing") {
+          game.holdSet(true);
+        }
       });
       const release = () => game?.holdSet(false);
       window.addEventListener("pointerup", release);

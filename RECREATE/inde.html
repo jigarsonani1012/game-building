@@ -266,17 +266,17 @@
       }
       #feverLabel {
         position: absolute;
-        top: 38%;
+        top: 36%;
         left: 50%;
-        color: #fff1a3;
-        font-size: clamp(24px, 7vw, 36px);
+        font-size: clamp(28px, 7.5vw, 42px);
         font-weight: 900;
-        letter-spacing: 0.1em;
-        text-shadow:
-          0 3px 0 #e55418,
-          0 4px 13px rgba(229, 84, 24, 0.6);
+        letter-spacing: 0.14em;
+        background: linear-gradient(180deg, #fffadb 0%, #ffb800 45%, #ff3700 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 3px 0 #b32a00) drop-shadow(0 6px 14px rgba(255, 68, 0, 0.75));
         transform: translateX(-50%);
-        animation: feverPulse 350ms ease-in-out infinite alternate;
+        animation: feverPulse 320ms cubic-bezier(0.18, 0.89, 0.32, 1.28) infinite alternate;
       }
       #comboLayer {
         position: absolute;
@@ -1537,10 +1537,11 @@
         {
           id: "chrome",
           name: "Chrome",
-          color: "#d7e5ff",
+          color: "#0a0a0d",
+          glow: "#000000",
           price: 670,
-          rough: 0.06,
-          metal: 1,
+          rough: 0.22,
+          metal: 0.15,
         },
         {
           id: "prism",
@@ -1629,8 +1630,8 @@
           outer: 1.65,
           height: 0.34,
           spacing: 0.40,
-          ballR: 0.28,
-          ballZ: 1.08,
+          ballR: 0.30,
+          ballZ: 1.18,
           gravity: 40,
           bounceH: 0.75,
           maxDebris: 250,
@@ -1988,7 +1989,7 @@
           this.splatterAnim = [];
           this.glowMat = new THREE.SpriteMaterial({
             map: this.glowTex,
-            color: "#ff9428",
+            color: "#ff5500",
             transparent: true,
             opacity: 0,
             blending: THREE.AdditiveBlending,
@@ -1997,18 +1998,34 @@
           this.glow = new THREE.Sprite(this.glowMat);
           this.glow.scale.setScalar(2);
           this.scene.add(this.glow);
+
           this.ringMat = new THREE.MeshBasicMaterial({
-            color: "#ffad2f",
+            color: "#ffbb11",
             transparent: true,
-            opacity: 0.9,
+            opacity: 0.95,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
           });
           this.ring = new THREE.Mesh(
-            new THREE.TorusGeometry(0.51, 0.04, 10, 48),
+            new THREE.TorusGeometry(0.46, 0.024, 12, 48),
             this.ringMat,
           );
-          this.ring.rotation.x = Math.PI / 2;
           this.ring.visible = false;
           this.scene.add(this.ring);
+
+          this.ringMat2 = new THREE.MeshBasicMaterial({
+            color: "#ff3700",
+            transparent: true,
+            opacity: 0.85,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+          });
+          this.ring2 = new THREE.Mesh(
+            new THREE.TorusGeometry(0.58, 0.018, 12, 48),
+            this.ringMat2,
+          );
+          this.ring2.visible = false;
+          this.scene.add(this.ring2);
           this.sprites = [];
           this.particles = [];
           this.debris = [];
@@ -2405,6 +2422,7 @@
           this.shake = 0;
           this.glowMat.opacity = 0;
           this.ring.visible = false;
+          if (this.ring2) this.ring2.visible = false;
           this.applySkin();
           this.cameraUpdate(0, true);
         }
@@ -2492,9 +2510,10 @@
         addSplatter(p) {
           if (!p || !p.group) return;
           if (!p.splatters) p.splatters = [];
-          if (p.splatters.length >= 14) {
+          if (p.splatters.length >= 24) {
             const old = p.splatters.shift();
             p.group.remove(old);
+            if (old.material) old.material.dispose();
           }
 
           let col;
@@ -2515,7 +2534,7 @@
           } else if (this.currentSkin?.id === "gold") {
             col = new THREE.Color("#ffd13e");
           } else if (this.currentSkin?.id === "chrome") {
-            col = new THREE.Color("#d7e5ff");
+            col = new THREE.Color("#111116");
           } else if (this.currentSkin?.color) {
             col = new THREE.Color(this.currentSkin.color);
           } else {
@@ -2527,7 +2546,7 @@
             map: tex,
             color: col,
             transparent: true,
-            opacity: 0.98,
+            opacity: 0.95,
             depthWrite: false,
             polygonOffset: true,
             polygonOffsetFactor: -3,
@@ -2536,24 +2555,22 @@
 
           const mesh = new THREE.Mesh(this.splatterGeo, mat);
           const twist = p.twistAngle || 0;
-          const localX = GAME.ballZ * Math.sin(-this.theta - twist);
-          const localZ = GAME.ballZ * Math.cos(-this.theta - twist);
+          const towerAngle = mod(-Math.PI / 2 - this.theta - twist, TWO_PI);
+          const maxShapeRadius = this.radius(towerAngle, this.data?.shape || 'circle');
+          const availableSpan = maxShapeRadius - GAME.inner;
+          const s = clamp(0.85 + Math.random() * 0.22, 0.55, (availableSpan * 0.44) / 0.36);
+          const halfSize = s * 0.36;
+          const placeR = clamp(GAME.ballZ, GAME.inner + halfSize + 0.05, maxShapeRadius - halfSize - 0.05);
+          const localX = placeR * Math.sin(-this.theta - twist);
+          const localZ = placeR * Math.cos(-this.theta - twist);
           mesh.position.set(localX, GAME.height / 2 + 0.0035, localZ);
           mesh.rotation.x = -Math.PI / 2;
           mesh.rotation.z = Math.random() * Math.PI * 2;
-          const s = 0.82 + Math.random() * 0.35;
-          mesh.scale.set(s * 0.25, s * 0.25, 1);
+          mesh.scale.set(s * 0.35, s * 0.35, 1);
 
           p.group.add(mesh);
           p.splatters.push(mesh);
           this.splatterAnim.push({ mesh, scale: s, time: 0 });
-
-          this.sparks(
-            new THREE.Vector3(0, p.top + 0.05, GAME.ballZ),
-            col.getHex(),
-            7,
-            2.2
-          );
         }
         bounce(p) {
           this.vy = Math.sqrt(2 * GAME.gravity * GAME.bounceH);
@@ -2569,12 +2586,12 @@
         ballUpdate(dt) {
           if (this.warnCooldown > 0) this.warnCooldown -= dt;
           const sm = this.phase === "playing" && this.hold && this.warnCooldown <= 0;
-          this.vy -= GAME.gravity * (this.vy < 0 ? 1.7 : 1) * dt;
+          this.vy -= GAME.gravity * dt;
           if (sm) {
             this.holdTime += dt;
             const target = this.feverActive
-              ? 22
-              : 14 + Math.min(1, this.holdTime / 0.45) * 5.5;
+              ? 12.5
+              : 7.8 + Math.min(1, this.holdTime / 0.5) * 3.0;
             this.vy = Math.min(this.vy, -target);
           }
           this.ballY += this.vy * dt;
@@ -2656,15 +2673,17 @@
         }
         fire() {
           this.feverActive = true;
-          this.feverDuration = 1.3;
+          this.feverDuration = 1.35;
           this.feverTime = this.feverDuration;
           this.fever = 1;
-          this.ballMat.emissive.set("#ff6000");
-          this.ballMat.emissiveIntensity = 1;
+          this.ballMat.color.set("#ff3b00");
+          this.ballMat.emissive.set("#ff8800");
+          this.ballMat.emissiveIntensity = 0.85;
+          this.ballMat.roughness = 0.18;
           sound.fever();
           vibrate([18, 25, 38]);
           this.cb.fever();
-          this.sparks(this.ball.position, 0xffa41c, 26, 4.5);
+          this.sparks(this.ball.position, 0xff9900, 28, 4.8);
         }
         destroy(p, silent) {
           if (p.gone) return;
@@ -2695,20 +2714,24 @@
             mesh.visible = true;
             const a = (i + 0.5) * SEG + curRot,
               x = Math.cos(a),
-              z = -Math.sin(a),
-              front = Math.max(0, z),
-              side = 2.5 + Math.random() * 2 + front * 1.5;
+              z = -Math.sin(a);
+            
+            // Part pieces cleanly to left and right in a wide V-shape (\/) leaving the center wide open
+            const dirX = x < 0 ? -1 : (x > 0 ? 1 : (i % 2 === 0 ? 1 : -1));
+            const sideSpeed = (Math.max(Math.abs(x), 0.85) * 8.8) + (Math.random() * 4.8);
+            const front = Math.max(0, z);
+            
             const velocity = new THREE.Vector3(
-                x * side,
-                3.5 + Math.random() * 3 + front * 1.5,
-                z * side,
+                dirX * sideSpeed,
+                7.2 + Math.random() * 4.2 + front * 2.6,
+                z * (4.2 + Math.random() * 2.8),
               ),
               spin = new THREE.Vector3(
-                -z * (1.5 + Math.random() * 2.5),
-                (Math.random() - 0.5) * 2,
-                x * (1.5 + Math.random() * 2.5),
+                -z * (3.8 + Math.random() * 4.5),
+                -dirX * (3.5 + Math.random() * 4.0),
+                x * (3.8 + Math.random() * 4.5),
               ),
-              life = 1.35 + Math.random() * 0.55;
+              life = 0.44 + Math.random() * 0.18;
             this.debris.push({ mesh, velocity, spin, life, maxLife: life });
           }
         }
@@ -2718,6 +2741,7 @@
           this.ball.visible = false;
           this.feverActive = false;
           this.ring.visible = false;
+          if (this.ring2) this.ring2.visible = false;
           this.glowMat.opacity = 0;
           this.shake = 1;
           sound.death();
@@ -2755,23 +2779,24 @@
             if (!s) return;
             s.visible = true;
             s.position.copy(pos);
-            s.position.x += (Math.random() - 0.5) * 0.16;
-            s.position.z += (Math.random() - 0.5) * 0.16;
-            const size = 0.12 + Math.random() * 0.24;
+            s.position.x += (Math.random() - 0.5) * 0.10;
+            s.position.z += (Math.random() - 0.5) * 0.10;
+            const size = 0.05 + Math.random() * 0.05;
             s.scale.setScalar(size);
             s.material.color.setHex(color);
             s.material.opacity = 1;
+            const life = 0.22 + Math.random() * 0.18;
             this.particles.push({
               object: s,
               velocity: new THREE.Vector3(
-                (Math.random() - 0.5) * power * 2,
-                (Math.random() - 0.15) * power * 2,
-                (Math.random() - 0.5) * power,
+                (Math.random() - 0.5) * power * 2.2,
+                (Math.random() * 0.6 + 0.4) * power * 2.0,
+                (Math.random() - 0.5) * power * 2.2,
               ),
-              life: 0.35 + Math.random() * 0.4,
-              maxLife: 0.75,
+              life,
+              maxLife: life,
               size,
-              gravity: 8,
+              gravity: 12,
             });
           }
         }
@@ -2787,8 +2812,8 @@
             p.velocity.y -= p.gravity * dt;
             p.object.position.addScaledVector(p.velocity, dt);
             const r = p.life / p.maxLife;
-            p.object.material.opacity = Math.min(1, r * 1.6);
-            p.object.scale.setScalar(p.size * (0.4 + r * 0.6));
+            p.object.material.opacity = Math.min(1, r * 2.0);
+            p.object.scale.setScalar(p.size * Math.max(0.1, r));
           }
         }
         debrisUpdate(dt) {
@@ -2801,15 +2826,13 @@
               this.debris.splice(i, 1);
               continue;
             }
-            /* no gravity: pieces keep floating upward */ d.velocity.x *=
-              1 - 0.55 * dt;
-            d.velocity.z *= 1 - 0.55 * dt;
+            /* no gravity: pieces keep floating upward and parting in a fast V-shape */
             d.mesh.position.addScaledVector(d.velocity, dt);
             d.mesh.rotation.x += d.spin.x * dt;
             d.mesh.rotation.y += d.spin.y * dt;
             d.mesh.rotation.z += d.spin.z * dt;
             const r = d.life / d.maxLife;
-            d.mesh.scale.setScalar(r < 0.36 ? Math.max(0.001, r / 0.36) : 1);
+            d.mesh.scale.setScalar(r < 0.40 ? Math.max(0.001, Math.pow(r / 0.40, 1.1)) : 1);
           }
         }
         effects(dt) {
@@ -2858,31 +2881,64 @@
             this.feverActive &&
             (this.phase === "playing" || this.phase === "paused");
           this.ring.visible = show;
+          if (this.ring2) this.ring2.visible = show;
           if (show) {
-            const s = 1.18 + Math.sin(this.time * 18) * 0.1;
-            this.ring.scale.setScalar(s);
+            const s1 = 1.05 + Math.sin(this.time * 16) * 0.08;
+            this.ring.scale.setScalar(s1);
             this.ring.position.copy(this.ball.position);
-            this.ring.rotation.z += dt * 6;
-            this.ringMat.color.set("#ff6200");
-            this.ringMat.opacity = 1;
+            this.ring.rotation.x = Math.PI / 2 + Math.sin(this.time * 4) * 0.22;
+            this.ring.rotation.y = Math.cos(this.time * 4) * 0.22;
+            this.ring.rotation.z += dt * 6.5;
+
+            const s2 = 1.08 + Math.cos(this.time * 16) * 0.08;
+            this.ring2.scale.setScalar(s2);
+            this.ring2.position.copy(this.ball.position);
+            this.ring2.rotation.x = Math.PI / 2 + Math.cos(this.time * 4.5) * -0.28;
+            this.ring2.rotation.y = Math.sin(this.time * 4.5) * 0.28;
+            this.ring2.rotation.z -= dt * 7.5;
+
+            // Alive pulsing fireball material
+            const pulse = 0.72 + Math.sin(this.time * 22) * 0.25;
+            this.ballMat.color.set("#ff3d00");
+            this.ballMat.emissive.set("#ffa200");
+            this.ballMat.emissiveIntensity = pulse;
+
+            // Spawn dancing fiery embers floating upwards from the ball
+            if (this.phase === "playing") {
+              this.feverEmberTime = (this.feverEmberTime || 0) + dt;
+              if (this.feverEmberTime > 0.035) {
+                this.feverEmberTime = 0;
+                this.sparks(
+                  new THREE.Vector3(
+                    this.ball.position.x + (Math.random() - 0.5) * 0.26,
+                    this.ball.position.y - 0.12 + (Math.random() - 0.5) * 0.18,
+                    this.ball.position.z + (Math.random() - 0.5) * 0.26,
+                  ),
+                  Math.random() < 0.65 ? 0xff7b00 : 0xffd000,
+                  2,
+                  1.6,
+                );
+              }
+            }
           }
-          const o = this.feverActive ? 0.85 : 0;
+          const o = this.feverActive ? 0.45 : 0;
           this.glowMat.opacity = lerp(this.glowMat.opacity, o, dt * 10);
           this.glow.position.copy(this.ball.position);
-          this.glow.position.z += 0.4;
+          this.glow.position.z += 0.35;
           this.glow.scale.setScalar(
-            this.feverActive ? 2.2 + Math.sin(this.time * 14) * 0.25 : 1.65,
+            this.feverActive ? 1.8 + Math.sin(this.time * 14) * 0.15 : 1.4,
           );
         }
         cameraUpdate(dt, snap = false) {
+          const followSpeed = this.hold ? 18 : 14;
           this.camY = snap
             ? this.camTarget
-            : lerp(this.camY, this.camTarget, Math.min(1, dt * 15));
+            : lerp(this.camY, this.camTarget, Math.min(1, dt * followSpeed));
           this.shake = Math.max(0, this.shake - dt * 2.2);
           const x = (Math.random() - 0.5) * this.shake * 0.3,
             y = (Math.random() - 0.5) * this.shake * 0.3;
-          this.camera.position.set(x, this.camY + 3.2 + y, 8.8);
-          this.camera.lookAt(0, this.camY + 0.08, 0);
+          this.camera.position.set(x, this.camY + 2.35 + y, 6.7);
+          this.camera.lookAt(0, this.camY - 0.1, 0.45);
         }
         snapshot() {
           return {
@@ -3111,7 +3167,7 @@
         if (s.id === "obsidian")
           return "radial-gradient(circle at 35% 28%, #bb88ff 0%, #4f2e8c 42%, #1b122c 78%, #0a0614 100%)";
         if (s.id === "chrome")
-          return "radial-gradient(circle at 35% 28%, #ffffff 0%, #d6e5fb 38%, #7597c4 75%, #253959 100%)";
+          return "radial-gradient(circle at 35% 28%, #4e4e5a 0%, #1c1c22 42%, #0a0a0e 78%, #000000 100%)";
         const glow = s.glow || s.color;
         return `radial-gradient(circle at 35% 28%, #ffffff 0%, ${glow} 38%, ${s.color} 72%, rgba(18,20,28,0.7) 100%)`;
       };

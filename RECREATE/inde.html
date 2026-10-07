@@ -250,8 +250,19 @@
       .flame-mark {
         width: 26px;
         height: 30px;
-        color: #ff8a14;
+        color: rgba(255, 138, 20, 0.45);
         filter: drop-shadow(0 2px 2px rgba(121, 59, 0, 0.25));
+        transition: color 200ms ease, filter 200ms ease, transform 200ms ease;
+      }
+      .flame-mark.active {
+        color: #ff3e00;
+        filter: drop-shadow(0 0 10px #ff6a00) drop-shadow(0 0 18px #ffb300);
+        transform: scale(1.25);
+        animation: flameWiggle 300ms ease-in-out infinite alternate;
+      }
+      @keyframes flameWiggle {
+        from { transform: scale(1.2) rotate(-4deg); }
+        to { transform: scale(1.28) rotate(4deg); }
       }
       .gauge-rail {
         position: relative;
@@ -274,7 +285,6 @@
         border-radius: inherit;
         background: linear-gradient(0deg, #ff5a1e, #ffad16 65%, #fff1a3);
         box-shadow: 0 0 12px rgba(255, 126, 14, 0.8);
-        transition: height 100ms linear;
       }
       #feverLabel {
         position: absolute;
@@ -430,14 +440,15 @@
       }
       .modal-backdrop {
         position: absolute;
-        z-index: 10;
+        z-index: 50;
         inset: 0;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 22px;
-        background: rgba(19, 24, 35, 0.28);
-        backdrop-filter: blur(2px);
+        background: rgba(19, 24, 35, 0.55);
+        backdrop-filter: blur(5px);
+        pointer-events: auto;
       }
       .panel {
         width: min(100%, 382px);
@@ -559,18 +570,74 @@
       }
       .mini-action {
         display: grid;
-        width: 45px;
-        height: 45px;
+        width: 46px;
+        height: 46px;
         padding: 0;
         place-items: center;
-        border: 0;
+        border: 2px solid transparent;
         border-radius: 50%;
         color: #5d687b;
         background: #edf1f6;
+        transition: transform 120ms ease, background 150ms ease, color 150ms ease;
+      }
+      .mini-action:active {
+        transform: scale(0.9);
+      }
+      .mini-action.active {
+        color: #23bd71;
+        background: #e6f9ef;
       }
       .mini-action svg {
-        width: 21px;
-        height: 21px;
+        width: 22px;
+        height: 22px;
+      }
+      .pause-toggle-row {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 18px 0 20px;
+      }
+      .pause-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex: 1;
+        padding: 11px 12px;
+        border: 1.5px solid transparent;
+        border-radius: 14px;
+        color: #5d687b;
+        background: #edf1f6;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 120ms ease, background 150ms ease, color 150ms ease, border-color 150ms ease;
+      }
+      .pause-toggle:active {
+        transform: scale(0.96);
+      }
+      .pause-toggle.active {
+        color: #179e5d;
+        background: #e6f9ef;
+        border-color: rgba(35, 189, 113, 0.28);
+      }
+      .pause-toggle svg {
+        width: 19px;
+        height: 19px;
+        flex-shrink: 0;
+      }
+      .pause-toggle b {
+        font-weight: 900;
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        margin-left: 2px;
+        padding: 2px 6px;
+        border-radius: 6px;
+        background: rgba(0, 0, 0, 0.06);
+      }
+      .pause-toggle.active b {
+        background: rgba(35, 189, 113, 0.18);
+        color: #14804b;
       }
       .revive-clock {
         position: relative;
@@ -604,8 +671,9 @@
         display: flex;
         align-items: flex-end;
         justify-content: center;
-        background: rgba(19, 24, 35, 0.35);
-        backdrop-filter: blur(2px);
+        background: rgba(19, 24, 35, 0.45);
+        backdrop-filter: blur(4px);
+        pointer-events: auto;
       }
       .sheet {
         width: min(100%, 500px);
@@ -1314,8 +1382,8 @@
           <div class="tap-title">Tap to play</div>
         </section>
         <section id="comboLayer"></section>
-        <section id="modalLayer" class="hidden"></section>
         <section id="sheetLayer" class="hidden"></section>
+        <section id="modalLayer" class="hidden"></section>
       </div>
       <section id="webglError" class="hidden">
         <div>
@@ -1386,6 +1454,48 @@
           safe: "#f9c500",
           dark: "#292417",
           pole: "#fffef0",
+        },
+        {
+          top: "#dcfce7",
+          bottom: "#86efac",
+          safe: "#22c55e",
+          dark: "#142e1d",
+          pole: "#f0fdf4",
+        },
+        {
+          top: "#e0e7ff",
+          bottom: "#a5b4fc",
+          safe: "#6366f1",
+          dark: "#1e1b4b",
+          pole: "#eef2ff",
+        },
+        {
+          top: "#fee2e2",
+          bottom: "#fca5a5",
+          safe: "#ef4444",
+          dark: "#450a0a",
+          pole: "#fef2f2",
+        },
+        {
+          top: "#cffafe",
+          bottom: "#67e8f9",
+          safe: "#06b6d4",
+          dark: "#083344",
+          pole: "#ecfeff",
+        },
+        {
+          top: "#fae8ff",
+          bottom: "#f0abfc",
+          safe: "#d946ef",
+          dark: "#3b0764",
+          pole: "#fdf4ff",
+        },
+        {
+          top: "#fef9c3",
+          bottom: "#fde047",
+          safe: "#eab308",
+          dark: "#362b03",
+          pole: "#fefce8",
         },
       ];
       const SKINS = [
@@ -1598,7 +1708,7 @@
       }
       function createLevel(level) {
         const r = rng(level * 7919 + 13),
-          count = Math.min(32 + Math.floor(level * 2.5), 110),
+          count = Math.min(48 + Math.floor(level * 12), 400),
           rows = [],
           safe = () => rows.push({ deadly: Array(GAME.segments).fill(false) }),
           chance = clamp(0.70 + level * 0.012, 0.70, 0.95),
@@ -1623,7 +1733,7 @@
 
           const hostile = r() < chance,
             sectionLength = Math.min(
-              16 + Math.floor(r() * 18),
+              18 + Math.floor(r() * 24),
               count - 2 - rows.length
             );
 
@@ -1650,19 +1760,29 @@
         safe();
 
         const shapes = [
-          "clover",
-          "flower5",
-          "clover",
-          "hexagon",
           "circle",
+          "hexagon",
+          "clover",
+          "square",
+          "flower5",
           "star",
+          "triangle",
+          "gear",
+          "octagon",
+          "turbine",
+          "sunburst",
+          "cross",
+          "triwing",
+          "diamond",
+          "wave",
+          "notched",
         ];
         return {
           level,
           rows,
-          twist: 0.20,
+          twist: 0,
           rotation:
-            (1.35 + Math.min(0.65, level * 0.025)) * (r() < 0.5 ? -1 : 1),
+            (1.05 + Math.min(0.45, level * 0.02)) * (r() < 0.5 ? -1 : 1),
           motion: "constant",
           shape: shapes[(level - 1) % shapes.length],
         };
@@ -1739,6 +1859,7 @@
           progress: $("#progressFill"),
           fever: $("#feverFill"),
           feverLabel: $("#feverLabel"),
+          flameMark: $("#feverGauge .flame-mark"),
           levelNow: $("#levelNow"),
           levelNext: $("#levelNext"),
           coin: $("#coinValue"),
@@ -1758,6 +1879,14 @@
         replay:
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>',
         home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>',
+        soundOn:
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>',
+        soundOff:
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>',
+        vibeOn:
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M1 9l2 3-2 3"/><path d="M23 9l-2 3 2 3"/></svg>',
+        vibeOff:
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><line x1="2" y1="2" x2="22" y2="22"/></svg>',
       };
       function gem(size = 18) {
         return `<svg class="gem" style="width:${size}px;height:${size}px" viewBox="0 0 24 24"><defs><linearGradient id="modalGem" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9dfcff"/><stop offset=".55" stop-color="#20a7ff"/><stop offset="1" stop-color="#6e50eb"/></linearGradient></defs><path fill="url(#modalGem)" d="m6 3h12l4 6-10 12L2 9z"/><path fill="none" stroke="rgba(255,255,255,.75)" d="M2 9h20M6 3l6 18m6-18-6 18M6 3l3 6m9-6-3 6"/></svg>`;
@@ -2107,20 +2236,46 @@
         }
         radius(a, type) {
           if (type === "clover")
-            return GAME.outer * (1 + 0.24 * Math.cos(a * 4) - 0.05 * Math.cos(a * 8));
+            return GAME.outer * (1 + 0.22 * Math.cos(a * 4) - 0.04 * Math.cos(a * 8));
           if (type === "flower5")
             return GAME.outer * (1 + 0.20 * Math.cos(a * 5) - 0.04 * Math.cos(a * 10));
-          if (type === "hexagon")
-            return GAME.outer * (1 + 0.14 * Math.cos(a * 6) - 0.03 * Math.cos(a * 12));
+          if (type === "hexagon") {
+            const angle = mod(a, Math.PI / 3) - Math.PI / 6;
+            return (GAME.outer * 0.95) / Math.cos(angle);
+          }
+          if (type === "square") {
+            const angle = mod(a, Math.PI / 2) - Math.PI / 4;
+            return (GAME.outer * 0.96) / Math.cos(angle);
+          }
+          if (type === "triangle") {
+            const angle = mod(a, (Math.PI * 2) / 3) - Math.PI / 3;
+            return (GAME.outer * 0.92) / Math.cos(angle);
+          }
           if (type === "star")
             return GAME.outer * (1 + 0.22 * Math.sin(a * 5));
-          if (type === "square") {
-            const x = a + Math.PI / 4;
-            return (
-              (GAME.outer * 1.05) /
-              Math.max(Math.abs(Math.cos(x)), Math.abs(Math.sin(x)))
-            );
+          if (type === "gear")
+            return GAME.outer * (1 + 0.16 * Math.sin(a * 8));
+          if (type === "octagon") {
+            const angle = mod(a, Math.PI / 4) - Math.PI / 8;
+            return (GAME.outer * 0.98) / Math.cos(angle);
           }
+          if (type === "turbine")
+            return GAME.outer * (1 + 0.18 * Math.sin(a * 6 + Math.cos(a * 3)));
+          if (type === "sunburst")
+            return GAME.outer * (1 + 0.22 * Math.sin(a * 10));
+          if (type === "cross") {
+            return GAME.outer * (0.86 + 0.22 * Math.pow(Math.cos(a * 2), 4));
+          }
+          if (type === "triwing")
+            return GAME.outer * (1 + 0.26 * Math.sin(a * 3));
+          if (type === "diamond") {
+            const angle = mod(a + Math.PI / 4, Math.PI / 2) - Math.PI / 4;
+            return (GAME.outer * 0.96) / Math.cos(angle);
+          }
+          if (type === "wave")
+            return GAME.outer * (1 + 0.14 * Math.sin(a * 6));
+          if (type === "notched")
+            return GAME.outer * (1 + 0.12 * Math.sign(Math.sin(a * 8)) * 0.7);
           return GAME.outer;
         }
         center(i) {
@@ -2193,7 +2348,7 @@
         build() {
           this.clear();
           this.platforms = [];
-          const stepAngle = (this.data.twist || 0.20) * Math.sign(this.data.rotation || 1);
+          const stepAngle = (this.data.twist ?? 0) * Math.sign(this.data.rotation || 1);
           this.data.rows.forEach((row, i) => {
             const y = -i * GAME.spacing,
               twistAngle = i * stepAngle,
@@ -2253,6 +2408,7 @@
           this.fever = 0;
           this.feverActive = false;
           this.feverTime = 0;
+          this.warnCooldown = 0;
           this.hold = false;
           this.holdAllowed = true;
           this.holdTime = 0;
@@ -2420,12 +2576,16 @@
           this.combo = 0;
           this.holdTime = 0;
           this.squash = 1.35;
+          if (!this.feverActive) {
+            this.fever = Math.max(0, this.fever - 0.35);
+          }
           if (this.phase === "playing") sound.bounce();
           if (p) this.addSplatter(p);
         }
         ballUpdate(dt) {
-          const sm = this.phase === "playing" && this.hold;
-          this.vy -= GAME.gravity * dt;
+          if (this.warnCooldown > 0) this.warnCooldown -= dt;
+          const sm = this.phase === "playing" && this.hold && this.warnCooldown <= 0;
+          this.vy -= GAME.gravity * (this.vy < 0 ? 1.7 : 1) * dt;
           if (sm) {
             this.holdTime += dt;
             const target = this.feverActive
@@ -2439,7 +2599,7 @@
             const p = this.platforms[this.current],
               bottom = this.ballY - GAME.ballR;
             if (p && bottom <= p.top && this.vy < 0) {
-              if (sm) {
+              if (this.phase === "playing" && this.hold && this.warnCooldown <= 0) {
                 const segment = this.segment(p);
                 if (this.feverActive || !p.row.deadly[segment]) {
                   this.break(p);
@@ -2449,8 +2609,7 @@
                 if (!p.warned) {
                   p.warned = true;
                   p.warnTime = 0;
-                  this.hold = false;
-                  this.holdAllowed = false;
+                  this.warnCooldown = 0.42;
                   sound.warn();
                   vibrate([35, 45]);
                   this.shake = 0.55;
@@ -2482,10 +2641,8 @@
           this.current++;
           this.combo++;
           this.score += this.feverActive ? 2 : 1;
-          if (this.feverActive)
-            this.feverTime = Math.min(3, this.feverTime + 0.1);
-          else {
-            this.fever = Math.min(1, this.fever + 0.12);
+          if (!this.feverActive) {
+            this.fever = Math.min(1, this.fever + 0.038);
             if (this.fever >= 1) this.fire();
           }
           this.camTarget = this.platforms[this.current]
@@ -2497,7 +2654,7 @@
             this.cb.combo(
               this.feverActive
                 ? this.combo % 3 === 0
-                  ? "UNSTOPPABLE"
+                ? "UNSTOPPABLE"
                   : `x${this.combo}`
                 : this.combo >= 9
                   ? `x${this.combo} GREAT`
@@ -2515,7 +2672,8 @@
         }
         fire() {
           this.feverActive = true;
-          this.feverTime = 3;
+          this.feverDuration = 1.3;
+          this.feverTime = this.feverDuration;
           this.fever = 1;
           this.ballMat.emissive.set("#ff6000");
           this.ballMat.emissiveIntensity = 1;
@@ -2713,27 +2871,19 @@
             this.ballMat.emissiveIntensity = 0.85;
           }
           const show =
-            this.fever > 0.02 &&
+            this.feverActive &&
             (this.phase === "playing" || this.phase === "paused");
           this.ring.visible = show;
           if (show) {
-            const s = this.feverActive
-              ? 1.17 + Math.sin(this.time * 18) * 0.1
-              : 0.45 + this.fever * 0.7;
+            const s = 1.18 + Math.sin(this.time * 18) * 0.1;
             this.ring.scale.setScalar(s);
             this.ring.position.copy(this.ball.position);
-            this.ring.rotation.z += dt * (this.feverActive ? 6 : 2);
-            this.ringMat.color.set(this.feverActive ? "#ff6200" : "#ffb348");
-            this.ringMat.opacity = this.feverActive
-              ? 1
-              : 0.35 + this.fever * 0.6;
+            this.ring.rotation.z += dt * 6;
+            this.ringMat.color.set("#ff6200");
+            this.ringMat.opacity = 1;
           }
-          const o = this.feverActive
-            ? 0.82
-            : this.fever > 0.6
-              ? (this.fever - 0.6) * 0.8
-              : 0;
-          this.glowMat.opacity = lerp(this.glowMat.opacity, o, dt * 8);
+          const o = this.feverActive ? 0.85 : 0;
+          this.glowMat.opacity = lerp(this.glowMat.opacity, o, dt * 10);
           this.glow.position.copy(this.ball.position);
           this.glow.position.z += 0.4;
           this.glow.scale.setScalar(
@@ -2779,6 +2929,7 @@
             this.time += dt;
             let s = this.data.rotation;
             if (this.phase === "dead" || this.phase === "won") s *= 0.35;
+            else if (this.phase === "playing" && this.hold) s = 0;
             this.theta += s * dt;
             this.tower.rotation.y = this.theta;
             if (this.phase === "ready" || this.phase === "playing")
@@ -2796,14 +2947,15 @@
             if (this.phase === "playing") {
               if (this.feverActive) {
                 this.feverTime -= dt;
-                this.fever = Math.max(0, this.feverTime / 3);
+                this.fever = Math.max(0, this.feverTime / (this.feverDuration || 1.3));
                 if (this.feverTime <= 0) {
                   this.feverActive = false;
                   this.fever = 0;
                   this.applySkin();
                 }
-              } else if (!this.hold)
-                this.fever = Math.max(0, this.fever - 0.35 * dt);
+              } else {
+                if (!this.hold) this.fever = Math.max(0, this.fever - 2.5 * dt);
+              }
             }
             this.effects(dt);
             this.particlesUpdate(dt);
@@ -2826,6 +2978,9 @@
         dom.progress.style.width = `${Math.round(s.progress * 100)}%`;
         dom.fever.style.height = `${Math.round(s.fever * 100)}%`;
         dom.feverLabel.classList.toggle("hidden", !s.feverActive);
+        if (dom.flameMark) {
+          dom.flameMark.classList.toggle("active", Boolean(s.feverActive || s.fever >= 0.98));
+        }
         if (dom.score.textContent !== String(s.score)) {
           dom.score.textContent = s.score;
           scoreBump();
@@ -2921,37 +3076,11 @@
         dom.flash.classList.add("fire");
       }
       function gameOver() {
-        let seconds = 5;
-        const render = () => {
-          const len = 276.46,
-            offset = len * (1 - seconds / 5);
-          dom.modal.innerHTML = `<div class="modal-backdrop"><div class="panel">${!reviveUsed && seconds > 0 ? `<h2>Second chance?</h2><p>Continue from where you fell.</p><div class="revive-clock"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="#e7ebf0" stroke-width="8"/><circle id="reviveArc" cx="50" cy="50" r="44" fill="none" stroke-width="8" stroke-dasharray="${len}" stroke-dashoffset="${offset}"/></svg><b id="reviveNumber">${seconds}</b></div><button id="continueBtn" class="primary-btn interactive" style="--accent:#22bb6a;--accent-dark:#149450">${icon.play} Continue</button><button id="declineBtn" class="secondary-link interactive">No thanks</button>` : `<div class="panel-kicker">Level ${game.level}</div><h2>Game over</h2><div class="stat-row"><div class="stat"><b>Score</b><strong>${result.score}</strong></div><div class="stat reward"><b>Best</b><strong style="color:var(--accent)">${save.best}</strong></div></div>${result.coins ? `<p style="display:flex;justify-content:center;align-items:center;gap:4px;margin:-5px 0 15px">${gem(16)} +${result.coins} gems</p>` : ""}<button id="retryBtn" class="primary-btn interactive">${icon.replay} Try again</button><div class="mini-actions"><button id="homeBtn" class="mini-action interactive" aria-label="Home">${icon.home}</button></div>`}</div></div>`;
-          dom.modal.classList.remove("hidden");
-          $("#continueBtn")?.addEventListener("click", () => {
-            clearInterval(reviveInterval);
-            sound.reward();
-            reviveUsed = true;
-            game.revive();
-            closeModal();
-            page("playing");
-          });
-          $("#declineBtn")?.addEventListener("click", () => {
-            clearInterval(reviveInterval);
-            seconds = 0;
-            render();
-          });
-          $("#retryBtn")?.addEventListener("click", restart);
-          $("#homeBtn")?.addEventListener("click", home);
-        };
-        render();
-        reviveInterval = setInterval(() => {
-          if (reviveUsed || seconds <= 0) {
-            clearInterval(reviveInterval);
-            return;
-          }
-          seconds--;
-          render();
-        }, 1000);
+        clearInterval(reviveInterval);
+        dom.modal.innerHTML = `<div class="modal-backdrop"><div class="panel"><div class="panel-kicker">Level ${game.level}</div><h2>Game over</h2><div class="stat-row"><div class="stat"><b>Score</b><strong>${result.score}</strong></div><div class="stat reward"><b>Best</b><strong style="color:var(--accent)">${save.best}</strong></div></div>${result.coins ? `<p style="display:flex;justify-content:center;align-items:center;gap:4px;margin:-5px 0 15px">${gem(16)} +${result.coins} gems</p>` : ""}<button id="retryBtn" class="primary-btn interactive">${icon.replay} Try again</button><div class="mini-actions"><button id="homeBtn" class="mini-action interactive" aria-label="Home">${icon.home}</button></div></div></div>`;
+        dom.modal.classList.remove("hidden");
+        $("#retryBtn")?.addEventListener("click", restart);
+        $("#homeBtn")?.addEventListener("click", home);
       }
       function winModal() {
         dom.modal.innerHTML = `<div class="modal-backdrop"><div class="panel"><div class="panel-kicker">Level ${game.level}</div><h2>Complete</h2><div class="stars">★ ★ ★</div><div class="stat-row"><div class="stat"><b>Score</b><strong>${result.score}</strong></div><div class="stat reward"><b>Reward</b><strong>${gem(20)} ${result.coins}</strong></div></div><button id="nextBtn" class="primary-btn interactive">${icon.play} Next level</button><div class="mini-actions"><button id="homeBtn" class="mini-action interactive" aria-label="Home">${icon.home}</button></div></div></div>`;
@@ -2960,7 +3089,27 @@
         $("#homeBtn").addEventListener("click", home);
       }
       function pauseModal() {
-        dom.modal.innerHTML = `<div class="modal-backdrop"><div class="panel"><h2>Paused</h2><div class="mini-actions" style="margin:18px 0"><button id="pauseSound" class="mini-action interactive" aria-label="Toggle sound">${save.sound ? "SOUND" : "MUTE"}</button><button id="pauseVibe" class="mini-action interactive" aria-label="Toggle vibration">${save.vibration ? "VIBE" : "NO VIBE"}</button></div><button id="resumeBtn" class="primary-btn interactive">${icon.play} Resume</button><div class="mini-actions"><button id="restartBtn" class="mini-action interactive" aria-label="Restart">${icon.replay}</button><button id="homeBtn" class="mini-action interactive" aria-label="Home">${icon.home}</button></div></div></div>`;
+        dom.modal.innerHTML = `
+          <div class="modal-backdrop">
+            <div class="panel">
+              <h2>Paused</h2>
+              <div class="pause-toggle-row">
+                <button id="pauseSound" class="pause-toggle interactive ${save.sound ? "active" : ""}" aria-label="Toggle sound">
+                  ${save.sound ? icon.soundOn : icon.soundOff}
+                  <span>Sound: <b>${save.sound ? "ON" : "OFF"}</b></span>
+                </button>
+                <button id="pauseVibe" class="pause-toggle interactive ${save.vibration ? "active" : ""}" aria-label="Toggle vibration">
+                  ${save.vibration ? icon.vibeOn : icon.vibeOff}
+                  <span>Vibration: <b>${save.vibration ? "ON" : "OFF"}</b></span>
+                </button>
+              </div>
+              <button id="resumeBtn" class="primary-btn interactive">${icon.play} Resume</button>
+              <div class="mini-actions" style="margin-top:18px">
+                <button id="restartBtn" class="mini-action interactive" aria-label="Restart" title="Restart">${icon.replay}</button>
+                <button id="homeBtn" class="mini-action interactive" aria-label="Home" title="Home">${icon.home}</button>
+              </div>
+            </div>
+          </div>`;
         dom.modal.classList.remove("hidden");
         $("#resumeBtn").addEventListener("click", resume);
         $("#restartBtn").addEventListener("click", restart);
@@ -3016,15 +3165,60 @@
         sound.enabled = save.sound;
         if (save.sound) sound.tap();
         store();
-        if (active === "paused") pauseModal();
-        else settings();
+        const soundBtn = $("#pauseSound");
+        if (soundBtn) {
+          soundBtn.className = `pause-toggle interactive ${save.sound ? "active" : ""}`;
+          soundBtn.innerHTML = `${save.sound ? icon.soundOn : icon.soundOff}<span>Sound: <b>${save.sound ? "ON" : "OFF"}</b></span>`;
+        }
+        const soundSwitch = $("#soundSwitch");
+        if (soundSwitch) {
+          soundSwitch.className = `switch interactive ${save.sound ? "on" : ""}`;
+        }
       }
       function toggleVibe() {
         save.vibration = !save.vibration;
         if (save.vibration) vibrate(16);
         store();
-        if (active === "paused") pauseModal();
-        else settings();
+        const vibeBtn = $("#pauseVibe");
+        if (vibeBtn) {
+          vibeBtn.className = `pause-toggle interactive ${save.vibration ? "active" : ""}`;
+          vibeBtn.innerHTML = `${save.vibration ? icon.vibeOn : icon.vibeOff}<span>Vibration: <b>${save.vibration ? "ON" : "OFF"}</b></span>`;
+        }
+        const vibeSwitch = $("#vibeSwitch");
+        if (vibeSwitch) {
+          vibeSwitch.className = `switch interactive ${save.vibration ? "on" : ""}`;
+        }
+      }
+      function confirmResetModal() {
+        sound.tap();
+        dom.modal.innerHTML = `
+          <div class="modal-backdrop">
+            <div class="panel" style="max-width:340px">
+              <div class="panel-kicker" style="color:#ef4444">Warning</div>
+              <h2 style="font-size:24px;margin:8px 0 6px">Reset Progress?</h2>
+              <p style="font-size:13px;color:var(--muted);margin-bottom:20px">All unlocked skins, gems, and high scores will be permanently reset to level 1.</p>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <button id="confirmResetBtn" class="primary-btn interactive" style="background:linear-gradient(180deg,#ef4444,#dc2626);box-shadow:0 6px 16px rgba(239,68,68,0.3)">Reset Everything</button>
+                <button id="cancelResetBtn" class="secondary-link interactive" style="margin-top:4px">Cancel</button>
+              </div>
+            </div>
+          </div>`;
+        dom.modal.classList.remove("hidden");
+        $("#confirmResetBtn")?.addEventListener("click", () => {
+          sound.tap();
+          save = { ...DEFAULT_SAVE };
+          store();
+          game.skin(SKINS[0]);
+          game.load(1);
+          closeModal();
+          closeSheet();
+          persistent();
+          page("home");
+        });
+        $("#cancelResetBtn")?.addEventListener("click", () => {
+          sound.tap();
+          closeModal();
+        });
       }
       function settings() {
         sound.tap();
@@ -3033,16 +3227,7 @@
         $("#closeSheet").addEventListener("click", closeSheet);
         $("#soundSwitch").addEventListener("click", toggleSound);
         $("#vibeSwitch").addEventListener("click", toggleVibe);
-        $("#resetBtn").addEventListener("click", () => {
-          if (!confirm("Reset all Stack Fall progress?")) return;
-          save = { ...DEFAULT_SAVE };
-          store();
-          game.skin(SKINS[0]);
-          game.load(1);
-          closeSheet();
-          persistent();
-          page("home");
-        });
+        $("#resetBtn").addEventListener("click", confirmResetModal);
       }
       try {
         game = new Engine(dom.world, {
@@ -3062,9 +3247,17 @@
       $("#pauseBtn").addEventListener("click", pause);
       $("#shopBtn").addEventListener("click", shop);
       $("#settingsBtn").addEventListener("click", settings);
-      const isUI = (t) => Boolean(t.closest("button,.sheet,.panel"));
+      const isModalOpen = () =>
+        !dom.modal.classList.contains("hidden") ||
+        !dom.sheet.classList.contains("hidden");
+      const isUI = (t) =>
+        Boolean(
+          t.closest(
+            "button, .sheet, .panel, .sheet-layer, .modal-backdrop, #modalLayer, #sheetLayer",
+          ),
+        );
       dom.app.addEventListener("pointerdown", (e) => {
-        if (isUI(e.target) || !game) return;
+        if (isModalOpen() || isUI(e.target) || !game) return;
         game.holdAllowed = true;
         if (active === "home" || active === "ready") {
           start();

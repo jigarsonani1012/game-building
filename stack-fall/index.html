@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#ff4d6d" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta
+      name="description"
+      content="Stack Fall: a one-touch 3D tower smasher with endless procedural levels."
+    />
+    <title>Stack Fall</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js"
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main id="app" aria-label="Stack Fall game">
+      <div id="world" aria-hidden="true"></div>
+      <div id="flash"></div>
+      <div id="ui">
+        <section id="hud" class="hidden" aria-label="Game status">
+          <div class="topbar">
+            <div id="levelNow" class="level-dot">1</div>
+            <div class="progress-rail"><div id="progressFill"></div></div>
+            <div id="levelNext" class="level-dot next">2</div>
+          </div>
+          <div class="statusbar">
+            <div class="coin-chip">
+              <svg class="gem" viewBox="0 0 24 24">
+                <defs>
+                  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                    <stop stop-color="#9dfcff" />
+                    <stop offset=".55" stop-color="#20a7ff" />
+                    <stop offset="1" stop-color="#6e50eb" />
+                  </linearGradient>
+                </defs>
+                <path fill="url(#g)" d="m6 3h12l4 6-10 12L2 9z" />
+                <path
+                  fill="none"
+                  stroke="rgba(255,255,255,.75)"
+                  d="M2 9h20M6 3l6 18m6-18-6 18M6 3l3 6m9-6-3 6"
+                /></svg
+              ><span id="coinValue">0</span>
+            </div>
+            <button
+              id="pauseBtn"
+              class="circle-action interactive"
+              aria-label="Pause game"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="5" width="4" height="14" rx="1" />
+                <rect x="14" y="5" width="4" height="14" rx="1" />
+              </svg>
+            </button>
+          </div>
+          <div id="score">0</div>
+          <div id="feverGauge">
+            <svg class="flame-mark" viewBox="0 0 24 28" fill="currentColor">
+              <path
+                d="M13.5 1C15 7.2 8.7 8.7 10.3 14.1c-3.4-1.6-3.4-5.4-2.2-8.2C4 9.1 2.3 12.7 2.3 16.3c0 5.8 4.4 10.2 9.7 10.2 5.6 0 9.7-4.4 9.7-10.2C21.7 10.3 18.1 5.1 13.5 1Zm-1.4 22.2c-2.7 0-4.7-2-4.7-4.8 0-1.9 1-3.5 3.1-5.7-.2 2.7 1 3.8 2.7 4.9 1.2-1.5 1.4-3.1.9-4.7 1.9 1.8 2.6 3.6 2.6 5.5 0 2.8-2 4.8-4.8 4.8Z"
+              />
+            </svg>
+            <div class="gauge-rail"><div id="feverFill"></div></div>
+          </div>
+          <div id="feverLabel" class="hidden">FEVER</div>
+        </section>
+        <section id="homeScreen" class="home">
+          <div>
+            <div class="brand">Stack<br /><span>Fall</span></div>
+            <div class="best-chip">Best <span id="bestHome">0</span></div>
+          </div>
+          <div class="home-middle">
+            <div class="level-tag">Level <span id="homeLevel">1</span></div>
+            <div class="tap-title">Tap to play</div>
+            <p class="home-tip">Hold to smash. Release before dark blocks.</p>
+          </div>
+          <div class="bottom-actions">
+            <button
+              id="shopBtn"
+              class="round-menu interactive"
+              aria-label="Open ball skins"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.1"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="m5 8 1.4 12h11.2L19 8H5Z" />
+                <path d="M8.5 9V6a3.5 3.5 0 0 1 7 0v3" />
+              </svg></button
+            ><button
+              id="settingsBtn"
+              class="round-menu interactive"
+              aria-label="Open settings"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5v.1a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v.1a1.7 1.7 0 0 0 1.5 1h.1a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"
+                />
+              </svg>
+            </button>
+          </div>
+        </section>
+        <section id="readyHint" class="ready-hint hidden">
+          <div class="level-tag">Level <span id="readyLevel">1</span></div>
+          <div class="tap-title">Tap to play</div>
+          <button
+            id="readyHomeBtn"
+            class="round-menu ready-home-btn interactive"
+            aria-label="Return home"
+            title="Return home"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m3 11 9-8 9 8" />
+              <path d="M5 10v10h5v-6h4v6h5V10" />
+            </svg>
+          </button>
+        </section>
+        <section id="comboLayer"></section>
+        <section id="sheetLayer" class="hidden"></section>
+        <section id="modalLayer" class="hidden"></section>
+      </div>
+      <section id="webglError" class="hidden">
+        <div>
+          <h1>3D graphics unavailable</h1>
+          <p>
+            Stack Fall needs WebGL. Enable hardware acceleration or try a modern
+            browser, then reload this page.
+          </p>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="script.js?v=20261009"></script>
+  </body>
+</html>

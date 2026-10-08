@@ -370,10 +370,20 @@
         animation: tapPulse 1.25s ease-in-out infinite;
       }
       .home-tip {
-        margin: 0;
-        color: rgba(47, 56, 76, 0.68);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 8px auto 0;
+        padding: 6px 14px;
+        border-radius: 999px;
+        color: var(--ink);
         font-size: 12px;
         font-weight: 800;
+        letter-spacing: 0.02em;
+        background: rgba(255, 255, 255, 0.75);
+        box-shadow: 0 4px 12px rgba(25, 30, 45, 0.12);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
       }
       .bottom-actions {
         display: flex;
@@ -1623,69 +1633,25 @@
           rainbow: true,
         },
       ];
-      const TRAILS = [
-        { id: "none", name: "None", icon: "⚪", price: 0, color: null, desc: "Clean bounce" },
-        { id: "fire", name: "Firestorm", icon: "🔥", price: 180, color: 0xff5511, glow: "#ff3300", desc: "Blazing flame sparks" },
-        { id: "electric", name: "Cyber Spark", icon: "⚡", price: 290, color: 0x00e1ff, glow: "#00b7ff", desc: "High-voltage lightning" },
-        { id: "stardust", name: "Rainbow Star", icon: "✨", price: 420, color: "rainbow", glow: "#ff4de3", desc: "Magic sparkling stardust" },
-        { id: "gold", name: "Gold Rush", icon: "🪙", price: 580, color: 0xffd234, glow: "#ffb700", desc: "Shimmering gold coins" },
-        { id: "void", name: "Cosmic Void", icon: "🌌", price: 750, color: 0x9b4dff, glow: "#7000ff", desc: "Mystic dark matter" }
-      ];
-      const UPGRADES = [
-        {
-          id: "fever",
-          name: "Fever Boost",
-          icon: "🔥",
-          desc: "Extends invincible Fever duration (+0.5s per rank).",
-          max: 5,
-          costs: [100, 250, 450, 750, 1200],
-          effect: (lvl) => `+${(lvl * 0.5).toFixed(1)}s Duration`
-        },
-        {
-          id: "multiplier",
-          name: "Gem Multiplier",
-          icon: "💎",
-          desc: "Earn extra gems from every broken stack.",
-          max: 5,
-          costs: [150, 350, 600, 950, 1500],
-          effect: (lvl) => `+${lvl * 25}% Gems`
-        },
-        {
-          id: "shield",
-          name: "Guardian Shield",
-          icon: "🛡️",
-          desc: "Survive 1 accidental dark block hit per run!",
-          max: 1,
-          costs: [500],
-          effect: (lvl) => lvl > 0 ? "Active (1 Free Hit)" : "Locked"
-        }
-      ];
-      const DAILY_REWARDS = [50, 100, 150, 250, 400, 600, 1000];
-      const SAVE_KEY = "stack-fall-single-html-v2",
+      const SAVE_KEY = "stack-fall-data",
+        OLD_SAVE_KEY = "stack-fall-single-html-v2",
         DEFAULT_SAVE = {
           level: 1,
           best: 0,
           coins: 0,
           skin: "classic",
           owned: ["classic"],
-          trail: "none",
-          ownedTrails: ["none"],
-          upgrades: { fever: 0, multiplier: 0, shield: 0 },
-          lastDaily: "",
-          streak: 0,
           sound: true,
           vibration: true,
-          smashed: 0,
         };
       let save;
       try {
+        const raw = localStorage.getItem(SAVE_KEY) || localStorage.getItem(OLD_SAVE_KEY) || "{}";
         save = {
           ...DEFAULT_SAVE,
-          ...JSON.parse(localStorage.getItem(SAVE_KEY) || "{}"),
+          ...JSON.parse(raw),
         };
-        save.ownedTrails = save.ownedTrails || ["none"];
-        save.trail = save.trail || "none";
-        save.upgrades = { fever: 0, multiplier: 0, shield: 0, ...(save.upgrades || {}) };
+        save.owned = Array.isArray(save.owned) ? save.owned : ["classic"];
       } catch {
         save = { ...DEFAULT_SAVE };
       }
@@ -3164,7 +3130,6 @@
         result = { ...data, coins };
         save.best = Math.max(save.best, data.score);
         save.coins += coins;
-        save.smashed += fresh;
         store();
         persistent();
         page("dead");
@@ -3177,7 +3142,6 @@
         result = { ...data, coins };
         save.best = Math.max(save.best, data.score);
         save.coins += coins;
-        save.smashed += fresh;
         save.level = Math.max(save.level, game.level + 1);
         store();
         persistent();

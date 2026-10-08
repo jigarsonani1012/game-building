@@ -143,16 +143,18 @@ const canvas=$('c');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
 renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
 renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=0.95;
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene();
-const HORIZON=new THREE.Color('#cdeeff');
+const HORIZON=new THREE.Color('#98bfe6');
 scene.background=HORIZON;
-scene.fog=new THREE.Fog(HORIZON,75,200);
+scene.fog=new THREE.Fog(HORIZON,90,260);
 const camera=new THREE.PerspectiveCamera(55,1,.1,700);
 
 function v3hex(h){const c=parseInt(h.slice(1),16);return new THREE.Vector3(((c>>16)&255)/255,((c>>8)&255)/255,(c&255)/255);}
 const skyMat=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,
-  uniforms:{top:{value:v3hex('#2f93ea')},mid:{value:v3hex('#cdeeff')},bot:{value:v3hex('#cdeeff')}},
+  uniforms:{top:{value:v3hex('#3b6ea8')},mid:{value:v3hex('#8eb6e6')},bot:{value:v3hex('#98bfe6')}},
   vertexShader:'varying vec3 vP;void main(){vP=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
   fragmentShader:'uniform vec3 top,mid,bot;varying vec3 vP;void main(){float h=vP.y;vec3 c=h>0.?mix(mid,top,pow(clamp(h*1.5,0.,1.),.75)):bot;gl_FragColor=vec4(c,1.);}'});
 const sky=new THREE.Mesh(new THREE.SphereGeometry(450,32,16),skyMat);scene.add(sky);
@@ -162,12 +164,12 @@ const sky=new THREE.Mesh(new THREE.SphereGeometry(450,32,16),skyMat);scene.add(s
   const pm=new THREE.PMREMGenerator(renderer);const es=new THREE.Scene();
   es.add(new THREE.Mesh(new THREE.SphereGeometry(10,24,12),new THREE.ShaderMaterial({side:THREE.BackSide,uniforms:{},
     vertexShader:'varying vec3 vP;void main(){vP=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-    fragmentShader:'varying vec3 vP;void main(){float h=vP.y;vec3 c=h>0.?mix(vec3(.85,.93,1.),vec3(.35,.6,.95),h):mix(vec3(.85,.93,1.),vec3(.4,.45,.5),-h);c+=vec3(2.5)*pow(max(dot(vP,normalize(vec3(-.4,.8,.4))),0.),40.);gl_FragColor=vec4(c,1.);}'})));
+    fragmentShader:'varying vec3 vP;void main(){float h=vP.y;vec3 c=h>0.?mix(vec3(.85,.93,1.),vec3(.35,.6,.95),h):mix(vec3(.85,.93,1.),vec3(.4,.45,.5),-h);c+=vec3(1.1)*pow(max(dot(vP,normalize(vec3(-.4,.8,.4))),0.),30.);gl_FragColor=vec4(c,1.);}'})));
   scene.environment=pm.fromScene(es,.02).texture;pm.dispose();
 })();
 
-const hemi=new THREE.HemisphereLight(0xffffff,0x9cc0e0,.75);scene.add(hemi);
-const sun=new THREE.DirectionalLight(0xffffff,1.35);
+const hemi=new THREE.HemisphereLight(0xffffff,0x80a4cc,.6);scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfffaee,.85);
 sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
 Object.assign(sun.shadow.camera,{left:-20,right:20,top:22,bottom:-22,near:1,far:70});
 sun.shadow.bias=-.0004;sun.shadow.normalBias=.02;
@@ -191,10 +193,38 @@ function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);
 function canvasTex(c){const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=renderer.capabilities.getMaxAnisotropy();return t;}
 const FONT='"Lilita One", "Arial Black", sans-serif';
 function makeTrackTex(){
-  const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');
-  for(let i=0;i<4;i++)for(let j=0;j<4;j++){g.fillStyle=(i+j)%2?'#e4eaf1':'#f2f5f9';g.fillRect(i*64,j*64,64,64);}
-  g.strokeStyle='rgba(140,160,185,.35)';g.lineWidth=2;
-  for(let i=0;i<=4;i++){g.beginPath();g.moveTo(i*64,0);g.lineTo(i*64,256);g.stroke();g.beginPath();g.moveTo(0,i*64);g.lineTo(256,i*64);g.stroke();}
+  const c=document.createElement('canvas');c.width=512;c.height=512;const g=c.getContext('2d');
+  const bands=4,h=512/bands,peak=92;
+  for(let i=-2;i<=bands+2;i++){
+    const y=i*h;
+    const isEven=((i%2+2)%2)===0;
+    // Single uniform chevron band spanning full width edge to edge
+    g.fillStyle=isEven?'#627692':'#536680';
+    g.beginPath();
+    g.moveTo(0,y);
+    g.lineTo(256,y-peak);
+    g.lineTo(512,y);
+    g.lineTo(512,y+h);
+    g.lineTo(256,y+h-peak);
+    g.lineTo(0,y+h);
+    g.closePath();
+    g.fill();
+    // Perfectly aligned continuous divider stroke across full width
+    g.strokeStyle='rgba(25, 38, 55, 0.55)';
+    g.lineWidth=3;
+    g.beginPath();
+    g.moveTo(0,y);
+    g.lineTo(256,y-peak);
+    g.lineTo(512,y);
+    g.stroke();
+  }
+  // Subtle outer edge trim
+  g.strokeStyle='rgba(30, 44, 62, 0.6)';
+  g.lineWidth=2;
+  g.beginPath();
+  g.moveTo(0,0);g.lineTo(0,512);
+  g.moveTo(512,0);g.lineTo(512,512);
+  g.stroke();
   const t=canvasTex(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;
 }
 function makeChecker(){
@@ -209,7 +239,7 @@ function makeStripe(a,b,n){
 }
 function makeWaterTex(){
   const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');
-  g.fillStyle='#3d9fdc';g.fillRect(0,0,256,256);
+  g.fillStyle='#306898';g.fillRect(0,0,256,256);
   for(let i=0;i<70;i++){g.strokeStyle='rgba(255,255,255,'+(.08+Math.random()*.12)+')';g.lineWidth=2+Math.random()*2;const x=Math.random()*256,y=Math.random()*256,w=10+Math.random()*26;
     g.beginPath();g.moveTo(x,y);g.quadraticCurveTo(x+w/2,y-4,x+w,y);g.stroke();}
   const t=canvasTex(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;return t;
@@ -303,7 +333,7 @@ function setBadge(b,v){
 function removeBadge(b){if(!b)return;scene.remove(b.sp);b.tex.dispose();b.sp.material.dispose();}
 
 /* ================= CONSTANTS ================= */
-const HALF=5,SPEED=11,SP=.2,GA=2.39996323,MAXV=240,EMAXV=110,STEPS=22,SH=.45,SDEP=1.35;
+const HALF=5,SPEED=11,SP=.2,GA=2.39996323,MAXV=240,EMAXV=110,STEPS=20,SH=.45,SDEP=1.35;
 const SX=[],SZ=[];for(let i=0;i<500;i++){const r=SP*Math.sqrt(i+(i?.35:0));SX.push(Math.cos(i*GA)*r);SZ.push(Math.sin(i*GA)*r);}
 const stepMult=k=>+(1+.2*(k+1)).toFixed(1);
 
@@ -322,7 +352,7 @@ function initMaterials(){
   trackTex=makeTrackTex();checkTex=makeChecker();waterTex=makeWaterTex();
   hazardTex=makeStripe('#ffffff','#e8352f',8);barTex=makeStripe('#ffffff','#e8352f',12);
   M.trackSide=new THREE.MeshStandardMaterial({color:'#9db3cb',roughness:.7});
-  M.curb=new THREE.MeshStandardMaterial({color:'#d6e1ec',roughness:.5});
+  M.curb=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.35});
   M.pillar=new THREE.MeshStandardMaterial({color:'#b8c8d9',roughness:.65});
   M.post=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.35});
   M.metal=new THREE.MeshStandardMaterial({color:'#d9dee5',roughness:.22,metalness:.95});
@@ -382,17 +412,18 @@ function buildLevel(n){
   const tm=new THREE.MeshStandardMaterial({map:trackTex.clone(),roughness:.55});tm.map.needsUpdate=true;tm.map.repeat.set(1,tlen/10);
   const track=new THREE.Mesh(new THREE.BoxGeometry(HALF*2,1.2,tlen),[M.trackSide,M.trackSide,tm,M.trackSide,M.trackSide,M.trackSide]);
   track.position.set(0,-.6,-(tlen/2-22));track.receiveShadow=true;grp.add(track);
-  [-1,1].forEach(s=>{const cb=new THREE.Mesh(new THREE.BoxGeometry(.28,.2,tlen),M.curb);cb.position.set(s*(HALF+.14),-.02,track.position.z);cb.receiveShadow=true;cb.castShadow=true;grp.add(cb);
-    const ln=new THREE.Mesh(new THREE.BoxGeometry(.12,1.25,tlen),M.trackSide);ln.position.set(s*(HALF+.3),-.62,track.position.z);grp.add(ln);});
+  [-1,1].forEach(s=>{const cb=new THREE.Mesh(new THREE.BoxGeometry(.52,.34,tlen),M.curb);cb.position.set(s*(HALF+.26),.04,track.position.z);cb.receiveShadow=true;cb.castShadow=true;grp.add(cb);
+    const ln=new THREE.Mesh(new THREE.BoxGeometry(.12,1.25,tlen),M.trackSide);ln.position.set(s*(HALF+.56),-.62,track.position.z);grp.add(ln);});
   for(let d=-10;d<endD+10;d+=26){[-1,1].forEach(s=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.7,.9,9,14),M.pillar);p.position.set(s*3,-5.6,-d);grp.add(p);});}
   // water
   const wt=waterTex.clone();wt.needsUpdate=true;wt.repeat.set(40,(tlen+500)/20);
   const water=new THREE.Mesh(new THREE.PlaneGeometry(800,tlen+500),new THREE.MeshStandardMaterial({map:wt,roughness:.18,metalness:.1,envMapIntensity:.8}));
   water.rotation.x=-Math.PI/2;water.position.set(0,-9,-(tlen/2-22));water.receiveShadow=true;grp.add(water);lv.water=wt;
   // start & finish
-  const fin=new THREE.Mesh(new THREE.PlaneGeometry(HALF*2,1.2),M.finish);fin.rotation.x=-Math.PI/2;fin.position.set(0,.006,-L);grp.add(fin);
-  [-1,1].forEach(s=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,3.6,12),M.hazard);p.position.set(s*(HALF+.1),1.8,-L);p.castShadow=true;grp.add(p);});
-  const ban=new THREE.Mesh(new THREE.BoxGeometry(HALF*2+.4,.7,.12),new THREE.MeshStandardMaterial({map:labelTex('FINISH',512,48,40,'#fff','#2a72f0'),roughness:.5}));
+  const outerX = HALF + 0.26;
+  const fin=new THREE.Mesh(new THREE.PlaneGeometry(outerX*2,1.2),M.finish);fin.rotation.x=-Math.PI/2;fin.position.set(0,.006,-L);grp.add(fin);
+  [-1,1].forEach(s=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,3.6,12),M.hazard);p.position.set(s*outerX,1.8,-L);p.castShadow=true;grp.add(p);});
+  const ban=new THREE.Mesh(new THREE.BoxGeometry(outerX*2+.3,.7,.12),new THREE.MeshStandardMaterial({map:labelTex('FINISH',512,48,40,'#fff','#2a72f0'),roughness:.5}));
   ban.position.set(0,3.3,-L);ban.castShadow=true;grp.add(ban);
 
   // content
@@ -429,17 +460,19 @@ function buildLevel(n){
 
 function makeGates(grp,d,sides){
   const g={d,sides:[],used:false,fade:0,chosen:-1};
-  const geo=new THREE.PlaneGeometry(4.72,2.7);
+  const outerX = HALF + 0.26;
+  const gw = outerX;
+  const geo=new THREE.PlaneGeometry(gw - 0.28, 2.7);
   sides.forEach((s,idx)=>{
     if(!s){g.sides.push(null);return;}
-    const x=idx===0?-2.5:2.5;
+    const x=idx===0?-gw/2:gw/2;
     const mat=new THREE.MeshBasicMaterial({map:gateTex(s),transparent:true,depthWrite:false,side:THREE.DoubleSide,toneMapped:false});
     const pm=new THREE.Mesh(geo,mat);pm.position.set(x,1.5,-d);pm.renderOrder=2;grp.add(pm);
-    const top=new THREE.Mesh(new THREE.BoxGeometry(4.9,.16,.16),M.post);top.position.set(x,2.9,-d);top.castShadow=true;grp.add(top);
+    const top=new THREE.Mesh(new THREE.BoxGeometry(gw + 0.1,.16,.16),M.post);top.position.set(x,2.9,-d);top.castShadow=true;grp.add(top);
     g.sides.push(Object.assign({},s,{mesh:pm,x}));
   });
-  const px=new Set();if(g.sides[0]){px.add(-4.95);px.add(0);}if(g.sides[1]){px.add(0);px.add(4.95);}
-  [...px].forEach(x=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.13,.15,3,12),M.post);p.position.set(x,1.5,-d);p.castShadow=true;grp.add(p);
+  const px=new Set();if(g.sides[0]){px.add(-outerX);px.add(0);}if(g.sides[1]){px.add(0);px.add(outerX);}
+  [...px].forEach(x=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.12,.14,3,12),M.post);p.position.set(x,1.5,-d);p.castShadow=true;grp.add(p);
     const cap=new THREE.Mesh(new THREE.SphereGeometry(.2,12,8),M.post);cap.position.set(p.position.x,3.05,-d);grp.add(cap);});
   return g;
 }
@@ -510,23 +543,165 @@ function makeObstacle(grp,type,d,R){
   return o;
 }
 
-/* ================= END: STAIRS ================= */
+/* ================= END: STAIRS & TREASURE CHEST ================= */
 function buildStairs(grp,lv){
   const S0=lv.stairD;
   for(let k=0;k<STEPS;k++){
-    const h=(k+1)*SH+1.2;const col=new THREE.Color().setHSL((k/STEPS)*.85,.78,.6);
-    const st=new THREE.Mesh(new THREE.BoxGeometry(HALF*2,h,SDEP),new THREE.MeshStandardMaterial({color:col,roughness:.5}));
+    const h=(k+1)*SH+1.2;
+    const col=new THREE.Color().setHSL((k/STEPS)*.85,.8,.6);
+    const st=new THREE.Mesh(new THREE.BoxGeometry(HALF*2,h,SDEP),new THREE.MeshStandardMaterial({color:col,roughness:.45}));
     st.position.set(0,(k+1)*SH-h/2,-(S0+k*SDEP+SDEP/2));st.castShadow=true;st.receiveShadow=true;grp.add(st);
     const lb=new THREE.Mesh(new THREE.PlaneGeometry(2.6,.85),new THREE.MeshBasicMaterial({map:labelTex('x'+stepMult(k).toFixed(1),256,84,64),transparent:true,depthWrite:false}));
     lb.rotation.x=-Math.PI/2;lb.position.set(0,(k+1)*SH+.01,-(S0+k*SDEP+SDEP*.5));grp.add(lb);
   }
-  // treasure chest on top
-  const top=STEPS*SH,tz=-(S0+STEPS*SDEP+1.2);
-  const plat=new THREE.Mesh(new THREE.BoxGeometry(HALF*2,top+1.2,3),new THREE.MeshStandardMaterial({color:'#ffd21f',roughness:.4}));plat.position.set(0,top/2-.6,tz);plat.receiveShadow=true;grp.add(plat);
-  const chest=new THREE.Group();chest.position.set(0,top,tz);grp.add(chest);
-  const cb=new THREE.Mesh(new THREE.BoxGeometry(1.6,.9,1),new THREE.MeshStandardMaterial({color:'#9b5a24',roughness:.7}));cb.position.y=.45;cb.castShadow=true;chest.add(cb);
-  const lid=new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,1.6,16,1,false,0,Math.PI),new THREE.MeshStandardMaterial({color:'#b06a2c',roughness:.7}));lid.rotation.z=Math.PI/2;lid.position.y=.9;lid.castShadow=true;chest.add(lid);
-  const band=new THREE.Mesh(new THREE.BoxGeometry(1.64,.14,1.04),M.gold);band.position.y=.62;chest.add(band);
+  
+  // Top Runway leading to the Treasure Chest
+  const top=STEPS*SH;
+  const topZ=S0+STEPS*SDEP;
+  const RUNWAY_L=9.5;
+  const rwCenterZ=topZ+RUNWAY_L/2;
+  const rwMat=new THREE.MeshStandardMaterial({color:'#85409e',roughness:.4});
+  const rwMesh=new THREE.Mesh(new THREE.BoxGeometry(HALF*1.8,top+1.2,RUNWAY_L),rwMat);
+  rwMesh.position.set(0,top/2-.6,-rwCenterZ);rwMesh.receiveShadow=true;grp.add(rwMesh);
+  
+  // Runway white side borders
+  const sideW=.25,sideH=.22;
+  const railGeo=new THREE.BoxGeometry(sideW,sideH,RUNWAY_L);
+  const railL=new THREE.Mesh(railGeo,M.curb);railL.position.set(-(HALF*.9-sideW/2),top+sideH/2,-rwCenterZ);railL.castShadow=true;grp.add(railL);
+  const railR=new THREE.Mesh(railGeo,M.curb);railR.position.set((HALF*.9-sideW/2),top+sideH/2,-rwCenterZ);railR.castShadow=true;grp.add(railR);
+
+  // Flat floor chevron marker at transition to runway
+  const chevTex=document.createElement('canvas');chevTex.width=256;chevTex.height=128;
+  const cg=chevTex.getContext('2d');cg.fillStyle='#ffd21f';cg.beginPath();cg.moveTo(128,15);cg.lineTo(240,115);cg.lineTo(190,115);cg.lineTo(128,60);cg.lineTo(66,115);cg.lineTo(16,115);cg.closePath();cg.fill();
+  const chevMesh=new THREE.Mesh(new THREE.PlaneGeometry(3.6,1.8),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(chevTex),transparent:true,depthWrite:false}));
+  chevMesh.rotation.x=-Math.PI/2;chevMesh.position.set(0,top+.015,-(topZ+.9));grp.add(chevMesh);
+
+  // Circular Podium at end of runway
+  const chestZ=topZ+RUNWAY_L-1.6;
+  const podLower=new THREE.Mesh(new THREE.CylinderGeometry(2.3,2.5,.35,32),new THREE.MeshStandardMaterial({color:'#59297e',roughness:.45}));
+  podLower.position.set(0,top+.17,-chestZ);podLower.receiveShadow=true;grp.add(podLower);
+  const podUpper=new THREE.Mesh(new THREE.CylinderGeometry(1.85,1.95,.22,32),new THREE.MeshStandardMaterial({color:'#7c3ba8',roughness:.4}));
+  podUpper.position.set(0,top+.4,-chestZ);podUpper.receiveShadow=true;grp.add(podUpper);
+  const podGold=new THREE.Mesh(new THREE.TorusGeometry(1.88,.04,12,32),M.gold);
+  podGold.rotation.x=Math.PI/2;podGold.position.set(0,top+.51,-chestZ);grp.add(podGold);
+
+  // Detailed 3D Hollow Opening Treasure Chest (AAA Hyper-Casual Count Masters style)
+  const chest=new THREE.Group();
+  chest.position.set(0,top+.52,-chestZ);
+  chest.rotation.y=-.25; // Angled towards camera & runner
+  grp.add(chest);
+
+  const goldMat=M.gold;
+  const redMat=new THREE.MeshStandardMaterial({color:'#991b1b',roughness:.35,metalness:.15});
+  const darkVelvet=new THREE.MeshStandardMaterial({color:'#18241d',roughness:.75});
+
+  // Base Floor
+  const floor=new THREE.Mesh(new THREE.BoxGeometry(1.52,.08,.98),redMat);floor.position.y=.04;chest.add(floor);
+
+  // 4 Outer Walls (Hollow Box Interior!)
+  const wallFront=new THREE.Mesh(new THREE.BoxGeometry(1.44,.56,.08),redMat);wallFront.position.set(0,.36,.45);wallFront.castShadow=true;chest.add(wallFront);
+  const wallBack=new THREE.Mesh(new THREE.BoxGeometry(1.44,.56,.08),redMat);wallBack.position.set(0,.36,-.45);wallBack.castShadow=true;chest.add(wallBack);
+  const wallL=new THREE.Mesh(new THREE.BoxGeometry(.08,.56,.82),redMat);wallL.position.set(-.72,.36,0);wallL.castShadow=true;chest.add(wallL);
+  const wallR=new THREE.Mesh(new THREE.BoxGeometry(.08,.56,.82),redMat);wallR.position.set(.72,.36,0);wallR.castShadow=true;chest.add(wallR);
+
+  // Bottom Base Gold Band
+  const baseBand=new THREE.Mesh(new THREE.BoxGeometry(1.62,.1,.1),goldMat);
+  const bF=baseBand.clone();bF.position.set(0,.05,.48);chest.add(bF);
+  const bB=baseBand.clone();bB.position.set(0,.05,-.48);chest.add(bB);
+  const bL=new THREE.Mesh(new THREE.BoxGeometry(.1,.1,.86),goldMat);bL.position.set(-.76,.05,0);chest.add(bL);
+  const bR=bL.clone();bR.position.set(.76,.05,0);chest.add(bR);
+
+  // Top Opening Rim Gold Frame (Hollow opening frame!)
+  const rF=new THREE.Mesh(new THREE.BoxGeometry(1.62,.08,.1),goldMat);rF.position.set(0,.65,.48);chest.add(rF);
+  const rB=rF.clone();rB.position.set(0,.65,-.48);chest.add(rB);
+  const rL=new THREE.Mesh(new THREE.BoxGeometry(.1,.08,.86),goldMat);rL.position.set(-.76,.65,0);chest.add(rL);
+  const rR=rL.clone();rR.position.set(.76,.65,0);chest.add(rR);
+
+  // 4 Gold Corner Posts
+  for(let sx of [-1,1]){
+    for(let sz of [-1,1]){
+      const post=new THREE.Mesh(new THREE.BoxGeometry(.11,.66,.11),goldMat);
+      post.position.set(sx*.76,.33,sz*.48);chest.add(post);
+    }
+  }
+
+  // Front Gold Lock Plate with Keyhole
+  const lockP=new THREE.Mesh(new THREE.BoxGeometry(.28,.24,.06),goldMat);lockP.position.set(0,.45,.51);chest.add(lockP);
+  const keyhole=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.08,12),new THREE.MeshBasicMaterial({color:'#000'}));
+  keyhole.rotation.x=Math.PI/2;keyhole.position.set(0,.45,.54);chest.add(keyhole);
+
+  // Lush Mound of Gold Coins inside the chest
+  const coinMoundGeo=new THREE.SphereGeometry(.65,24,14,0,Math.PI*2,0,Math.PI*.5);
+  const coinMound=new THREE.Mesh(coinMoundGeo,goldMat);
+  coinMound.scale.set(1.05,.48,.68);coinMound.position.set(0,.35,0);chest.add(coinMound);
+
+  // 32 Individual 3D shiny gold coins spilling and stacking realistically
+  const coinGeo=new THREE.CylinderGeometry(.12,.12,.035,16);
+  for(let ci=0;ci<32;ci++){
+    const cm=new THREE.Mesh(coinGeo,goldMat);
+    const ca=ci*1.15,cr=.14+.28*Math.sin(ci*2.7);
+    const cy=.52+Math.sin(ci*1.8)*.08;
+    const cz=Math.sin(ca)*cr*.6+(ci<6?.38:0); // some spilling over front rim!
+    cm.position.set(Math.cos(ca)*cr,cy,cz);
+    cm.rotation.set((ci%4)*.35,ci*.7,(ci%3)*.3);
+    chest.add(cm);
+  }
+
+  // Sparkling Faceted Gems
+  const gemMatR=new THREE.MeshStandardMaterial({color:'#ff1744',roughness:.1,metalness:.7});
+  const gemMatB=new THREE.MeshStandardMaterial({color:'#00e5ff',roughness:.1,metalness:.7});
+  const gemMatG=new THREE.MeshStandardMaterial({color:'#00e676',roughness:.1,metalness:.7});
+  const gemGeo=new THREE.OctahedronGeometry(.11,0);
+  const gem1=new THREE.Mesh(gemGeo,gemMatR);gem1.position.set(-.32,.62,.2);chest.add(gem1);
+  const gem2=new THREE.Mesh(gemGeo,gemMatB);gem2.position.set(.34,.64,-.1);chest.add(gem2);
+  const gem3=new THREE.Mesh(gemGeo,gemMatG);gem3.position.set(-.12,.66,-.15);chest.add(gem3);
+
+  const chestLight=new THREE.PointLight(0xffd700,0,7);
+  chestLight.position.set(0,.9,0);chest.add(chestLight);
+
+  // Hinged Hollow Arched Lid Group (Pivot at top-back lip: y=0.65, z=-0.48)
+  const lidGroup=new THREE.Group();
+  lidGroup.position.set(0,.65,-.48);
+  chest.add(lidGroup);
+
+  // Outer red curved lid arch
+  const lidOuter=new THREE.Mesh(new THREE.CylinderGeometry(.48,.48,1.44,24,1,true,0,Math.PI),redMat);
+  lidOuter.rotation.z=Math.PI/2;lidOuter.position.set(0,0,.48);lidOuter.castShadow=true;
+  lidGroup.add(lidOuter);
+
+  // Inner dark velvet curved lid ceiling
+  const lidInner=new THREE.Mesh(new THREE.CylinderGeometry(.44,.44,1.40,24,1,true,0,Math.PI),darkVelvet);
+  lidInner.rotation.z=Math.PI/2;lidInner.position.set(0,0,.48);
+  lidGroup.add(lidInner);
+
+  // Left & Right semicircular end caps with gold borders
+  for(let sx of [-1,1]){
+    const cap=new THREE.Mesh(new THREE.CircleGeometry(.48,24,0,Math.PI),redMat);
+    cap.rotation.y=sx>0?Math.PI/2:-Math.PI/2;cap.position.set(sx*.72,0,.48);
+    lidGroup.add(cap);
+    const capInner=new THREE.Mesh(new THREE.CircleGeometry(.44,24,0,Math.PI),darkVelvet);
+    capInner.rotation.y=sx>0?-Math.PI/2:Math.PI/2;capInner.position.set(sx*.71,0,.48);
+    lidGroup.add(capInner);
+  }
+
+  // Lid Hollow Rectangular Gold Frame Lip
+  const lrF=new THREE.Mesh(new THREE.BoxGeometry(1.62,.08,.1),goldMat);lrF.position.set(0,.04,.96);lidGroup.add(lrF);
+  const lrB=new THREE.Mesh(new THREE.BoxGeometry(1.62,.08,.1),goldMat);lrB.position.set(0,.04,0);lidGroup.add(lrB);
+  const lrL=new THREE.Mesh(new THREE.BoxGeometry(.1,.08,.86),goldMat);lrL.position.set(-.76,.04,.48);lidGroup.add(lrL);
+  const lrR=lrL.clone();lrR.position.set(.76,.04,.48);lidGroup.add(lrR);
+
+  // 2 Gold Reinforcement Straps over lid arch
+  const strapL=new THREE.Mesh(new THREE.TorusGeometry(.49,.035,8,24,Math.PI),goldMat);
+  strapL.rotation.y=Math.PI/2;strapL.position.set(-.45,0,.48);lidGroup.add(strapL);
+  const strapR=new THREE.Mesh(new THREE.TorusGeometry(.49,.035,8,24,Math.PI),goldMat);
+  strapR.rotation.y=Math.PI/2;strapR.position.set(.45,0,.48);lidGroup.add(strapR);
+
+  // Gold Coin Crest Medal on top of lid
+  const crest=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,.05,24),goldMat);
+  crest.position.set(0,.5,.48);lidGroup.add(crest);
+
+  // Stop position for runner: at foot of podium on the left side
+  lv.chest={group:chest,lid:lidGroup,light:chestLight,pos:new THREE.Vector3(0,top+.52,chestZ),runwayStart:topZ,runwayEnd:chestZ-2.4,topY:top};
 }
 
 /* ================= END: KING + CASTLE ================= */
@@ -672,9 +847,9 @@ function updatePlay(dt){
   }
 }
 function steer(dt){
-  if(keys.l)crowd.tx-=9*dt;if(keys.r)crowd.tx+=9*dt;
+  if(keys.l)crowd.tx-=14*dt;if(keys.r)crowd.tx+=14*dt;
   const lim=Math.max(0,HALF-.35-crowd.R);crowd.tx=clamp(crowd.tx,-lim,lim);
-  crowd.x+=(crowd.tx-crowd.x)*Math.min(1,dt*16);
+  const k=1-Math.exp(-dt*18);crowd.x+=(crowd.tx-crowd.x)*k;
 }
 function checkObstacles(){
   const near=level.obstacles.filter(o=>Math.abs(o.d-crowd.d)<crowd.R+3);
@@ -710,39 +885,124 @@ function updateBattle(dt){
   if(crowd.count<=0){lose('Overwhelmed by the enemy!');return;}
   if(e.count<=0){e.alive=false;e.members.length=0;removeBadge(e.badge);e.badge=null;battle=null;state='play';}
 }
+function buildTiers(N){
+  if(N<=1)return[1];
+  let R=Math.floor((Math.sqrt(8*N+1)-1)/2);
+  R=clamp(R,1,STEPS);
+  let baseSum=(R*(R+1))/2;
+  while(baseSum>N&&R>1){R--;baseSum=(R*(R+1))/2;}
+  const tiers=[];
+  for(let r=0;r<R;r++){tiers.push(R-r);}
+  let extra=N-baseSum;
+  let tIdx=0;
+  while(extra>0){
+    tiers[tIdx]++;
+    extra--;
+    tIdx=(tIdx+1)%Math.min(tiers.length,Math.max(1,Math.floor(R*0.7)));
+  }
+  return tiers;
+}
 function beginTower(){
   state='tower';
-  const vis=crowd.members.length;
-  let rows=clamp(Math.round(Math.sqrt(crowd.count)*1.1),1,STEPS);
-  let W=clamp(Math.ceil(vis/rows),1,5);
-  rows=Math.min(rows,Math.ceil(vis/W));
-  const used=Math.min(vis,rows*W);
-  while(crowd.members.length>used){const m=crowd.members.pop();burst(crowd.x+m.ox,.5,-(crowd.d+m.oz),BLUE,1,1.5,2);}
+  const N=crowd.members.length;
+  const tiers=buildTiers(N);
+  const R=tiers.length;
   const baseD=level.stairD-1.6;
-  crowd.members.forEach((m,i)=>{m.row=Math.floor(i/W);m.col=i%W;m.wx=crowd.x+m.ox;m.wy=0;m.wd=crowd.d+m.oz;m.fixed=false;});
-  tower={rows,W,used,step:-1,dropped:0,bx:0,by:0,bd:baseD,phase:'gather',t:0,fy:0,fd:baseD,ty:0,td:baseD,arrived:true,mult:1};
+  let idx=0;
+  for(let r=0;r<R;r++){
+    const w=tiers[r];
+    for(let c=0;c<w;c++){
+      const m=crowd.members[idx++];
+      m.row=r;
+      m.col=c;
+      m.tierW=w;
+      m.wx=crowd.x+m.ox;
+      m.wy=0;
+      m.wd=crowd.d+m.oz;
+      m.fixed=false;
+    }
+  }
+  tower={tiers,rows:R,used:N,step:-1,dropped:0,bx:0,by:0,bd:baseD,phase:'gather',t:0,fy:0,fd:baseD,ty:0,td:baseD,arrived:true,mult:1,chestOpened:false};
 }
-function rowW(r){return r<tower.rows-1?tower.W:tower.used-tower.W*(tower.rows-1);}
+function rowW(r){return(tower&&tower.tiers)?(tower.tiers[r]||1):1;}
 function updateTower(dt){
   const T=tower;T.t+=dt;
   crowd.d=Math.min(crowd.d+SPEED*dt,T.bd);
-  if(T.phase==='gather'){if(T.t>.85){T.phase='climb';nextStep();}}
+  if(T.phase==='gather'){
+    if(T.t>.75){T.phase='climb';nextStep();}
+  }
   else if(T.phase==='climb'){
-    const k=Math.min(1,T.t/.2);T.by=lerp(T.fy,T.ty,k)+Math.sin(k*Math.PI)*.25;T.bd=lerp(T.fd,T.td,k);
+    const k=Math.min(1,T.t/.22);
+    T.by=lerp(T.fy,T.ty,k)+Math.sin(k*Math.PI)*.28;
+    T.bd=lerp(T.fd,T.td,k);
     if(k>=1&&!T.arrived){
       T.arrived=true;T.by=T.ty;T.bd=T.td;
-      const r=T.dropped;crowd.members.forEach(m=>{if(m.row===r){m.fixed=true;m.wy=T.by;m.wd=T.bd;}});
-      T.dropped++;T.mult=stepMult(T.step);sStep(T.step);flashMsg('x'+T.mult.toFixed(1));
-      if(T.dropped>=T.rows){T.phase='done';T.t=0;burst(0,T.by+1,-T.bd,new THREE.Color('#ffd21f'),30,4,6);}
-      else nextStep();
+      T.mult=stepMult(T.step);sStep(T.step);flashMsg('x'+T.mult.toFixed(1));
+      
+      // If we reached the final step x5.0 (STEPS-1), keep remaining runners active and sprint to chest!
+      if(T.step>=STEPS-1&&level.chest){
+        T.phase='runway';T.t=0;T.fy=T.by;T.fd=T.bd;T.ty=level.chest.topY+.2;T.td=level.chest.runwayEnd;
+      }
+      else {
+        // Drop current bottom tier onto the current step
+        const r=T.dropped;
+        crowd.members.forEach(m=>{if(m.row===r){m.fixed=true;m.wy=T.by;m.wd=T.bd;}});
+        T.dropped++;
+        if(T.dropped>=T.rows){
+          T.phase='done';T.t=0;
+          burst(0,T.by+1.2,-T.bd,new THREE.Color('#ffd21f'),35,4,6);
+        }
+        else nextStep();
+      }
     }
-  }else if(T.phase==='done'){if(T.t>1.3&&state==='tower'){win(T.mult,false);}}
-  // members
-  const sp=T.phase==='gather'?7:22;
+  }
+  else if(T.phase==='runway'){
+    const dur=1.1;const k=Math.min(1,T.t/dur);
+    T.bd=lerp(T.fd,T.td,k);T.by=lerp(T.fy,T.ty,k);
+    if(k>=1){
+      T.phase='chest';T.t=0;T.bd=T.td;T.by=T.ty;
+      burst(0,T.by+.5,-T.bd,new THREE.Color('#ffd21f'),20,3,4);
+    }
+  }
+  else if(T.phase==='chest'){
+    if(level.chest&&level.chest.lid){
+      const openK=Math.min(1,T.t/.45);
+      const easeK=1-Math.pow(1-openK,3);
+      const bounce=openK<1?Math.sin(openK*Math.PI)*.15:0;
+      level.chest.lid.rotation.x=-Math.PI*.74*easeK-bounce;
+      if(level.chest.light)level.chest.light.intensity=easeK*1.5;
+    }
+    // Launch 3D flying coins fountain on opening
+    if(!T.chestOpened&&T.t>.28){
+      T.chestOpened=true;shake=.35;sThud();sStep(20);
+      burst(0,T.by+1.2,-level.chest.pos.z,new THREE.Color('#ffd21f'),60,6,8);
+      burst(0,T.by+1.2,-level.chest.pos.z,new THREE.Color('#ff4757'),30,4,6);
+      flashMsg('+500 TREASURE CHEST BONUS!');
+      runCoins+=500;
+    }
+    if(T.t>2.4&&state==='tower'){win(T.mult,true);}
+  }
+  else if(T.phase==='done'){
+    if(T.t>1.3&&state==='tower'){win(T.mult,false);}
+  }
+  // members positioning
+  const sp=T.phase==='gather'?8:(T.phase==='runway'?16:24);
   for(const m of crowd.members){
     if(m.fixed){continue;}
-    const rw=rowW(m.row);const tx=T.bx+(m.col-(rw-1)/2)*.36;const ty=T.by+(m.row-T.dropped)*.76;const td=T.bd;
-    const k=Math.min(1,dt*sp);m.wx+=(tx-m.wx)*k;m.wy+=(ty-m.wy)*k;m.wd+=(td-m.wd)*k;
+    let tx=T.bx,ty=T.by,td=T.bd;
+    if(T.phase==='chest'||T.phase==='runway'){
+      tx=-.55;
+      ty=level.chest?level.chest.topY:T.by;
+      td=T.bd;
+    } else {
+      const rw=rowW(m.row);
+      tx=T.bx+(m.col-(rw-1)/2)*.38;
+      ty=T.by+(m.row-T.dropped)*.78;
+    }
+    const k=Math.min(1,dt*sp);
+    m.wx+=(tx-m.wx)*k;
+    m.wy+=(ty-m.wy)*k;
+    m.wd+=(td-m.wd)*k;
   }
 }
 function nextStep(){const T=tower;T.step++;T.fy=T.by;T.fd=T.bd;T.ty=(T.step+1)*SH;T.td=level.stairD+T.step*SDEP+SDEP/2;T.t=0;T.arrived=false;}
@@ -804,17 +1064,34 @@ function updateDebris(dt){
 const camPos=new THREE.Vector3(0,9,12),camLook=new THREE.Vector3(0,0,-6),_tp=new THREE.Vector3(),_tl=new THREE.Vector3();
 function camTarget(){
   const z=-crowd.d;const zoom=Math.min(5.5,Math.max(0,crowd.R-.5)*1.1);
-  if(state==='tower'&&tower){const T=tower;_tp.set(8.5,T.by+4.2+Math.min(T.rows,10)*.15,-T.bd+9.5);_tl.set(0,T.by+1.4,-T.bd-2.5);}
+  if(state==='tower'&&tower){
+    const T=tower;
+    if(T.phase==='chest'&&level&&level.chest){
+      _tp.set(3.2,level.chest.topY+2.2,-level.chest.pos.z+4.4);
+      _tl.set(-.2,level.chest.topY+1.1,-level.chest.pos.z+.2);
+    } else if(T.phase==='runway'&&level&&level.chest){
+      _tp.set(5.2,level.chest.topY+3.2,-T.bd+6.5);
+      _tl.set(0,level.chest.topY+1.2,-T.bd-1.2);
+    } else {
+      const remH=(T.rows-T.dropped)*0.78;
+      _tp.set(8.5+Math.min(T.rows,14)*0.12,T.by+3.8+remH*0.35,-T.bd+9.6);
+      _tl.set(0,T.by+1.2+remH*0.25,-T.bd-2.2);
+    }
+  }
   else if(state==='boss'||state==='bossWin'||(state==='lose'&&boss)){const kz=-level.kingD;_tp.set(0,11,kz+15.5);_tl.set(0,1.4,kz-.5);}
-  else if(state==='won'&&tower){const T=tower;_tp.set(8.5,T.by+4.2,-T.bd+9.5);_tl.set(0,T.by+1.4,-T.bd-2.5);}
+  else if(state==='won'&&tower){
+    const topY=level&&level.chest?level.chest.topY+2.2:tower.by+3.6;
+    const cz=level&&level.chest?level.chest.pos.z:tower.bd;
+    _tp.set(3.2,topY,-cz+4.4);_tl.set(-.2,topY-1.1,-cz+.2);
+  }
   else if(state==='won'&&level&&level.endType==='boss'){const kz=-level.kingD;_tp.set(0,11,kz+15.5);_tl.set(0,1.4,kz-.5);}
-  else{_tp.set(crowd.x*.45,8.4+zoom,z+10.8+zoom*1.25);_tl.set(crowd.x*.6,0,z-7);}
+  else{_tp.set(crowd.x*.5,8.4+zoom,z+10.8+zoom*1.25);_tl.set(crowd.x*.5,0,z-7);}
 }
 function snapCamera(){camTarget();camPos.copy(_tp);camLook.copy(_tl);}
 function updateCamera(dt){
   camTarget();
   const fast=state==='play'||state==='battle'||state==='menu'||state==='bossRun';
-  const k=1-Math.exp(-dt*(fast?10:3.2));
+  const k=1-Math.exp(-dt*(fast?14:4.5));
   camPos.lerp(_tp,k);camLook.lerp(_tl,k);
   camera.position.copy(camPos);
   if(shake>0){shake=Math.max(0,shake-dt*1.6);camera.position.x+=(Math.random()-.5)*shake;camera.position.y+=(Math.random()-.5)*shake;}
@@ -831,7 +1108,14 @@ function drawScene(){
   const towerMode=(st==='tower'||st==='won')&&tower;
   // player
   crowd.members.forEach(m=>{
-    if(towerMode){const mode=m.fixed?2:(m.row===tower.dropped&&tower.phase==='climb'?0:(tower.phase==='gather'?0:4));drawMan(m.wx,m.wy,-m.wd,0,m.ph,mode,1,BLUE);return;}
+    if(towerMode){
+      let mode=4,ry=0;
+      if(m.fixed){mode=2;}
+      else if(tower.phase==='chest'){mode=2;ry=.35;} // celebrates facing the chest
+      else if(tower.phase==='runway'||(m.row===tower.dropped&&tower.phase==='climb')||tower.phase==='gather'){mode=0;}
+      drawMan(m.wx,m.wy,-m.wd,ry,m.ph,mode,1,BLUE);
+      return;
+    }
     const wx=crowd.x+m.ox,wd=crowd.d+m.oz;
     let mode=1,ry=0;
     if(st==='play'||st==='bossRun')mode=0;
@@ -903,6 +1187,10 @@ function update(dt){
     if(Math.random()<.5)burst((Math.random()-.5)*14,6+Math.random()*4,-(level.kingD+8),new THREE.Color().setHSL(Math.random(),.9,.6),2,3,4);
     if(endTimer>2.2)win(2,true);
   }
+  else if(state==='won'){
+    // Keep crowd stickmen actively cheering and jumping behind the win popup!
+    crowd.members.forEach(m=>{m.ph+=dt*14;});
+  }
   updateMembers(dt);updateDebris(dt);updateLevelVisuals(dt);updateParticles(dt);
   if(level&&(state==='play'||state==='battle'))$('barFill').style.width=(clamp(crowd.d/level.L,0,1)*100).toFixed(1)+'%';
   updateCamera(dt);drawScene();
@@ -939,7 +1227,7 @@ $('btnRestart').addEventListener('click',()=>{closeSettings();save.coins+=0;rese
 $('togSound').addEventListener('click',()=>{save.sound=!save.sound;persist();refreshToggles();});
 $('togVib').addEventListener('click',()=>{save.vib=!save.vib;persist();refreshToggles();});
 $('btnNext').addEventListener('click',()=>{ensureAudio();nextLevel();});
-$('btnRetry').addEventListener('click',()=>{ensureAudio();resetRun();});
+$('btnRetry').addEventListener('click',()=>{ensureAudio();resetRun();startRun();});
 ['setP','winP','loseP'].forEach(id=>$(id).addEventListener('pointerdown',e=>e.stopPropagation()));
 
 /* ================= INPUT ================= */
@@ -967,7 +1255,8 @@ window.addEventListener('keydown',e=>{
     if(paused)closeSettings();
     else if(state==='menu')startRun();
     else if(state==='won'&&$('winP').classList.contains('on'))nextLevel();
-    else if(state==='lose'&&$('loseP').classList.contains('on'))resetRun();}
+    else if(state==='lose'&&$('loseP').classList.contains('on')){resetRun();startRun();}
+  }
   else if(k==='Escape'||k==='p'||k==='P'){if(paused)closeSettings();else openSettings();}
 });
 window.addEventListener('keyup',e=>{const k=e.key;if(k==='ArrowLeft'||k==='a'||k==='A')keys.l=false;if(k==='ArrowRight'||k==='d'||k==='D')keys.r=false;});

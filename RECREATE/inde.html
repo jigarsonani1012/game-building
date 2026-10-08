@@ -416,6 +416,20 @@
       .ready-hint .tap-title {
         margin-top: 18px;
       }
+      .ready-home-btn {
+        margin-top: 20px;
+        width: 50px;
+        height: 50px;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 6px 18px rgba(39, 49, 70, 0.16);
+        backdrop-filter: blur(8px);
+        animation: panelIn 0.32s ease-out;
+      }
+      .ready-home-btn svg {
+        width: 23px;
+        height: 23px;
+      }
       .modal-backdrop {
         position: absolute;
         z-index: 50;
@@ -719,61 +733,99 @@
       .skin-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 9px;
+        gap: 10px;
+        padding: 4px 2px;
       }
       .skin-card {
-        min-height: 126px;
-        padding: 10px 5px 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 132px;
+        padding: 12px 6px 10px;
         border: 2px solid #eef1f5;
-        border-radius: 18px;
+        border-radius: 20px;
         color: var(--ink);
         background: #fff;
+        box-shadow: 0 3px 10px rgba(35, 45, 65, 0.05);
+        cursor: pointer;
         transition:
           transform 120ms ease,
           border-color 120ms ease,
-          background 120ms ease;
+          background 120ms ease,
+          box-shadow 120ms ease;
       }
       .skin-card:active {
-        transform: scale(0.95);
+        transform: scale(0.94);
+      }
+      .skin-card.selected {
+        border-color: var(--accent);
+        background: #fff9fb;
+        box-shadow: 0 5px 16px rgba(255, 77, 109, 0.22);
+      }
+      .skin-card[disabled] {
+        opacity: 0.52;
+        filter: grayscale(0.2);
+        cursor: not-allowed;
       }
       .skin-orb {
         display: block;
-        width: 52px;
-        height: 52px;
-        margin: 0 auto 8px;
+        width: 50px;
+        height: 50px;
+        aspect-ratio: 1 / 1;
+        margin: 0 auto 6px;
         border-radius: 50%;
-        border: 2px solid rgba(255, 255, 255, 0.85);
+        border: 2px solid rgba(255, 255, 255, 0.95);
         box-shadow:
-          inset -4px -5px 8px rgba(0, 0, 0, 0.32),
-          inset 3px 4px 6px rgba(255, 255, 255, 0.75),
-          0 5px 12px rgba(27, 31, 45, 0.18);
+          inset -4px -5px 9px rgba(0, 0, 0, 0.38),
+          inset 4px 5px 7px rgba(255, 255, 255, 0.75),
+          0 6px 14px rgba(24, 29, 44, 0.2);
         position: relative;
         flex-shrink: 0;
       }
+      .skin-orb::after {
+        content: "";
+        position: absolute;
+        top: 14%;
+        left: 22%;
+        width: 32%;
+        height: 22%;
+        border-radius: 50%;
+        background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 80%);
+        transform: rotate(-30deg);
+        pointer-events: none;
+      }
       .skin-card b {
         display: block;
-        overflow: hidden;
-        font-size: 11px;
+        margin: 2px 0 0;
+        font-size: 12px;
         font-weight: 900;
+        letter-spacing: 0.02em;
+        line-height: 1.2;
+        text-align: center;
+        overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        width: 100%;
       }
       .skin-cost {
         display: inline-flex;
         align-items: center;
-        gap: 2px;
-        min-height: 18px;
-        margin-top: 5px;
-        padding: 2px 6px;
+        justify-content: center;
+        gap: 3px;
+        min-height: 20px;
+        margin-top: 6px;
+        padding: 2px 8px;
         border-radius: 999px;
         color: #69768b;
-        font-size: 9px;
+        font-size: 10px;
         font-weight: 900;
         background: #eef1f5;
       }
       .skin-card.selected .skin-cost {
         color: #fff;
         background: var(--accent);
+        box-shadow: 0 2px 8px rgba(255, 77, 109, 0.35);
       }
       .skin-cost .gem {
         width: 11px;
@@ -1358,6 +1410,24 @@
         <section id="readyHint" class="ready-hint hidden">
           <div class="level-tag">Level <span id="readyLevel">1</span></div>
           <div class="tap-title">Tap to play</div>
+          <button
+            id="readyHomeBtn"
+            class="round-menu ready-home-btn interactive"
+            aria-label="Return home"
+            title="Return home"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m3 11 9-8 9 8" />
+              <path d="M5 10v10h5v-6h4v6h5V10" />
+            </svg>
+          </button>
         </section>
         <section id="comboLayer"></section>
         <section id="sheetLayer" class="hidden"></section>
@@ -1479,7 +1549,7 @@
       const SKINS = [
         {
           id: "classic",
-          name: "Classic",
+          name: "White",
           color: "#fff",
           price: 0,
           rough: 0.28,
@@ -1536,7 +1606,7 @@
         },
         {
           id: "chrome",
-          name: "Chrome",
+          name: "Black",
           color: "#0a0a0d",
           glow: "#000000",
           price: 670,
@@ -1687,7 +1757,7 @@
       }
       function createLevel(level) {
         const r = rng(level * 7919 + 13),
-          count = Math.min(48 + Math.floor(level * 12), 400),
+          count = Math.min(96 + Math.floor(level * 22), 700),
           rows = [],
           safe = () => rows.push({ deadly: Array(GAME.segments).fill(false) }),
           chance = clamp(0.70 + level * 0.012, 0.70, 0.95),
@@ -1712,7 +1782,7 @@
 
           const hostile = r() < chance,
             sectionLength = Math.min(
-              18 + Math.floor(r() * 24),
+              24 + Math.floor(r() * 32),
               count - 2 - rows.length
             );
 
@@ -1834,6 +1904,7 @@
           app: $("#app"),
           world: $("#world"),
           hud: $("#hud"),
+          pauseBtn: $("#pauseBtn"),
           score: $("#score"),
           progress: $("#progressFill"),
           fever: $("#feverFill"),
@@ -3031,6 +3102,9 @@
         dom.home.classList.toggle("hidden", next !== "home");
         dom.ready.classList.toggle("hidden", next !== "ready");
         dom.hud.classList.toggle("hidden", next === "home");
+        if (dom.pauseBtn) {
+          dom.pauseBtn.classList.toggle("hidden", next !== "playing");
+        }
         if (next === "ready") dom.readyLevel.textContent = game.level;
       }
       function start() {
@@ -3158,19 +3232,46 @@
         $("#pauseVibe").addEventListener("click", toggleVibe);
       }
       const gradient = (s) => {
-        if (s.rainbow)
+        if (s.rainbow || s.id === "prism")
           return "conic-gradient(from 180deg at 50% 50%, #ff3d79, #ff8c22, #ffe447, #43ed70, #28bcff, #7c55ff, #ff3d79)";
         if (s.id === "classic")
-          return "radial-gradient(circle at 35% 28%, #ffffff 0%, #edf1f7 42%, #b5c3d4 78%, #7889a0 100%)";
+          return "radial-gradient(circle at 35% 28%, #ffffff 0%, #f0f3f8 42%, #b5c2d4 78%, #6a798e 100%)";
+        if (s.id === "ember")
+          return "radial-gradient(circle at 35% 28%, #fff4e0 0%, #ff7b2b 40%, #e03b00 78%, #781700 100%)";
+        if (s.id === "neon")
+          return "radial-gradient(circle at 35% 28%, #e0ffff 0%, #00e1ff 38%, #0088e8 75%, #00367a 100%)";
         if (s.id === "gold")
-          return "radial-gradient(circle at 35% 28%, #fff9d6 0%, #ffd43f 40%, #d89008 75%, #6e4600 100%)";
+          return "radial-gradient(circle at 35% 28%, #fffde6 0%, #ffdb4d 38%, #d8980a 75%, #6a4400 100%)";
+        if (s.id === "toxic")
+          return "radial-gradient(circle at 35% 28%, #f0ffe0 0%, #68fa28 38%, #20b800 75%, #0d5400 100%)";
+        if (s.id === "bubble")
+          return "radial-gradient(circle at 35% 28%, #ffe8f8 0%, #ff52be 38%, #d8168e 75%, #680544 100%)";
         if (s.id === "obsidian")
-          return "radial-gradient(circle at 35% 28%, #bb88ff 0%, #4f2e8c 42%, #1b122c 78%, #0a0614 100%)";
+          return "radial-gradient(circle at 35% 28%, #d8b8ff 0%, #6f38d4 38%, #2d145c 75%, #0e0520 100%)";
         if (s.id === "chrome")
-          return "radial-gradient(circle at 35% 28%, #4e4e5a 0%, #1c1c22 42%, #0a0a0e 78%, #000000 100%)";
+          return "radial-gradient(circle at 35% 28%, #6a6c78 0%, #292a34 42%, #111218 78%, #030306 100%)";
         const glow = s.glow || s.color;
-        return `radial-gradient(circle at 35% 28%, #ffffff 0%, ${glow} 38%, ${s.color} 72%, rgba(18,20,28,0.7) 100%)`;
+        return `radial-gradient(circle at 35% 28%, #ffffff 0%, ${glow} 38%, ${s.color} 72%, rgba(18,20,28,0.85) 100%)`;
       };
+      function updateShopCards() {
+        const walletEl = dom.sheet.querySelector("#sheetWallet b");
+        if (walletEl) walletEl.innerHTML = `${gem(18)} ${save.coins}`;
+        dom.sheet.querySelectorAll("[data-skin]").forEach((b) => {
+          const s = SKINS.find((x) => x.id === b.dataset.skin);
+          if (!s) return;
+          const owned = save.owned.includes(s.id),
+            selected = save.skin === s.id,
+            afford = save.coins >= s.price;
+          b.className = `skin-card interactive ${selected ? "selected" : ""}`;
+          b.disabled = !owned && !afford;
+          const costEl = b.querySelector(".skin-cost");
+          if (costEl) {
+            costEl.innerHTML = owned
+              ? (selected ? "Equipped" : "Owned")
+              : `${gem(11)} ${s.price}`;
+          }
+        });
+      }
       function shop() {
         sound.tap();
         const cards = SKINS.map((s) => {
@@ -3179,7 +3280,7 @@
             afford = save.coins >= s.price;
           return `<button data-skin="${s.id}" class="skin-card interactive ${selected ? "selected" : ""}" ${!owned && !afford ? "disabled" : ""}><span class="skin-orb" style="background:${gradient(s)}"></span><b>${s.name}</b><span class="skin-cost">${owned ? (selected ? "Equipped" : "Owned") : `${gem(11)} ${s.price}`}</span></button>`;
         }).join("");
-        dom.sheet.innerHTML = `<div class="sheet-layer"><section class="sheet"><div class="sheet-head"><h2 class="sheet-title">Ball skins</h2><button id="closeSheet" class="sheet-close interactive" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div class="wallet"><span>Your gems</span><b>${gem(18)} ${save.coins}</b></div><div class="skin-grid">${cards}</div><p class="sheet-note">Earn gems by smashing floors and completing levels.</p></section></div>`;
+        dom.sheet.innerHTML = `<div class="sheet-layer"><section class="sheet"><div class="sheet-head"><h2 class="sheet-title">Ball skins</h2><button id="closeSheet" class="sheet-close interactive" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div id="sheetWallet" class="wallet"><span>Your gems</span><b>${gem(18)} ${save.coins}</b></div><div class="skin-grid">${cards}</div><p class="sheet-note">Earn gems by smashing floors and completing levels.</p></section></div>`;
         dom.sheet.classList.remove("hidden");
         $("#closeSheet").addEventListener("click", closeSheet);
         dom.sheet.querySelectorAll("[data-skin]").forEach((b) =>
@@ -3196,7 +3297,7 @@
             game.skin(s);
             store();
             persistent();
-            shop();
+            updateShopCards();
           }),
         );
       }
@@ -3287,6 +3388,7 @@
       $("#pauseBtn").addEventListener("click", pause);
       $("#shopBtn").addEventListener("click", shop);
       $("#settingsBtn").addEventListener("click", settings);
+      $("#readyHomeBtn").addEventListener("click", home);
       const isModalOpen = () =>
         !dom.modal.classList.contains("hidden") ||
         !dom.sheet.classList.contains("hidden");

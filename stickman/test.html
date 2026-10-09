@@ -144,7 +144,7 @@ const renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'h
 renderer.setPixelRatio(Math.min(1.5,window.devicePixelRatio||1));
 renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=0.95;
+renderer.toneMappingExposure=0.88;
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene();
 const HORIZON=new THREE.Color('#98bfe6');
@@ -168,8 +168,8 @@ const sky=new THREE.Mesh(new THREE.SphereGeometry(450,32,16),skyMat);scene.add(s
   scene.environment=pm.fromScene(es,.02).texture;pm.dispose();
 })();
 
-const hemi=new THREE.HemisphereLight(0xffffff,0x80a4cc,.6);scene.add(hemi);
-const sun=new THREE.DirectionalLight(0xfffaee,.85);
+const hemi=new THREE.HemisphereLight(0xffffff,0x80a4cc,.52);scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfffaee,.72);
 sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
 Object.assign(sun.shadow.camera,{left:-20,right:20,top:22,bottom:-22,near:1,far:70});
 sun.shadow.bias=-.0004;sun.shadow.normalBias=.02;
@@ -404,6 +404,38 @@ function setBadge(b,v){
 }
 function removeBadge(b){if(!b)return;scene.remove(b.sp);b.tex.dispose();b.sp.material.dispose();}
 
+function makeBossHPBar(){
+  const c=document.createElement('canvas');c.width=256;c.height=64;const g=c.getContext('2d');
+  const tex=canvasTex(c);
+  const mat=new THREE.SpriteMaterial({map:tex,depthTest:false,transparent:true,fog:false});
+  const sp=new THREE.Sprite(mat);sp.renderOrder=14;sp.scale.set(3.4,.85,1);scene.add(sp);
+  const b={sp,c,g,tex,val:-1};
+  setBossHPBar(b,1.0);
+  return b;
+}
+function setBossHPBar(b,ratio){
+  ratio=clamp(ratio,0,1);
+  if(Math.abs(b.val-ratio)<0.003&&b.val!==-1)return;
+  b.val=ratio;
+  const g=b.g;g.clearRect(0,0,256,64);
+  const x=16,y=14,w=224,h=36,r=18;
+  // White capsule border
+  g.fillStyle='#ffffff';rr(g,x,y,w,h,r);g.fill();
+  // Red background for missing health
+  const inX=x+4,inY=y+4,inW=w-8,inH=h-8,inR=r-4;
+  g.fillStyle='#e8352f';rr(g,inX,inY,inW,inH,inR);g.fill();
+  // Green active health fill
+  const fillW=Math.max(0,inW*ratio);
+  if(fillW>0){
+    g.save();
+    rr(g,inX,inY,inW,inH,inR);g.clip();
+    g.fillStyle='#2ecc71';g.fillRect(inX,inY,fillW,inH);
+    g.fillStyle='rgba(255,255,255,.35)';g.fillRect(inX,inY,fillW,inH*.45);
+    g.restore();
+  }
+  b.tex.needsUpdate=true;
+}
+
 /* ================= CONSTANTS ================= */
 const HALF=5,SPEED=9.2,SP=.23,GA=2.39996323,MAXV=500,EMAXV=200,STEPS=20,SH=.45,SDEP=1.35;
 const SX=[],SZ=[];
@@ -484,7 +516,7 @@ function buildLevel(n){
   const grp=new THREE.Group();scene.add(grp);
   const lv={n,L,endType,group:grp,gates:[],enemies:[],obstacles:[],coins:[],stairD:L+9,kingD:L+19};
   level=lv;
-  const endD=endType==='stairs'?lv.stairD+2:L+10;
+  const endD=endType==='stairs'?lv.stairD+2:lv.kingD-8.5;
   // track
   const tlen=endD+22;
   const tm=new THREE.MeshStandardMaterial({map:trackTex.clone(),roughness:.55});tm.map.needsUpdate=true;tm.map.repeat.set(1,tlen/10);
@@ -531,7 +563,7 @@ function buildLevel(n){
     }else{const cx=[-3,0,3][ri(0,2)];addCoins(grp,lv,d,cx,6);d+=12;}
     last=type;i++;
   }
-  lv.bossHP=Math.max(8,Math.round(B*rf(.42,.62)));
+  lv.bossHP=Math.max(160,Math.round(B*3.8)+90);
   if(endType==='stairs')buildStairs(grp,lv);else buildBoss(grp,lv);
   return lv;
 }
@@ -809,55 +841,237 @@ function buildStairs(grp,lv){
 }
 
 /* ================= END: KING + CASTLE ================= */
-function makeKing(){
-  const g=new THREE.Group();const mat=new THREE.MeshStandardMaterial({color:'#e8352f',roughness:.42});
+function makeKing(style){
+  style = style || 'bat';
+  const g=new THREE.Group();const mat=new THREE.MeshStandardMaterial({color:'#ee3a32',roughness:.42});
   const body=new THREE.Group();g.add(body);
   const head=new THREE.Mesh(geoHead,mat);head.position.y=.74;body.add(head);
   const torso=new THREE.Mesh(geoTorso,mat);torso.position.y=.455;body.add(torso);
   const mk=(geo,x,y)=>{const p=new THREE.Group();p.position.set(x,y,0);const m=new THREE.Mesh(geo,mat);m.castShadow=true;p.add(m);body.add(p);return p;};
   const legL=mk(geoLeg,-.052,.3),legR=mk(geoLeg,.052,.3),armL=mk(geoArm,-.105,.585),armR=mk(geoArm,.105,.585);
   head.castShadow=torso.castShadow=true;
-  const crown=new THREE.Group();crown.position.y=.83;body.add(crown);
-  const ring=new THREE.Mesh(new THREE.CylinderGeometry(.085,.08,.06,16,1,true),M.gold);ring.material.side=THREE.DoubleSide;crown.add(ring);
-  for(let i=0;i<6;i++){const c=new THREE.Mesh(new THREE.ConeGeometry(.022,.07,6),M.gold);const a=i/6*Math.PI*2;c.position.set(Math.cos(a)*.08,.06,Math.sin(a)*.08);crown.add(c);}
-  const gem=new THREE.Mesh(new THREE.SphereGeometry(.015,8,6),new THREE.MeshStandardMaterial({color:'#37d0ff',roughness:.1,metalness:.3}));gem.position.set(0,.005,.085);crown.add(gem);
-  g.scale.setScalar(3.6);
-  return {g,body,armL,armR,legL,legR,mat};
+
+  const weaponGroup=new THREE.Group();
+  weaponGroup.position.set(0,-.25,0);
+
+  if(style==='bat'){
+    // Spiked Baseball Bat + Skull / Hockey Mask (Matches Reference Game!)
+    // 1. Hockey Mask with Eye Holes and Red Headband Strap
+    const mask=new THREE.Group();mask.position.set(0,.74,.02);body.add(mask);
+    const faceplate=new THREE.Mesh(new THREE.SphereGeometry(.108,16,12,0,Math.PI*2,0,Math.PI*0.48),new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.35}));
+    faceplate.rotation.x=-Math.PI/2;
+    mask.add(faceplate);
+    const strap=new THREE.Mesh(new THREE.CylinderGeometry(.107,.107,.028,18),new THREE.MeshStandardMaterial({color:'#1e293b',roughness:.6}));
+    mask.add(strap);
+    // Black eye slots
+    const eyeMat=new THREE.MeshBasicMaterial({color:'#0f172a'});
+    [-.038,.038].forEach(x=>{
+      const eye=new THREE.Mesh(new THREE.CircleGeometry(.018,8),eyeMat);
+      eye.position.set(x,.02,.108);
+      mask.add(eye);
+    });
+
+    // 2. Heavy Spiked Baseball Bat
+    const batGrip=new THREE.Mesh(new THREE.CylinderGeometry(.02,.022,.32,10),new THREE.MeshStandardMaterial({color:'#334155',roughness:.8}));
+    batGrip.position.y=-.12;weaponGroup.add(batGrip);
+    const batBarrel=new THREE.Mesh(new THREE.CylinderGeometry(.046,.024,.68,12),new THREE.MeshStandardMaterial({color:'#5c2c16',roughness:.65}));
+    batBarrel.position.y=.32;weaponGroup.add(batBarrel);
+    // Radial golden spikes on bat barrel
+    const spikeMat=new THREE.MeshStandardMaterial({color:'#ffd21f',metalness:.6,roughness:.3});
+    for(let k=0;k<4;k++){
+      const y=.24+k*.11;
+      for(let j=0;j<4;j++){
+        const a=j*Math.PI/2+k*.4;
+        const spk=new THREE.Mesh(new THREE.ConeGeometry(.016,.045,6),spikeMat);
+        spk.position.set(Math.cos(a)*.046,y,Math.sin(a)*.046);
+        spk.rotation.z=-Math.cos(a)*Math.PI/2;
+        spk.rotation.x=Math.sin(a)*Math.PI/2;
+        weaponGroup.add(spk);
+      }
+    }
+  } else if(style==='wizard'){
+    // Witch / Wizard Hat + Magic Broom Staff
+    const hat=new THREE.Group();hat.position.y=.82;body.add(hat);
+    const brim=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,.018,18),new THREE.MeshStandardMaterial({color:'#4338ca',roughness:.5}));
+    hat.add(brim);
+    const cone=new THREE.Mesh(new THREE.ConeGeometry(.1,.24,16),new THREE.MeshStandardMaterial({color:'#4338ca',roughness:.5}));
+    cone.position.y=.12;cone.rotation.z=-0.15;hat.add(cone);
+    const band=new THREE.Mesh(new THREE.CylinderGeometry(.102,.102,.028,18),new THREE.MeshStandardMaterial({color:'#ffd21f',roughness:.3}));
+    band.position.y=.015;hat.add(band);
+
+    // Broom Staff
+    const handle=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.95,8),new THREE.MeshStandardMaterial({color:'#78350f',roughness:.8}));
+    handle.position.y=.10;weaponGroup.add(handle);
+    const bristles=new THREE.Mesh(new THREE.ConeGeometry(.09,.26,10),new THREE.MeshStandardMaterial({color:'#d97706',roughness:.9}));
+    bristles.position.y=.48;bristles.rotation.z=Math.PI;weaponGroup.add(bristles);
+  } else {
+    // Viking Horned Helmet + Battle Axe
+    const helmet=new THREE.Group();helmet.position.y=.78;body.add(helmet);
+    const dome=new THREE.Mesh(new THREE.SphereGeometry(.096,16,12,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:'#475569',roughness:.4,metalness:.3}));
+    helmet.add(dome);
+    const band=new THREE.Mesh(new THREE.CylinderGeometry(.098,.098,.032,18),new THREE.MeshStandardMaterial({color:'#ffd21f',roughness:.3,metalness:.2}));
+    band.position.y=.008;helmet.add(band);
+    const hornMat=new THREE.MeshStandardMaterial({color:'#e2e8f0',roughness:.5});
+    [-1,1].forEach(side=>{
+      const hornP=new THREE.Group();hornP.position.set(side*.09,.04,0);
+      const horn=new THREE.Mesh(new THREE.ConeGeometry(.032,.13,8),hornMat);
+      horn.position.set(side*.032,.055,0);
+      horn.rotation.z=-side*0.55;
+      horn.rotation.x=-0.2;
+      hornP.add(horn);
+      helmet.add(hornP);
+    });
+
+    const handle=new THREE.Mesh(new THREE.CylinderGeometry(.02,.022,.92,10),new THREE.MeshStandardMaterial({color:'#8b5a2b',roughness:.75}));
+    handle.position.y=.10;weaponGroup.add(handle);
+    const collar=new THREE.Mesh(new THREE.CylinderGeometry(.032,.032,.08,12),new THREE.MeshStandardMaterial({color:'#334155',roughness:.3,metalness:.8}));
+    collar.position.y=.44;weaponGroup.add(collar);
+    const blade=new THREE.Mesh(new THREE.CylinderGeometry(.22,.26,.025,18,1,false,0,Math.PI*0.85),new THREE.MeshStandardMaterial({color:'#93c5fd',roughness:.25,metalness:.75}));
+    blade.position.set(0,.44,-.03);blade.rotation.z=blade.rotation.y=Math.PI/2;weaponGroup.add(blade);
+    const edge=new THREE.Mesh(new THREE.TorusGeometry(.26,.014,8,20,Math.PI*0.85),new THREE.MeshStandardMaterial({color:'#f8fafc',roughness:.15,metalness:.95}));
+    edge.position.set(0,.44,-.03);edge.rotation.z=edge.rotation.y=Math.PI/2;weaponGroup.add(edge);
+  }
+
+  // Position weapon ready for horizontal batting / cricket swing
+  weaponGroup.rotation.x=Math.PI/3.2;
+  weaponGroup.rotation.z=-0.12;
+  armR.add(weaponGroup);
+
+  // Cartoon Impact Smoke Puff (bursts on weapon strike)
+  const puff=new THREE.Group();
+  const puffMat=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.9,transparent:true,opacity:0});
+  for(let i=0;i<8;i++){
+    const sp=new THREE.Mesh(new THREE.SphereGeometry(.28+Math.random()*.15,10,8),puffMat);
+    sp.position.set((Math.random()-.5)*.5,(Math.random()-.5)*.35,(Math.random()-.5)*.5);
+    puff.add(sp);
+  }
+  puff.scale.setScalar(0.001);
+  puff.position.set(0.15,.6,1.1);
+  g.add(puff);
+
+  g.scale.setScalar(3.8);
+  return {g,body,armL,armR,legL,legR,mat,weaponGroup,puff,puffMat};
 }
 function buildBoss(grp,lv){
   const KD=lv.kingD;
-  const arena=new THREE.Mesh(new THREE.CylinderGeometry(10,10,1.2,48),[new THREE.MeshStandardMaterial({color:'#9db3cb',roughness:.7}),new THREE.MeshStandardMaterial({color:'#eef2f6',roughness:.55}),M.trackSide]);
-  arena.position.set(0,-.6,-KD);arena.receiveShadow=true;grp.add(arena);
-  const ringM=new THREE.Mesh(new THREE.RingGeometry(8.6,9.2,48),new THREE.MeshStandardMaterial({color:'#e8352f',roughness:.5,polygonOffset:true,polygonOffsetFactor:-1}));ringM.rotation.x=-Math.PI/2;ringM.position.set(0,.008,-KD);grp.add(ringM);
-  // castle
-  const stone=new THREE.MeshStandardMaterial({color:'#efe6d6',roughness:.8});
-  const roof=new THREE.MeshStandardMaterial({color:'#e8352f',roughness:.5});
-  const dark=new THREE.MeshStandardMaterial({color:'#4a3a2f',roughness:.9});
-  const c=new THREE.Group();c.position.set(0,0,-(KD+12));grp.add(c);
-  const plat=new THREE.Mesh(new THREE.BoxGeometry(22,1.2,12),M.trackSide);plat.position.y=-.6;c.add(plat);
-  const wall=new THREE.Mesh(new THREE.BoxGeometry(14,5,1.6),stone);wall.position.set(0,2.5,2);wall.castShadow=true;wall.receiveShadow=true;c.add(wall);
-  for(let i=0;i<11;i++){const b=new THREE.Mesh(new THREE.BoxGeometry(.7,.7,1.6),stone);b.position.set(-6.3+i*1.26,5.35,2);b.castShadow=true;c.add(b);}
-  const gate=new THREE.Mesh(new THREE.BoxGeometry(3,3.2,.2),dark);gate.position.set(0,1.6,2.85);c.add(gate);
-  const arch=new THREE.Mesh(new THREE.CylinderGeometry(1.5,1.5,.2,20,1,false,0,Math.PI),dark);arch.rotation.x=Math.PI/2;arch.rotation.z=Math.PI/2;arch.position.set(0,3.2,2.85);c.add(arch);
-  const keep=new THREE.Mesh(new THREE.BoxGeometry(7,9,5),stone);keep.position.set(0,4.5,-2);keep.castShadow=true;c.add(keep);
-  for(let i=0;i<6;i++){const b=new THREE.Mesh(new THREE.BoxGeometry(.7,.7,5),stone);b.position.set(-3+i*1.2,9.35,-2);c.add(b);}
-  [[-2,6],[2,6],[0,3.5]].forEach(([x,y])=>{const w=new THREE.Mesh(new THREE.BoxGeometry(.6,1.1,.1),dark);w.position.set(x,y,.52);c.add(w);});
-  const roofs=[];
-  [[-7.3,2,1.8,8],[7.3,2,1.8,8],[-5,-4,1.5,10],[5,-4,1.5,10]].forEach(([x,z,r,h])=>{
-    const t=new THREE.Mesh(new THREE.CylinderGeometry(r,r*1.05,h,20),stone);t.position.set(x,h/2,z);t.castShadow=true;t.receiveShadow=true;c.add(t);
-    for(let i=0;i<8;i++){const a=i/8*Math.PI*2;const b=new THREE.Mesh(new THREE.BoxGeometry(.5,.6,.5),stone);b.position.set(x+Math.cos(a)*r*.9,h+.3,z+Math.sin(a)*r*.9);c.add(b);}
-    const cn=new THREE.Mesh(new THREE.ConeGeometry(r*1.2,r*2.2,20),roof);cn.position.set(x,h+.6+r*1.1,z);cn.castShadow=true;c.add(cn);roofs.push(cn);
-    const w=new THREE.Mesh(new THREE.BoxGeometry(.5,1,.1),dark);w.position.set(x,h*.6,z+r+.02);c.add(w);
+  const topMat=new THREE.MeshStandardMaterial({color:'#f1f5f9',roughness:.55});
+  const sideMat=new THREE.MeshStandardMaterial({color:'#dbe5f1',roughness:.65});
+  
+  // 1. Solid, Fully-Capped, Hole-Free 3D Island Cylinder (Reaches deep into water, 100% solid floor)
+  const arena=new THREE.Mesh(new THREE.CylinderGeometry(11.5,11.5,10,64),[sideMat,topMat,M.trackSide]);
+  arena.position.set(0,-5,-(KD+3.0));
+  arena.receiveShadow=true;
+  grp.add(arena);
+
+  // 2. Seamless Stone Runway Apron (Bridges the straight track and curved cylinder with ZERO gaps, ZERO holes, and ZERO z-fighting)
+  const apronMat=new THREE.MeshStandardMaterial({color:'#f1f5f9',roughness:.55});
+  const apron=new THREE.Mesh(new THREE.BoxGeometry(HALF*2+0.52,.06,2.8),apronMat);
+  apron.position.set(0,.02,-(KD-8.2));
+  apron.receiveShadow=true;
+  grp.add(apron);
+
+  // Entrance Neck Curbs extending fully into the island cylinder (Zero notch, zero cut)
+  [-1,1].forEach(s=>{
+    const cb=new THREE.Mesh(new THREE.BoxGeometry(.52,.34,2.6),M.curb);
+    cb.position.set(s*(HALF+.26),.04,-(KD-8.0));
+    cb.receiveShadow=true;cb.castShadow=true;
+    grp.add(cb);
   });
-  const pole=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,4,8),M.post);pole.position.set(0,11.6,-2);c.add(pole);
-  const flagG=new THREE.PlaneGeometry(2.2,1.3,10,4);flagG.translate(1.1,0,0);
-  const flagM=new THREE.MeshStandardMaterial({color:'#e8352f',roughness:.6,side:THREE.DoubleSide});
-  const flag=new THREE.Mesh(flagG,flagM);flag.position.set(0,12.9,-2);flag.castShadow=true;c.add(flag);
-  lv.castle={roof,flagM,flag,flagBase:Float32Array.from(flagG.attributes.position.array)};
-  // king
-  const k=makeKing();k.g.position.set(0,0,-KD);grp.add(k.g);lv.king=k;
-  lv.kingBadge=makeBadge('#ee3a32','#7a1010');setBadge(lv.kingBadge,lv.bossHP);
-  lv.kingHP=lv.bossHP;lv.kingDead=0;lv.kingFlash=0;
+
+  // High-End Stylized Terracotta Medieval Fortress (Positioned 6.8 units behind King)
+  const cMat=new THREE.MeshStandardMaterial({color:'#ba7a54',roughness:.72});
+  const cDark=new THREE.MeshStandardMaterial({color:'#945836',roughness:.8});
+  const cTrim=new THREE.MeshStandardMaterial({color:'#df9e78',roughness:.58});
+  const dark=new THREE.MeshStandardMaterial({color:'#1a232f',roughness:.65,metalness:.5});
+  const whiteStone=new THREE.MeshStandardMaterial({color:'#f8fafc',roughness:.45});
+  const gold=M.gold;
+  const c=new THREE.Group();c.position.set(0,0,-(KD+6.8));grp.add(c);
+
+  // 1. Foundation Base Plinth & Grounding Terrace
+  const basePlinth=new THREE.Mesh(new THREE.BoxGeometry(16.8,.36,6.2),cDark);
+  basePlinth.position.set(0,.18,-.2);basePlinth.receiveShadow=true;c.add(basePlinth);
+
+  // 2. Main Curtain Wall with Crenellations
+  const wall=new THREE.Mesh(new THREE.BoxGeometry(15.4,4.0,1.5),cMat);
+  wall.position.set(0,2.0,0);wall.castShadow=true;wall.receiveShadow=true;c.add(wall);
+  for(let i=0;i<12;i++){
+    const b=new THREE.Mesh(new THREE.BoxGeometry(.64,.58,1.55),cTrim);
+    b.position.set(-6.1+i*1.11,4.25,0);b.castShadow=true;c.add(b);
+  }
+
+  // 3. Central Great Keep (Elevated backdrop behind gatehouse)
+  const keep=new THREE.Mesh(new THREE.BoxGeometry(6.8,8.6,3.4),cMat);
+  keep.position.set(0,4.3,-1.6);keep.castShadow=true;c.add(keep);
+  for(let i=0;i<6;i++){
+    const b=new THREE.Mesh(new THREE.BoxGeometry(.68,.68,3.5),cTrim);
+    b.position.set(-2.8+i*1.12,8.85,-1.6);b.castShadow=true;c.add(b);
+  }
+  const flagPole=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,3.4,8),gold);
+  flagPole.position.set(0,10.2,-1.6);c.add(flagPole);
+  const flagG=new THREE.PlaneGeometry(1.8,1.0,8,3);flagG.translate(.9,0,0);
+  const flagM=new THREE.MeshStandardMaterial({color:'#ef4444',roughness:.5,side:THREE.DoubleSide});
+  const flag=new THREE.Mesh(flagG,flagM);flag.position.set(0,11.2,-1.6);flag.castShadow=true;c.add(flag);
+
+  // 4. Stepped 3D Gatehouse & Deep Arched Portal
+  const gateHouse=new THREE.Mesh(new THREE.BoxGeometry(4.6,4.8,2.0),cMat);
+  gateHouse.position.set(0,2.4,.3);gateHouse.castShadow=true;c.add(gateHouse);
+  for(let i=0;i<4;i++){
+    const b=new THREE.Mesh(new THREE.BoxGeometry(.68,.58,2.05),cTrim);
+    b.position.set(-1.65+i*1.1,5.05,.3);b.castShadow=true;c.add(b);
+  }
+  // Stepped Stone Archway
+  const gateFrameOuter=new THREE.Mesh(new THREE.BoxGeometry(3.4,3.6,.35),whiteStone);
+  gateFrameOuter.position.set(0,1.8,1.25);c.add(gateFrameOuter);
+  const gateArchOuter=new THREE.Mesh(new THREE.CylinderGeometry(1.7,1.7,.35,24,1,false,0,Math.PI),whiteStone);
+  gateArchOuter.rotation.x=Math.PI/2;gateArchOuter.rotation.z=Math.PI/2;gateArchOuter.position.set(0,3.6,1.25);c.add(gateArchOuter);
+
+  // Dark Ironwood Double Doors with Medieval Iron Hinges & Bronze Knocker Rings
+  const door=new THREE.Mesh(new THREE.BoxGeometry(2.6,3.0,.22),dark);
+  door.position.set(0,1.5,1.22);c.add(door);
+  const doorArch=new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.3,.22,20,1,false,0,Math.PI),dark);
+  doorArch.rotation.x=Math.PI/2;doorArch.rotation.z=Math.PI/2;doorArch.position.set(0,3.0,1.22);c.add(doorArch);
+  const doorSeam=new THREE.Mesh(new THREE.BoxGeometry(.06,4.3,.26),gold);
+  doorSeam.position.set(0,2.15,1.23);c.add(doorSeam);
+  [-0.6,0.6].forEach(dx=>{
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(.14,.03,8,16),gold);
+    ring.position.set(dx,1.6,1.35);c.add(ring);
+  });
+
+  // 5. Left & Right Flanking Bastion Towers (With machicolations, string courses, & arrow loops)
+  [-6.5,6.5].forEach(tx=>{
+    const t=new THREE.Mesh(new THREE.BoxGeometry(2.8,7.4,2.8),cMat);
+    t.position.set(tx,3.7,0);t.castShadow=true;t.receiveShadow=true;c.add(t);
+    // Decorative horizontal string course band
+    const band=new THREE.Mesh(new THREE.BoxGeometry(2.95,.18,2.95),cTrim);
+    band.position.set(tx,3.9,0);c.add(band);
+    // Overhanging top corbel ledge
+    const ledge=new THREE.Mesh(new THREE.BoxGeometry(3.15,.38,3.15),cTrim);
+    ledge.position.set(tx,7.35,0);ledge.castShadow=true;c.add(ledge);
+    // 4 Corner Crenellations with Chamfered Caps
+    const offsets=[-1.15,1.15];
+    offsets.forEach(ox=>{
+      offsets.forEach(oz=>{
+        const cren=new THREE.Mesh(new THREE.BoxGeometry(.65,.68,.65),cTrim);
+        cren.position.set(tx+ox,7.85,oz);cren.castShadow=true;c.add(cren);
+      });
+    });
+    // Dark narrow arrow slit with stone frame
+    const winFrame=new THREE.Mesh(new THREE.BoxGeometry(.5,1.2,.12),cTrim);
+    winFrame.position.set(tx,4.8,1.42);c.add(winFrame);
+    const win=new THREE.Mesh(new THREE.BoxGeometry(.25,.9,.16),dark);
+    win.position.set(tx,4.8,1.43);c.add(win);
+  });
+
+  lv.castle={flag,flagM,flagBase:Float32Array.from(flagG.attributes.position.array)};
+  
+  // Choose boss weapon & hat style (Spiked Bat, Axe, Wizard)
+  const styles=['bat','axe','wizard'];
+  const style=styles[Math.floor(lv.n/3)%styles.length]||'bat';
+  const k=makeKing(style);k.g.position.set(0,0,-KD);grp.add(k.g);lv.king=k;
+  lv.kingBadge=makeBossHPBar();
+  lv.kingHP=lv.bossHP;lv.bossMaxHP=lv.bossHP;
+  setBossHPBar(lv.kingBadge,1.0);
+  lv.kingDead=0;lv.kingFlash=0;
   // shockwave
   const sw=new THREE.Mesh(new THREE.RingGeometry(.8,1,40),new THREE.MeshBasicMaterial({color:'#ffffff',transparent:true,opacity:0,depthWrite:false}));sw.rotation.x=-Math.PI/2;sw.position.set(0,.03,-KD);grp.add(sw);lv.shock=sw;
 }
@@ -869,17 +1083,17 @@ function syncCrowd(burst){
   setBadge(crowd.badge,crowd.count);
 }
 function spawnDebris(x,y,d,vx,vy,vd,col){
-  if(debris.length>90)debris.shift();
+  if(debris.length>140)debris.shift();
   debris.push({
     x,y:y||.35,d,
     vx:vx||(Math.random()-.5)*4,
-    vy:vy||(4.5+Math.random()*3),
-    vd:vd||-(3+Math.random()*3),
-    vr:(Math.random()-.5)*16,
+    vy:vy||(5.5+Math.random()*3.5),
+    vd:vd||-(4.5+Math.random()*3.5),
+    vr:(Math.random()-.5)*18,
     rx:Math.random()*6.28,
     rz:Math.random()*6.28,
     ph:Math.random()*6.28,
-    life:.85+Math.random()*.4,
+    life:1.1+Math.random()*.4,
     col:col||BLUE
   });
 }
@@ -1252,61 +1466,139 @@ function updateTower(dt){
 function nextStep(){const T=tower;T.step++;T.fy=T.by;T.fd=T.bd;T.ty=(T.step+1)*SH;T.td=level.stairD+T.step*SDEP+SDEP/2;T.t=0;T.arrived=false;}
 
 function updateBossRun(dt){
-  const target=level.kingD-1.9-crowd.R;
+  const target=level.kingD-2.1-crowd.R*0.25;
   crowd.d=Math.min(target,crowd.d+SPEED*dt);
   crowd.tx*=.9;steer(dt);
-  if(crowd.d>=target){state='boss';boss={acc:0,t:0,lastSlam:0};}
+  if(crowd.d>=target){state='boss';boss={t:0,lastSwing:-1,lastPunch:0};}
 }
 function updateBoss(dt){
   const B=boss;B.t+=dt;
-  const rate=clamp(Math.min(crowd.count,level.kingHP)*.7,7,70);
-  if(B.t>.5)B.acc+=dt*rate;
-  while(B.acc>=1&&crowd.count>0&&level.kingHP>0){
-    B.acc-=1;
-    // kill member closest to king
-    let bi=0,bv=1e9;crowd.members.forEach((m,i)=>{const wx=crowd.x+m.ox,wd=crowd.d+m.oz;const v=wx*wx+(wd-level.kingD)*(wd-level.kingD);if(v<bv){bv=v;bi=i;}});
-    const m=crowd.members[bi];if(m){const wx=crowd.x+m.ox,wd=crowd.d+m.oz;addSplat(wx,0,-wd,BLUE);burst(wx,.5,-wd,BLUE,3,3,3);crowd.members.splice(bi,1);}
-    crowd.count--;level.kingHP--;level.kingFlash=.12;sPop();
+  
+  // Crowd steadily chips Boss HP bar with punch attacks
+  const crowdDPS=Math.max(16,Math.min(crowd.count*0.85,55));
+  level.kingHP=Math.max(0,level.kingHP-crowdDPS*dt);
+  setBossHPBar(level.kingBadge,level.kingHP/level.bossMaxHP);
+  
+  // Punch hit sound & sparks at front arc
+  if(!B.lastPunch||B.t-B.lastPunch>0.12){
+    B.lastPunch=B.t;
+    if(Math.random()<0.85)sPop();
+    level.kingFlash=0.1;
+    const ra=(Math.random()-.5)*1.8;
+    burst(Math.sin(ra)*1.1,.6,-(level.kingD+Math.cos(ra)*.8),new THREE.Color('#ffd21f'),3,2.5,2.5);
   }
-  syncCrowd(false);setBadge(level.kingBadge,Math.max(0,level.kingHP));
-  // slam every 0.95s
-  const p=(B.t%0.95)/0.95;
-  if(p>.68&&B.lastSlam!==Math.floor(B.t/.95)){B.lastSlam=Math.floor(B.t/.95);shake=.35;sThud();vib(30);level.shock.userData.t=0;burst(0,.2,-level.kingD,new THREE.Color('#d9dee5'),10,5,2);}
-  if(level.kingHP<=0){state='bossWin';endTimer=0;level.kingDead=.001;sThud();shake=.6;}
-  else if(crowd.count<=0){lose('The King was too strong!');}
+
+  // Boss Axe Attack Swing Cycle (1.1s period)
+  const p=(B.t%1.1)/1.1;
+  const swingIdx=Math.floor(B.t/1.1);
+  if(p>=0.55&&B.lastSwing!==swingIdx){
+    B.lastSwing=swingIdx;
+    shake=0.5;
+    sThud();vib(45);
+    if(level.shock)level.shock.userData.t=0;
+
+    // Show impact puff smoke cloud at front strike point
+    if(level.king&&level.king.puff){
+      level.king.puff.userData.t=0.001;
+      level.king.puff.position.set(0.15,.6,1.1);
+    }
+
+    // 1. Identify all stickmen within the slash hitbox
+    const hitRadius=2.6;
+    const slashVictims=[];
+    for(let i=0;i<crowd.members.length;i++){
+      const m=crowd.members[i];
+      const wx=crowd.x+m.ox,wd=crowd.d+m.oz;
+      const dx=wx-0,dz=wd-level.kingD;
+      const dist=Math.sqrt(dx*dx+dz*dz);
+      if(dist<hitRadius){
+        slashVictims.push({i,dist,wx,wd,dx,dz,m});
+      }
+    }
+
+    // Sort closest first
+    slashVictims.sort((a,b)=>a.dist-b.dist);
+
+    // 2. Kill 4 to 8 stickmen right at impact point and launch them into high ragdoll fling
+    const killCount=Math.min(slashVictims.length,Math.floor(4+Math.random()*4));
+    const indicesToRemove=[];
+    for(let k=0;k<killCount;k++){
+      const v=slashVictims[k];
+      indicesToRemove.push(v.i);
+      addSplat(v.wx,0,-v.wd,BLUE);
+      burst(v.wx,.5,-v.wd,BLUE,7,6.0,4.5);
+      
+      const outDir=Math.atan2(v.dx,v.dz);
+      const flingSpd=7.5+Math.random()*5.5;
+      const vx=Math.sin(outDir)*flingSpd;
+      const vy=5.5+Math.random()*4.0;
+      const vd=-(6.5+Math.random()*5.0);
+      spawnDebris(v.wx,.4,v.wd,vx,vy,vd,BLUE);
+    }
+
+    indicesToRemove.sort((a,b)=>b-a);
+    for(const idx of indicesToRemove){
+      crowd.members.splice(idx,1);
+      crowd.count--;
+    }
+
+    // 3. Backward RECOIL / KNOCKBACK impulse to all surviving stickmen in the blast radius!
+    for(const m of crowd.members){
+      const wx=crowd.x+m.ox,wd=crowd.d+m.oz;
+      const dx=wx-0,dz=wd-level.kingD;
+      const dist=Math.sqrt(dx*dx+dz*dz);
+      if(dist<3.6&&dist>0.01){
+        const recoilForce=(3.6-dist)*1.5;
+        m.oz-=recoilForce; // Knock back along track
+        m.ox+=(dx/dist)*(recoilForce*0.75); // Knock sideways away from center
+      }
+    }
+
+    // Immediately re-slot surviving members so the next ones aggressively rush forward into the front line!
+    repackSlots(crowd.members);
+    syncCrowd(false);
+  }
+
+  if(level.kingHP<=0){
+    state='bossWin';endTimer=0;level.kingDead=.001;sThud();shake=.6;
+  } else if(crowd.count<=0){
+    lose('The Boss was too strong!');
+  }
 }
 
 /* ================= MEMBER ANIMATION ================= */
 function updateMembers(dt){
   const st=state;
   crowd.R=clamp(SP*Math.sqrt(Math.max(1,crowd.members.length)),0.35,HALF-0.35);
-  const ring=st==='boss'||st==='bossWin'||((st==='lose'||st==='won')&&boss);
   const maxRoadX=HALF-0.28;
-  const k=1-Math.exp(-dt*(st==='battle'?9.5:7.0));
+  const k=1-Math.exp(-dt*(st==='battle'||st==='boss'?8.5:7.0));
   const runAnim=(st==='play'||st==='bossRun'||st==='battle');
   
-  if(ring){
-    crowd.members.forEach((m,i)=>{
-      const r=SP*Math.sqrt(i+.35)*1.05,a=i*GA;
-      const tx=Math.cos(a)*(1.9+r)-crowd.x;
-      const tz=level.kingD+Math.sin(a)*(1.9+r)-crowd.d;
-      m.ox+=(tx-m.ox)*k;
-      m.oz+=(tz-m.oz)*k;
-      m.ox=clamp(m.ox,-maxRoadX-crowd.x,maxRoadX-crowd.x);
-      m.sc=Math.min(1,m.sc+dt*6.0);
-      m.ph+=dt*(st==='boss'?10:5);
-    });
-  } else if(st!=='tower'){
-    // Smooth, stable crowd positioning without jitter or flattening
+  if(st!=='tower'){
     const N=crowd.members.length;
     for(let i=0;i<N;i++){
       const m=crowd.members[i];
       if(m.tx===undefined){m.tx=SX[i]||0;m.tz=SZ[i]||0;}
-      m.ox+=(m.tx-m.ox)*k;
-      m.oz+=(m.tz-m.oz)*k;
+      
+      // In boss fight, maintain comfortable crescent clearing around Boss
+      let tx=m.tx,tz=m.tz;
+      if(st==='boss'){
+        const wx=crowd.x+tx,wd=crowd.d+tz;
+        const dx=wx-0,dz=wd-level.kingD;
+        const dist=Math.sqrt(dx*dx+dz*dz);
+        const minBossGap=1.85;
+        if(dist<minBossGap&&dist>0.01){
+          const push=(minBossGap-dist);
+          tx+=(dx/dist)*push;
+          tz+=(dz/dist)*push;
+        }
+      }
+
+      m.ox+=(tx-m.ox)*k;
+      m.oz+=(tz-m.oz)*k;
       m.ox=clamp(m.ox,-maxRoadX-crowd.x,maxRoadX-crowd.x);
       m.sc=Math.min(1,m.sc+dt*6.0);
-      m.ph+=dt*(runAnim?11:5);
+      m.ph+=dt*(st==='boss'?11:(runAnim?11:5));
     }
   }
   
@@ -1362,7 +1654,11 @@ function camTarget(){
     _tp.set(midX*.5,8.4+zoom,z+10.8+zoom*1.25);
     _tl.set(midX*.5,0,z-4.5);
   }
-  else if(state==='boss'||state==='bossWin'||(state==='lose'&&boss)){const kz=-level.kingD;_tp.set(0,11,kz+15.5);_tl.set(0,1.4,kz-.5);}
+  else if(state==='boss'||state==='bossWin'||(state==='lose'&&boss)){
+    const kz=-level.kingD;
+    _tp.set(6.8, 10.6, kz+14.2);
+    _tl.set(-0.6, 1.5, kz-1.8);
+  }
   else if(state==='won'&&tower){
     if(tower.phase==='chest'&&level&&level.chest){
       _tp.set(3.2,level.chest.topY+2.2,-level.chest.pos.z+4.4);
@@ -1372,7 +1668,11 @@ function camTarget(){
       _tl.set(0,tower.by+0.8,-tower.bd-0.5);
     }
   }
-  else if(state==='won'&&level&&level.endType==='boss'){const kz=-level.kingD;_tp.set(0,11,kz+15.5);_tl.set(0,1.4,kz-.5);}
+  else if(state==='won'&&level&&level.endType==='boss'){
+    const kz=-level.kingD;
+    _tp.set(6.8, 10.6, kz+14.2);
+    _tl.set(-0.6, 1.5, kz-1.8);
+  }
   else{_tp.set(crowd.x*.5,8.4+zoom,z+10.8+zoom*1.25);_tl.set(crowd.x*.5,0,z-7);}
 }
 function snapCamera(){camTarget();camPos.copy(_tp);camLook.copy(_tl);}
@@ -1454,18 +1754,99 @@ function updateLevelVisuals(dt){
   if(level.water)level.water.offset.y=(time*.02)%1;
   if(level.king){
     const K=level.king;const t=time;
-    if(level.kingDead>0){level.kingDead=Math.min(1,level.kingDead+dt*1.5);K.g.rotation.x=-Math.PI/2*easeOut(level.kingDead);K.g.position.y=-.2*level.kingDead;
-      K.armL.rotation.z=-1.5;K.armR.rotation.z=1.5;}
-    else if(state==='boss'&&boss){const p=(boss.t%.95)/.95;const a=p<.62?lerp(.2,2.9,p/.62):lerp(2.9,.2,Math.min(1,(p-.62)/.08));
-      K.armL.rotation.z=-a;K.armR.rotation.z=a;K.body.position.y=p<.62?p*.04:0;K.legL.rotation.x=K.legR.rotation.x=0;K.body.rotation.x=p>.62&&p<.75?.25:0;}
-    else if(state==='lose'&&boss){K.armL.rotation.z=-2.6-Math.sin(t*10)*.2;K.armR.rotation.z=2.6+Math.sin(t*10)*.2;K.body.position.y=Math.abs(Math.sin(t*8))*.06;}
-    else{K.armL.rotation.z=-.25-Math.sin(t*2)*.08;K.armR.rotation.z=.25+Math.sin(t*2)*.08;K.body.position.y=Math.sin(t*3)*.008;}
-    level.kingFlash=Math.max(0,level.kingFlash-dt);K.mat.emissive.setRGB(level.kingFlash>0?.5:0,level.kingFlash>0?.5:0,level.kingFlash>0?.5:0);
-    level.kingBadge.sp.position.set(0,3.9,-level.kingD);level.kingBadge.sp.scale.set(2.2,1.1,1);level.kingBadge.sp.visible=level.kingDead===0;
-    const sw=level.shock;if(sw.userData.t!==undefined){sw.userData.t+=dt;const k=sw.userData.t/.45;sw.scale.setScalar(1+k*8);sw.material.opacity=Math.max(0,.8*(1-k));}
+    if(level.kingDead>0){
+      level.kingDead=Math.min(1,level.kingDead+dt*1.5);
+      K.g.rotation.x=-Math.PI/2*easeOut(level.kingDead);
+      K.g.position.y=-.2*level.kingDead;
+      K.armL.rotation.z=-1.5;K.armR.rotation.z=1.5;
+    }
+    else if(state==='boss'&&boss){
+      const p=(boss.t%1.1)/1.1;
+      if(p<0.45){
+        // Wind-up: cock bat horizontally behind right shoulder & twist hips back (Cricket/Baseball batting stance!)
+        const wp=p/0.45;
+        K.body.rotation.y=lerp(0,-1.25,wp);
+        K.body.rotation.x=lerp(0,-0.15,wp);
+        K.armR.rotation.x=lerp(0.2,0.45,wp);
+        K.armR.rotation.y=lerp(0,-0.65,wp);
+        K.armR.rotation.z=lerp(0.2,0.95,wp);
+        K.armL.rotation.x=lerp(-0.2,0.65,wp);
+        K.armL.rotation.y=lerp(0,0.5,wp);
+        K.armL.rotation.z=lerp(-0.25,0.45,wp);
+        K.body.position.y=wp*0.06;
+      } else if(p<0.68){
+        // Fast powerful horizontal Baseball / Cricket bat swing roundhouse through the crowd!
+        const sp=(p-0.45)/0.23;
+        K.body.rotation.y=lerp(-1.25,1.4,easeOut(sp));
+        K.body.rotation.x=lerp(-0.15,0.18,easeOut(sp));
+        K.armR.rotation.x=lerp(0.45,-0.25,easeOut(sp));
+        K.armR.rotation.y=lerp(-0.65,0.85,easeOut(sp));
+        K.armR.rotation.z=lerp(0.95,-0.75,easeOut(sp));
+        K.armL.rotation.x=lerp(0.65,-0.35,easeOut(sp));
+        K.armL.rotation.y=lerp(0.5,-0.4,easeOut(sp));
+        K.armL.rotation.z=lerp(0.45,-0.95,easeOut(sp));
+        K.body.position.y=0;
+      } else {
+        // Follow-through and reset to batting ready stance
+        const rp=(p-0.68)/0.32;
+        K.body.rotation.y=lerp(1.4,0,rp);
+        K.body.rotation.x=lerp(0.18,0,rp);
+        K.armR.rotation.x=lerp(-0.25,0.2,rp);
+        K.armR.rotation.y=lerp(0.85,0,rp);
+        K.armR.rotation.z=lerp(-0.75,0.2,rp);
+        K.armL.rotation.x=lerp(-0.35,-0.2,rp);
+        K.armL.rotation.y=lerp(-0.4,0,rp);
+        K.armL.rotation.z=lerp(-0.95,-0.25,rp);
+        K.body.position.y=0;
+      }
+      K.legL.rotation.x=K.legR.rotation.x=0;
+    }
+    else if(state==='lose'&&boss){
+      K.armL.rotation.z=-2.6-Math.sin(t*10)*.2;
+      K.armR.rotation.z=2.6+Math.sin(t*10)*.2;
+      K.body.position.y=Math.abs(Math.sin(t*8))*.06;
+      K.body.rotation.y=0;
+    }
+    else{
+      K.armL.rotation.z=-.25-Math.sin(t*2)*.08;
+      K.armR.rotation.z=.25+Math.sin(t*2)*.08;
+      K.armR.rotation.x=0;K.armL.rotation.x=0;
+      K.body.rotation.y=0;
+      K.body.position.y=Math.sin(t*3)*.008;
+    }
+    
+    // Impact Puff cloud animation
+    if(K.puff && K.puff.userData.t){
+      K.puff.userData.t+=dt;
+      const pt=K.puff.userData.t;
+      if(pt<0.42){
+        const sc=Math.sin(pt/0.42*Math.PI)*1.5;
+        K.puff.scale.setScalar(sc);
+        K.puffMat.opacity=Math.max(0,1-pt/0.42);
+      } else {
+        K.puff.scale.setScalar(0.001);
+        K.puffMat.opacity=0;
+        K.puff.userData.t=0;
+      }
+    }
+    
+    level.kingFlash=Math.max(0,level.kingFlash-dt);
+    K.mat.emissive.setRGB(level.kingFlash>0?.35:0,0,0);
+    level.kingBadge.sp.position.set(0,4.6,-level.kingD);
+    level.kingBadge.sp.scale.set(3.4,.85,1);
+    level.kingBadge.sp.visible=level.kingDead===0;
+    const sw=level.shock;
+    if(sw.userData.t!==undefined){
+      sw.userData.t+=dt;
+      const k=sw.userData.t/.45;
+      sw.scale.setScalar(1+k*8);
+      sw.material.opacity=Math.max(0,.8*(1-k));
+    }
     // flag wave
-    const fp=level.castle.flag.geometry.attributes.position;const base=level.castle.flagBase;
-    for(let i=0;i<fp.count;i++){const x=base[i*3];fp.array[i*3+2]=Math.sin(x*2.5-time*6)*.15*x/2.2;}fp.needsUpdate=true;
+    if(level.castle&&level.castle.flag&&level.castle.flagBase){
+      const fp=level.castle.flag.geometry.attributes.position;const base=level.castle.flagBase;
+      for(let i=0;i<fp.count;i++){const x=base[i*3];fp.array[i*3+2]=Math.sin(x*2.5-time*6)*.15*x/2.2;}fp.needsUpdate=true;
+    }
   }
 }
 const easeOut=t=>1-Math.pow(1-t,3);
@@ -1479,7 +1860,11 @@ function update(dt){
   else if(state==='boss')updateBoss(dt);
   else if(state==='bossWin'){
     endTimer+=dt;
-    if(endTimer<1.2){const k=Math.min(1,endTimer/1);level.castle.roof.color.lerpColors(new THREE.Color('#e8352f'),new THREE.Color('#2f7dff'),k);level.castle.flagM.color.lerpColors(new THREE.Color('#e8352f'),new THREE.Color('#2f7dff'),k);}
+    if(endTimer<1.2){
+      const k=Math.min(1,endTimer/1);
+      if(level.castle&&level.castle.roof)level.castle.roof.color.lerpColors(new THREE.Color('#e8352f'),new THREE.Color('#2f7dff'),k);
+      if(level.castle&&level.castle.flagM)level.castle.flagM.color.lerpColors(new THREE.Color('#e8352f'),new THREE.Color('#2f7dff'),k);
+    }
     if(Math.random()<.5)burst((Math.random()-.5)*14,6+Math.random()*4,-(level.kingD+8),new THREE.Color().setHSL(Math.random(),.9,.6),2,3,4);
     if(endTimer>2.2)win(2,true);
   }

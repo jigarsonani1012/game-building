@@ -875,7 +875,7 @@ function getBossTier(n){
     {
       name:'Titan Emperor',
       type:'hammer',
-      bodyCol:'#dc2626',
+      bodyCol:'#e11d48',
       sparkCol:new THREE.Color('#fbbf24'),
       scale:4.45,
       hpMult:2.1,
@@ -884,7 +884,7 @@ function getBossTier(n){
     {
       name:'Infernal Overlord',
       type:'sword',
-      bodyCol:'#18181b',
+      bodyCol:'#b91c1c',
       sparkCol:new THREE.Color('#f97316'),
       scale:4.65,
       hpMult:2.6,
@@ -1017,25 +1017,98 @@ function makeKing(tier){
   g.scale.setScalar(tier.scale);
   return {g,body,armL,armR,legL,legR,mat,weaponGroup,shieldGroup,puff,puffMat,tier};
 }
+function getCastleTheme(n){
+  const themes=[
+    {
+      name:'Royal Citadel',
+      cMat:'#ba7a54',
+      cDark:'#945836',
+      cTrim:'#df9e78',
+      frame:'#f8fafc',
+      door:'#1a232f',
+      metal:M.gold,
+      flag:'#ef4444',
+      arenaTop:'#f1f5f9',
+      arenaSide:'#dbe5f1',
+      towerStyle:'crenellated_square'
+    },
+    {
+      name:'Glacial Stronghold',
+      cMat:'#475569',
+      cDark:'#1e293b',
+      cTrim:'#94a3b8',
+      frame:'#cbd5e1',
+      door:'#0f172a',
+      metal:new THREE.MeshStandardMaterial({color:'#38bdf8',metalness:.7,roughness:.3}),
+      flag:'#0284c7',
+      arenaTop:'#e2e8f0',
+      arenaSide:'#94a3b8',
+      towerStyle:'conical_spire'
+    },
+    {
+      name:'Obsidian Citadel',
+      cMat:'#18181b',
+      cDark:'#09090b',
+      cTrim:'#4c1d95',
+      frame:'#6b21a8',
+      door:'#09090b',
+      metal:new THREE.MeshStandardMaterial({color:'#c084fc',metalness:.6,roughness:.35}),
+      flag:'#a855f7',
+      arenaTop:'#27272a',
+      arenaSide:'#18181b',
+      towerStyle:'needle_spire'
+    },
+    {
+      name:'Imperial Sun Palace',
+      cMat:'#f8fafc',
+      cDark:'#cbd5e1',
+      cTrim:'#b45309',
+      frame:'#e2e8f0',
+      door:'#334155',
+      metal:M.gold,
+      flag:'#f59e0b',
+      arenaTop:'#ffffff',
+      arenaSide:'#e2e8f0',
+      towerStyle:'gilded_dome'
+    },
+    {
+      name:'Infernal Magma Keep',
+      cMat:'#1c1917',
+      cDark:'#0c0a09',
+      cTrim:'#b91c1c',
+      frame:'#991b1b',
+      door:'#1c1917',
+      metal:new THREE.MeshStandardMaterial({color:'#f97316',metalness:.6,roughness:.3}),
+      flag:'#ea580c',
+      arenaTop:'#292524',
+      arenaSide:'#1c1917',
+      towerStyle:'flared_bastion'
+    }
+  ];
+  const idx=Math.floor((n-1)/3)%themes.length;
+  return themes[idx];
+}
+
 function buildBoss(grp,lv){
   const KD=lv.kingD;
-  const topMat=new THREE.MeshStandardMaterial({color:'#f1f5f9',roughness:.55});
-  const sideMat=new THREE.MeshStandardMaterial({color:'#dbe5f1',roughness:.65});
+  const th=getCastleTheme(lv.n);
+  const topMat=new THREE.MeshStandardMaterial({color:th.arenaTop,roughness:.55});
+  const sideMat=new THREE.MeshStandardMaterial({color:th.arenaSide,roughness:.65});
   
-  // 1. Solid, Fully-Capped, Hole-Free 3D Island Cylinder (Reaches deep into water, 100% solid floor)
+  // 1. Solid, Fully-Capped 3D Island Cylinder
   const arena=new THREE.Mesh(new THREE.CylinderGeometry(11.5,11.5,10,64),[sideMat,topMat,M.trackSide]);
   arena.position.set(0,-5,-(KD+3.0));
   arena.receiveShadow=true;
   grp.add(arena);
 
-  // 2. Seamless Stone Runway Apron (Bridges the straight track and curved cylinder with ZERO gaps, ZERO holes, and ZERO z-fighting)
-  const apronMat=new THREE.MeshStandardMaterial({color:'#f1f5f9',roughness:.55});
+  // 2. Seamless Stone Runway Apron
+  const apronMat=new THREE.MeshStandardMaterial({color:th.arenaTop,roughness:.55});
   const apron=new THREE.Mesh(new THREE.BoxGeometry(HALF*2+0.52,.06,2.8),apronMat);
   apron.position.set(0,.02,-(KD-8.2));
   apron.receiveShadow=true;
   grp.add(apron);
 
-  // Entrance Neck Curbs extending fully into the island cylinder (Zero notch, zero cut)
+  // Entrance Neck Curbs
   [-1,1].forEach(s=>{
     const cb=new THREE.Mesh(new THREE.BoxGeometry(.52,.34,2.6),M.curb);
     cb.position.set(s*(HALF+.26),.04,-(KD-8.0));
@@ -1043,16 +1116,16 @@ function buildBoss(grp,lv){
     grp.add(cb);
   });
 
-  // High-End Stylized Terracotta Medieval Fortress (Positioned 6.8 units behind King)
-  const cMat=new THREE.MeshStandardMaterial({color:'#ba7a54',roughness:.72});
-  const cDark=new THREE.MeshStandardMaterial({color:'#945836',roughness:.8});
-  const cTrim=new THREE.MeshStandardMaterial({color:'#df9e78',roughness:.58});
-  const dark=new THREE.MeshStandardMaterial({color:'#1a232f',roughness:.65,metalness:.5});
-  const whiteStone=new THREE.MeshStandardMaterial({color:'#f8fafc',roughness:.45});
-  const gold=M.gold;
+  // Stylized Themed Medieval Fortress
+  const cMat=new THREE.MeshStandardMaterial({color:th.cMat,roughness:.72});
+  const cDark=new THREE.MeshStandardMaterial({color:th.cDark,roughness:.8});
+  const cTrim=new THREE.MeshStandardMaterial({color:th.cTrim,roughness:.58});
+  const dark=new THREE.MeshStandardMaterial({color:th.door,roughness:.65,metalness:.5});
+  const frameMat=new THREE.MeshStandardMaterial({color:th.frame,roughness:.45});
+  const gold=th.metal;
   const c=new THREE.Group();c.position.set(0,0,-(KD+6.8));grp.add(c);
 
-  // 1. Foundation Base Plinth & Grounding Terrace
+  // 1. Foundation Base Plinth
   const basePlinth=new THREE.Mesh(new THREE.BoxGeometry(16.8,.36,6.2),cDark);
   basePlinth.position.set(0,.18,-.2);basePlinth.receiveShadow=true;c.add(basePlinth);
 
@@ -1064,7 +1137,7 @@ function buildBoss(grp,lv){
     b.position.set(-6.1+i*1.11,4.25,0);b.castShadow=true;c.add(b);
   }
 
-  // 3. Central Great Keep (Elevated backdrop behind gatehouse)
+  // 3. Central Great Keep
   const keep=new THREE.Mesh(new THREE.BoxGeometry(6.8,8.6,3.4),cMat);
   keep.position.set(0,4.3,-1.6);keep.castShadow=true;c.add(keep);
   for(let i=0;i<6;i++){
@@ -1074,7 +1147,7 @@ function buildBoss(grp,lv){
   const flagPole=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,3.4,8),gold);
   flagPole.position.set(0,10.2,-1.6);c.add(flagPole);
   const flagG=new THREE.PlaneGeometry(1.8,1.0,8,3);flagG.translate(.9,0,0);
-  const flagM=new THREE.MeshStandardMaterial({color:'#ef4444',roughness:.5,side:THREE.DoubleSide});
+  const flagM=new THREE.MeshStandardMaterial({color:th.flag,roughness:.5,side:THREE.DoubleSide});
   const flag=new THREE.Mesh(flagG,flagM);flag.position.set(0,11.2,-1.6);flag.castShadow=true;c.add(flag);
 
   // 4. Stepped 3D Gatehouse & Deep Arched Portal
@@ -1084,13 +1157,13 @@ function buildBoss(grp,lv){
     const b=new THREE.Mesh(new THREE.BoxGeometry(.68,.58,2.05),cTrim);
     b.position.set(-1.65+i*1.1,5.05,.3);b.castShadow=true;c.add(b);
   }
-  // Stepped Stone Archway
-  const gateFrameOuter=new THREE.Mesh(new THREE.BoxGeometry(3.4,3.6,.35),whiteStone);
+  // Stepped Portal Archway
+  const gateFrameOuter=new THREE.Mesh(new THREE.BoxGeometry(3.4,3.6,.35),frameMat);
   gateFrameOuter.position.set(0,1.8,1.25);c.add(gateFrameOuter);
-  const gateArchOuter=new THREE.Mesh(new THREE.CylinderGeometry(1.7,1.7,.35,24,1,false,0,Math.PI),whiteStone);
+  const gateArchOuter=new THREE.Mesh(new THREE.CylinderGeometry(1.7,1.7,.35,24,1,false,0,Math.PI),frameMat);
   gateArchOuter.rotation.x=Math.PI/2;gateArchOuter.rotation.z=Math.PI/2;gateArchOuter.position.set(0,3.6,1.25);c.add(gateArchOuter);
 
-  // Dark Ironwood Double Doors with Medieval Iron Hinges & Bronze Knocker Rings
+  // Gate Doors with Hinges & Rings
   const door=new THREE.Mesh(new THREE.BoxGeometry(2.6,3.0,.22),dark);
   door.position.set(0,1.5,1.22);c.add(door);
   const doorArch=new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.3,.22,20,1,false,0,Math.PI),dark);
@@ -1102,29 +1175,92 @@ function buildBoss(grp,lv){
     ring.position.set(dx,1.6,1.35);c.add(ring);
   });
 
-  // 5. Left & Right Flanking Bastion Towers (With machicolations, string courses, & arrow loops)
+  // 5. Left & Right Flanking Bastion Towers (Varies based on theme architecture!)
   [-6.5,6.5].forEach(tx=>{
-    const t=new THREE.Mesh(new THREE.BoxGeometry(2.8,7.4,2.8),cMat);
-    t.position.set(tx,3.7,0);t.castShadow=true;t.receiveShadow=true;c.add(t);
-    // Decorative horizontal string course band
-    const band=new THREE.Mesh(new THREE.BoxGeometry(2.95,.18,2.95),cTrim);
-    band.position.set(tx,3.9,0);c.add(band);
-    // Overhanging top corbel ledge
-    const ledge=new THREE.Mesh(new THREE.BoxGeometry(3.15,.38,3.15),cTrim);
-    ledge.position.set(tx,7.35,0);ledge.castShadow=true;c.add(ledge);
-    // 4 Corner Crenellations with Chamfered Caps
-    const offsets=[-1.15,1.15];
-    offsets.forEach(ox=>{
-      offsets.forEach(oz=>{
-        const cren=new THREE.Mesh(new THREE.BoxGeometry(.65,.68,.65),cTrim);
-        cren.position.set(tx+ox,7.85,oz);cren.castShadow=true;c.add(cren);
+    if(th.towerStyle==='conical_spire'){
+      // Nordic Round Spire Tower
+      const t=new THREE.Mesh(new THREE.CylinderGeometry(1.45,1.45,7.4,24),cMat);
+      t.position.set(tx,3.7,0);t.castShadow=true;t.receiveShadow=true;c.add(t);
+      const band=new THREE.Mesh(new THREE.CylinderGeometry(1.55,1.55,.2,24),cTrim);
+      band.position.set(tx,4.0,0);c.add(band);
+      const ledge=new THREE.Mesh(new THREE.CylinderGeometry(1.65,1.5,.35,24),cTrim);
+      ledge.position.set(tx,7.35,0);ledge.castShadow=true;c.add(ledge);
+      const roof=new THREE.Mesh(new THREE.ConeGeometry(1.85,3.2,24),cTrim);
+      roof.position.set(tx,9.0,0);roof.castShadow=true;c.add(roof);
+      const finial=new THREE.Mesh(new THREE.SphereGeometry(.14,10,8),gold);
+      finial.position.set(tx,10.65,0);c.add(finial);
+      // Window
+      const win=new THREE.Mesh(new THREE.BoxGeometry(.25,.9,.16),dark);
+      win.position.set(tx,4.8,1.43);c.add(win);
+    }
+    else if(th.towerStyle==='needle_spire'){
+      // Gothic Octagonal Needle Spire Tower
+      const t=new THREE.Mesh(new THREE.CylinderGeometry(1.4,1.45,8.0,8),cMat);
+      t.position.set(tx,4.0,0);t.castShadow=true;t.receiveShadow=true;c.add(t);
+      const ledge=new THREE.Mesh(new THREE.CylinderGeometry(1.6,1.4,.3,8),cTrim);
+      ledge.position.set(tx,8.1,0);ledge.castShadow=true;c.add(ledge);
+      const spire=new THREE.Mesh(new THREE.ConeGeometry(1.6,4.2,8),cTrim);
+      spire.position.set(tx,10.2,0);spire.castShadow=true;c.add(spire);
+      const finial=new THREE.Mesh(new THREE.SphereGeometry(.12,8,8),gold);
+      finial.position.set(tx,12.35,0);c.add(finial);
+      const win=new THREE.Mesh(new THREE.BoxGeometry(.25,1.2,.16),dark);
+      win.position.set(tx,5.0,1.4);c.add(win);
+    }
+    else if(th.towerStyle==='gilded_dome'){
+      // Imperial Marble Dome Tower
+      const t=new THREE.Mesh(new THREE.CylinderGeometry(1.45,1.45,7.4,24),cMat);
+      t.position.set(tx,3.7,0);t.castShadow=true;t.receiveShadow=true;c.add(t);
+      const band=new THREE.Mesh(new THREE.CylinderGeometry(1.55,1.55,.2,24),cTrim);
+      band.position.set(tx,3.9,0);c.add(band);
+      const ledge=new THREE.Mesh(new THREE.CylinderGeometry(1.68,1.55,.38,24),cTrim);
+      ledge.position.set(tx,7.35,0);ledge.castShadow=true;c.add(ledge);
+      const dome=new THREE.Mesh(new THREE.SphereGeometry(1.45,20,14,0,Math.PI*2,0,Math.PI/2),gold);
+      dome.position.set(tx,7.54,0);dome.castShadow=true;c.add(dome);
+      const spire=new THREE.Mesh(new THREE.ConeGeometry(.1,1.0,8),gold);
+      spire.position.set(tx,9.5,0);c.add(spire);
+      const win=new THREE.Mesh(new THREE.BoxGeometry(.28,.9,.16),dark);
+      win.position.set(tx,4.8,1.43);c.add(win);
+    }
+    else if(th.towerStyle==='flared_bastion'){
+      // Volcanic Flared Bastion Tower
+      const t=new THREE.Mesh(new THREE.BoxGeometry(3.0,7.4,3.0),cMat);
+      t.position.set(tx,3.7,0);t.castShadow=true;t.receiveShadow=true;c.add(t);
+      const band=new THREE.Mesh(new THREE.BoxGeometry(3.15,.22,3.15),cTrim);
+      band.position.set(tx,4.0,0);c.add(band);
+      const ledge=new THREE.Mesh(new THREE.BoxGeometry(3.4,.45,3.4),cTrim);
+      ledge.position.set(tx,7.4,0);ledge.castShadow=true;c.add(ledge);
+      const offsets=[-1.25,1.25];
+      offsets.forEach(ox=>{
+        offsets.forEach(oz=>{
+          const cren=new THREE.Mesh(new THREE.BoxGeometry(.7,.8,.7),cTrim);
+          cren.position.set(tx+ox,8.0,oz);cren.castShadow=true;c.add(cren);
+          const orb=new THREE.Mesh(new THREE.SphereGeometry(.14,8,8),gold);
+          orb.position.set(tx+ox,8.48,oz);c.add(orb);
+        });
       });
-    });
-    // Dark narrow arrow slit with stone frame
-    const winFrame=new THREE.Mesh(new THREE.BoxGeometry(.5,1.2,.12),cTrim);
-    winFrame.position.set(tx,4.8,1.42);c.add(winFrame);
-    const win=new THREE.Mesh(new THREE.BoxGeometry(.25,.9,.16),dark);
-    win.position.set(tx,4.8,1.43);c.add(win);
+      const win=new THREE.Mesh(new THREE.BoxGeometry(.25,.9,.16),dark);
+      win.position.set(tx,4.8,1.52);c.add(win);
+    }
+    else {
+      // Classic Terracotta Square Bastion
+      const t=new THREE.Mesh(new THREE.BoxGeometry(2.8,7.4,2.8),cMat);
+      t.position.set(tx,3.7,0);t.castShadow=true;t.receiveShadow=true;c.add(t);
+      const band=new THREE.Mesh(new THREE.BoxGeometry(2.95,.18,2.95),cTrim);
+      band.position.set(tx,3.9,0);c.add(band);
+      const ledge=new THREE.Mesh(new THREE.BoxGeometry(3.15,.38,3.15),cTrim);
+      ledge.position.set(tx,7.35,0);ledge.castShadow=true;c.add(ledge);
+      const offsets=[-1.15,1.15];
+      offsets.forEach(ox=>{
+        offsets.forEach(oz=>{
+          const cren=new THREE.Mesh(new THREE.BoxGeometry(.65,.68,.65),cTrim);
+          cren.position.set(tx+ox,7.85,oz);cren.castShadow=true;c.add(cren);
+        });
+      });
+      const winFrame=new THREE.Mesh(new THREE.BoxGeometry(.5,1.2,.12),cTrim);
+      winFrame.position.set(tx,4.8,1.42);c.add(winFrame);
+      const win=new THREE.Mesh(new THREE.BoxGeometry(.25,.9,.16),dark);
+      win.position.set(tx,4.8,1.43);c.add(win);
+    }
   });
 
   lv.castle={flag,flagM,flagBase:Float32Array.from(flagG.attributes.position.array)};
@@ -1135,6 +1271,9 @@ function buildBoss(grp,lv){
   lv.kingHP=lv.bossHP;lv.bossMaxHP=lv.bossHP;
   setBossHPBar(lv.kingBadge,1.0);
   lv.kingDead=0;lv.kingFlash=0;
+  // King Ranged Bomb Throw Attack System
+  lv.kingThrow={t:0.5,lastThrow:-1,shotCount:0,prevTargetX:undefined,prevTargetD:undefined,bombs:[],grp:new THREE.Group()};
+  grp.add(lv.kingThrow.grp);
   // shockwave
   const sw=new THREE.Mesh(new THREE.RingGeometry(.8,1,40),new THREE.MeshBasicMaterial({color:'#ffffff',transparent:true,opacity:0,depthWrite:false}));sw.rotation.x=-Math.PI/2;sw.position.set(0,.03,-KD);grp.add(sw);lv.shock=sw;
 }
@@ -1819,11 +1958,40 @@ function updateLevelVisuals(dt){
   if(level.water)level.water.offset.y=(time*.02)%1;
   if(level.king){
     const K=level.king;const t=time;
+    if(level.kingFlash>0){
+      level.kingFlash=Math.max(0,level.kingFlash-dt*4.0);
+      if(K.mat){
+        K.mat.emissive.setHex(0xffffff);
+        K.mat.emissiveIntensity=level.kingFlash*4.0;
+      }
+    } else if(K.mat&&K.mat.emissiveIntensity>0){
+      K.mat.emissive.setHex(0x000000);
+      K.mat.emissiveIntensity=0;
+    }
     if(level.kingDead>0){
-      level.kingDead=Math.min(1,level.kingDead+dt*1.5);
-      K.g.rotation.x=-Math.PI/2*easeOut(level.kingDead);
-      K.g.position.y=-.2*level.kingDead;
-      K.armL.rotation.z=-1.5;K.armR.rotation.z=1.5;
+      level.kingDead=Math.min(1,level.kingDead+dt*1.6);
+      const kd=level.kingDead;
+      const easeKd=1-Math.pow(1-kd,3);
+      K.body.rotation.set(0,0,0);
+      K.body.position.set(0,0,0);
+      K.g.rotation.x=-Math.PI/2*easeKd;
+      K.g.position.y=0.58*easeKd; // Elevates pivot so the entire back, crown, and limbs rest fully on top of the arena surface
+      K.g.position.z=-(level.kingD+0.35*easeKd);
+      K.armL.rotation.set(0,0,-1.25*easeKd);
+      K.armR.rotation.set(0,0,1.25*easeKd);
+      K.legL.rotation.set(0,0,-0.15*easeKd);
+      K.legR.rotation.set(0,0,0.15*easeKd);
+      if(K.weaponGroup){
+        K.weaponGroup.rotation.x=lerp(Math.PI/3.2,0,easeKd); // Flattens weapon horizontal with ground plane
+        K.weaponGroup.rotation.y=0;
+        K.weaponGroup.rotation.z=lerp(-0.12,0.25,easeKd);
+        K.weaponGroup.position.set(0,-0.25,0.05*easeKd);
+      }
+      if(K.shieldGroup){
+        K.shieldGroup.rotation.set(0,lerp(-Math.PI/2.2,0,easeKd),0);
+        K.shieldGroup.position.set(0,-0.18,0.05*easeKd);
+      }
+      if(K.puff) K.puff.scale.setScalar(0.001);
     }
     else if(state==='boss'&&boss){
       const p=(boss.t%1.1)/1.1;
@@ -1903,12 +2071,219 @@ function updateLevelVisuals(dt){
       K.body.position.y=Math.abs(Math.sin(t*8))*.06;
       K.body.rotation.y=0;
     }
+    else if((state==='bossRun'||(state==='play'&&crowd.d>=level.kingD-75))&&level.kingThrow){
+      // King Ranged Bomb Animation: Two-Handed Overhead Leap & Ground Slam Mortar Launch
+      const KT=level.kingThrow;
+      KT.t+=dt;
+      const tp=(KT.t%1.6)/1.6;
+      const throwIdx=Math.floor(KT.t/1.6);
+      
+      if(tp<0.44){
+        // 1. Overhead Leap & Wind-Up: King jumps into the air, lifting weapon and arms high overhead
+        const wp=tp/0.44;
+        const easeW=wp*wp;
+        K.body.position.y=lerp(0,0.42,easeW);
+        K.body.rotation.y=0;
+        K.body.rotation.x=lerp(0,-0.32,easeW);
+        K.body.rotation.z=0;
+        // Both arms raised high overhead
+        K.armR.rotation.x=lerp(0.2,-2.3,easeW);
+        K.armR.rotation.y=lerp(0,-0.15,easeW);
+        K.armR.rotation.z=lerp(0.2,0.35,easeW);
+        K.armL.rotation.x=lerp(-0.2,-2.3,easeW);
+        K.armL.rotation.y=lerp(0,0.15,easeW);
+        K.armL.rotation.z=lerp(-0.25,-0.35,easeW);
+        // Legs tuck up slightly during the leap
+        K.legR.rotation.x=lerp(0,0.38,easeW);
+        K.legR.rotation.y=0;
+        K.legR.rotation.z=0.1;
+        K.legL.rotation.x=lerp(0,0.38,easeW);
+        K.legL.rotation.y=0;
+        K.legL.rotation.z=-0.1;
+      } else if(tp<0.60){
+        // 2. Violent Ground Slam: Slams down into floor, arms crashing downward
+        const sp=(tp-0.44)/0.16;
+        const easeS=1-Math.pow(1-sp,3);
+        K.body.position.y=lerp(0.42,-0.18,easeS);
+        K.body.rotation.y=0;
+        K.body.rotation.x=lerp(-0.32,0.48,easeS);
+        K.body.rotation.z=0;
+        // Both arms slam straight down into the floor
+        K.armR.rotation.x=lerp(-2.3,0.95,easeS);
+        K.armR.rotation.y=lerp(-0.15,0,easeS);
+        K.armR.rotation.z=lerp(0.35,0.15,easeS);
+        K.armL.rotation.x=lerp(-2.3,0.95,easeS);
+        K.armL.rotation.y=lerp(0.15,0,easeS);
+        K.armL.rotation.z=lerp(-0.35,-0.15,easeS);
+        // Legs spread into deep shock-absorbing stance
+        K.legR.rotation.x=lerp(0.38,-0.48,easeS);
+        K.legR.rotation.z=0.25;
+        K.legL.rotation.x=lerp(0.38,-0.48,easeS);
+        K.legL.rotation.z=-0.25;
+
+        // Ground Impact: release mortar bomb at point of impact
+        if(tp>=0.50&&KT.lastThrow!==throwIdx){
+          KT.lastThrow=throwIdx;
+          KT.shotCount=(KT.shotCount||0)+1;
+          tone(140,.2,'sawtooth',.25,65);
+          sPop();vib(24);
+          // Ground impact shockwave & sparks at King's feet
+          burst(K.g.position.x,0.15,K.g.position.z+0.8,new THREE.Color('#f97316'),10,6.0,4.0);
+          burst(K.g.position.x,0.15,K.g.position.z+0.8,new THREE.Color('#ffd21f'),6,4.0,2.5);
+
+          // Dynamic varied targeting patterns (never same spot, changes by level, shot count, & player position)
+          const lvlNum=level.n||1;
+          const strat=(KT.shotCount + lvlNum) % 5;
+          let targetX=0, distAhead=14;
+
+          if(strat===0){
+            // Predictive intercept: lead right ahead of where crowd is currently steering
+            targetX=clamp(crowd.x + (Math.random()-0.5)*0.8, -HALF*0.82, HALF*0.82);
+            distAhead=11 + Math.random()*7;
+          } else if(strat===1){
+            // Far Left Lane flank trap
+            targetX=-HALF * (0.45 + Math.random()*0.42);
+            distAhead=14 + Math.random()*12;
+          } else if(strat===2){
+            // Far Right Lane flank trap
+            targetX=HALF * (0.45 + Math.random()*0.42);
+            distAhead=14 + Math.random()*12;
+          } else if(strat===3){
+            // Center chokepoint strike
+            targetX=(Math.random()-0.5)*1.2;
+            distAhead=16 + Math.random()*14;
+          } else {
+            // Alternating deep long-range artillery shot
+            const side=(KT.shotCount%2===0)?1:-1;
+            targetX=side * HALF * (0.25 + Math.random()*0.55);
+            distAhead=20 + Math.random()*12;
+          }
+
+          // Anti-clustering check: Ensure this shot is far enough away from the last shot
+          if(KT.prevTargetX!==undefined){
+            if(Math.abs(targetX - KT.prevTargetX) < 1.4){
+              targetX = (KT.prevTargetX > 0) ? -HALF * 0.65 : HALF * 0.65;
+            }
+          }
+          KT.prevTargetX=targetX;
+
+          const targetD=clamp(crowd.d + distAhead, 0, level.kingD-5);
+          KT.prevTargetD=targetD;
+          const targetZ=-targetD;
+          
+          // Ground Warning Ring Decal with randomized pulse rate
+          const warnGeo=new THREE.RingGeometry(0.75,1.05,28);
+          warnGeo.rotateX(-Math.PI/2);
+          const warnMat=new THREE.MeshBasicMaterial({color:'#ef4444',transparent:true,opacity:0.85,depthWrite:false});
+          const warnMesh=new THREE.Mesh(warnGeo,warnMat);
+          warnMesh.position.set(targetX,0.04,targetZ);
+          KT.grp.add(warnMesh);
+
+          // Fiery Spiked Bomb Mesh launched from ground impact point
+          const bombGrp=new THREE.Group();
+          const bombMat=new THREE.MeshStandardMaterial({color:'#ea580c',emissive:'#dc2626',emissiveIntensity:0.95,roughness:0.3});
+          const bombCore=new THREE.Mesh(new THREE.SphereGeometry(0.34,10,8),bombMat);
+          bombGrp.add(bombCore);
+          const spkMat=new THREE.MeshStandardMaterial({color:'#ffd21f',metalness:0.7,roughness:0.25});
+          for(let s=0;s<6;s++){
+            const spk=new THREE.Mesh(new THREE.ConeGeometry(0.08,0.22,5),spkMat);
+            const sa=s*Math.PI*2/6;
+            spk.position.set(Math.cos(sa)*0.32,0,Math.sin(sa)*0.32);
+            spk.rotation.z=-Math.cos(sa)*Math.PI/2;spk.rotation.x=Math.sin(sa)*Math.PI/2;
+            bombGrp.add(spk);
+          }
+          const startX=K.g.position.x, startY=0.4, startZ=-(level.kingD-0.8);
+          bombGrp.position.set(startX,startY,startZ);
+          KT.grp.add(bombGrp);
+
+          // Varying trajectory peak & flight duration based on shot distance
+          const arcPeak=4.8 + ((KT.shotCount + lvlNum) % 3) * 1.6 + Math.random() * 0.8;
+          const flightDuration=clamp(1.0 + (distAhead - 10)*0.018, 0.95, 1.45);
+
+          KT.bombs.push({
+            mesh:bombGrp, warn:warnMesh,
+            startX, startY, startZ,
+            targetX, targetZ, targetD,
+            arcPeak,
+            t:0, duration:flightDuration
+          });
+        }
+      } else {
+        // 3. Recovery: King rises from ground slam back into battle stance
+        const rp=(tp-0.60)/0.40;
+        const easeR=1-Math.pow(1-rp,2);
+        K.body.position.y=lerp(-0.18,0,easeR);
+        K.body.rotation.y=0;
+        K.body.rotation.x=lerp(0.48,0,easeR);
+        K.body.rotation.z=0;
+        K.armR.rotation.x=lerp(0.95,0.2,easeR);
+        K.armR.rotation.y=0;
+        K.armR.rotation.z=lerp(0.15,0.2,easeR);
+        K.armL.rotation.x=lerp(0.95,-0.2,easeR);
+        K.armL.rotation.y=0;
+        K.armL.rotation.z=lerp(-0.15,-0.25,easeR);
+        K.legR.rotation.x=lerp(-0.48,0,easeR);
+        K.legR.rotation.z=lerp(0.25,0.15,easeR);
+        K.legL.rotation.x=lerp(-0.48,0,easeR);
+        K.legL.rotation.z=lerp(-0.25,-0.15,easeR);
+      }
+    }
     else{
       K.armL.rotation.z=-.25-Math.sin(t*2)*.08;
       K.armR.rotation.z=.25+Math.sin(t*2)*.08;
       K.armR.rotation.x=0;K.armL.rotation.x=0;
       K.body.rotation.y=0;
       K.body.position.y=Math.sin(t*3)*.008;
+    }
+    
+    // Update active bombs thrown by King
+    if(level.kingThrow&&level.kingThrow.bombs.length){
+      const KT=level.kingThrow;
+      for(let i=KT.bombs.length-1;i>=0;i--){
+        const fb=KT.bombs[i];
+        fb.t+=dt;
+        const progress=fb.t/fb.duration;
+        if(progress<1){
+          const curX=lerp(fb.startX,fb.targetX,progress);
+          const curZ=lerp(fb.startZ,fb.targetZ,progress);
+          const curY=lerp(fb.startY,0.35,progress)+Math.sin(progress*Math.PI)*(fb.arcPeak||5.5);
+          fb.mesh.position.set(curX,curY,curZ);
+          fb.mesh.rotation.x+=dt*12;fb.mesh.rotation.z+=dt*8;
+          fb.warn.scale.setScalar(0.65+progress*0.65+Math.sin(time*16)*0.08);
+          fb.warn.material.opacity=0.45+progress*0.55;
+        } else {
+          const hitX=fb.targetX, hitD=fb.targetD;
+          KT.grp.remove(fb.mesh);
+          KT.grp.remove(fb.warn);
+          KT.bombs.splice(i,1);
+
+          sThud();vib(30);shake=0.32;
+          addSplat(hitX,0,-hitD,new THREE.Color('#b91c1c'));
+          burst(hitX,0.6,-hitD,new THREE.Color('#f97316'),12,6.5,4.5);
+
+          const blastRadius=1.7;
+          let kills=0;
+          for(let k=crowd.members.length-1;k>=0;k--){
+            const m=crowd.members[k];
+            const wx=crowd.x+m.ox, wd=crowd.d+m.oz;
+            const dx=wx-hitX, dz=wd-hitD;
+            if(dx*dx+dz*dz<blastRadius*blastRadius){
+              addSplat(wx,0,-wd,BLUE);
+              burst(wx,0.45,-wd,BLUE,5,5.0,3.5);
+              spawnDebris(wx,0.35,wd,(Math.random()-.5)*5,5+Math.random()*3,-(4+Math.random()*3),BLUE);
+              crowd.members.splice(k,1);
+              crowd.count--;
+              kills++;
+              if(kills>=4)break;
+            }
+          }
+          if(kills>0){
+            repackSlots(crowd.members);
+            syncCrowd(false);
+            if(crowd.count<=0){lose('Blasted by the King’s bomb!');return;}
+          }
+        }
+      }
     }
     
     // Impact Puff cloud animation

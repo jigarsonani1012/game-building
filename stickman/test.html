@@ -563,7 +563,9 @@ function buildLevel(n){
     }else{const cx=[-3,0,3][ri(0,2)];addCoins(grp,lv,d,cx,6);d+=12;}
     last=type;i++;
   }
-  lv.bossHP=Math.max(160,Math.round(B*3.8)+90);
+  const tier=getBossTier(n);
+  lv.bossTier=tier;
+  lv.bossHP=Math.max(180,Math.round(B*(3.5*tier.hpMult))+70*(Math.floor((n-1)/3)+1));
   if(endType==='stairs')buildStairs(grp,lv);else buildBoss(grp,lv);
   return lv;
 }
@@ -841,42 +843,108 @@ function buildStairs(grp,lv){
 }
 
 /* ================= END: KING + CASTLE ================= */
-function makeKing(style){
-  style = style || 'bat';
-  const g=new THREE.Group();const mat=new THREE.MeshStandardMaterial({color:'#ee3a32',roughness:.42});
+function getBossTier(n){
+  const tiers=[
+    {
+      name:'Spiked Raider',
+      type:'bat',
+      bodyCol:'#ee3a32',
+      sparkCol:new THREE.Color('#ffd21f'),
+      scale:3.8,
+      hpMult:1.0,
+      shake:0.48
+    },
+    {
+      name:'Nordic Berserker',
+      type:'axe',
+      bodyCol:'#ea580c',
+      sparkCol:new THREE.Color('#38bdf8'),
+      scale:4.05,
+      hpMult:1.35,
+      shake:0.55
+    },
+    {
+      name:'Dark Necrolord',
+      type:'scythe',
+      bodyCol:'#7c3aed',
+      sparkCol:new THREE.Color('#c084fc'),
+      scale:4.25,
+      hpMult:1.7,
+      shake:0.62
+    },
+    {
+      name:'Titan Emperor',
+      type:'hammer',
+      bodyCol:'#dc2626',
+      sparkCol:new THREE.Color('#fbbf24'),
+      scale:4.45,
+      hpMult:2.1,
+      shake:0.68
+    },
+    {
+      name:'Infernal Overlord',
+      type:'sword',
+      bodyCol:'#18181b',
+      sparkCol:new THREE.Color('#f97316'),
+      scale:4.65,
+      hpMult:2.6,
+      shake:0.75
+    }
+  ];
+  const idx=Math.floor((n-1)/3)%tiers.length;
+  return tiers[idx];
+}
+
+function makeKing(tier){
+  tier = tier || getBossTier(1);
+  const g=new THREE.Group();const mat=new THREE.MeshStandardMaterial({color:tier.bodyCol,roughness:.42});
   const body=new THREE.Group();g.add(body);
   const head=new THREE.Mesh(geoHead,mat);head.position.y=.74;body.add(head);
   const torso=new THREE.Mesh(geoTorso,mat);torso.position.y=.455;body.add(torso);
   const mk=(geo,x,y)=>{const p=new THREE.Group();p.position.set(x,y,0);const m=new THREE.Mesh(geo,mat);m.castShadow=true;p.add(m);body.add(p);return p;};
-  const legL=mk(geoLeg,-.052,.3),legR=mk(geoLeg,.052,.3),armL=mk(geoArm,-.105,.585),armR=mk(geoArm,.105,.585);
+  const legL=mk(geoLeg,-.058,.3),legR=mk(geoLeg,.058,.3),armL=mk(geoArm,-.115,.585),armR=mk(geoArm,.115,.585);
   head.castShadow=torso.castShadow=true;
 
   const weaponGroup=new THREE.Group();
   weaponGroup.position.set(0,-.25,0);
 
-  if(style==='bat'){
-    // Spiked Baseball Bat + Skull / Hockey Mask (Matches Reference Game!)
-    // 1. Hockey Mask with Eye Holes and Red Headband Strap
-    const mask=new THREE.Group();mask.position.set(0,.74,.02);body.add(mask);
-    const faceplate=new THREE.Mesh(new THREE.SphereGeometry(.108,16,12,0,Math.PI*2,0,Math.PI*0.48),new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.35}));
-    faceplate.rotation.x=-Math.PI/2;
-    mask.add(faceplate);
-    const strap=new THREE.Mesh(new THREE.CylinderGeometry(.107,.107,.028,18),new THREE.MeshStandardMaterial({color:'#1e293b',roughness:.6}));
-    mask.add(strap);
-    // Black eye slots
-    const eyeMat=new THREE.MeshBasicMaterial({color:'#0f172a'});
-    [-.038,.038].forEach(x=>{
-      const eye=new THREE.Mesh(new THREE.CircleGeometry(.018,8),eyeMat);
-      eye.position.set(x,.02,.108);
-      mask.add(eye);
-    });
+  const shieldGroup=new THREE.Group();
+  shieldGroup.position.set(0,-.18,.05);
+  armL.add(shieldGroup);
 
-    // 2. Heavy Spiked Baseball Bat
-    const batGrip=new THREE.Mesh(new THREE.CylinderGeometry(.02,.022,.32,10),new THREE.MeshStandardMaterial({color:'#334155',roughness:.8}));
-    batGrip.position.y=-.12;weaponGroup.add(batGrip);
-    const batBarrel=new THREE.Mesh(new THREE.CylinderGeometry(.046,.024,.68,12),new THREE.MeshStandardMaterial({color:'#5c2c16',roughness:.65}));
-    batBarrel.position.y=.32;weaponGroup.add(batBarrel);
-    // Radial golden spikes on bat barrel
+  const goldMat=M.gold;
+  const darkIron=new THREE.MeshStandardMaterial({color:'#1e293b',roughness:.6,metalness:.6});
+  const steelMat=new THREE.MeshStandardMaterial({color:'#cbd5e1',roughness:.3,metalness:.8});
+  const blueSteel=new THREE.MeshStandardMaterial({color:'#2563eb',roughness:.35,metalness:.6});
+
+  // Heavy Medieval Knight Heater Shield (Attached to Left Forearm)
+  const shieldBody=new THREE.Mesh(new THREE.BoxGeometry(.26,.38,.035),blueSteel);shieldBody.castShadow=true;shieldGroup.add(shieldBody);
+  const shieldRim=new THREE.Mesh(new THREE.BoxGeometry(.29,.41,.038),goldMat);shieldRim.position.z=-.002;shieldGroup.add(shieldRim);
+  const shieldBoss=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,.045,12),goldMat);
+  shieldBoss.rotation.x=Math.PI/2;shieldBoss.position.z=.025;shieldGroup.add(shieldBoss);
+  shieldGroup.rotation.y=-Math.PI/2.2;
+  shieldGroup.rotation.z=-0.15;
+
+  // Royal Horned Crown (Matches Reference Game!)
+  const crown=new THREE.Group();crown.position.y=.80;body.add(crown);
+  const crownBand=new THREE.Mesh(new THREE.CylinderGeometry(.104,.104,.035,18),new THREE.MeshStandardMaterial({color:'#ffd21f',roughness:.3,metalness:.3}));
+  crown.add(crownBand);
+  for(let i=0;i<5;i++){
+    const a=i*Math.PI*2/5;
+    const pt=new THREE.Mesh(new THREE.ConeGeometry(.022,.08,6),goldMat);
+    pt.position.set(Math.cos(a)*.096,.04,Math.sin(a)*.096);crown.add(pt);
+  }
+  const hornMat=new THREE.MeshStandardMaterial({color:'#64748b',roughness:.4,metalness:.3});
+  [-1,1].forEach(side=>{
+    const horn=new THREE.Mesh(new THREE.ConeGeometry(.032,.14,8),hornMat);
+    horn.position.set(side*.09,.05,0);
+    horn.rotation.z=-side*0.6;horn.rotation.x=-0.2;crown.add(horn);
+  });
+
+  if(tier.type==='bat'){
+    // Spiked Heavy Baseball Bat
+    const batGrip=new THREE.Mesh(new THREE.CylinderGeometry(.02,.022,.32,10),darkIron);batGrip.position.y=-.12;weaponGroup.add(batGrip);
+    const batBarrel=new THREE.Mesh(new THREE.CylinderGeometry(.046,.024,.68,12),new THREE.MeshStandardMaterial({color:'#5c2c16',roughness:.65}));batBarrel.position.y=.32;weaponGroup.add(batBarrel);
     const spikeMat=new THREE.MeshStandardMaterial({color:'#ffd21f',metalness:.6,roughness:.3});
     for(let k=0;k<4;k++){
       const y=.24+k*.11;
@@ -884,60 +952,57 @@ function makeKing(style){
         const a=j*Math.PI/2+k*.4;
         const spk=new THREE.Mesh(new THREE.ConeGeometry(.016,.045,6),spikeMat);
         spk.position.set(Math.cos(a)*.046,y,Math.sin(a)*.046);
-        spk.rotation.z=-Math.cos(a)*Math.PI/2;
-        spk.rotation.x=Math.sin(a)*Math.PI/2;
+        spk.rotation.z=-Math.cos(a)*Math.PI/2;spk.rotation.x=Math.sin(a)*Math.PI/2;
         weaponGroup.add(spk);
       }
     }
-  } else if(style==='wizard'){
-    // Witch / Wizard Hat + Magic Broom Staff
-    const hat=new THREE.Group();hat.position.y=.82;body.add(hat);
-    const brim=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,.018,18),new THREE.MeshStandardMaterial({color:'#4338ca',roughness:.5}));
-    hat.add(brim);
-    const cone=new THREE.Mesh(new THREE.ConeGeometry(.1,.24,16),new THREE.MeshStandardMaterial({color:'#4338ca',roughness:.5}));
-    cone.position.y=.12;cone.rotation.z=-0.15;hat.add(cone);
-    const band=new THREE.Mesh(new THREE.CylinderGeometry(.102,.102,.028,18),new THREE.MeshStandardMaterial({color:'#ffd21f',roughness:.3}));
-    band.position.y=.015;hat.add(band);
-
-    // Broom Staff
-    const handle=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.95,8),new THREE.MeshStandardMaterial({color:'#78350f',roughness:.8}));
-    handle.position.y=.10;weaponGroup.add(handle);
-    const bristles=new THREE.Mesh(new THREE.ConeGeometry(.09,.26,10),new THREE.MeshStandardMaterial({color:'#d97706',roughness:.9}));
-    bristles.position.y=.48;bristles.rotation.z=Math.PI;weaponGroup.add(bristles);
-  } else {
-    // Viking Horned Helmet + Battle Axe
-    const helmet=new THREE.Group();helmet.position.y=.78;body.add(helmet);
-    const dome=new THREE.Mesh(new THREE.SphereGeometry(.096,16,12,0,Math.PI*2,0,Math.PI/2),new THREE.MeshStandardMaterial({color:'#475569',roughness:.4,metalness:.3}));
-    helmet.add(dome);
-    const band=new THREE.Mesh(new THREE.CylinderGeometry(.098,.098,.032,18),new THREE.MeshStandardMaterial({color:'#ffd21f',roughness:.3,metalness:.2}));
-    band.position.y=.008;helmet.add(band);
-    const hornMat=new THREE.MeshStandardMaterial({color:'#e2e8f0',roughness:.5});
-    [-1,1].forEach(side=>{
-      const hornP=new THREE.Group();hornP.position.set(side*.09,.04,0);
-      const horn=new THREE.Mesh(new THREE.ConeGeometry(.032,.13,8),hornMat);
-      horn.position.set(side*.032,.055,0);
-      horn.rotation.z=-side*0.55;
-      horn.rotation.x=-0.2;
-      hornP.add(horn);
-      helmet.add(hornP);
+  }
+  else if(tier.type==='axe'){
+    // Dual-Bladed Nordic Battleaxe
+    const handle=new THREE.Mesh(new THREE.CylinderGeometry(.022,.024,.96,10),new THREE.MeshStandardMaterial({color:'#663a1e',roughness:.75}));handle.position.y=.10;weaponGroup.add(handle);
+    const collar=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.09,12),goldMat);collar.position.y=.46;weaponGroup.add(collar);
+    const bladeMat=new THREE.MeshStandardMaterial({color:'#38bdf8',metalness:.8,roughness:.2,emissive:'#0284c7',emissiveIntensity:.35});
+    [-1,1].forEach(dir=>{
+      const blade=new THREE.Mesh(new THREE.CylinderGeometry(.24,.28,.025,18,1,false,0,Math.PI*0.8),bladeMat);
+      blade.position.set(0,.46,dir*.04);blade.rotation.z=blade.rotation.y=Math.PI/2;blade.rotation.x=(dir>0?0:Math.PI);
+      weaponGroup.add(blade);
     });
-
-    const handle=new THREE.Mesh(new THREE.CylinderGeometry(.02,.022,.92,10),new THREE.MeshStandardMaterial({color:'#8b5a2b',roughness:.75}));
-    handle.position.y=.10;weaponGroup.add(handle);
-    const collar=new THREE.Mesh(new THREE.CylinderGeometry(.032,.032,.08,12),new THREE.MeshStandardMaterial({color:'#334155',roughness:.3,metalness:.8}));
-    collar.position.y=.44;weaponGroup.add(collar);
-    const blade=new THREE.Mesh(new THREE.CylinderGeometry(.22,.26,.025,18,1,false,0,Math.PI*0.85),new THREE.MeshStandardMaterial({color:'#93c5fd',roughness:.25,metalness:.75}));
-    blade.position.set(0,.44,-.03);blade.rotation.z=blade.rotation.y=Math.PI/2;weaponGroup.add(blade);
-    const edge=new THREE.Mesh(new THREE.TorusGeometry(.26,.014,8,20,Math.PI*0.85),new THREE.MeshStandardMaterial({color:'#f8fafc',roughness:.15,metalness:.95}));
-    edge.position.set(0,.44,-.03);edge.rotation.z=edge.rotation.y=Math.PI/2;weaponGroup.add(edge);
+  }
+  else if(tier.type==='scythe'){
+    // Arcane Reaper Scythe
+    const handle=new THREE.Mesh(new THREE.CylinderGeometry(.018,.02,1.1,10),darkIron);handle.position.y=.15;weaponGroup.add(handle);
+    const skullSocket=new THREE.Mesh(new THREE.SphereGeometry(.05,10,8),new THREE.MeshStandardMaterial({color:'#c084fc',emissive:'#9333ea',emissiveIntensity:.6}));
+    skullSocket.position.set(0,.62,0);weaponGroup.add(skullSocket);
+    const scytheBlade=new THREE.Mesh(new THREE.TorusGeometry(.36,.025,8,24,Math.PI*0.65),new THREE.MeshStandardMaterial({color:'#a855f7',metalness:.7,roughness:.2,emissive:'#7e22ce',emissiveIntensity:.4}));
+    scytheBlade.position.set(.18,.55,0);scytheBlade.rotation.z=-Math.PI/3;weaponGroup.add(scytheBlade);
+  }
+  else if(tier.type==='sword'){
+    // Infernal Magma Greatsword
+    const handle=new THREE.Mesh(new THREE.CylinderGeometry(.02,.022,.32,10),darkIron);handle.position.y=-.08;weaponGroup.add(handle);
+    const crossguard=new THREE.Mesh(new THREE.BoxGeometry(.24,.04,.06),goldMat);crossguard.position.y=.10;weaponGroup.add(crossguard);
+    const bladeMat=new THREE.MeshStandardMaterial({color:'#ea580c',emissive:'#c2410c',emissiveIntensity:.6,roughness:.2,metalness:.7});
+    const blade=new THREE.Mesh(new THREE.BoxGeometry(.08,.78,.025),bladeMat);blade.position.y=.50;weaponGroup.add(blade);
+    const bladeTip=new THREE.Mesh(new THREE.ConeGeometry(.04,.14,4),bladeMat);bladeTip.position.y=.92;bladeTip.rotation.y=Math.PI/4;weaponGroup.add(bladeTip);
+  }
+  else {
+    // Heavy Steel War Hammer (Matches Reference Game Screenshot!)
+    const handle=new THREE.Mesh(new THREE.CylinderGeometry(.022,.024,.92,10),new THREE.MeshStandardMaterial({color:'#8b5a2b',roughness:.75}));handle.position.y=.10;weaponGroup.add(handle);
+    const collar=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.08,12),steelMat);collar.position.y=.44;weaponGroup.add(collar);
+    // Blue-Steel Hammer Head
+    const hHead=new THREE.Mesh(new THREE.BoxGeometry(.22,.24,.15),blueSteel);hHead.position.set(0,.48,0);weaponGroup.add(hHead);
+    // Gold striking face and side rivets
+    const face=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,.03,14),goldMat);
+    face.position.set(0,.48,.085);face.rotation.x=Math.PI/2;weaponGroup.add(face);
+    const bolt=new THREE.Mesh(new THREE.CylinderGeometry(.03,.03,.18,10),steelMat);
+    bolt.position.set(0,.48,0);bolt.rotation.z=Math.PI/2;weaponGroup.add(bolt);
   }
 
-  // Position weapon ready for horizontal batting / cricket swing
+  // Horizontal batting / cricket weapon orientation
   weaponGroup.rotation.x=Math.PI/3.2;
   weaponGroup.rotation.z=-0.12;
   armR.add(weaponGroup);
 
-  // Cartoon Impact Smoke Puff (bursts on weapon strike)
+  // Cartoon Impact Smoke Puff
   const puff=new THREE.Group();
   const puffMat=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:.9,transparent:true,opacity:0});
   for(let i=0;i<8;i++){
@@ -949,8 +1014,8 @@ function makeKing(style){
   puff.position.set(0.15,.6,1.1);
   g.add(puff);
 
-  g.scale.setScalar(3.8);
-  return {g,body,armL,armR,legL,legR,mat,weaponGroup,puff,puffMat};
+  g.scale.setScalar(tier.scale);
+  return {g,body,armL,armR,legL,legR,mat,weaponGroup,shieldGroup,puff,puffMat,tier};
 }
 function buildBoss(grp,lv){
   const KD=lv.kingD;
@@ -1064,10 +1129,8 @@ function buildBoss(grp,lv){
 
   lv.castle={flag,flagM,flagBase:Float32Array.from(flagG.attributes.position.array)};
   
-  // Choose boss weapon & hat style (Spiked Bat, Axe, Wizard)
-  const styles=['bat','axe','wizard'];
-  const style=styles[Math.floor(lv.n/3)%styles.length]||'bat';
-  const k=makeKing(style);k.g.position.set(0,0,-KD);grp.add(k.g);lv.king=k;
+  const tier=lv.bossTier||getBossTier(lv.n);
+  const k=makeKing(tier);k.g.position.set(0,0,-KD);grp.add(k.g);lv.king=k;
   lv.kingBadge=makeBossHPBar();
   lv.kingHP=lv.bossHP;lv.bossMaxHP=lv.bossHP;
   setBossHPBar(lv.kingBadge,1.0);
@@ -1479,21 +1542,23 @@ function updateBoss(dt){
   level.kingHP=Math.max(0,level.kingHP-crowdDPS*dt);
   setBossHPBar(level.kingBadge,level.kingHP/level.bossMaxHP);
   
+  const tier=(level.king&&level.king.tier)||getBossTier(level.n);
+
   // Punch hit sound & sparks at front arc
   if(!B.lastPunch||B.t-B.lastPunch>0.12){
     B.lastPunch=B.t;
     if(Math.random()<0.85)sPop();
     level.kingFlash=0.1;
     const ra=(Math.random()-.5)*1.8;
-    burst(Math.sin(ra)*1.1,.6,-(level.kingD+Math.cos(ra)*.8),new THREE.Color('#ffd21f'),3,2.5,2.5);
+    burst(Math.sin(ra)*1.1,.6,-(level.kingD+Math.cos(ra)*.8),tier.sparkCol,3,2.5,2.5);
   }
 
-  // Boss Axe Attack Swing Cycle (1.1s period)
+  // Boss Attack Swing Cycle (1.1s period)
   const p=(B.t%1.1)/1.1;
   const swingIdx=Math.floor(B.t/1.1);
   if(p>=0.55&&B.lastSwing!==swingIdx){
     B.lastSwing=swingIdx;
-    shake=0.5;
+    shake=tier.shake;
     sThud();vib(45);
     if(level.shock)level.shock.userData.t=0;
 
@@ -1762,44 +1827,75 @@ function updateLevelVisuals(dt){
     }
     else if(state==='boss'&&boss){
       const p=(boss.t%1.1)/1.1;
-      if(p<0.45){
-        // Wind-up: cock bat horizontally behind right shoulder & twist hips back (Cricket/Baseball batting stance!)
-        const wp=p/0.45;
-        K.body.rotation.y=lerp(0,-1.25,wp);
-        K.body.rotation.x=lerp(0,-0.15,wp);
-        K.armR.rotation.x=lerp(0.2,0.45,wp);
-        K.armR.rotation.y=lerp(0,-0.65,wp);
-        K.armR.rotation.z=lerp(0.2,0.95,wp);
-        K.armL.rotation.x=lerp(-0.2,0.65,wp);
-        K.armL.rotation.y=lerp(0,0.5,wp);
-        K.armL.rotation.z=lerp(-0.25,0.45,wp);
-        K.body.position.y=wp*0.06;
-      } else if(p<0.68){
-        // Fast powerful horizontal Baseball / Cricket bat swing roundhouse through the crowd!
-        const sp=(p-0.45)/0.23;
-        K.body.rotation.y=lerp(-1.25,1.4,easeOut(sp));
-        K.body.rotation.x=lerp(-0.15,0.18,easeOut(sp));
-        K.armR.rotation.x=lerp(0.45,-0.25,easeOut(sp));
-        K.armR.rotation.y=lerp(-0.65,0.85,easeOut(sp));
-        K.armR.rotation.z=lerp(0.95,-0.75,easeOut(sp));
-        K.armL.rotation.x=lerp(0.65,-0.35,easeOut(sp));
-        K.armL.rotation.y=lerp(0.5,-0.4,easeOut(sp));
-        K.armL.rotation.z=lerp(0.45,-0.95,easeOut(sp));
-        K.body.position.y=0;
+      if(p<0.40){
+        // 1. Deep Kinetic Wind-Up: Weight loads onto back leg, hips & torso coil back, weapon raises high over shoulder
+        const wp=p/0.40;
+        const easeW=wp*wp;
+        // Torso & Hips coiling back
+        K.body.rotation.y=lerp(0,-1.45,easeW);
+        K.body.rotation.x=lerp(0,-0.12,easeW);
+        K.body.rotation.z=lerp(0,-0.18,easeW);
+        K.body.position.y=lerp(0,0.08,easeW);
+        // Right Arm / Weapon cocked back behind shoulder
+        K.armR.rotation.x=lerp(0.2,0.95,easeW);
+        K.armR.rotation.y=lerp(0,-0.95,easeW);
+        K.armR.rotation.z=lerp(0.2,1.25,easeW);
+        // Left Arm / Shield raised across chest to guard & balance
+        K.armL.rotation.x=lerp(-0.2,0.85,easeW);
+        K.armL.rotation.y=lerp(0,0.75,easeW);
+        K.armL.rotation.z=lerp(-0.25,0.45,easeW);
+        // Legs: Back leg flexes/loads, front leg extends & pivots
+        K.legR.rotation.x=lerp(0,-0.42,easeW);
+        K.legR.rotation.y=lerp(0,0.25,easeW);
+        K.legR.rotation.z=0.15;
+        K.legL.rotation.x=lerp(0,0.35,easeW);
+        K.legL.rotation.y=lerp(0,-0.2,easeW);
+        K.legL.rotation.z=-0.15;
+      } else if(p<0.62){
+        // 2. Explosive Power Strike: Powerful step-in, explosive hip drive, full horizontal weapon roundhouse slash
+        const sp=(p-0.40)/0.22;
+        const easeS=1-Math.pow(1-sp,3);
+        // Violent Torso & Hip rotation with forward crunch
+        K.body.rotation.y=lerp(-1.45,1.62,easeS);
+        K.body.rotation.x=lerp(-0.12,0.24,easeS);
+        K.body.rotation.z=lerp(-0.18,0.22,easeS);
+        K.body.position.y=lerp(0.08,-0.05,easeS);
+        // Right Arm / Weapon powerful horizontal slash
+        K.armR.rotation.x=lerp(0.95,-0.55,easeS);
+        K.armR.rotation.y=lerp(-0.95,1.25,easeS);
+        K.armR.rotation.z=lerp(1.25,-1.05,easeS);
+        // Left Arm / Shield counter-rotates backward for martial balance
+        K.armL.rotation.x=lerp(0.85,-0.65,easeS);
+        K.armL.rotation.y=lerp(0.75,-0.75,easeS);
+        K.armL.rotation.z=lerp(0.45,-0.95,easeS);
+        // Legs: Back leg drives forward off ground, front leg plants firmly
+        K.legR.rotation.x=lerp(-0.42,0.48,easeS);
+        K.legR.rotation.y=lerp(0.25,-0.32,easeS);
+        K.legR.rotation.z=0.12;
+        K.legL.rotation.x=lerp(0.35,-0.38,easeS);
+        K.legL.rotation.y=lerp(-0.2,0.15,easeS);
+        K.legL.rotation.z=-0.12;
       } else {
-        // Follow-through and reset to batting ready stance
-        const rp=(p-0.68)/0.32;
-        K.body.rotation.y=lerp(1.4,0,rp);
-        K.body.rotation.x=lerp(0.18,0,rp);
-        K.armR.rotation.x=lerp(-0.25,0.2,rp);
-        K.armR.rotation.y=lerp(0.85,0,rp);
-        K.armR.rotation.z=lerp(-0.75,0.2,rp);
-        K.armL.rotation.x=lerp(-0.35,-0.2,rp);
-        K.armL.rotation.y=lerp(-0.4,0,rp);
-        K.armL.rotation.z=lerp(-0.95,-0.25,rp);
-        K.body.position.y=0;
+        // 3. Elastic Follow-Through & Smooth Recovery to combat ready stance
+        const rp=(p-0.62)/0.38;
+        const easeR=1-Math.pow(1-rp,2);
+        K.body.rotation.y=lerp(1.62,0,easeR);
+        K.body.rotation.x=lerp(0.24,0,easeR);
+        K.body.rotation.z=lerp(0.22,0,easeR);
+        K.body.position.y=lerp(-0.05,Math.sin(time*5)*0.015,easeR);
+        K.armR.rotation.x=lerp(-0.55,0.2,easeR);
+        K.armR.rotation.y=lerp(1.25,0,easeR);
+        K.armR.rotation.z=lerp(-1.05,0.2,easeR);
+        K.armL.rotation.x=lerp(-0.65,-0.2,easeR);
+        K.armL.rotation.y=lerp(-0.75,0,easeR);
+        K.armL.rotation.z=lerp(-0.95,-0.25,easeR);
+        K.legR.rotation.x=lerp(0.48,0,easeR);
+        K.legR.rotation.y=lerp(-0.32,0,easeR);
+        K.legR.rotation.z=0.15;
+        K.legL.rotation.x=lerp(-0.38,0,easeR);
+        K.legL.rotation.y=lerp(0.15,0,easeR);
+        K.legL.rotation.z=-0.15;
       }
-      K.legL.rotation.x=K.legR.rotation.x=0;
     }
     else if(state==='lose'&&boss){
       K.armL.rotation.z=-2.6-Math.sin(t*10)*.2;

@@ -1591,26 +1591,216 @@ function makeObstacle(grp,type,d,R,eqTheme){
     const hub=new THREE.Mesh(new THREE.CylinderGeometry(.28,.28,.34,16),eqTheme.accentMat);rot.add(hub);
     const hubCap=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,.38,16),eqTheme.frameMat);rot.add(hubCap);
     o.rot=rot;o.a=R()*6.28;
+    o.update=(t,dt)=>{o.a+=o.spd*dt;rot.rotation.y=o.a;};
+    o.hit=(x,dd)=>{const dx=x-px,dz=-(dd-d);const c=Math.cos(o.a),s=-Math.sin(o.a);const along=dx*c+dz*s;const perp=Math.abs(-dx*s+dz*c);
+      return(Math.abs(along)<len+.15&&perp<.32)||(dx*dx+dz*dz<.3);};
+  }else if(type==='saw'){
+    const groove=new THREE.Mesh(new THREE.BoxGeometry(HALF*2-.6,.03,.34),eqTheme.grooveMat);groove.position.y=.01;o.g.add(groove);
+    [-1,1].forEach(s=>{
+      const stop=new THREE.Mesh(new THREE.BoxGeometry(.25,.12,.42),eqTheme.accentMat);stop.position.set(s*(HALF-.3),.06,0);stop.castShadow=true;o.g.add(stop);
+    });
+    const sh=new THREE.Shape();const T=22;for(let i=0;i<T*2;i++){const r=i%2?.86:1.02;const a=i/(T*2)*Math.PI*2;if(i===0)sh.moveTo(Math.cos(a)*r,Math.sin(a)*r);else sh.lineTo(Math.cos(a)*r,Math.sin(a)*r);}sh.closePath();
+    const hole=new THREE.Path();hole.absarc(0,0,.16,0,Math.PI*2,true);sh.holes.push(hole);
+    const bg=new THREE.ExtrudeGeometry(sh,{depth:.06,bevelEnabled:true,bevelSize:.012,bevelThickness:.012,bevelSegments:1});bg.translate(0,0,-.03);
+    const blade=new THREE.Mesh(bg,eqTheme.bladeMat);blade.castShadow=true;
+    const holder=new THREE.Group();holder.position.y=.22;o.g.add(holder);holder.add(blade);
+    const cap=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.16,16),eqTheme.accentMat);cap.rotation.x=Math.PI/2;holder.add(cap);
+    const motor=new THREE.Mesh(new THREE.BoxGeometry(.35,.22,.32),eqTheme.frameMat);motor.position.y=-.08;motor.castShadow=true;holder.add(motor);
+    o.amp=3.7;o.spd=1.4+R()*.6;o.ph=R()*6.28;o.blade=blade;o.holder=holder;o.sx=0;
+    o.update=(t,dt)=>{o.sx=Math.sin(t*o.spd+o.ph)*o.amp;holder.position.x=o.sx;blade.rotation.z-=dt*14;};
+    o.hit=(x,dd)=>Math.abs(dd-d)<.3&&Math.abs(x-o.sx)<.95;
+  }else if(type==='roller'){
+    const cx=R()<.5?-2.45:2.45;o.cx=cx;
+    const frame=new THREE.Group();frame.position.x=cx;o.g.add(frame);
+    [-1,1].forEach(s=>{
+      const p=new THREE.Mesh(new THREE.BoxGeometry(.24,.98,.54),eqTheme.frameMat);p.position.set(s*2.45,.47,0);p.castShadow=true;frame.add(p);
+      const dec=new THREE.Mesh(new THREE.BoxGeometry(.26,.2,.56),eqTheme.accentMat);dec.position.set(s*2.45,.75,0);frame.add(dec);
+    });
+    const roll=new THREE.Group();roll.position.y=.55;frame.add(roll);
+    const cyl=new THREE.Mesh(new THREE.CylinderGeometry(.42,.42,4.6,20),eqTheme.hazardMat);cyl.rotation.z=Math.PI/2;cyl.castShadow=true;roll.add(cyl);
+    const cone=new THREE.ConeGeometry(.1,.34,8);
+    for(let k=0;k<7;k++)for(let j=0;j<6;j++){const th=j/6*Math.PI*2+(k%2)*.5;const sp=new THREE.Mesh(cone,eqTheme.spikeMat);sp.position.set(-2+k*.66,Math.cos(th)*.52,Math.sin(th)*.52);sp.rotation.x=th;sp.castShadow=true;roll.add(sp);}
+    o.roll=roll;o.update=(t,dt)=>{roll.rotation.x-=dt*5;};
+    o.hit=(x,dd)=>Math.abs(dd-d)<.75&&Math.abs(x-cx)<2.45;
+  }else if(type==='hammer'){
+    const PY=5.7,LEN=4.85;
+    [-1,1].forEach(s=>{
+      const p=new THREE.Mesh(new THREE.BoxGeometry(.34,PY+.4,.34),eqTheme.frameMat);p.position.set(s*(HALF+.15),(PY+.4)/2-.1,0);p.castShadow=true;o.g.add(p);
+      const band=new THREE.Mesh(new THREE.BoxGeometry(.38,.3,.38),eqTheme.accentMat);band.position.set(s*(HALF+.15),PY*.6,0);o.g.add(band);
+    });
+    const cb=new THREE.Mesh(new THREE.BoxGeometry(HALF*2+.6,.34,.34),eqTheme.frameMat);cb.position.y=PY+.1;cb.castShadow=true;o.g.add(cb);
+    const piv=new THREE.Group();piv.position.y=PY;o.g.add(piv);
+    const gearBox=new THREE.Mesh(new THREE.CylinderGeometry(.32,.32,.42,16),eqTheme.accentMat);gearBox.rotation.z=Math.PI/2;piv.add(gearBox);
+    const arm=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,LEN,10),M.metal);arm.position.y=-LEN/2;arm.castShadow=true;piv.add(arm);
+    const head=new THREE.Mesh(new THREE.CylinderGeometry(.62,.62,1.7,22),eqTheme.hazardMat);head.rotation.z=Math.PI/2;head.position.y=-LEN;head.castShadow=true;piv.add(head);
+    [-1,1].forEach(s=>{
+      const c=new THREE.Mesh(new THREE.CylinderGeometry(.66,.66,.14,22),eqTheme.accentMat);c.rotation.z=Math.PI/2;c.position.set(s*.86,-LEN,0);piv.add(c);
+      const bolt=new THREE.Mesh(new THREE.ConeGeometry(.14,.2,8),eqTheme.spikeMat);bolt.rotation.z=-s*Math.PI/2;bolt.position.set(s*.95,-LEN,0);piv.add(bolt);
+    });
+    o.spd=1.7+R()*.5;o.ph=R()*6.28;o.hx=0;o.hy=PY-LEN;
+    o.update=(t)=>{const a=1.15*Math.sin(t*o.spd+o.ph);piv.rotation.z=a;o.hx=Math.sin(a)*LEN;o.hy=PY-Math.cos(a)*LEN;};
+    o.hit=(x,dd)=>Math.abs(dd-d)<.7&&Math.abs(x-o.hx)<.95&&o.hy<1.5;
+  }else if(type==='cleaver'){
+    // Authentic Side Guillotine Cleaver Chopper (as in Count Masters)
+    const isDual=(R()<0.45);
+    const primarySide=(R()<0.5)?-1:1;
+    const sides=isDual?[-1,1]:[primarySide];
+    o.sides=sides;
+    o.arms=[];
+    o.spd=1.65+R()*0.45;
+    o.basePh=R()*Math.PI*2;
+    const curPal=(level&&level.pal)?level.pal:getTrackPalette(level?level.n:1);
+
+    sides.forEach((side,idx)=>{
+      const mountX=side*(HALF+0.22);
+      const pivotY=1.65;
+      const ph=o.basePh+(isDual?idx*Math.PI:0);
+
+      // 1. Sleek Vertical Mounting Bracket on track curb
+      const bracketPost=new THREE.Mesh(new THREE.BoxGeometry(0.36,2.2,0.62),eqTheme.frameMat);
+      bracketPost.position.set(mountX,0.75,0);
+      bracketPost.castShadow=true;bracketPost.receiveShadow=true;
+      o.g.add(bracketPost);
+
+      // Rounded Pivot Bracket Ears
+      [-0.22,0.22].forEach(oz=>{
+        const ear=new THREE.Mesh(new THREE.CylinderGeometry(0.32,0.32,0.12,20),eqTheme.frameMat);
+        ear.rotation.x=Math.PI/2;
+        ear.position.set(mountX,pivotY,oz);
+        ear.castShadow=true;
+        o.g.add(ear);
+      });
+
+      // Steel Pivot Bolt Pin through both bracket ears
+      const pin=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.13,0.64,20),eqTheme.spikeMat);
+      pin.rotation.x=Math.PI/2;
+      pin.position.set(mountX,pivotY,0);
+      pin.castShadow=true;
+      o.g.add(pin);
+
+      [-0.33,0.33].forEach(oz=>{
+        const cap=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.18,0.05,16),eqTheme.accentMat);
+        cap.rotation.x=Math.PI/2;
+        cap.position.set(mountX,pivotY,oz);
+        o.g.add(cap);
+      });
+
+      // 2. Articulated Swinging Cleaver Arm Group (Rotates around Z at pivot point)
+      const armPiv=new THREE.Group();
+      armPiv.position.set(mountX,pivotY,0);
+      o.g.add(armPiv);
+
+      // Pivot Connector Hub between ears
+      const hub=new THREE.Mesh(new THREE.CylinderGeometry(0.26,0.26,0.32,20),eqTheme.frameMat);
+      hub.rotation.x=Math.PI/2;
+      armPiv.add(hub);
+
+      // Arm Assembly
+      const bladeArm=new THREE.Group();
+      armPiv.add(bladeArm);
+
+      // Dark steel neck shaft (between hinge and blade)
+      const neckLen=1.05;
+      const neck=new THREE.Mesh(new THREE.BoxGeometry(neckLen,0.26,0.26),eqTheme.frameMat);
+      neck.position.set(-side*(neckLen/2+0.16),0,0);
+      neck.castShadow=true;
+      bladeArm.add(neck);
+
+      // Lower Accent Collar / Ring Band (Themed accent)
+      const lowerBand=new THREE.Mesh(new THREE.BoxGeometry(0.18,0.38,0.38),eqTheme.accentMat);
+      lowerBand.position.set(-side*(neckLen+0.16),0,0);
+      lowerBand.castShadow=true;
+      bladeArm.add(lowerBand);
+
+      // Heavy Rectangular Blade Spine / Back Bar (Themed frame/steel)
+      const spineLen=3.5;
+      const spine=new THREE.Mesh(new THREE.BoxGeometry(spineLen,0.44,0.34),eqTheme.frameMat);
+      spine.position.set(-side*(neckLen+0.18+spineLen/2),0,0);
+      spine.castShadow=true;
+      bladeArm.add(spine);
+
+      // Outer Tip Accent Cap (Themed accent)
+      const tipCap=new THREE.Mesh(new THREE.BoxGeometry(0.2,0.46,0.36),eqTheme.accentMat);
+      tipCap.position.set(-side*(neckLen+0.18+spineLen+0.08),0,0);
+      tipCap.castShadow=true;
+      bladeArm.add(tipCap);
+
+      // Wide Stylized Cleaver / Chopper Blade (Themed blade material: amber bronze in desert, cryo cyan in snow, etc.)
+      const bladeW=1.18;
+      const bladeMesh=new THREE.Mesh(new THREE.BoxGeometry(spineLen-0.1,bladeW,0.08),eqTheme.bladeMat);
+      bladeMesh.position.set(-side*(neckLen+0.18+spineLen/2),-bladeW/2-0.18,0);
+      bladeMesh.castShadow=true;
+      bladeArm.add(bladeMesh);
+
+      // Polished Razor-Sharp Cutting Bevel Edge Strip along bottom
+      const edgeBevel=new THREE.Mesh(
+        new THREE.BoxGeometry(spineLen-0.04,0.12,0.12),
+        new THREE.MeshStandardMaterial({color:'#ffffff',metalness:0.95,roughness:0.1})
+      );
+      edgeBevel.position.set(-side*(neckLen+0.18+spineLen/2),-bladeW-0.18+0.05,0);
+      edgeBevel.castShadow=true;
+      bladeArm.add(edgeBevel);
+
+      o.arms.push({
+        side,
+        mountX,
+        armPiv,
+        ph,
+        kUp:0,
+        lastChop:false
+      });
+    });
+
     o.update=(t,dt)=>{
       o.arms.forEach(arm=>{
         const cycle=(((t*o.spd+arm.ph)%(Math.PI*2))+Math.PI*2)%(Math.PI*2)/(Math.PI*2);
         let kUp;
-        if(cycle<0.38){
+        if(cycle<0.36){
+          // 1. Fully upright at 90° (standing completely vertical straight up in line with post)
           kUp=1.0;
-        }else if(cycle<0.46){
-          const p=(cycle-0.38)/0.08;
-          kUp=1.0-p*p;
-        }else if(cycle<0.68){
+        }else if(cycle<0.44){
+          // 2. Cocking / Wind-up: tilts back slightly (~94°) like someone pulling back before a heavy throw
+          const p=(cycle-0.36)/0.08;
+          kUp=1.0+Math.sin(p*Math.PI)*0.045;
+        }else if(cycle<0.52){
+          // 3. THE THROW / SLAM: rapid, forceful downward throw with cubic acceleration
+          const p=(cycle-0.44)/0.08;
+          kUp=(1.0-(p*p*p));
+        }else if(cycle<0.57){
+          // 4. Ground impact micro-shock: heavy blade hits the road and settles instantly
+          const p=(cycle-0.52)/0.05;
+          kUp=Math.sin(p*Math.PI)*0.03*Math.exp(-p*3);
+        }else if(cycle<0.70){
+          // 5. Resting flat down across the road surface (kUp = 0, completely horizontal)
           kUp=0.0;
         }else{
-          const p=(cycle-0.68)/0.32;
-          kUp=1.0-Math.pow(1-p,2);
+          // 6. Smoothly pulls back UP to full 90° vertical
+          const p=(cycle-0.70)/0.30;
+          kUp=p*p*(3-2*p);
         }
-        arm.kUp=kUp;
-        const angle=arm.side*1.36*kUp;
+        arm.kUp=Math.max(0,kUp);
+
+        // FULL 90 DEGREES (Math.PI / 2): stands completely vertical straight up when kUp=1
+        // and lands completely horizontal flat across the road when kUp=0
+        const maxAngle=Math.PI*0.5;
+        const angle=arm.side*maxAngle*arm.kUp;
         arm.armPiv.rotation.z=angle;
+
+        const isChop=(arm.kUp<0.05&&cycle>=0.50&&cycle<0.60);
+        if(isChop&&!arm.lastChop){
+          arm.lastChop=true;
+          if(Math.abs(d-crowd.d)<32){
+            tone(140,0.09,'sawtooth',0.22,70);
+            vib(18);
+            const sparkCol = new THREE.Color(eqTheme.accentCol || '#e2e8f0');
+            burst(arm.side*1.8,0.08,-d,sparkCol,12,4.0,2.8);
+          }
+        }else if(!isChop){
+          arm.lastChop=false;
+        }
       });
     };
+
     o.hit=(x,dd)=>{
       if(Math.abs(dd-d)>0.65)return false;
       for(let arm of o.arms){

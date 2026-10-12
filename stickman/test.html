@@ -450,7 +450,7 @@ const stepMult=k=>+(1+.2*(k+1)).toFixed(1);
 /* ================= GAME STATE ================= */
 let state='loading',paused=false,time=0,shake=0;
 let level=null;
-const crowd={d:0,x:0,tx:0,count:1,members:[],R:.3,badge:null};
+const crowd={d:0,x:0,tx:0,count:1,members:[],R:.3,badge:null,repackDelay:0,slowRegroupTime:0,needsRepack:false};
 const debris=[];
 let battle=null,tower=null,boss=null,runCoins=0,endTimer=0;
 
@@ -615,6 +615,11 @@ function repackSlots(members){
     unassigned[bestIdx]=unassigned[unassigned.length-1];
     unassigned.pop();
   }
+}
+function triggerSlowRegroup(delay,duration){
+  crowd.needsRepack=true;
+  crowd.repackDelay=Math.max(crowd.repackDelay||0,delay||0.32);
+  crowd.slowRegroupTime=Math.max(crowd.slowRegroupTime||0,duration||0.9);
 }
 function syncGroup(arr,count,maxv,instant){
   const want=Math.min(count,maxv);
@@ -1333,6 +1338,7 @@ function killMember(i,kind,obs){
 function resetRun(){
   buildLevel(save.level);
   crowd.d=0;crowd.x=0;crowd.tx=0;crowd.count=startCount();crowd.members.length=0;
+  crowd.repackDelay=0;crowd.slowRegroupTime=0;crowd.needsRepack=false;
   syncGroup(crowd.members,crowd.count,MAXV,true);syncCrowd(false);
   battle=null;tower=null;boss=null;runCoins=0;endTimer=0;
   state='menu';
@@ -1428,7 +1434,7 @@ function checkObstacles(){
       }
     }
   }
-  if(killed)repackSlots(crowd.members);
+  if(killed)triggerSlowRegroup(0.35, 0.95);
   crowd.R=clamp(SP*Math.sqrt(Math.max(1,crowd.members.length)),0.35,HALF-0.35);
   setBadge(crowd.badge,crowd.count);
 }
@@ -1793,9 +1799,25 @@ function updateBoss(dt){
 /* ================= MEMBER ANIMATION ================= */
 function updateMembers(dt){
   const st=state;
+
+  // Delayed and smoothed regrouping logic
+  if(crowd.repackDelay>0){
+    crowd.repackDelay-=dt;
+    if(crowd.repackDelay<=0&&crowd.needsRepack){
+      crowd.needsRepack=false;
+      repackSlots(crowd.members);
+    }
+  }
+
   crowd.R=clamp(SP*Math.sqrt(Math.max(1,crowd.members.length)),0.35,HALF-0.35);
   const maxRoadX=HALF-0.28;
-  const k=1-Math.exp(-dt*(st==='battle'||st==='boss'?8.5:7.0));
+
+  let regroupSpeed=(st==='battle'||st==='boss')?8.5:7.0;
+  if(crowd.slowRegroupTime>0){
+    crowd.slowRegroupTime-=dt;
+    regroupSpeed=3.2; // Smooth, graceful slow mode regrouping
+  }
+  const k=1-Math.exp(-dt*regroupSpeed);
   const runAnim=(st==='play'||st==='bossRun'||st==='battle');
   
   if(st!=='tower'){

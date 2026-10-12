@@ -1783,7 +1783,7 @@ function makeObstacle(grp,type,d,R,eqTheme){
         // FULL 90 DEGREES (Math.PI / 2): stands completely vertical straight up when kUp=1
         // and lands completely horizontal flat across the road when kUp=0
         const maxAngle=Math.PI*0.5;
-        const angle=arm.side*maxAngle*arm.kUp;
+        const angle=-arm.side*maxAngle*arm.kUp;
         arm.armPiv.rotation.z=angle;
 
         const isChop=(arm.kUp<0.05&&cycle>=0.50&&cycle<0.60);

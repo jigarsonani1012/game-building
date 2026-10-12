@@ -514,7 +514,7 @@ function buildLevel(n){
   const L=150+Math.min(n-1,16)*10;
   const endType=(n%3===0)?'boss':'stairs';
   const grp=new THREE.Group();scene.add(grp);
-  const lv={n,L,endType,group:grp,gates:[],enemies:[],obstacles:[],coins:[],stairD:L+9,kingD:L+19};
+  const lv={n,L,endType,group:grp,gates:[],enemies:[],obstacles:[],coins:[],stairD:L+9,kingD:L+28};
   level=lv;
   const endD=endType==='stairs'?lv.stairD+2:lv.kingD-8.5;
   // track
@@ -565,7 +565,7 @@ function buildLevel(n){
   }
   const tier=getBossTier(n);
   lv.bossTier=tier;
-  lv.bossHP=Math.max(180,Math.round(B*(3.5*tier.hpMult))+70*(Math.floor((n-1)/3)+1));
+  lv.bossHP=Math.max(65,Math.round(Math.min(B,160)*(1.2*tier.hpMult))+25*(Math.floor((n-1)/3)));
   if(endType==='stairs')buildStairs(grp,lv);else buildBoss(grp,lv);
   return lv;
 }
@@ -1101,10 +1101,10 @@ function buildBoss(grp,lv){
   arena.receiveShadow=true;
   grp.add(arena);
 
-  // 2. Seamless Stone Runway Apron
-  const apronMat=new THREE.MeshStandardMaterial({color:th.arenaTop,roughness:.55});
-  const apron=new THREE.Mesh(new THREE.BoxGeometry(HALF*2+0.52,.06,2.8),apronMat);
-  apron.position.set(0,.02,-(KD-8.2));
+  // 2. Seamless Stone Runway Apron (flush with track and arena surface at y=0)
+  const apronMat=new THREE.MeshStandardMaterial({color:th.arenaTop,roughness:.55,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1});
+  const apron=new THREE.Mesh(new THREE.BoxGeometry(HALF*2+0.52,1.2,3.2),apronMat);
+  apron.position.set(0,-.598,-(KD-8.2));
   apron.receiveShadow=true;
   grp.add(apron);
 
@@ -1671,13 +1671,32 @@ function updateBossRun(dt){
   const target=level.kingD-2.1-crowd.R*0.25;
   crowd.d=Math.min(target,crowd.d+SPEED*dt);
   crowd.tx*=.9;steer(dt);
-  if(crowd.d>=target){state='boss';boss={t:0,lastSwing:-1,lastPunch:0};}
+  if(crowd.d>=target){
+    state='boss';
+    const initCrowd=Math.max(12,crowd.count);
+    const tier=(level.king&&level.king.tier)||getBossTier(level.n);
+    // Dynamic Boss HP: scales with incoming army so battle duration is always an epic 5.0 to 6.8s!
+    const targetDuration=clamp(4.8+Math.log10(initCrowd)*1.2,5.0,7.0);
+    level.bossMaxHP=Math.round(initCrowd*2.8*tier.hpMult+40);
+    level.kingHP=level.bossMaxHP;
+    setBossHPBar(level.kingBadge,1.0);
+    boss={t:0,lastSwing:-1,lastPunch:0,initCrowd,targetDuration};
+    if(level.kingThrow&&level.kingThrow.bombs){
+      level.kingThrow.bombs.forEach(b=>{
+        level.kingThrow.grp.remove(b.mesh);
+        level.kingThrow.grp.remove(b.warn);
+      });
+      level.kingThrow.bombs.length=0;
+    }
+  }
 }
 function updateBoss(dt){
   const B=boss;B.t+=dt;
   
-  // Crowd steadily chips Boss HP bar with punch attacks
-  const crowdDPS=Math.max(16,Math.min(crowd.count*0.85,55));
+  // Dynamic Crowd DPS: whittles down Boss HP proportionally to remaining crowd ratio
+  const ratio=crowd.count/(B.initCrowd||Math.max(1,crowd.count));
+  const baseRate=level.bossMaxHP/(B.targetDuration||5.5);
+  const crowdDPS=Math.max(18,baseRate*Math.pow(ratio,0.85));
   level.kingHP=Math.max(0,level.kingHP-crowdDPS*dt);
   setBossHPBar(level.kingBadge,level.kingHP/level.bossMaxHP);
   
@@ -1707,8 +1726,8 @@ function updateBoss(dt){
       level.king.puff.position.set(0.15,.6,1.1);
     }
 
-    // 1. Identify all stickmen within the slash hitbox
-    const hitRadius=2.6;
+    // 1. Identify all stickmen within the slash hitbox (adapts to crowd width)
+    const hitRadius=Math.max(2.8,Math.min(crowd.R*0.85,4.4));
     const slashVictims=[];
     for(let i=0;i<crowd.members.length;i++){
       const m=crowd.members[i];
@@ -1723,8 +1742,9 @@ function updateBoss(dt){
     // Sort closest first
     slashVictims.sort((a,b)=>a.dist-b.dist);
 
-    // 2. Kill 4 to 8 stickmen right at impact point and launch them into high ragdoll fling
-    const killCount=Math.min(slashVictims.length,Math.floor(4+Math.random()*4));
+    // 2. Multi-Hit Cleave Kills: scales with crowd size so large hordes send 12-22 stickmen flying in ragdolls!
+    const cleaveBase=clamp(crowd.count*0.06,4,22);
+    const killCount=Math.min(slashVictims.length,Math.floor(cleaveBase+Math.random()*4));
     const indicesToRemove=[];
     for(let k=0;k<killCount;k++){
       const v=slashVictims[k];
@@ -1733,10 +1753,10 @@ function updateBoss(dt){
       burst(v.wx,.5,-v.wd,BLUE,7,6.0,4.5);
       
       const outDir=Math.atan2(v.dx,v.dz);
-      const flingSpd=7.5+Math.random()*5.5;
+      const flingSpd=8.0+Math.random()*6.0;
       const vx=Math.sin(outDir)*flingSpd;
-      const vy=5.5+Math.random()*4.0;
-      const vd=-(6.5+Math.random()*5.0);
+      const vy=6.0+Math.random()*4.5;
+      const vd=-(7.0+Math.random()*5.0);
       spawnDebris(v.wx,.4,v.wd,vx,vy,vd,BLUE);
     }
 
@@ -1751,8 +1771,8 @@ function updateBoss(dt){
       const wx=crowd.x+m.ox,wd=crowd.d+m.oz;
       const dx=wx-0,dz=wd-level.kingD;
       const dist=Math.sqrt(dx*dx+dz*dz);
-      if(dist<3.6&&dist>0.01){
-        const recoilForce=(3.6-dist)*1.5;
+      if(dist<3.8&&dist>0.01){
+        const recoilForce=(3.8-dist)*1.6;
         m.oz-=recoilForce; // Knock back along track
         m.ox+=(dx/dist)*(recoilForce*0.75); // Knock sideways away from center
       }
@@ -1942,6 +1962,76 @@ function drawScene(){
   else{b.visible=crowd.count>0;b.position.set(crowd.x,1.3+Math.min(.6,crowd.R*.12),-crowd.d);}
 }
 
+function spawnKingBomb(targetX,targetD,flightDuration,arcPeak){
+  if(!level||!level.kingThrow||!level.king)return;
+  const KT=level.kingThrow;
+  const K=level.king;
+  const targetZ=-targetD;
+
+  // Clear Telegraph Warning: Outer Ring + Inner Danger Disk
+  // Rendered with polygonOffset and depthWrite:false at y=0.08 so it is NEVER clipped or sunken into floor!
+  const warnGroup=new THREE.Group();
+  const warnRingGeo=new THREE.RingGeometry(1.05,1.42,32);
+  warnRingGeo.rotateX(-Math.PI/2);
+  const warnRingMat=new THREE.MeshBasicMaterial({
+    color:'#ef4444',
+    transparent:true,
+    opacity:0.92,
+    depthWrite:false,
+    polygonOffset:true,
+    polygonOffsetFactor:-6,
+    polygonOffsetUnits:-6
+  });
+  const warnRingMesh=new THREE.Mesh(warnRingGeo,warnRingMat);
+  warnRingMesh.renderOrder=9;
+  warnGroup.add(warnRingMesh);
+
+  const warnFillGeo=new THREE.CircleGeometry(1.05,24);
+  warnFillGeo.rotateX(-Math.PI/2);
+  const warnFillMat=new THREE.MeshBasicMaterial({
+    color:'#dc2626',
+    transparent:true,
+    opacity:0.28,
+    depthWrite:false,
+    polygonOffset:true,
+    polygonOffsetFactor:-6,
+    polygonOffsetUnits:-6
+  });
+  const warnFillMesh=new THREE.Mesh(warnFillGeo,warnFillMat);
+  warnFillMesh.renderOrder=8;
+  warnGroup.add(warnFillMesh);
+
+  warnGroup.position.set(targetX,0.08,targetZ);
+  KT.grp.add(warnGroup);
+
+  // Fiery Spiked Mortar Bomb Mesh
+  const bombGrp=new THREE.Group();
+  const bombMat=new THREE.MeshStandardMaterial({color:'#ea580c',emissive:'#dc2626',emissiveIntensity:1.2,roughness:0.25});
+  const bombCore=new THREE.Mesh(new THREE.SphereGeometry(0.38,12,10),bombMat);
+  bombGrp.add(bombCore);
+  const spkMat=new THREE.MeshStandardMaterial({color:'#ffd21f',metalness:0.8,roughness:0.2});
+  for(let s=0;s<6;s++){
+    const spk=new THREE.Mesh(new THREE.ConeGeometry(0.09,0.25,6),spkMat);
+    const sa=s*Math.PI*2/6;
+    spk.position.set(Math.cos(sa)*0.36,0,Math.sin(sa)*0.36);
+    spk.rotation.z=-Math.cos(sa)*Math.PI/2;
+    spk.rotation.x=Math.sin(sa)*Math.PI/2;
+    bombGrp.add(spk);
+  }
+  const startX=K.g.position.x+(Math.random()-.5)*0.6, startY=0.5, startZ=-(level.kingD-0.8);
+  bombGrp.position.set(startX,startY,startZ);
+  KT.grp.add(bombGrp);
+
+  KT.bombs.push({
+    mesh:bombGrp, warn:warnGroup,
+    warnRing:warnRingMat, warnFill:warnFillMat,
+    startX, startY, startZ,
+    targetX, targetZ, targetD,
+    arcPeak:arcPeak||5.2,
+    t:0, duration:flightDuration||1.2
+  });
+}
+
 function updateLevelVisuals(dt){
   if(!level)return;
   for(const o of level.obstacles)if(Math.abs(o.d-crowd.d)<120)o.update(time,dt);
@@ -2071,161 +2161,123 @@ function updateLevelVisuals(dt){
       K.body.position.y=Math.abs(Math.sin(t*8))*.06;
       K.body.rotation.y=0;
     }
-    else if((state==='bossRun'||(state==='play'&&crowd.d>=level.kingD-75))&&level.kingThrow){
-      // King Ranged Bomb Animation: Two-Handed Overhead Leap & Ground Slam Mortar Launch
+    else if((state==='bossRun'||(level.endType==='boss'&&crowd.d>=level.L-10))&&level.kingThrow){
+      // King Ranged Bomb Animation: Two-Handed Overhead Leap & High-Impact Ground Slam
       const KT=level.kingThrow;
       KT.t+=dt;
-      const tp=(KT.t%1.6)/1.6;
-      const throwIdx=Math.floor(KT.t/1.6);
+      const period=1.65; // Dynamic, frequent mortar volley barrage cadence
+      const tp=(KT.t%period)/period;
+      const throwIdx=Math.floor(KT.t/period);
       
-      if(tp<0.44){
-        // 1. Overhead Leap & Wind-Up: King jumps into the air, lifting weapon and arms high overhead
-        const wp=tp/0.44;
+      if(tp<0.38){
+        // 1. Kinetic Wind-Up & Leap: King coils and jumps high, weapon raised to sky
+        const wp=tp/0.38;
         const easeW=wp*wp;
-        K.body.position.y=lerp(0,0.42,easeW);
+        K.body.position.y=lerp(0,0.48,easeW);
         K.body.rotation.y=0;
-        K.body.rotation.x=lerp(0,-0.32,easeW);
+        K.body.rotation.x=lerp(0,-0.36,easeW);
         K.body.rotation.z=0;
         // Both arms raised high overhead
-        K.armR.rotation.x=lerp(0.2,-2.3,easeW);
+        K.armR.rotation.x=lerp(0.2,-2.4,easeW);
         K.armR.rotation.y=lerp(0,-0.15,easeW);
         K.armR.rotation.z=lerp(0.2,0.35,easeW);
-        K.armL.rotation.x=lerp(-0.2,-2.3,easeW);
+        K.armL.rotation.x=lerp(-0.2,-2.4,easeW);
         K.armL.rotation.y=lerp(0,0.15,easeW);
         K.armL.rotation.z=lerp(-0.25,-0.35,easeW);
-        // Legs tuck up slightly during the leap
-        K.legR.rotation.x=lerp(0,0.38,easeW);
-        K.legR.rotation.y=0;
+        // Legs tuck up in jump
+        K.legR.rotation.x=lerp(0,0.42,easeW);
         K.legR.rotation.z=0.1;
-        K.legL.rotation.x=lerp(0,0.38,easeW);
-        K.legL.rotation.y=0;
+        K.legL.rotation.x=lerp(0,0.42,easeW);
         K.legL.rotation.z=-0.1;
-      } else if(tp<0.60){
-        // 2. Violent Ground Slam: Slams down into floor, arms crashing downward
-        const sp=(tp-0.44)/0.16;
+      } else if(tp<0.54){
+        // 2. Heavy Ground Slam Impact
+        const sp=(tp-0.38)/0.16;
         const easeS=1-Math.pow(1-sp,3);
-        K.body.position.y=lerp(0.42,-0.18,easeS);
+        K.body.position.y=lerp(0.48,-0.2,easeS);
         K.body.rotation.y=0;
-        K.body.rotation.x=lerp(-0.32,0.48,easeS);
+        K.body.rotation.x=lerp(-0.36,0.52,easeS);
         K.body.rotation.z=0;
-        // Both arms slam straight down into the floor
-        K.armR.rotation.x=lerp(-2.3,0.95,easeS);
-        K.armR.rotation.y=lerp(-0.15,0,easeS);
+        // Both arms slam straight down
+        K.armR.rotation.x=lerp(-2.4,1.05,easeS);
+        K.armR.rotation.y=0;
         K.armR.rotation.z=lerp(0.35,0.15,easeS);
-        K.armL.rotation.x=lerp(-2.3,0.95,easeS);
-        K.armL.rotation.y=lerp(0.15,0,easeS);
+        K.armL.rotation.x=lerp(-2.4,1.05,easeS);
+        K.armL.rotation.y=0;
         K.armL.rotation.z=lerp(-0.35,-0.15,easeS);
-        // Legs spread into deep shock-absorbing stance
-        K.legR.rotation.x=lerp(0.38,-0.48,easeS);
-        K.legR.rotation.z=0.25;
-        K.legL.rotation.x=lerp(0.38,-0.48,easeS);
-        K.legL.rotation.z=-0.25;
+        // Legs plant in deep landing
+        K.legR.rotation.x=lerp(0.42,-0.52,easeS);
+        K.legR.rotation.z=0.28;
+        K.legL.rotation.x=lerp(0.42,-0.52,easeS);
+        K.legL.rotation.z=-0.28;
 
-        // Ground Impact: release mortar bomb at point of impact
-        if(tp>=0.50&&KT.lastThrow!==throwIdx){
+        // Release barrage of multiple high-impact mortar bombs on floor impact
+        if(tp>=0.44&&KT.lastThrow!==throwIdx){
           KT.lastThrow=throwIdx;
           KT.shotCount=(KT.shotCount||0)+1;
-          tone(140,.2,'sawtooth',.25,65);
-          sPop();vib(24);
+          tone(110,.25,'sawtooth',.32,50);
+          sPop();vib(35);
           // Ground impact shockwave & sparks at King's feet
-          burst(K.g.position.x,0.15,K.g.position.z+0.8,new THREE.Color('#f97316'),10,6.0,4.0);
-          burst(K.g.position.x,0.15,K.g.position.z+0.8,new THREE.Color('#ffd21f'),6,4.0,2.5);
+          burst(K.g.position.x,0.15,K.g.position.z+0.8,new THREE.Color('#f97316'),18,7.0,4.5);
+          burst(K.g.position.x,0.15,K.g.position.z+0.8,new THREE.Color('#ffd21f'),12,5.0,3.0);
 
-          // Dynamic varied targeting patterns (never same spot, changes by level, shot count, & player position)
-          const lvlNum=level.n||1;
-          const strat=(KT.shotCount + lvlNum) % 5;
-          let targetX=0, distAhead=14;
+          const volley=KT.shotCount;
+          const pattern=volley%4;
+          let targets=[];
 
-          if(strat===0){
-            // Predictive intercept: lead right ahead of where crowd is currently steering
-            targetX=clamp(crowd.x + (Math.random()-0.5)*0.8, -HALF*0.82, HALF*0.82);
-            distAhead=11 + Math.random()*7;
-          } else if(strat===1){
-            // Far Left Lane flank trap
-            targetX=-HALF * (0.45 + Math.random()*0.42);
-            distAhead=14 + Math.random()*12;
-          } else if(strat===2){
-            // Far Right Lane flank trap
-            targetX=HALF * (0.45 + Math.random()*0.42);
-            distAhead=14 + Math.random()*12;
-          } else if(strat===3){
-            // Center chokepoint strike
-            targetX=(Math.random()-0.5)*1.2;
-            distAhead=16 + Math.random()*14;
+          const maxDistAhead=Math.max(5.0,(level.kingD-2.6)-crowd.d);
+          const baseAhead=clamp(7.5+Math.random()*2.5,4.5,maxDistAhead);
+
+          if(pattern===0){
+            // Volley of 2: Dual Flank Trap (Left & Right lanes targeted; Center lane open)
+            targets=[
+              {x:-2.4, d:crowd.d+baseAhead, flight:1.15, arc:5.0},
+              {x:2.4, d:crowd.d+baseAhead+0.6, flight:1.25, arc:5.4}
+            ];
+          } else if(pattern===1){
+            // Volley of 3: Triple Staggered Mortar Spread (Left, Center, and Far-Right with gaps)
+            targets=[
+              {x:-2.8, d:crowd.d+baseAhead-0.6, flight:1.10, arc:4.8},
+              {x:0.0, d:crowd.d+baseAhead+1.2, flight:1.25, arc:5.2},
+              {x:2.8, d:crowd.d+baseAhead+2.6, flight:1.40, arc:5.6}
+            ];
+          } else if(pattern===2){
+            // Volley of 2: Right Trap (Center & Right targeted; Left lane open)
+            targets=[
+              {x:-0.3, d:crowd.d+baseAhead, flight:1.18, arc:5.0},
+              {x:2.5, d:crowd.d+baseAhead+0.8, flight:1.28, arc:5.3}
+            ];
           } else {
-            // Alternating deep long-range artillery shot
-            const side=(KT.shotCount%2===0)?1:-1;
-            targetX=side * HALF * (0.25 + Math.random()*0.55);
-            distAhead=20 + Math.random()*12;
+            // Volley of 2: Left Trap (Left & Center targeted; Right lane open)
+            targets=[
+              {x:-2.5, d:crowd.d+baseAhead+0.8, flight:1.28, arc:5.3},
+              {x:0.3, d:crowd.d+baseAhead, flight:1.18, arc:5.0}
+            ];
           }
 
-          // Anti-clustering check: Ensure this shot is far enough away from the last shot
-          if(KT.prevTargetX!==undefined){
-            if(Math.abs(targetX - KT.prevTargetX) < 1.4){
-              targetX = (KT.prevTargetX > 0) ? -HALF * 0.65 : HALF * 0.65;
-            }
+          for(const tg of targets){
+            const targetD=clamp(tg.d,level.L+1.0,level.kingD-2.5);
+            const targetX=clamp(tg.x,-HALF+0.7,HALF-0.7);
+            spawnKingBomb(targetX,targetD,tg.flight,tg.arc);
           }
-          KT.prevTargetX=targetX;
-
-          const targetD=clamp(crowd.d + distAhead, 0, level.kingD-5);
-          KT.prevTargetD=targetD;
-          const targetZ=-targetD;
-          
-          // Ground Warning Ring Decal with randomized pulse rate
-          const warnGeo=new THREE.RingGeometry(0.75,1.05,28);
-          warnGeo.rotateX(-Math.PI/2);
-          const warnMat=new THREE.MeshBasicMaterial({color:'#ef4444',transparent:true,opacity:0.85,depthWrite:false});
-          const warnMesh=new THREE.Mesh(warnGeo,warnMat);
-          warnMesh.position.set(targetX,0.04,targetZ);
-          KT.grp.add(warnMesh);
-
-          // Fiery Spiked Bomb Mesh launched from ground impact point
-          const bombGrp=new THREE.Group();
-          const bombMat=new THREE.MeshStandardMaterial({color:'#ea580c',emissive:'#dc2626',emissiveIntensity:0.95,roughness:0.3});
-          const bombCore=new THREE.Mesh(new THREE.SphereGeometry(0.34,10,8),bombMat);
-          bombGrp.add(bombCore);
-          const spkMat=new THREE.MeshStandardMaterial({color:'#ffd21f',metalness:0.7,roughness:0.25});
-          for(let s=0;s<6;s++){
-            const spk=new THREE.Mesh(new THREE.ConeGeometry(0.08,0.22,5),spkMat);
-            const sa=s*Math.PI*2/6;
-            spk.position.set(Math.cos(sa)*0.32,0,Math.sin(sa)*0.32);
-            spk.rotation.z=-Math.cos(sa)*Math.PI/2;spk.rotation.x=Math.sin(sa)*Math.PI/2;
-            bombGrp.add(spk);
-          }
-          const startX=K.g.position.x, startY=0.4, startZ=-(level.kingD-0.8);
-          bombGrp.position.set(startX,startY,startZ);
-          KT.grp.add(bombGrp);
-
-          // Varying trajectory peak & flight duration based on shot distance
-          const arcPeak=4.8 + ((KT.shotCount + lvlNum) % 3) * 1.6 + Math.random() * 0.8;
-          const flightDuration=clamp(1.0 + (distAhead - 10)*0.018, 0.95, 1.45);
-
-          KT.bombs.push({
-            mesh:bombGrp, warn:warnMesh,
-            startX, startY, startZ,
-            targetX, targetZ, targetD,
-            arcPeak,
-            t:0, duration:flightDuration
-          });
         }
       } else {
-        // 3. Recovery: King rises from ground slam back into battle stance
-        const rp=(tp-0.60)/0.40;
+        // 3. Stance Recovery & Ready
+        const rp=(tp-0.54)/0.46;
         const easeR=1-Math.pow(1-rp,2);
-        K.body.position.y=lerp(-0.18,0,easeR);
+        K.body.position.y=lerp(-0.2,0,easeR);
         K.body.rotation.y=0;
-        K.body.rotation.x=lerp(0.48,0,easeR);
+        K.body.rotation.x=lerp(0.52,0,easeR);
         K.body.rotation.z=0;
-        K.armR.rotation.x=lerp(0.95,0.2,easeR);
+        K.armR.rotation.x=lerp(1.05,0.2,easeR);
         K.armR.rotation.y=0;
         K.armR.rotation.z=lerp(0.15,0.2,easeR);
-        K.armL.rotation.x=lerp(0.95,-0.2,easeR);
+        K.armL.rotation.x=lerp(1.05,-0.2,easeR);
         K.armL.rotation.y=0;
         K.armL.rotation.z=lerp(-0.15,-0.25,easeR);
-        K.legR.rotation.x=lerp(-0.48,0,easeR);
-        K.legR.rotation.z=lerp(0.25,0.15,easeR);
-        K.legL.rotation.x=lerp(-0.48,0,easeR);
-        K.legL.rotation.z=lerp(-0.25,-0.15,easeR);
+        K.legR.rotation.x=lerp(-0.52,0,easeR);
+        K.legR.rotation.z=lerp(0.28,0.15,easeR);
+        K.legL.rotation.x=lerp(-0.52,0,easeR);
+        K.legL.rotation.z=lerp(-0.28,-0.15,easeR);
       }
     }
     else{
@@ -2246,22 +2298,32 @@ function updateLevelVisuals(dt){
         if(progress<1){
           const curX=lerp(fb.startX,fb.targetX,progress);
           const curZ=lerp(fb.startZ,fb.targetZ,progress);
-          const curY=lerp(fb.startY,0.35,progress)+Math.sin(progress*Math.PI)*(fb.arcPeak||5.5);
+          const curY=lerp(fb.startY,0.35,progress)+Math.sin(progress*Math.PI)*(fb.arcPeak||5.2);
           fb.mesh.position.set(curX,curY,curZ);
           fb.mesh.rotation.x+=dt*12;fb.mesh.rotation.z+=dt*8;
-          fb.warn.scale.setScalar(0.65+progress*0.65+Math.sin(time*16)*0.08);
-          fb.warn.material.opacity=0.45+progress*0.55;
+          // Telegraph warning pulses and intensifies as bomb descends
+          const pulse=Math.sin(time*18)*0.08;
+          fb.warn.scale.setScalar(0.85+progress*0.35+pulse);
+          if(fb.warnRing) fb.warnRing.opacity=0.7+progress*0.3;
+          if(fb.warnFill) fb.warnFill.opacity=0.18+progress*0.45;
+          // Fiery particle trail behind each flying mortar
+          if(Math.random()<0.6){
+            burst(curX,curY,curZ,new THREE.Color('#f97316'),1,1.5,1.2);
+          }
         } else {
           const hitX=fb.targetX, hitD=fb.targetD;
           KT.grp.remove(fb.mesh);
           KT.grp.remove(fb.warn);
           KT.bombs.splice(i,1);
 
-          sThud();vib(30);shake=0.32;
+          // Heavy Detonation Impact
+          tone(90,.28,'sawtooth',.35,45);
+          sThud();vib(45);shake=0.45;
           addSplat(hitX,0,-hitD,new THREE.Color('#b91c1c'));
-          burst(hitX,0.6,-hitD,new THREE.Color('#f97316'),12,6.5,4.5);
+          burst(hitX,0.6,-hitD,new THREE.Color('#f97316'),22,8.0,5.0);
+          burst(hitX,0.6,-hitD,new THREE.Color('#ffd21f'),14,5.5,3.5);
 
-          const blastRadius=1.7;
+          const blastRadius=1.9;
           let kills=0;
           for(let k=crowd.members.length-1;k>=0;k--){
             const m=crowd.members[k];
@@ -2269,18 +2331,18 @@ function updateLevelVisuals(dt){
             const dx=wx-hitX, dz=wd-hitD;
             if(dx*dx+dz*dz<blastRadius*blastRadius){
               addSplat(wx,0,-wd,BLUE);
-              burst(wx,0.45,-wd,BLUE,5,5.0,3.5);
-              spawnDebris(wx,0.35,wd,(Math.random()-.5)*5,5+Math.random()*3,-(4+Math.random()*3),BLUE);
+              burst(wx,0.45,-wd,BLUE,6,5.5,4.0);
+              spawnDebris(wx,0.35,wd,(Math.random()-.5)*6,6+Math.random()*4,-(5+Math.random()*4),BLUE);
               crowd.members.splice(k,1);
               crowd.count--;
               kills++;
-              if(kills>=4)break;
+              if(kills>=5)break;
             }
           }
           if(kills>0){
             repackSlots(crowd.members);
             syncCrowd(false);
-            if(crowd.count<=0){lose('Blasted by the King’s bomb!');return;}
+            if(crowd.count<=0){lose('Blasted by the King\'s mortar!');return;}
           }
         }
       }

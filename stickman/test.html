@@ -1595,20 +1595,106 @@ function makeObstacle(grp,type,d,R,eqTheme){
     o.hit=(x,dd)=>{const dx=x-px,dz=-(dd-d);const c=Math.cos(o.a),s=-Math.sin(o.a);const along=dx*c+dz*s;const perp=Math.abs(-dx*s+dz*c);
       return(Math.abs(along)<len+.15&&perp<.32)||(dx*dx+dz*dz<.3);};
   }else if(type==='saw'){
-    const groove=new THREE.Mesh(new THREE.BoxGeometry(HALF*2-.6,.03,.34),eqTheme.grooveMat);groove.position.y=.01;o.g.add(groove);
-    [-1,1].forEach(s=>{
-      const stop=new THREE.Mesh(new THREE.BoxGeometry(.25,.12,.42),eqTheme.accentMat);stop.position.set(s*(HALF-.3),.06,0);stop.castShadow=true;o.g.add(stop);
+    // Authentic Ground Buzz Saw Slots (matching Count Masters reference image)
+    // Bank of floor saw slots: NEVER in the middle! Clustered along the curb with even spacing
+    const side = (R() < 0.5) ? -1 : 1;
+    // Track half-width HALF=5: outer saw reaches ±4.3 (right near curb), spaced 1.7 units apart
+    const isTriple=(R()<0.85);
+    const xs=isTriple?[-2.2,0,2.2]:(R()<0.5?[-1.6,1.6]:[-2.0,0.4]);
+    o.saws=[];
+    o.side=side;
+    o.spd=20+R()*6;
+
+    // 1. Shared circular buzz saw blade geometry with sharp triangular teeth
+    const sh=new THREE.Shape();
+    const T=18;
+    const rOuter=0.82;
+    const rInner=0.64;
+    for(let k=0;k<T;k++){
+      const a1=(k/T)*Math.PI*2;
+      const a2=((k+0.65)/T)*Math.PI*2;
+      const a3=((k+1.0)/T)*Math.PI*2;
+      if(k===0)sh.moveTo(Math.cos(a1)*rInner,Math.sin(a1)*rInner);
+      sh.lineTo(Math.cos(a2)*rOuter,Math.sin(a2)*rOuter);
+      sh.lineTo(Math.cos(a3)*rInner,Math.sin(a3)*rInner);
+    }
+    sh.closePath();
+    const hole=new THREE.Path();hole.absarc(0,0,0.16,0,Math.PI*2,true);sh.holes.push(hole);
+    const sawGeo=new THREE.ExtrudeGeometry(sh,{depth:0.05,bevelEnabled:true,bevelSize:0.012,bevelThickness:0.012,bevelSegments:1});
+    sawGeo.translate(0,0,-0.025);
+
+    // Bezel border material (clean white raised rim around slot on track surface)
+    const bezelMat=new THREE.MeshStandardMaterial({color:'#ffffff',roughness:0.35});
+    // Dark recessed slot cavity
+    const cavityMat=new THREE.MeshStandardMaterial({color:'#242c36',roughness:0.85});
+
+    xs.forEach((sx,sIdx)=>{
+      const slotGroup=new THREE.Group();
+      slotGroup.position.set(sx,0,0);
+      o.g.add(slotGroup);
+
+      // White raised bezel border rim on road surface
+      const bezel=new THREE.Mesh(new THREE.BoxGeometry(0.84,0.04,1.8),bezelMat);
+      bezel.position.set(0,0.02,0);
+      bezel.castShadow=true;bezel.receiveShadow=true;
+      slotGroup.add(bezel);
+
+      // Dark recessed floor slot opening
+      const cavity=new THREE.Mesh(new THREE.BoxGeometry(0.48,0.07,1.48),cavityMat);
+      cavity.position.set(0,0.025,0);
+      slotGroup.add(cavity);
+
+      // Axle pin through center
+      const axle=new THREE.Mesh(new THREE.CylinderGeometry(0.08,0.08,0.44,14),eqTheme.frameMat);
+      axle.rotation.z=Math.PI/2;
+      axle.position.set(0,0.22,0);
+      slotGroup.add(axle);
+
+      // Distinct Red / Accent circular bearing hub caps on BOTH sides (matching reference image)
+      [-0.15,0.15].forEach(ox=>{
+        const cap=new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.16,0.08,16),eqTheme.accentMat);
+        cap.rotation.z=Math.PI/2;
+        cap.position.set(ox,0.22,0);
+        cap.castShadow=true;
+        slotGroup.add(cap);
+      });
+
+      // Spinning Buzz Saw Disc Assembly (oriented in Y-Z plane, rotating around X)
+      const spinner=new THREE.Group();
+      spinner.position.set(0,0.22,0);
+      slotGroup.add(spinner);
+
+      // The themed saw blade mesh
+      const bladeMesh=new THREE.Mesh(sawGeo,eqTheme.bladeMat);
+      bladeMesh.rotation.y=Math.PI/2;
+      bladeMesh.castShadow=true;
+      spinner.add(bladeMesh);
+
+      // Center Hub on the blade disc
+      const hub=new THREE.Mesh(new THREE.CylinderGeometry(0.24,0.24,0.09,18),eqTheme.frameMat);
+      hub.rotation.z=Math.PI/2;
+      spinner.add(hub);
+
+      o.saws.push({
+        x:sx,
+        spinner,
+        spinSpeed:o.spd+(sIdx%2?2.5:-1.5)
+      });
     });
-    const sh=new THREE.Shape();const T=22;for(let i=0;i<T*2;i++){const r=i%2?.86:1.02;const a=i/(T*2)*Math.PI*2;if(i===0)sh.moveTo(Math.cos(a)*r,Math.sin(a)*r);else sh.lineTo(Math.cos(a)*r,Math.sin(a)*r);}sh.closePath();
-    const hole=new THREE.Path();hole.absarc(0,0,.16,0,Math.PI*2,true);sh.holes.push(hole);
-    const bg=new THREE.ExtrudeGeometry(sh,{depth:.06,bevelEnabled:true,bevelSize:.012,bevelThickness:.012,bevelSegments:1});bg.translate(0,0,-.03);
-    const blade=new THREE.Mesh(bg,eqTheme.bladeMat);blade.castShadow=true;
-    const holder=new THREE.Group();holder.position.y=.22;o.g.add(holder);holder.add(blade);
-    const cap=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.16,16),eqTheme.accentMat);cap.rotation.x=Math.PI/2;holder.add(cap);
-    const motor=new THREE.Mesh(new THREE.BoxGeometry(.35,.22,.32),eqTheme.frameMat);motor.position.y=-.08;motor.castShadow=true;holder.add(motor);
-    o.amp=3.7;o.spd=1.4+R()*.6;o.ph=R()*6.28;o.blade=blade;o.holder=holder;o.sx=0;
-    o.update=(t,dt)=>{o.sx=Math.sin(t*o.spd+o.ph)*o.amp;holder.position.x=o.sx;blade.rotation.z-=dt*14;};
-    o.hit=(x,dd)=>Math.abs(dd-d)<.3&&Math.abs(x-o.sx)<.95;
+
+    o.update=(t,dt)=>{
+      for(let s of o.saws){
+        s.spinner.rotation.x-=dt*s.spinSpeed;
+      }
+    };
+
+    o.hit=(x,dd)=>{
+      if(Math.abs(dd-d)>0.74)return false;
+      for(let s of o.saws){
+        if(Math.abs(x-s.x)<0.30)return true;
+      }
+      return false;
+    };
   }else if(type==='roller'){
     const cx=R()<.5?-2.45:2.45;o.cx=cx;
     const frame=new THREE.Group();frame.position.x=cx;o.g.add(frame);

@@ -1599,8 +1599,7 @@ function makeObstacle(grp,type,d,R,eqTheme){
     // Bank of floor saw slots: NEVER in the middle! Clustered along the curb with even spacing
     const side = (R() < 0.5) ? -1 : 1;
     // Track half-width HALF=5: outer saw reaches ±4.3 (right near curb), spaced 1.7 units apart
-    const isTriple=(R()<0.85);
-    const xs=isTriple?[-2.2,0,2.2]:(R()<0.5?[-1.6,1.6]:[-2.0,0.4]);
+    const xs = (side < 0) ? [-4.3, -2.6, -0.9] : [0.9, 2.6, 4.3];
     o.saws=[];
     o.side=side;
     o.spd=20+R()*6;

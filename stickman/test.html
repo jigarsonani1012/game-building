@@ -510,11 +510,15 @@ function disposeLevel(){
 function buildLevel(n){
   disposeLevel();clearSplats();particles.length=0;debris.length=0;
   Object.values(M).forEach(m=>m.userData.shared=true);
-  const R=rng(n*7919+101);const rf=(a,b)=>a+R()*(b-a);const ri=(a,b)=>Math.floor(rf(a,b+1));
+  // Re-generate road traps & gate structure on 3rd attempt if user struggled
+  const retryTurn=(save.retries&&save.retries.level===n)?save.retries.count:0;
+  const isAltLayout=retryTurn>=2;
+  const seedShift=isAltLayout?((retryTurn-1)*4919+73):0;
+  const R=rng(n*7919+101+seedShift);const rf=(a,b)=>a+R()*(b-a);const ri=(a,b)=>Math.floor(rf(a,b+1));
   const L=150+Math.min(n-1,16)*10;
   const endType=(n%3===0)?'boss':'stairs';
   const grp=new THREE.Group();scene.add(grp);
-  const lv={n,L,endType,group:grp,gates:[],enemies:[],obstacles:[],coins:[],stairD:L+9,kingD:L+28};
+  const lv={n,L,endType,group:grp,gates:[],enemies:[],obstacles:[],coins:[],stairD:L+9,kingD:L+9.8};
   level=lv;
   const endD=endType==='stairs'?lv.stairD+2:lv.kingD-8.5;
   // track
@@ -546,7 +550,7 @@ function buildLevel(n){
     else if(last==='gates'){const r=R();if(d>40&&r<.48)type='enemy';else if(r<.83&&n>=2)type='obstacle';else type=(n===1&&r<.8&&d>40)?'enemy':'coins';}
     else type=R()<.82?'gates':'coins';
     if(type==='gates'){
-      const good=()=>{if(B<70&&R()<.45)return{op:'x',v:B<12?ri(2,4):ri(2,3),good:true};return{op:'+',v:Math.max(3,Math.round(B*rf(.35,1))+ri(2,9))+gb,good:true};};
+      const good=()=>{const boost=isAltLayout?2:0;if(B<70&&R()<(isAltLayout?.55:.45))return{op:'x',v:B<12?ri(2,4):ri(2,3),good:true};return{op:'+',v:Math.max(3,Math.round(B*rf(.35,1))+ri(2,9))+gb+boost,good:true};};
       const bad=()=>{if(B>14&&R()<.35)return{op:'/',v:2,good:false};return{op:'-',v:Math.max(2,Math.round(B*rf(.3,.7))),good:false};};
       const t=R();let a,b;
       if(t<.58){a=good();b=bad();}else if(t<.92){a=good();b=good();}else{a=good();b=null;}
@@ -1273,8 +1277,9 @@ function buildBoss(grp,lv){
   const tier=lv.bossTier||getBossTier(lv.n);
   const k=makeKing(tier);k.g.position.set(0,0,-KD);grp.add(k.g);lv.king=k;
   lv.kingBadge=makeBossHPBar();
-  lv.kingHP=lv.bossHP;lv.bossMaxHP=lv.bossHP;
-  setBossHPBar(lv.kingBadge,1.0);
+  const savedRatio=(save.bossSavedRatio&&save.bossSavedRatio.level===lv.n)?save.bossSavedRatio.ratio:1.0;
+  lv.kingHP=Math.max(1,Math.round(lv.bossHP*savedRatio));lv.bossMaxHP=lv.bossHP;
+  setBossHPBar(lv.kingBadge,savedRatio);
   lv.kingDead=0;lv.kingFlash=0;
   // King Ranged Bomb Throw Attack System
   lv.kingThrow={t:0.5,lastThrow:-1,shotCount:0,prevTargetX:undefined,prevTargetD:undefined,bombs:[],grp:new THREE.Group()};
@@ -1352,9 +1357,23 @@ function startRun(){
   if(state!=='menu')return;
   state='play';$('menu').classList.add('hide');$('gear').classList.remove('hide');
   tone(660,.08,'triangle',.08,990);
+  if(save.retries&&save.retries.level===save.level&&save.retries.count>=2){
+    flashMsg('NEW PATH: ROAD RECONFIGURED!');
+  }
 }
 function lose(reason){
   if(state==='lose'||state==='won')return;
+  // Preserve damaged Boss health so player resumes fight from where they left off!
+  if(level&&level.endType==='boss'&&level.bossMaxHP>0&&level.kingHP!==undefined){
+    const remRatio=clamp(level.kingHP/level.bossMaxHP, 0.04, 1.0);
+    save.bossSavedRatio={level:save.level, ratio:remRatio};
+  }
+  // Track failed retries on this level for 3rd-turn regeneration
+  if(!save.retries||save.retries.level!==save.level){
+    save.retries={level:save.level, count:1};
+  } else {
+    save.retries.count++;
+  }
   state='lose';endTimer=0;crowd.count=0;setBadge(crowd.badge,0);
   $('loseS').textContent=reason||'Your crowd was defeated';
   save.coins+=runCoins;runCoins=0;persist();updateCoins();
@@ -1372,6 +1391,12 @@ function win(mult,boss){
   const t0=performance.now();const tick=()=>{const k=Math.min(1,(performance.now()-t0)/900);$('winC').textContent=Math.round(pendingReward*k);if(k<1)requestAnimationFrame(tick);};tick();
 }
 function nextLevel(){
+  if(save.bossSavedRatio&&save.bossSavedRatio.level===save.level){
+    delete save.bossSavedRatio;
+  }
+  if(save.retries&&save.retries.level===save.level){
+    delete save.retries;
+  }
   save.coins+=pendingReward;pendingReward=0;save.level++;persist();resetRun();
 }
 
@@ -1684,8 +1709,12 @@ function updateBossRun(dt){
     // Dynamic Boss HP: scales with incoming army so battle duration is always an epic 5.0 to 6.8s!
     const targetDuration=clamp(4.8+Math.log10(initCrowd)*1.2,5.0,7.0);
     level.bossMaxHP=Math.round(initCrowd*2.8*tier.hpMult+40);
-    level.kingHP=level.bossMaxHP;
-    setBossHPBar(level.kingBadge,1.0);
+    const savedRatio=(save.bossSavedRatio&&save.bossSavedRatio.level===level.n)?save.bossSavedRatio.ratio:1.0;
+    level.kingHP=Math.max(1,Math.round(level.bossMaxHP*savedRatio));
+    setBossHPBar(level.kingBadge,savedRatio);
+    if(savedRatio<0.99){
+      flashMsg('BOSS WOUNDED: '+Math.round(savedRatio*100)+'% HP LEFT!');
+    }
     boss={t:0,lastSwing:-1,lastPunch:0,initCrowd,targetDuration};
     if(level.kingThrow&&level.kingThrow.bombs){
       level.kingThrow.bombs.forEach(b=>{
@@ -1791,7 +1820,16 @@ function updateBoss(dt){
 
   if(level.kingHP<=0){
     state='bossWin';endTimer=0;level.kingDead=.001;sThud();shake=.6;
+    if(save.bossSavedRatio&&save.bossSavedRatio.level===level.n){
+      delete save.bossSavedRatio;
+      persist();
+    }
   } else if(crowd.count<=0){
+    if(level.bossMaxHP>0){
+      const remRatio=clamp(level.kingHP/level.bossMaxHP, 0.04, 1.0);
+      save.bossSavedRatio={level:level.n, ratio:remRatio};
+      persist();
+    }
     lose('The Boss was too strong!');
   }
 }
@@ -2183,7 +2221,7 @@ function updateLevelVisuals(dt){
       K.body.position.y=Math.abs(Math.sin(t*8))*.06;
       K.body.rotation.y=0;
     }
-    else if((state==='bossRun'||(level.endType==='boss'&&crowd.d>=level.L-10))&&level.kingThrow){
+    else if((state==='bossRun'||(level.endType==='boss'&&crowd.d>=level.L-22))&&level.kingThrow){
       // King Ranged Bomb Animation: Two-Handed Overhead Leap & High-Impact Ground Slam
       const KT=level.kingThrow;
       KT.t+=dt;
@@ -2242,42 +2280,51 @@ function updateLevelVisuals(dt){
           burst(K.g.position.x,0.15,K.g.position.z+0.8,new THREE.Color('#f97316'),18,7.0,4.5);
           burst(K.g.position.x,0.15,K.g.position.z+0.8,new THREE.Color('#ffd21f'),12,5.0,3.0);
 
-          const volley=KT.shotCount;
-          const pattern=volley%4;
+          // Dynamic, unpredictable bomb landing positions (never in the same place!)
+          const lanes=[-2.6, 0.0, 2.6];
+          let safeLaneIdx=Math.floor(Math.random()*3);
+          if(KT.lastSafeLane===safeLaneIdx){
+            safeLaneIdx=(safeLaneIdx+1+Math.floor(Math.random()*2))%3;
+          }
+          KT.lastSafeLane=safeLaneIdx;
+
+          const maxDistAhead=Math.max(4.0,(level.kingD-2.6)-crowd.d);
+          const baseAhead=clamp(5.5+Math.random()*3.5,3.5,maxDistAhead);
           let targets=[];
 
-          const maxDistAhead=Math.max(5.0,(level.kingD-2.6)-crowd.d);
-          const baseAhead=clamp(7.5+Math.random()*2.5,4.5,maxDistAhead);
+          // Randomize between 2 or 3 bombs with randomized offsets and varying lead times
+          const bombCount=(Math.random()<0.65)?2:3;
 
-          if(pattern===0){
-            // Volley of 2: Dual Flank Trap (Left & Right lanes targeted; Center lane open)
-            targets=[
-              {x:-2.4, d:crowd.d+baseAhead, flight:1.15, arc:5.0},
-              {x:2.4, d:crowd.d+baseAhead+0.6, flight:1.25, arc:5.4}
-            ];
-          } else if(pattern===1){
-            // Volley of 3: Triple Staggered Mortar Spread (Left, Center, and Far-Right with gaps)
-            targets=[
-              {x:-2.8, d:crowd.d+baseAhead-0.6, flight:1.10, arc:4.8},
-              {x:0.0, d:crowd.d+baseAhead+1.2, flight:1.25, arc:5.2},
-              {x:2.8, d:crowd.d+baseAhead+2.6, flight:1.40, arc:5.6}
-            ];
-          } else if(pattern===2){
-            // Volley of 2: Right Trap (Center & Right targeted; Left lane open)
-            targets=[
-              {x:-0.3, d:crowd.d+baseAhead, flight:1.18, arc:5.0},
-              {x:2.5, d:crowd.d+baseAhead+0.8, flight:1.28, arc:5.3}
-            ];
+          if(bombCount===2){
+            const dangerLanes=[0,1,2].filter(i=>i!==safeLaneIdx);
+            for(const li of dangerLanes){
+              const jitterX=(Math.random()-0.5)*1.2;
+              const jitterD=(Math.random()-0.5)*2.4;
+              targets.push({
+                x:clamp(lanes[li]+jitterX,-HALF+0.7,HALF-0.7),
+                d:crowd.d+baseAhead+jitterD,
+                flight:1.08+Math.random()*0.28,
+                arc:4.6+Math.random()*1.4
+              });
+            }
           } else {
-            // Volley of 2: Left Trap (Left & Center targeted; Right lane open)
-            targets=[
-              {x:-2.5, d:crowd.d+baseAhead+0.8, flight:1.28, arc:5.3},
-              {x:0.3, d:crowd.d+baseAhead, flight:1.18, arc:5.0}
-            ];
+            // Triple spread with randomized jitter, preserving clear safe channel
+            const safeX=lanes[safeLaneIdx]+(Math.random()-0.5)*0.6;
+            const candidateOffsets=[-3.0,-1.1,1.1,3.0].filter(x=>Math.abs(x-safeX)>1.6);
+            for(let k=0;k<Math.min(3,candidateOffsets.length);k++){
+              const ox=candidateOffsets[k]+(Math.random()-0.5)*0.6;
+              const staggerD=k*1.2+(Math.random()-0.5)*1.2;
+              targets.push({
+                x:clamp(ox,-HALF+0.7,HALF-0.7),
+                d:crowd.d+baseAhead+staggerD,
+                flight:1.05+k*0.12+Math.random()*0.2,
+                arc:4.5+Math.random()*1.5
+              });
+            }
           }
 
           for(const tg of targets){
-            const targetD=clamp(tg.d,level.L+1.0,level.kingD-2.5);
+            const targetD=clamp(tg.d,level.L-20.0,level.kingD-2.2);
             const targetX=clamp(tg.x,-HALF+0.7,HALF-0.7);
             spawnKingBomb(targetX,targetD,tg.flight,tg.arc);
           }

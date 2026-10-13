@@ -1958,12 +1958,12 @@ function buildStairs(grp,lv){
   chest.rotation.y=-.25; // Angled towards camera & runner
   grp.add(chest);
 
-  const goldMat=M.gold;
-  const redMat=new THREE.MeshStandardMaterial({color:'#991b1b',roughness:.35,metalness:.15});
-  const darkVelvet=new THREE.MeshStandardMaterial({color:'#18241d',roughness:.75});
+  const goldMat=new THREE.MeshStandardMaterial({color:'#ffcb1a',roughness:.2,metalness:.85,emissive:'#855200',emissiveIntensity:.35});
+  const redMat=new THREE.MeshStandardMaterial({color:'#b91c1c',roughness:.35,metalness:.15,side:THREE.DoubleSide});
+  const darkLining=new THREE.MeshStandardMaterial({color:'#22322c',roughness:.65,metalness:.1,side:THREE.DoubleSide});
 
   // Base Floor
-  const floor=new THREE.Mesh(new THREE.BoxGeometry(1.52,.08,.98),redMat);floor.position.y=.04;chest.add(floor);
+  const floor=new THREE.Mesh(new THREE.BoxGeometry(1.52,.08,.98),darkLining);floor.position.y=.04;chest.add(floor);
 
   // 4 Outer Walls (Hollow Box Interior!)
   const wallFront=new THREE.Mesh(new THREE.BoxGeometry(1.44,.56,.08),redMat);wallFront.position.set(0,.36,.45);wallFront.castShadow=true;chest.add(wallFront);
@@ -1977,6 +1977,14 @@ function buildStairs(grp,lv){
   const bB=baseBand.clone();bB.position.set(0,.05,-.48);chest.add(bB);
   const bL=new THREE.Mesh(new THREE.BoxGeometry(.1,.1,.86),goldMat);bL.position.set(-.76,.05,0);chest.add(bL);
   const bR=bL.clone();bR.position.set(.76,.05,0);chest.add(bR);
+
+  // 4 Gold Corner Feet (Lifted on golden feet like the real game)
+  for(let sx of [-1,1]){
+    for(let sz of [-1,1]){
+      const foot=new THREE.Mesh(new THREE.BoxGeometry(.15,.10,.15),goldMat);
+      foot.position.set(sx*.76,-.01,sz*.48);chest.add(foot);
+    }
+  }
 
   // Top Opening Rim Gold Frame (Hollow opening frame!)
   const rF=new THREE.Mesh(new THREE.BoxGeometry(1.62,.08,.1),goldMat);rF.position.set(0,.65,.48);chest.add(rF);
@@ -1997,73 +2005,85 @@ function buildStairs(grp,lv){
   const keyhole=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.08,12),new THREE.MeshBasicMaterial({color:'#000'}));
   keyhole.rotation.x=Math.PI/2;keyhole.position.set(0,.45,.54);chest.add(keyhole);
 
-  // Lush Mound of Gold Coins inside the chest
-  const coinMoundGeo=new THREE.SphereGeometry(.65,24,14,0,Math.PI*2,0,Math.PI*.5);
+  // Pure Gold Coin Bounty (Cleanly contained inside the chest container - zero clipping!)
+  const coinMoundGeo=new THREE.SphereGeometry(.62,28,16,0,Math.PI*2,0,Math.PI*.5);
   const coinMound=new THREE.Mesh(coinMoundGeo,goldMat);
-  coinMound.scale.set(1.05,.48,.68);coinMound.position.set(0,.35,0);chest.add(coinMound);
+  coinMound.scale.set(1.02,.52,.60);coinMound.position.set(0,.36,0);chest.add(coinMound);
 
-  // 32 Individual 3D shiny gold coins spilling and stacking realistically
-  const coinGeo=new THREE.CylinderGeometry(.12,.12,.035,16);
-  for(let ci=0;ci<32;ci++){
+  // Chunky, stylized cartoon gold coins cleanly filling the chest interior
+  const coinGeo=new THREE.CylinderGeometry(.14,.14,.04,16);
+  // Layered coins arranged safely within box bounds (|x| <= 0.55, |z| <= 0.28)
+  const coinPositions=[
+    // Center apex peak
+    [0,.70,0,0,0],[.14,.69,.05,.15,.2],[-.14,.69,-.05,-.15,-.2],
+    [0,.69,.12,.2,0],[0,.69,-.12,-.2,0],
+    // Mid-tier ring
+    [.24,.66,.09,.15,.3],[-.24,.66,.09,-.15,-.3],[.24,.66,-.09,.15,-.3],[-.24,.66,-.09,-.15,.3],
+    [.12,.66,.20,.22,.1],[-.12,.66,.20,.22,-.1],[.12,.66,-.20,-.22,.1],[-.12,.66,-.20,-.22,-.1],
+    // Perimeter ring (strictly inside inner walls)
+    [.40,.63,0,.1,.3],[-.40,.63,0,-.1,-.3],
+    [.34,.63,.16,.18,.2],[-.34,.63,.16,.18,-.2],[.34,.63,-.16,-.18,.2],[-.34,.63,-.16,-.18,-.2],
+    [0,.64,.26,.2,0],[.18,.63,.26,.2,.15],[-.18,.63,.26,.2,-.15],
+    [0,.64,-.26,-.2,0],[.18,.63,-.26,-.2,.15],[-.18,.63,-.26,-.2,-.15],
+    // Corner & side fills
+    [.48,.61,.08,.1,.2],[-.48,.61,.08,-.1,-.2],[.48,.61,-.08,-.1,.2],[-.48,.61,-.08,.1,-.2]
+  ];
+  coinPositions.forEach(([x,y,z,rx,rz],idx)=>{
     const cm=new THREE.Mesh(coinGeo,goldMat);
-    const ca=ci*1.15,cr=.14+.28*Math.sin(ci*2.7);
-    const cy=.52+Math.sin(ci*1.8)*.08;
-    const cz=Math.sin(ca)*cr*.6+(ci<6?.38:0); // some spilling over front rim!
-    cm.position.set(Math.cos(ca)*cr,cy,cz);
-    cm.rotation.set((ci%4)*.35,ci*.7,(ci%3)*.3);
+    cm.position.set(x,y,z);
+    cm.rotation.set(rx,idx*.65,rz);
     chest.add(cm);
-  }
-
-  // Sparkling Faceted Gems
-  const gemMatR=new THREE.MeshStandardMaterial({color:'#ff1744',roughness:.1,metalness:.7});
-  const gemMatB=new THREE.MeshStandardMaterial({color:'#00e5ff',roughness:.1,metalness:.7});
-  const gemMatG=new THREE.MeshStandardMaterial({color:'#00e676',roughness:.1,metalness:.7});
-  const gemGeo=new THREE.OctahedronGeometry(.11,0);
-  const gem1=new THREE.Mesh(gemGeo,gemMatR);gem1.position.set(-.32,.62,.2);chest.add(gem1);
-  const gem2=new THREE.Mesh(gemGeo,gemMatB);gem2.position.set(.34,.64,-.1);chest.add(gem2);
-  const gem3=new THREE.Mesh(gemGeo,gemMatG);gem3.position.set(-.12,.66,-.15);chest.add(gem3);
+  });
 
   const chestLight=new THREE.PointLight(0xffd700,0,7);
   chestLight.position.set(0,.9,0);chest.add(chestLight);
 
-  // Hinged Hollow Arched Lid Group (Pivot at top-back lip: y=0.65, z=-0.48)
+  // Hinged Solid Arched Lid Group (Pivot at top-back lip: y=0.65, z=-0.48)
   const lidGroup=new THREE.Group();
   lidGroup.position.set(0,.65,-.48);
   chest.add(lidGroup);
 
-  // Outer red curved lid arch
-  const lidOuter=new THREE.Mesh(new THREE.CylinderGeometry(.48,.48,1.44,24,1,true,0,Math.PI),redMat);
+  // Outer red curved lid arch (Double-sided so never transparent from any POV!)
+  const lidOuter=new THREE.Mesh(new THREE.CylinderGeometry(.48,.48,1.44,32,1,true,0,Math.PI),redMat);
   lidOuter.rotation.z=Math.PI/2;lidOuter.position.set(0,0,.48);lidOuter.castShadow=true;
   lidGroup.add(lidOuter);
 
-  // Inner dark velvet curved lid ceiling
-  const lidInner=new THREE.Mesh(new THREE.CylinderGeometry(.44,.44,1.40,24,1,true,0,Math.PI),darkVelvet);
+  // Inner dark slate lining (Authentic Count Masters dark interior backing!)
+  const lidInner=new THREE.Mesh(new THREE.CylinderGeometry(.45,.45,1.40,32,1,true,0,Math.PI),darkLining);
   lidInner.rotation.z=Math.PI/2;lidInner.position.set(0,0,.48);
   lidGroup.add(lidInner);
 
-  // Left & Right semicircular end caps with gold borders
+  // Left & Right semicircular end caps (Double-sided solid caps with gold trim)
   for(let sx of [-1,1]){
-    const cap=new THREE.Mesh(new THREE.CircleGeometry(.48,24,0,Math.PI),redMat);
+    // Outer red end cap
+    const cap=new THREE.Mesh(new THREE.CircleGeometry(.48,28,0,Math.PI),redMat);
     cap.rotation.y=sx>0?Math.PI/2:-Math.PI/2;cap.position.set(sx*.72,0,.48);
     lidGroup.add(cap);
-    const capInner=new THREE.Mesh(new THREE.CircleGeometry(.44,24,0,Math.PI),darkVelvet);
-    capInner.rotation.y=sx>0?-Math.PI/2:Math.PI/2;capInner.position.set(sx*.71,0,.48);
+    // Inner dark slate end cap
+    const capInner=new THREE.Mesh(new THREE.CircleGeometry(.45,28,0,Math.PI),darkLining);
+    capInner.rotation.y=sx>0?-Math.PI/2:Math.PI/2;capInner.position.set(sx*.705,0,.48);
     lidGroup.add(capInner);
+    // Golden semicircular rim arch trim
+    const capTrim=new THREE.Mesh(new THREE.TorusGeometry(.48,.025,8,24,Math.PI),goldMat);
+    capTrim.rotation.y=Math.PI/2;capTrim.position.set(sx*.725,0,.48);
+    lidGroup.add(capTrim);
   }
 
-  // Lid Hollow Rectangular Gold Frame Lip
+  // Lid Rectangular Gold Frame Lip
   const lrF=new THREE.Mesh(new THREE.BoxGeometry(1.62,.08,.1),goldMat);lrF.position.set(0,.04,.96);lidGroup.add(lrF);
   const lrB=new THREE.Mesh(new THREE.BoxGeometry(1.62,.08,.1),goldMat);lrB.position.set(0,.04,0);lidGroup.add(lrB);
   const lrL=new THREE.Mesh(new THREE.BoxGeometry(.1,.08,.86),goldMat);lrL.position.set(-.76,.04,.48);lidGroup.add(lrL);
   const lrR=lrL.clone();lrR.position.set(.76,.04,.48);lidGroup.add(lrR);
 
-  // 2 Gold Reinforcement Straps over lid arch
-  const strapL=new THREE.Mesh(new THREE.TorusGeometry(.49,.035,8,24,Math.PI),goldMat);
-  strapL.rotation.y=Math.PI/2;strapL.position.set(-.45,0,.48);lidGroup.add(strapL);
-  const strapR=new THREE.Mesh(new THREE.TorusGeometry(.49,.035,8,24,Math.PI),goldMat);
-  strapR.rotation.y=Math.PI/2;strapR.position.set(.45,0,.48);lidGroup.add(strapR);
+  // 2 Outer Gold Reinforcement Straps over lid arch + Inner matching gold ribs
+  [-0.45,0.45].forEach(sx=>{
+    const strap=new THREE.Mesh(new THREE.TorusGeometry(.49,.032,8,24,Math.PI),goldMat);
+    strap.rotation.y=Math.PI/2;strap.position.set(sx,0,.48);lidGroup.add(strap);
+    const innerRib=new THREE.Mesh(new THREE.TorusGeometry(.448,.018,8,24,Math.PI),goldMat);
+    innerRib.rotation.y=Math.PI/2;innerRib.position.set(sx,0,.48);lidGroup.add(innerRib);
+  });
 
-  // Gold Coin Crest Medal on top of lid
+  // Gold Coin Crest Medal solidly embedded on top of lid
   const crest=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,.05,24),goldMat);
   crest.position.set(0,.5,.48);lidGroup.add(crest);
 
@@ -2494,36 +2514,64 @@ function createThemedFortress(th, pal, scale = 1.0){
       sc.position.set(-2.8+i*1.12,9.22,-1.6);c.add(sc);
     }
   }
-  if(th.towerStyle==='conical_spire'||th.towerStyle==='crenellated_square'){
-    const keepRoof=new THREE.Mesh(new THREE.ConeGeometry(4.4,2.8,4),roofMat);
-    keepRoof.rotation.y=Math.PI/4;keepRoof.position.set(0,10.2,-1.6);keepRoof.castShadow=true;c.add(keepRoof);
+  let roofTopY = 9.70;
+  if(th.towerStyle==='conical_spire'){
+    const keepRoof=new THREE.Mesh(new THREE.ConeGeometry(4.4,2.2,4),roofMat);
+    keepRoof.rotation.y=Math.PI/4;keepRoof.position.set(0,9.9,-1.6);keepRoof.castShadow=true;c.add(keepRoof);
+    roofTopY = 11.0;
     if(th.hasSnowCaps){
-      const cap=new THREE.Mesh(new THREE.ConeGeometry(2.2,1.4,4),snowMat);
-      cap.rotation.y=Math.PI/4;cap.position.set(0,11.0,-1.6);c.add(cap);
+      const cap=new THREE.Mesh(new THREE.ConeGeometry(2.2,1.1,4),snowMat);
+      cap.rotation.y=Math.PI/4;cap.position.set(0,10.45,-1.6);c.add(cap);
     }
   } else if(th.towerStyle==='gilded_dome'){
-    const keepDome=new THREE.Mesh(new THREE.SphereGeometry(3.2,24,14,0,Math.PI*2,0,Math.PI/2),roofMat);
+    const keepDome=new THREE.Mesh(new THREE.SphereGeometry(2.8,24,14,0,Math.PI*2,0,Math.PI/2),roofMat);
     keepDome.position.set(0,8.8,-1.6);keepDome.castShadow=true;c.add(keepDome);
-    const finial=new THREE.Mesh(new THREE.ConeGeometry(.2,1.4,8),gold);
-    finial.position.set(0,12.5,-1.6);c.add(finial);
+    roofTopY = 11.6;
   } else if(th.towerStyle==='needle_spire'){
-    const keepSpire=new THREE.Mesh(new THREE.ConeGeometry(2.8,4.8,8),roofMat);
-    keepSpire.position.set(0,11.0,-1.6);keepSpire.castShadow=true;c.add(keepSpire);
+    const keepSpire=new THREE.Mesh(new THREE.ConeGeometry(2.8,3.4,8),roofMat);
+    keepSpire.position.set(0,10.1,-1.6);keepSpire.castShadow=true;c.add(keepSpire);
+    roofTopY = 11.8;
     if(th.hasSnowCaps){
-      const cap=new THREE.Mesh(new THREE.ConeGeometry(1.4,2.4,8),snowMat);
-      cap.position.set(0,12.3,-1.6);c.add(cap);
+      const cap=new THREE.Mesh(new THREE.ConeGeometry(1.4,1.7,8),snowMat);
+      cap.rotation.y=Math.PI/4;cap.position.set(0,10.95,-1.6);c.add(cap);
     }
+  } else if(th.towerStyle==='crenellated_square'){
+    const crown=new THREE.Mesh(new THREE.BoxGeometry(7.2,.8,3.8),roofMat);
+    crown.position.set(0,9.3,-1.6);crown.castShadow=true;c.add(crown);
+    [-3.1,3.1].forEach(ox=>{
+      [-1.4,1.4].forEach(oz=>{
+        const cren=new THREE.Mesh(new THREE.BoxGeometry(.68,.6,.68),roofMat);
+        cren.position.set(ox,9.9,-1.6+oz);cren.castShadow=true;c.add(cren);
+      });
+    });
+    roofTopY = 9.70;
   } else {
     const crown=new THREE.Mesh(new THREE.BoxGeometry(7.2,.8,3.8),roofMat);
     crown.position.set(0,9.3,-1.6);crown.castShadow=true;c.add(crown);
+    roofTopY = 9.70;
   }
 
-  const flagPole=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,3.4,8),gold);
-  flagPole.position.set(0,12.4,-1.6);c.add(flagPole);
-  const flagG=new THREE.PlaneGeometry(2.0,1.1,8,3);flagG.translate(1.0,0,0);
-  const flagM=new THREE.MeshStandardMaterial({color:th.flag,roughness:.5,side:THREE.DoubleSide});
-  const flag=new THREE.Mesh(flagG,flagM);flag.position.set(0,13.5,-1.6);flag.castShadow=true;c.add(flag);
+  // Stately Royal Flagpole & Flag Banner firmly mounted onto the keep roof
+  const poleH = roofTopY > 10.5 ? 1.7 : 2.45;
+  const poleBaseY = roofTopY - 0.05;
+  const flagPole=new THREE.Mesh(new THREE.CylinderGeometry(.065,.08,poleH,12),gold);
+  flagPole.position.set(0,poleBaseY + poleH/2,-1.6);flagPole.castShadow=true;c.add(flagPole);
 
+  // Solid Decorative Golden Mounting Base at roof contact point (Zero gap!)
+  const poleMount=new THREE.Mesh(new THREE.CylinderGeometry(.22,.32,.22,16),gold);
+  poleMount.position.set(0,roofTopY + .10,-1.6);poleMount.castShadow=true;c.add(poleMount);
+
+  // Golden Ball Finial on top of flagpole
+  const finial=new THREE.Mesh(new THREE.SphereGeometry(.13,12,12),gold);
+  finial.position.set(0,poleBaseY + poleH,-1.6);c.add(finial);
+
+  // Waving Royal Banner
+  const flagW = 1.9;
+  const flagH = 1.05;
+  const flagG=new THREE.PlaneGeometry(flagW,flagH,8,3);flagG.translate(flagW/2,0,0);
+  const flagM=new THREE.MeshStandardMaterial({color:th.flag,roughness:.5,side:THREE.DoubleSide});
+  const flag=new THREE.Mesh(flagG,flagM);
+  flag.position.set(0,poleBaseY + poleH - flagH/2 - .06,-1.6);flag.castShadow=true;c.add(flag);
   // 4. Stepped Gatehouse & Arched Portal
   const gateHouse=new THREE.Mesh(new THREE.BoxGeometry(4.6,4.8,2.0),cMat);
   gateHouse.position.set(0,2.4,.3);gateHouse.castShadow=true;c.add(gateHouse);
@@ -2536,27 +2584,116 @@ function createThemedFortress(th, pal, scale = 1.0){
     }
   }
 
-  // Gatehouse Themed Heraldic Crest / Coat of Arms
-  const crestBase=new THREE.Mesh(new THREE.CylinderGeometry(.52,.52,.12,16),gold);
-  crestBase.rotation.x=Math.PI/2;crestBase.position.set(0,3.95,1.34);c.add(crestBase);
-  const crestEmblem=new THREE.Mesh(new THREE.OctahedronGeometry(.32,0),new THREE.MeshStandardMaterial({color:th.flag,emissive:th.flag,emissiveIntensity:.4,metalness:.5,roughness:.3}));
-  crestEmblem.scale.set(1,1.3,.3);crestEmblem.position.set(0,3.95,1.42);c.add(crestEmblem);
-  const gateFrameOuter=new THREE.Mesh(new THREE.BoxGeometry(3.4,3.6,.35),frameMat);
-  gateFrameOuter.position.set(0,1.8,1.25);c.add(gateFrameOuter);
-  const gateArchOuter=new THREE.Mesh(new THREE.CylinderGeometry(1.7,1.7,.35,24,1,false,0,Math.PI),frameMat);
-  gateArchOuter.rotation.x=Math.PI/2;gateArchOuter.rotation.z=Math.PI/2;gateArchOuter.position.set(0,3.6,1.25);c.add(gateArchOuter);
-
-  // Gate Doors
-  const door=new THREE.Mesh(new THREE.BoxGeometry(2.6,3.0,.22),dark);
-  door.position.set(0,1.5,1.22);c.add(door);
-  const doorArch=new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.3,.22,20,1,false,0,Math.PI),dark);
-  doorArch.rotation.x=Math.PI/2;doorArch.rotation.z=Math.PI/2;doorArch.position.set(0,3.0,1.22);c.add(doorArch);
-  const doorSeam=new THREE.Mesh(new THREE.BoxGeometry(.06,4.3,.26),gold);
-  doorSeam.position.set(0,2.15,1.23);c.add(doorSeam);
-  [-0.6,0.6].forEach(dx=>{
-    const ring=new THREE.Mesh(new THREE.TorusGeometry(.14,.03,8,16),gold);
-    ring.position.set(dx,1.6,1.35);c.add(ring);
+  // --- Majestic Fortified Castle Portal & Gate System ---
+  const ironMat=new THREE.MeshStandardMaterial({color:'#1e232a',roughness:.45,metalness:.75});
+  const woodBaseMat=new THREE.MeshStandardMaterial({color:th.door||'#2b180d',roughness:.72,metalness:.15});
+  const woodPlankMat=new THREE.MeshStandardMaterial({
+    color: th.door ? new THREE.Color(th.door).offsetHSL(0,.05,.06) : '#3a2012',
+    roughness:.68, metalness:.1
   });
+  const goldMat=gold;
+  const flagMat=new THREE.MeshStandardMaterial({color:th.flag,roughness:.45,metalness:.35});
+
+  // A. Deep Recessed Stone Alcove & Solid Door Jambs
+  const alcove=new THREE.Mesh(new THREE.BoxGeometry(2.7,3.6,.3),cDark);
+  alcove.position.set(0,1.8,1.15);c.add(alcove);
+
+  // Solid Stone Jambs (Flanking the doorway tightly behind the columns)
+  [-1.40,1.40].forEach(jx=>{
+    const jamb=new THREE.Mesh(new THREE.BoxGeometry(.44,3.30,.35),cDark);
+    jamb.position.set(jx,1.65,1.28);c.add(jamb);
+  });
+
+  // B. Heavy Medieval Reinforced Double Doors (Full-height from floor to lintel)
+  // Left and Right Solid Wooden Door Leaves (Width 1.20 each, seamlessly filling opening)
+  const doorLeafG=new THREE.BoxGeometry(1.20,3.30,.16);
+  const leftDoor=new THREE.Mesh(doorLeafG,woodBaseMat);
+  leftDoor.position.set(-0.60,1.65,1.25);c.add(leftDoor);
+  const rightDoor=new THREE.Mesh(doorLeafG,woodBaseMat);
+  rightDoor.position.set(0.60,1.65,1.25);c.add(rightDoor);
+
+  // Vertical Wood Plank Insets (Subtle carved wood texture)
+  const plankG=new THREE.BoxGeometry(.48,3.20,.17);
+  [-0.88,-0.32,0.32,0.88].forEach(px=>{
+    const p=new THREE.Mesh(plankG,woodPlankMat);
+    p.position.set(px,1.65,1.255);c.add(p);
+  });
+
+  // Central Vertical Astragal (Iron Seam covering center completely)
+  const astragal=new THREE.Mesh(new THREE.BoxGeometry(.10,3.30,.20),ironMat);
+  astragal.position.set(0,1.65,1.27);c.add(astragal);
+  for(let i=0;i<6;i++){
+    const rivet=new THREE.Mesh(new THREE.SphereGeometry(.032,6,6),goldMat);
+    rivet.position.set(0,.35+i*.52,1.37);c.add(rivet);
+  }
+
+  // 3 Continuous Heavy Iron Horizontal Straps
+  [0.65,1.65,2.65].forEach(sy=>{
+    [-0.60,0.60].forEach(sx=>{
+      const strap=new THREE.Mesh(new THREE.BoxGeometry(1.18,.14,.20),ironMat);
+      strap.position.set(sx,sy,1.27);c.add(strap);
+      [-0.38,0,0.38].forEach(rx=>{
+        const rivet=new THREE.Mesh(new THREE.SphereGeometry(.034,6,6),goldMat);
+        rivet.position.set(sx+rx,sy,1.37);c.add(rivet);
+      });
+    });
+  });
+
+  // Ornate Medieval Hanging Pull Rings (Centered cleanly on middle strap)
+  [-0.55,0.55].forEach(kx=>{
+    const plate=new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,.04,16),goldMat);
+    plate.rotation.x=Math.PI/2;plate.position.set(kx,1.65,1.37);c.add(plate);
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(.12,.034,12,16),goldMat);
+    ring.position.set(kx,1.56,1.40);c.add(ring);
+  });
+
+  // C. Grand Portal Stone Columns (Prominent 3D Columns flanking the gate)
+  [-1.45,1.45].forEach(cx=>{
+    // Base Plinth
+    const plinth=new THREE.Mesh(new THREE.BoxGeometry(.62,.40,.55),cDark);
+    plinth.position.set(cx,.20,1.42);plinth.castShadow=true;plinth.receiveShadow=true;c.add(plinth);
+    // Cylindrical Shaft
+    const shaft=new THREE.Mesh(new THREE.CylinderGeometry(.25,.27,2.90,20),cTrim);
+    shaft.position.set(cx,1.85,1.42);shaft.castShadow=true;shaft.receiveShadow=true;c.add(shaft);
+    // Column Capital
+    const capital=new THREE.Mesh(new THREE.BoxGeometry(.62,.24,.55),cDark);
+    capital.position.set(cx,3.42,1.42);capital.castShadow=true;c.add(capital);
+
+    // Wall Torch on Column
+    const tBracket=new THREE.Mesh(new THREE.BoxGeometry(.10,.08,.24),ironMat);
+    tBracket.position.set(cx,2.30,1.66);c.add(tBracket);
+    const tCup=new THREE.Mesh(new THREE.CylinderGeometry(.12,.06,.20,8),ironMat);
+    tCup.position.set(cx,2.37,1.78);c.add(tCup);
+    const tFlame=new THREE.Mesh(new THREE.ConeGeometry(.1,.28,8),new THREE.MeshStandardMaterial({color:'#ff8800',emissive:'#ff4400',emissiveIntensity:1.2,roughness:.2}));
+    tFlame.position.set(cx,2.53,1.78);c.add(tFlame);
+  });
+
+  // D. Solid Stone Lintel & Arched Pediment (Seamlessly capping doors and framing wall)
+  // Heavy Stone Lintel directly capping the wooden doors
+  const lintel=new THREE.Mesh(new THREE.BoxGeometry(2.60,.26,.45),cDark);
+  lintel.position.set(0,3.43,1.38);lintel.castShadow=true;c.add(lintel);
+
+  // Flat Stone Pediment Wall Backing above the lintel (No cylinder clippings!)
+  const pedimentWall=new THREE.Mesh(new THREE.BoxGeometry(2.40,1.24,.22),cMat);
+  pedimentWall.position.set(0,4.18,1.25);pedimentWall.receiveShadow=true;c.add(pedimentWall);
+
+  // Smooth Classical Stone Torus Arch resting on lintel (y from 3.56 to 4.71)
+  const arch=new THREE.Mesh(new THREE.TorusGeometry(1.15,.15,16,32,Math.PI),cTrim);
+  arch.position.set(0,3.56,1.40);arch.castShadow=true;c.add(arch);
+
+  // Grand Keystone at the Arch Apex
+  const keystone=new THREE.Mesh(new THREE.BoxGeometry(.44,.44,.42),cDark);
+  keystone.position.set(0,4.71,1.45);keystone.castShadow=true;c.add(keystone);
+  const boss=new THREE.Mesh(new THREE.OctahedronGeometry(.15,0),goldMat);
+  boss.scale.set(1,1.25,.4);boss.position.set(0,4.73,1.67);c.add(boss);
+
+  // Regal Heraldic Coat of Arms Shield on the pediment wall
+  const shieldBase=new THREE.Mesh(new THREE.BoxGeometry(.68,.78,.08),goldMat);
+  shieldBase.position.set(0,4.10,1.37);c.add(shieldBase);
+  const shieldInner=new THREE.Mesh(new THREE.BoxGeometry(.54,.64,.09),flagMat);
+  shieldInner.position.set(0,4.10,1.39);c.add(shieldInner);
+  const crestEmblem=new THREE.Mesh(new THREE.OctahedronGeometry(.18,0),goldMat);
+  crestEmblem.scale.set(1,1.3,.35);crestEmblem.position.set(0,4.10,1.45);c.add(crestEmblem);
 
   // 5. Left & Right Flanking Bastion Towers with Biome-Themed Roofs
   [-6.5,6.5].forEach(tx=>{
@@ -2644,48 +2781,51 @@ function createThemedFortress(th, pal, scale = 1.0){
     }
   });
 
-  // 6. Distinct Themed Entrance Props (Flanking the fortress portal)
+  // 6. Distinct Themed Entrance Props (Flanking the fortress portal, standing proud in the plaza)
   const propMat=new THREE.MeshStandardMaterial({color:th.propCol||th.cTrim,roughness:.35,metalness:.3});
-  [-2.6,2.6].forEach(px=>{
+  const propZ=2.15;
+  [-3.0,3.0].forEach(px=>{
     if(th.flankProp==='ice_crystals'){
       const crystal=new THREE.Mesh(new THREE.ConeGeometry(.45,2.6,6),new THREE.MeshStandardMaterial({color:'#38bdf8',roughness:.15,metalness:.6,transparent:true,opacity:.85}));
-      crystal.position.set(px,1.3,1.35);c.add(crystal);
+      crystal.position.set(px,1.3,propZ);crystal.castShadow=true;c.add(crystal);
     } else if(th.flankProp==='obelisks'){
-      const obBase=new THREE.Mesh(new THREE.BoxGeometry(.6,.5,.6),cDark);
-      obBase.position.set(px,.25,1.35);c.add(obBase);
-      const obShaft=new THREE.Mesh(new THREE.CylinderGeometry(.22,.28,2.4,4),propMat);
-      obShaft.rotation.y=Math.PI/4;obShaft.position.set(px,1.6,1.35);c.add(obShaft);
-      const obTip=new THREE.Mesh(new THREE.ConeGeometry(.3,.6,4),gold);
-      obTip.rotation.y=Math.PI/4;obTip.position.set(px,3.0,1.35);c.add(obTip);
+      const obBase=new THREE.Mesh(new THREE.BoxGeometry(.72,.40,.72),cDark);
+      obBase.position.set(px,.20,propZ);obBase.castShadow=true;obBase.receiveShadow=true;c.add(obBase);
+      const obStep=new THREE.Mesh(new THREE.BoxGeometry(.58,.16,.58),cTrim);
+      obStep.position.set(px,.46,propZ);obStep.castShadow=true;c.add(obStep);
+      const obShaft=new THREE.Mesh(new THREE.CylinderGeometry(.24,.30,2.5,4),propMat);
+      obShaft.rotation.y=Math.PI/4;obShaft.position.set(px,1.80,propZ);obShaft.castShadow=true;c.add(obShaft);
+      const obTip=new THREE.Mesh(new THREE.ConeGeometry(.32,.75,4),gold);
+      obTip.rotation.y=Math.PI/4;obTip.position.set(px,3.40,propZ);obTip.castShadow=true;c.add(obTip);
     } else if(th.flankProp==='amethyst'){
       const cry1=new THREE.Mesh(new THREE.ConeGeometry(.35,2.2,6),new THREE.MeshStandardMaterial({color:'#c084fc',roughness:.2,metalness:.5,emissive:'#581c87',emissiveIntensity:.4}));
-      cry1.position.set(px,1.1,1.35);c.add(cry1);
+      cry1.position.set(px,1.1,propZ);cry1.castShadow=true;c.add(cry1);
       const cry2=new THREE.Mesh(new THREE.ConeGeometry(.22,1.4,6),new THREE.MeshStandardMaterial({color:'#e9d5ff',roughness:.2,metalness:.5}));
-      cry2.position.set(px+(px>0?.25:-.25),.7,1.45);c.add(cry2);
+      cry2.position.set(px+(px>0?.25:-.25),.7,propZ+.1);cry2.castShadow=true;c.add(cry2);
     } else if(th.flankProp==='braziers'){
       const brStand=new THREE.Mesh(new THREE.CylinderGeometry(.25,.35,1.2,12),cDark);
-      brStand.position.set(px,.6,1.35);c.add(brStand);
+      brStand.position.set(px,.6,propZ);brStand.castShadow=true;c.add(brStand);
       const brBowl=new THREE.Mesh(new THREE.CylinderGeometry(.55,.3,.4,12),cDark);
-      brBowl.position.set(px,1.3,1.35);c.add(brBowl);
+      brBowl.position.set(px,1.3,propZ);brBowl.castShadow=true;c.add(brBowl);
       const flame=new THREE.Mesh(new THREE.ConeGeometry(.35,.8,10),new THREE.MeshStandardMaterial({color:'#f97316',emissive:'#ea580c',emissiveIntensity:.9,roughness:.2}));
-      flame.position.set(px,1.75,1.35);c.add(flame);
+      flame.position.set(px,1.75,propZ);c.add(flame);
     } else if(th.flankProp==='autumn_lanterns'){
       const post=new THREE.Mesh(new THREE.CylinderGeometry(.08,.1,1.8,8),cDark);
-      post.position.set(px,.9,1.35);c.add(post);
+      post.position.set(px,.9,propZ);post.castShadow=true;c.add(post);
       const lantern=new THREE.Mesh(new THREE.BoxGeometry(.32,.44,.32),new THREE.MeshStandardMaterial({color:'#f59e0b',emissive:'#d97706',emissiveIntensity:.6,roughness:.3}));
-      lantern.position.set(px,1.9,1.35);c.add(lantern);
+      lantern.position.set(px,1.9,propZ);lantern.castShadow=true;c.add(lantern);
       const cap=new THREE.Mesh(new THREE.ConeGeometry(.26,.2,4),roofMat);
-      cap.rotation.y=Math.PI/4;cap.position.set(px,2.2,1.35);c.add(cap);
+      cap.rotation.y=Math.PI/4;cap.position.set(px,2.2,propZ);c.add(cap);
     } else if(th.flankProp==='moss_urns'){
       const urn=new THREE.Mesh(new THREE.CylinderGeometry(.38,.28,1.2,12),cDark);
-      urn.position.set(px,.6,1.35);c.add(urn);
+      urn.position.set(px,.6,propZ);urn.castShadow=true;c.add(urn);
       const shrub=new THREE.Mesh(new THREE.DodecahedronGeometry(.45),new THREE.MeshStandardMaterial({color:th.roof||'#047857',roughness:.8}));
-      shrub.position.set(px,1.35,1.35);c.add(shrub);
+      shrub.position.set(px,1.35,propZ);c.add(shrub);
     } else {
       const lamp=new THREE.Mesh(new THREE.CylinderGeometry(.12,.16,1.4,12),cDark);
-      lamp.position.set(px,.7,1.35);c.add(lamp);
+      lamp.position.set(px,.7,propZ);lamp.castShadow=true;c.add(lamp);
       const orb=new THREE.Mesh(new THREE.SphereGeometry(.22,12,12),new THREE.MeshStandardMaterial({color:th.flag,emissive:th.flag,emissiveIntensity:.5}));
-      orb.position.set(px,1.5,1.35);c.add(orb);
+      orb.position.set(px,1.5,propZ);c.add(orb);
     }
   });
 
@@ -3124,7 +3264,7 @@ function updateTower(dt){
       const openK=Math.min(1,T.t/.45);
       const easeK=1-Math.pow(1-openK,3);
       const bounce=openK<1?Math.sin(openK*Math.PI)*.15:0;
-      level.chest.lid.rotation.x=-Math.PI*.74*easeK-bounce;
+      level.chest.lid.rotation.x=-Math.PI*.42*easeK-bounce;
       if(level.chest.light)level.chest.light.intensity=easeK*1.5;
     }
     // Launch 3D flying coins fountain on opening

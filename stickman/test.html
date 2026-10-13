@@ -22,7 +22,8 @@
 html,body{width:100%;height:100%;overflow:hidden;background:#bfe6ff;font-family:'Lilita One',system-ui,sans-serif;touch-action:none;overscroll-behavior:none}
 #c{position:fixed;inset:0;width:100%;height:100%;display:block;outline:none}
 .ui{position:fixed;inset:0;pointer-events:none;z-index:2}
-#vignette{position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse 96% 86% at 50% 25%,transparent 85%,rgba(0,0,0,.08) 100%);opacity:.6;transition:background .5s ease}
+#topFog{position:fixed;top:0;left:0;right:0;height:54%;pointer-events:none;z-index:1;background:linear-gradient(180deg,rgba(152,191,230,.58) 0%,rgba(152,191,230,.30) 40%,rgba(152,191,230,.08) 75%,transparent 100%);transition:background .5s ease}
+#sideFog{position:fixed;top:0;left:0;right:0;bottom:16%;pointer-events:none;z-index:1;background:linear-gradient(to right,rgba(152,191,230,.40) 0%,rgba(152,191,230,.18) 10%,transparent 24%,transparent 76%,rgba(152,191,230,.18) 90%,rgba(152,191,230,.40) 100%);-webkit-mask-image:linear-gradient(180deg,#000 0%,#000 66%,transparent 100%);mask-image:linear-gradient(180deg,#000 0%,#000 66%,transparent 100%);transition:background .5s ease}
 .st{color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.18),-2px -2px 0 var(--theme-stroke,#173a73),2px -2px 0 var(--theme-stroke,#173a73),-2px 2px 0 var(--theme-stroke,#173a73),2px 2px 0 var(--theme-stroke,#173a73),0 3px 0 var(--theme-stroke,#173a73)}
 #top{position:absolute;top:max(14px,env(safe-area-inset-top));left:0;right:0;display:flex;justify-content:center;transition:opacity .3s}
 .prog{display:flex;align-items:center;gap:6px}
@@ -87,7 +88,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#bfe6ff;font-family:
 </head>
 <body>
 <canvas id="c" tabindex="0"></canvas>
-<div id="vignette"></div>
+<div id="topFog"></div>
+<div id="sideFog"></div>
 <div class="ui">
   <div id="top"><div class="prog"><div class="lv" id="lvCur">1</div><div class="bar"><i id="barFill"></i></div><div class="lv next" id="lvNext">2</div></div></div>
   <div id="biomeBanner"><div class="bTag"><span class="bName" id="biomeName">TROPICAL AZURE BAY</span><span class="bSub" id="biomeSub">LEVEL 1</span></div></div>
@@ -211,14 +213,14 @@ renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene();
 const HORIZON=new THREE.Color('#98bfe6');
 scene.background=HORIZON;
-scene.fog=new THREE.Fog(HORIZON,60,240);
+scene.fog=new THREE.Fog(HORIZON,18,85);
 const camera=new THREE.PerspectiveCamera(55,1,.1,700);
 
 function v3hex(h){const c=parseInt(h.slice(1),16);return new THREE.Vector3(((c>>16)&255)/255,((c>>8)&255)/255,(c&255)/255);}
 const skyMat=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,
   uniforms:{top:{value:v3hex('#3b6ea8')},mid:{value:v3hex('#8eb6e6')},bot:{value:v3hex('#98bfe6')}},
   vertexShader:'varying vec3 vP;void main(){vP=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-  fragmentShader:'uniform vec3 top,mid,bot;varying vec3 vP;void main(){float h=vP.y;vec3 c=h>0.?mix(mid,top,pow(clamp(h*1.5,0.,1.),.75)):bot;gl_FragColor=vec4(c,1.);}'});
+  fragmentShader:'uniform vec3 top,mid,bot;varying vec3 vP;void main(){float h=vP.y;float fogH=clamp(1.0-h*2.2,0.0,1.0);vec3 skyGrad=h>0.?mix(mid,top,pow(clamp(h*1.4,0.,1.),.75)):bot;vec3 c=mix(skyGrad,bot,fogH*0.55);gl_FragColor=vec4(c,1.);}'});
 const sky=new THREE.Mesh(new THREE.SphereGeometry(450,32,16),skyMat);scene.add(sky);
 
 // environment for metals
@@ -241,7 +243,7 @@ scene.add(sun);scene.add(sun.target);
 const clouds=new THREE.Group();scene.add(clouds);
 let cloudMat=null;
 (function(){
-  cloudMat=new THREE.MeshLambertMaterial({color:0xffffff,fog:false,emissive:0x8899aa,emissiveIntensity:.35});
+  cloudMat=new THREE.MeshLambertMaterial({color:0xffffff,fog:true,emissive:0x8899aa,emissiveIntensity:.35});
   const m=cloudMat;
   const g=new THREE.SphereGeometry(1,14,10);
   for(let i=0;i<14;i++){
@@ -644,11 +646,17 @@ function applyThemeUI(pal, levelNum){
   const fr = parseInt(fogCol.slice(1,3),16) || 152;
   const fg = parseInt(fogCol.slice(3,5),16) || 191;
   const fb = parseInt(fogCol.slice(5,7),16) || 230;
-  const sideMistA = `rgba(${fr},${fg},${fb},0.11)`;
-  const sideMistB = `rgba(${fr},${fg},${fb},0.03)`;
+  const topFog = $('topFog');
+  if(topFog){
+    topFog.style.background = `linear-gradient(180deg, rgba(${fr},${fg},${fb},0.58) 0%, rgba(${fr},${fg},${fb},0.30) 40%, rgba(${fr},${fg},${fb},0.08) 75%, transparent 100%)`;
+  }
 
-  const vig = $('vignette');
-  if(vig) vig.style.background = `linear-gradient(to right, ${sideMistA} 0%, ${sideMistB} 6%, transparent 16%, transparent 84%, ${sideMistB} 94%, ${sideMistA} 100%), linear-gradient(to bottom, ${topGlow} 0%, transparent 12%), radial-gradient(ellipse 96% 86% at 50% 25%, transparent 85%, rgba(0,0,0,0.05) 100%)`;
+  const sideFog = $('sideFog');
+  if(sideFog){
+    const sA = `rgba(${fr},${fg},${fb},0.40)`;
+    const sB = `rgba(${fr},${fg},${fb},0.18)`;
+    sideFog.style.background = `linear-gradient(to right, ${sA} 0%, ${sB} 10%, transparent 24%, transparent 76%, ${sB} 90%, ${sA} 100%)`;
+  }
 
   const bb = $('biomeBanner');
   if(bb && pal.biome){
@@ -1483,8 +1491,8 @@ function buildLevel(n){
   if(scene.fog){
     scene.fog.color.set(pal.fog);
     scene.background.set(pal.fog);
-    scene.fog.near = pal.fogNear || 60;
-    scene.fog.far = pal.fogFar || 240;
+    scene.fog.near = 18;
+    scene.fog.far = 85;
   }
   if(hemi){
     hemi.color.set(pal.hemiSky||0xffffff);
@@ -1560,40 +1568,6 @@ function buildLevel(n){
     }
   }
   
-  // Subtle soft side mist wisps along left & right margins (just a little bit)
-  const sideMistTex = (function(){
-    if(window._sideMistTex) return window._sideMistTex;
-    const mc = document.createElement('canvas');
-    mc.width = 64; mc.height = 64;
-    const mctx = mc.getContext('2d');
-    const mgr = mctx.createRadialGradient(32,32,0, 32,32,32);
-    mgr.addColorStop(0, 'rgba(255,255,255,0.6)');
-    mgr.addColorStop(0.4, 'rgba(255,255,255,0.22)');
-    mgr.addColorStop(0.8, 'rgba(255,255,255,0.04)');
-    mgr.addColorStop(1, 'rgba(255,255,255,0)');
-    mctx.fillStyle = mgr;
-    mctx.fillRect(0,0,64,64);
-    window._sideMistTex = new THREE.CanvasTexture(mc);
-    return window._sideMistTex;
-  })();
-  const sideMistMat = new THREE.SpriteMaterial({
-    map: sideMistTex,
-    color: pal.fog,
-    transparent: true,
-    opacity: 0.11,
-    depthWrite: false,
-    fog: true
-  });
-  for(let sd = 14; sd < endD - 14; sd += 24){
-    [-1, 1].forEach((side, sIdx) => {
-      const sm = new THREE.Sprite(sideMistMat);
-      const xOffset = HALF + 3.2 + Math.abs(Math.sin(sd * 1.7 + sIdx)) * 1.8;
-      sm.position.set(side * xOffset, 0.45, -sd);
-      sm.scale.set(6.2, 1.9, 1);
-      grp.add(sm);
-    });
-  }
-
   applyThemeUI(pal, actualN);
   if(ambientWeather)ambientWeather.set(pal.weather);
 

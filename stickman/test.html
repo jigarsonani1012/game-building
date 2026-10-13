@@ -99,9 +99,9 @@ html,body{width:100%;height:100%;overflow:hidden;background:#bfe6ff;font-family:
       <svg viewBox="0 0 56 62"><path d="M20 30V9a5 5 0 0 1 10 0v15l13 3c4 1 6 4 5.4 8l-2.4 15c-.6 4-3.6 7-7.6 7H26c-3 0-5-1-7-3.5L8 39c-2-2.5-1.6-5.5.6-7 2-1.4 4.6-1 6.4 1z" fill="#fff" stroke="#173a73" stroke-width="3" stroke-linejoin="round"/></svg>
     </div><div class="txt st">HOLD &amp; DRAG</div></div>
     <div id="ups">
-      <div class="card" data-up="crowd"><div class="ic"><svg width="44" height="38" viewBox="0 0 44 38"><g fill="#2f7dff"><circle cx="22" cy="7" r="5"/><rect x="18" y="13" width="8" height="13" rx="4"/><circle cx="9" cy="12" r="4"/><rect x="6" y="17" width="6" height="11" rx="3"/><circle cx="35" cy="12" r="4"/><rect x="32" y="17" width="6" height="11" rx="3"/></g><rect x="4" y="31" width="36" height="5" rx="2.5" fill="#cfe0f3"/></svg></div><div class="t">START CROWD</div><div class="v">1</div><div class="btn"><span class="coin sm"></span><span class="cost">40</span></div></div>
-      <div class="card" data-up="gate"><div class="ic"><svg width="44" height="38" viewBox="0 0 44 38"><rect x="3" y="4" width="38" height="30" rx="6" fill="#4fa0ff" opacity=".85"/><rect x="3" y="4" width="38" height="30" rx="6" fill="none" stroke="#fff" stroke-width="3"/><text x="22" y="27" text-anchor="middle" font-family="Lilita One,sans-serif" font-size="20" fill="#fff">+N</text></svg></div><div class="t">GATE BONUS</div><div class="v">+0</div><div class="btn"><span class="coin sm"></span><span class="cost">40</span></div></div>
-      <div class="card" data-up="income"><div class="ic"><svg width="44" height="38" viewBox="0 0 44 38"><circle cx="17" cy="21" r="12" fill="#ffd21f" stroke="#c98500" stroke-width="3"/><circle cx="28" cy="15" r="12" fill="#ffe14d" stroke="#c98500" stroke-width="3"/><text x="28" y="21" text-anchor="middle" font-family="Lilita One,sans-serif" font-size="15" fill="#b97300">$</text></svg></div><div class="t">INCOME</div><div class="v">x1.0</div><div class="btn"><span class="coin sm"></span><span class="cost">40</span></div></div>
+      <div class="card" data-up="crowd"><div class="ic"><svg width="44" height="38" viewBox="0 0 44 38"><g fill="#2f7dff"><circle cx="22" cy="7" r="5"/><rect x="18" y="13" width="8" height="13" rx="4"/><circle cx="9" cy="12" r="4"/><rect x="6" y="17" width="6" height="11" rx="3"/><circle cx="35" cy="12" r="4"/><rect x="32" y="17" width="6" height="11" rx="3"/></g><rect x="4" y="31" width="36" height="5" rx="2.5" fill="#cfe0f3"/></svg></div><div class="t">START CROWD</div><div class="v">1</div><div class="btn"><span class="coin sm"></span><span class="cost">250</span></div></div>
+      <div class="card" data-up="gate"><div class="ic"><svg width="44" height="38" viewBox="0 0 44 38"><rect x="3" y="4" width="38" height="30" rx="6" fill="#4fa0ff" opacity=".85"/><rect x="3" y="4" width="38" height="30" rx="6" fill="none" stroke="#fff" stroke-width="3"/><text x="22" y="27" text-anchor="middle" font-family="Lilita One,sans-serif" font-size="20" fill="#fff">+N</text></svg></div><div class="t">GATE BONUS</div><div class="v">+0</div><div class="btn"><span class="coin sm"></span><span class="cost">140</span></div></div>
+      <div class="card" data-up="income"><div class="ic"><svg width="44" height="38" viewBox="0 0 44 38"><circle cx="17" cy="21" r="12" fill="#ffd21f" stroke="#c98500" stroke-width="3"/><circle cx="28" cy="15" r="12" fill="#ffe14d" stroke="#c98500" stroke-width="3"/><text x="28" y="21" text-anchor="middle" font-family="Lilita One,sans-serif" font-size="15" fill="#b97300">$</text></svg></div><div class="t">INCOME</div><div class="v">x1.0</div><div class="btn"><span class="coin sm"></span><span class="cost">90</span></div></div>
     </div>
   </div>
   <div class="panel" id="winP"><h1 class="st" id="winT">LEVEL 1<br>COMPLETED!</h1><div class="mult st" id="winM"></div><div class="reward"><span class="coin"></span><span id="winC">0</span></div><button class="big" id="btnNext">CONTINUE</button></div>
@@ -111,6 +111,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#bfe6ff;font-family:
     <div class="row"><span>Vibration</span><button class="tog" id="togVib"></button></div>
     <button class="big blue" id="btnResume" style="font-size:22px;padding:10px 34px">RESUME</button>
     <button class="big red" id="btnRestart" style="font-size:18px;padding:8px 26px;margin-top:0">RESTART LEVEL</button>
+    <button id="btnResetUps" style="background:none;border:none;color:#64748b;font-size:14px;text-decoration:underline;cursor:pointer;margin-top:4px;font-family:inherit">Reset Upgrades &amp; Refund</button>
   </div></div>
 </div>
 <div id="loading" class="st">LOADING...</div>
@@ -124,15 +125,49 @@ const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const lerp=(a,b,t)=>a+(b-a)*t;
 if(!window.THREE){$('loading').textContent='Could not load 3D engine';return;}
 
-/* ================= SAVE ================= */
+/* ================= SAVE & BALANCED ECONOMY ================= */
 const SAVE_KEY='countmasters_save_v2';
-const save={level:1,coins:0,up:{crowd:1,gate:1,income:1},sound:true,vib:true};
-try{const s=JSON.parse(localStorage.getItem(SAVE_KEY));if(s){Object.assign(save,s);save.up=Object.assign({crowd:1,gate:1,income:1},s.up||{});}}catch(e){}
+const save={level:1,coins:0,up:{crowd:1,gate:1,income:1},sound:true,vib:true,ecoV4:true};
+try{
+  const s=JSON.parse(localStorage.getItem(SAVE_KEY));
+  if(s){
+    Object.assign(save,s);
+    save.up=Object.assign({crowd:1,gate:1,income:1},s.up||{});
+    // Migration to Doubling Economy (250, 500, 1K, 2K, 4K, 8K, 16K...):
+    // Refund coins previously spent on crowd so user starts fresh with clean doubling curve
+    if(!save.ecoV4){
+      let refund=0;
+      const oldCrowdLvl=save.up.crowd||1;
+      for(let l=1;l<oldCrowdLvl;l++){
+        refund+=save.ecoV3 ? Math.round(250*Math.pow(1.50,l-1)) : Math.round(40*Math.pow(1.38,l-1));
+      }
+      save.coins=(save.coins||0)+refund;
+      save.up.crowd=1;
+      save.ecoV4=true;
+      persist();
+    }
+  }
+}catch(e){}
 function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(save));}catch(e){}}
-const startCount=()=>1+(save.up.crowd-1)*2;
+
+// Upgrade Config: Start crowd doubles in price every level: 250 -> 500 -> 1K -> 2K -> 4K...
+const UP_CONFIG={
+  crowd:  {base:250, scale:2.0},  // Level 1->2: 250, 2->3: 500, 3->4: 1000 (1K), 4->5: 2000 (2K), 5->6: 4K, 6->7: 8K, 7->8: 16K...
+  gate:   {base:140, scale:1.40}, // Level 1->2: 140, 2->3: 196, 3->4: 274...
+  income: {base:90,  scale:1.34}  // Level 1->2: 90,  2->3: 121, 3->4: 162...
+};
+const startCount=()=>1+(save.up.crowd-1);
 const gateBonus=()=>save.up.gate-1;
 const incomeMult=()=>1+(save.up.income-1)*0.15;
-const upCost=l=>Math.round(40*Math.pow(1.38,l-1));
+const upCost=(l,type='crowd')=>{
+  const cfg=UP_CONFIG[type]||UP_CONFIG.crowd;
+  return Math.round(cfg.base*Math.pow(cfg.scale,Math.max(0,l-1)));
+};
+const fmtCost=c=>{
+  if(c>=1000000)return(c/1000000).toFixed(1).replace(/\.0$/,'')+'M';
+  if(c>=1000)return(c/1000).toFixed(c%1000===0?0:1).replace(/\.0$/,'')+'K';
+  return String(c);
+};
 
 /* ================= AUDIO ================= */
 let AC=null,master=null;
@@ -155,6 +190,12 @@ function sCoin(){tone(1250,.07,'square',.05,1250);tone(1870,.14,'square',.05,187
 function sStep(i){tone(330*Math.pow(1.06,i),.1,'triangle',.12);}
 function sThud(){tone(110,.28,'sine',.35,40);}
 function sWin(){[523,659,784,1047].forEach((f,i)=>tone(f,.25,'square',.07,f,i*.12));tone(1047,.6,'triangle',.1,1047,.5);}
+function sCelebration(){
+  sThud();
+  tone(520,.09,'triangle',.16,880);
+  tone(880,.14,'square',.09,1320,.07);
+  tone(1320,.24,'triangle',.12,1760,.16);
+}
 function sLose(){[392,330,262,196].forEach((f,i)=>tone(f,.3,'triangle',.12,f*.97,i*.16));}
 function vib(ms){if(save.vib&&navigator.vibrate){try{navigator.vibrate(ms);}catch(e){}}}
 
@@ -1040,7 +1081,7 @@ function drawMan(x,y,z,ry,ph,mode,sc,col,tx,tz){
   let bob=0,leg=0,arm=0,armZ=.16;
   if(mode===0){const s=Math.sin(ph);leg=s*.95;arm=s*.95;bob=Math.abs(Math.cos(ph))*.045;}
   else if(mode===1){arm=Math.sin(ph)*.12;bob=Math.sin(ph*2)*.008;armZ=.24;}
-  else if(mode===2){bob=Math.abs(Math.sin(ph))*.14;armZ=2.55+Math.sin(ph*2)*.25;}
+  else if(mode===2){arm=Math.sin(ph*1.6)*.18;armZ=2.52+Math.sin(ph*2.2)*.22;leg=Math.sin(ph*1.2)*.08;}
   else if(mode===3){leg=Math.sin(ph*1.7)*1.2;arm=Math.cos(ph*1.3)*1.4;armZ=1.3;}
   else if(mode===4){armZ=1.45;leg=Math.sin(ph)*.12;}
   else if(mode===5){const s=Math.sin(ph*1.6);leg=s*.6;arm=-1.2+s*.9;armZ=.3;bob=Math.abs(s)*.05;}
@@ -1154,6 +1195,117 @@ function updateParticles(dt){
   pMesh.count=n;
   pMesh.instanceMatrix.needsUpdate=true;
   if(pMesh.instanceColor)pMesh.instanceColor.needsUpdate=true;
+}
+
+/* ================= CELEBRATION CONFETTI & CANNONS ================= */
+const CONF_MAX=800;
+const confGeo=new THREE.PlaneGeometry(0.18,0.34);
+confGeo.userData.shared=true;
+const confMat=new THREE.MeshBasicMaterial({side:THREE.DoubleSide,toneMapped:false});
+const confettiMesh=new THREE.InstancedMesh(confGeo,confMat,CONF_MAX);
+confettiMesh.setColorAt(0,new THREE.Color(1,1,1)); // Allocate instanceColor buffer!
+confettiMesh.frustumCulled=false;
+confettiMesh.count=0;
+scene.add(confettiMesh);
+const confettiList=[];
+const CONF_COLS=[
+  new THREE.Color('#ffd21f'), // Gold
+  new THREE.Color('#ff2a55'), // Neon Coral Red
+  new THREE.Color('#00d2d3'), // Cyan Turquoise
+  new THREE.Color('#10ac84'), // Emerald Green
+  new THREE.Color('#ff9f43'), // Tangerine Orange
+  new THREE.Color('#ff38cd'), // Hot Pink
+  new THREE.Color('#5f27cd'), // Electric Violet
+  new THREE.Color('#2e86de'), // Royal Blue
+  new THREE.Color('#ffffff'), // Sparkle White
+  new THREE.Color('#feca57')  // Sunshine Yellow
+];
+
+function fireStairCelebration(stepY,stepD){
+  tone(523,.10,'triangle',.15,659);
+  tone(784,.14,'square',.08,1047,.05);
+  shake=0.12;
+  const sideX=HALF+0.25;
+  const countPerSide=32; // Balanced, elegant confetti stream from each side!
+  [-sideX,sideX].forEach(cx=>{
+    const dir=cx<0?1:-1;
+    for(let i=0;i<countPerSide;i++){
+      if(confettiList.length>=CONF_MAX)confettiList.shift();
+      const col=CONF_COLS[Math.floor(Math.random()*CONF_COLS.length)];
+      const spd=9.5+Math.random()*4.5; // Graceful arc upward and outward
+      const angle=(Math.PI*0.42)+(Math.random()-0.5)*0.32;
+      const aspect=Math.random()<0.3?2.0:1.3;
+      confettiList.push({
+        x:cx+(Math.random()-0.5)*0.3,
+        y:stepY+0.15,
+        z:-stepD+(Math.random()-0.5)*1.2,
+        vx:dir*(Math.cos(angle)*spd*0.5+Math.random()*1.2),
+        vy:Math.sin(angle)*spd,
+        vz:(Math.random()-0.5)*2.8,
+        rx:Math.random()*6.28,
+        ry:Math.random()*6.28,
+        rz:Math.random()*6.28,
+        vrx:(Math.random()-0.5)*10,
+        vry:(Math.random()-0.5)*12,
+        vrz:(Math.random()-0.5)*10,
+        sx:0.9+Math.random()*0.4,
+        sy:(0.9+Math.random()*0.4)*aspect,
+        flutter:Math.random()*6.28,
+        flutterSpd:5.5+Math.random()*4.5,
+        floorY:Math.max(0,stepY-0.25),
+        col,
+        life:2.8+Math.random()*1.2
+      });
+    }
+    // Crisp, pleasant gold and white sparkle at popper origin
+    burst(cx,stepY+0.3,-stepD,new THREE.Color('#ffffff'),6,2.5,4.0);
+    burst(cx,stepY+0.3,-stepD,new THREE.Color('#ffd21f'),8,3.2,4.8);
+  });
+}
+function clearConfetti(){
+  confettiList.length=0;
+  confettiMesh.count=0;
+}
+function updateConfetti(dt){
+  let n=0;
+  for(let i=confettiList.length-1;i>=0;i--){
+    const c=confettiList[i];
+    c.life-=dt;
+    if(c.life<=0){confettiList.splice(i,1);continue;}
+    c.vy-=11.5*dt;
+    c.vy=Math.max(c.vy,-2.6); // Smooth floating paper aerodynamics
+    c.vx*=Math.pow(0.94,dt*60);
+    c.vz*=Math.pow(0.94,dt*60);
+    c.flutter+=dt*c.flutterSpd;
+    c.x+=(c.vx+Math.sin(c.flutter)*1.5)*dt;
+    c.y+=c.vy*dt;
+    c.z+=(c.vz+Math.cos(c.flutter*0.8)*0.9)*dt;
+    if(c.y<c.floorY){
+      c.y=c.floorY;
+      c.vy=0;
+      c.vx*=0.4;
+      c.vz*=0.4;
+      c.rx=Math.PI/2;
+    } else {
+      c.rx+=c.vrx*dt;
+      c.ry+=c.vry*dt;
+      c.rz+=c.vrz*dt;
+    }
+  }
+  for(const c of confettiList){
+    _p.set(c.x,c.y,c.z);
+    _e2.set(c.rx,c.ry,c.rz);
+    _q.setFromEuler(_e2);
+    const fade=Math.min(1,c.life*2.2);
+    _s.set(c.sx*fade,c.sy*fade,fade);
+    _m4.compose(_p,_q,_s);
+    confettiMesh.setMatrixAt(n,_m4);
+    confettiMesh.setColorAt(n,c.col);
+    n++;
+  }
+  confettiMesh.count=n;
+  confettiMesh.instanceMatrix.needsUpdate=true;
+  if(confettiMesh.instanceColor)confettiMesh.instanceColor.needsUpdate=true;
 }
 
 /* ================= BADGES ================= */
@@ -1466,13 +1618,19 @@ function buildLevel(n){
     else type=R()<.80?'gates':'obstacle';
     if(type==='gates'){
       const good=()=>{
-        const boost=isAltLayout?2:0;
-        if(B<70&&R()<(isAltLayout?.55:.45))return{op:'x',v:B<12?ri(2,4):ri(2,3),good:true};
-        return{op:'+',v:Math.max(3,Math.round(B*rf(.35,1))+ri(2,9))+gb+boost,good:true};
+        // Multipliers: x2 and x3 only (x5 removed to keep crowd size balanced)
+        if(R()<0.40){
+          const mVal = (B<=20) ? ri(2, 3) : 2;
+          return {op:'x', v:mVal, good:true};
+        }
+        // Addition gates: clean, readable numbers (+3 to +18)
+        const baseV = clamp(ri(3, 8) + Math.min(10, Math.floor(d / 24) * 2) + gb, 3, 18);
+        return {op:'+', v:baseV, good:true};
       };
       const bad=()=>{
-        if(B>14&&R()<.35)return{op:'/',v:2,good:false};
-        return{op:'-',v:Math.max(2,Math.round(B*rf(.3,.7))),good:false};
+        if(B>=18 && R()<0.35) return {op:'/', v:2, good:false};
+        const subV = clamp(Math.round(B * rf(0.2, 0.4)), 3, 16);
+        return {op:'-', v:subV, good:false};
       };
       const t=R();let a,b;
       if(t<.58){a=good();b=bad();}else if(t<.92){a=good();b=good();}else{a=good();b=null;}
@@ -1482,7 +1640,7 @@ function buildLevel(n){
       if(R()<.4){const cx=[-2.6,2.6][ri(0,1)];addCoins(grp,lv,d+5,cx,4);}
       d+=18;
     }else if(type==='enemy'){
-      const k=Math.max(2,Math.round(B*(actualN===1?rf(.25,.4):rf(.32,.55))));B-=k;
+      const k=clamp(Math.round(B * (actualN===1?rf(0.25, 0.38):rf(0.3, 0.48))), 4, 22);B=Math.max(1, B - k);
       lv.enemies.push(makeEnemy(d+4,rf(-1.2,1.2),k));d+=20;
     }else if(type==='obstacle'){
       const ot=(i===1)?'cleaver':((i===3&&R()<0.75)?'saw':obsPool[ri(0,obsPool.length-1)]);
@@ -2935,9 +3093,9 @@ function resetRun(){
   crowd.d=0;crowd.x=0;crowd.tx=0;crowd.count=startCount();crowd.members.length=0;
   crowd.repackDelay=0;crowd.slowRegroupTime=0;crowd.needsRepack=false;
   syncGroup(crowd.members,crowd.count,MAXV,true);syncCrowd(false);
-  battle=null;tower=null;boss=null;runCoins=0;endTimer=0;
+  battle=null;tower=null;boss=null;runCoins=0;endTimer=0;clearConfetti();
   state='menu';
-  $('menu').classList.remove('hide');$('gear').classList.add('hide');
+  $('menu').classList.remove('hide');$('gear').classList.remove('hide');
   ['winP','loseP','setP'].forEach(id=>$(id).classList.remove('on'));
   updateUpgrades();updateCoins();
   snapCamera();
@@ -3207,6 +3365,9 @@ function beginTower(){
       m.wy=0;
       m.wd=crowd.d+m.oz;
       m.fixed=false;
+      m.fixedX=undefined;
+      m.fixedY=undefined;
+      m.fixedD=undefined;
     }
   }
   tower={tiers,rows:R,used:N,step:-1,dropped:0,bx:0,by:0,bd:baseD,phase:'gather',t:0,fy:0,fd:baseD,ty:0,td:baseD,arrived:true,mult:1,chestOpened:false};
@@ -3233,11 +3394,26 @@ function updateTower(dt){
       else {
         // Drop current bottom tier onto the current step
         const r=T.dropped;
-        crowd.members.forEach(m=>{if(m.row===r){m.fixed=true;m.wy=T.by;m.wd=T.bd;}});
+        const rw=rowW(r);
+        const stepY=T.by;
+        const stepD=T.bd;
+        crowd.members.forEach(m=>{
+          if(m.row===r){
+            m.fixed=true;
+            m.fixedX=T.bx+(m.col-(rw-1)/2)*.38;
+            m.fixedY=stepY;
+            m.fixedD=stepD;
+            m.wx=m.fixedX;
+            m.wy=stepY;
+            m.wd=stepD;
+          }
+        });
         T.dropped++;
         if(T.dropped>=T.rows){
           T.phase='done';T.t=0;
-          burst(0,T.by+1.2,-T.bd,new THREE.Color('#ffd21f'),35,4,6);
+          fireStairCelebration(T.by,T.bd);
+          sWin();vib([30,40]);shake=0.12;
+          flashMsg('★ LEVEL COMPLETED! x'+T.mult.toFixed(1)+' ★');
         }
         else nextStep();
       }
@@ -3276,14 +3452,17 @@ function updateTower(dt){
     if(T.t>2.4&&state==='tower'){win(T.mult,true);}
   }
   else if(T.phase==='done'){
-    if(T.t>1.3&&state==='tower'){win(T.mult,false);}
+    if(T.t>1.6&&state==='tower'){win(T.mult,false);}
   }
   // members positioning & animation
   const sp=T.phase==='gather'?8:(T.phase==='runway'?16:24);
   const activeCount=Math.max(1,crowd.members.filter(cm=>!cm.fixed).length);
   for(const m of crowd.members){
     if(m.fixed){
-      m.ph+=dt*(10+(m.row%3)*2);
+      m.ph+=dt*12;
+      if(m.fixedX!==undefined)m.wx=m.fixedX;
+      if(m.fixedY!==undefined)m.wy=m.fixedY;
+      if(m.fixedD!==undefined)m.wd=m.fixedD;
       continue;
     }
     let tx=T.bx,ty=T.by,td=T.bd;
@@ -3301,6 +3480,7 @@ function updateTower(dt){
       const rw=rowW(m.row);
       tx=T.bx+(m.col-(rw-1)/2)*.38;
       ty=T.by+(m.row-T.dropped)*.78;
+      td=T.bd;
       if(m.row===T.dropped&&T.phase==='climb'){
         m.ph+=dt*15; // Climbers actively running up the steps
       } else if(T.phase==='gather'){
@@ -3537,15 +3717,17 @@ function camTarget(){
   if(state==='tower'&&tower){
     const T=tower;
     if(T.phase==='chest'&&level&&level.chest){
-      _tp.set(3.2,level.chest.topY+2.2,-level.chest.pos.z+4.4);
-      _tl.set(-.2,level.chest.topY+1.1,-level.chest.pos.z+.2);
+      const sCount=Math.max(1,crowd.members.filter(cm=>!cm.fixed).length);const zoomPad=Math.min(2.8,Math.sqrt(sCount)*0.35);
+      _tp.set(3.5+zoomPad*0.3,level.chest.topY+2.3+zoomPad*0.2,-level.chest.pos.z+4.4+zoomPad);
+      _tl.set(0,level.chest.topY+1.1,-level.chest.pos.z);
     } else if(T.phase==='runway'&&level&&level.chest){
-      _tp.set(5.2,level.chest.topY+3.2,-T.bd+6.5);
+      const sCount=Math.max(1,crowd.members.filter(cm=>!cm.fixed).length);const zoomPad=Math.min(2.5,Math.sqrt(sCount)*0.3);
+      _tp.set(5.2+zoomPad*0.3,level.chest.topY+3.2+zoomPad*0.3,-T.bd+6.5+zoomPad);
       _tl.set(0,level.chest.topY+1.2,-T.bd-1.2);
     } else {
       const remH=(T.rows-T.dropped)*0.78;
-      _tp.set(8.5+Math.min(T.rows,14)*0.12,T.by+3.8+remH*0.35,-T.bd+9.6);
-      _tl.set(0,T.by+1.2+remH*0.25,-T.bd-2.2);
+      _tp.set(8.2+Math.min(T.rows,14)*0.12,T.by+3.6+remH*0.35,-T.bd+9.5);
+      _tl.set(0,T.by+1.0+remH*0.25,-T.bd-2.0);
     }
   }
   else if(state==='battle'&&battle&&battle.e){
@@ -3601,9 +3783,15 @@ function drawScene(){
   crowd.members.forEach(m=>{
     if(towerMode){
       let mode=4,ry=0;
-      if(m.fixed){mode=2;}
-      else if(tower.phase==='chest'){mode=2;ry=.35;} // celebrates facing the chest
+      if(m.fixed){
+        mode=2;
+        if(tower.phase==='done'||st==='won'){
+          ry=Math.sin((m.row*3.6+(m.col||0)*2.1)+time*2.5)*0.22;
+        }
+      }
+      else if(tower.phase==='chest'){mode=2;ry=(m.ry!==undefined?m.ry:.35);} // celebrates facing the chest
       else if(tower.phase==='runway'||(m.row===tower.dropped&&tower.phase==='climb')||tower.phase==='gather'){mode=0;}
+      else {mode=4;} // Human pyramid hold pose on each other's shoulders
       drawMan(m.wx,m.wy,-m.wd,ry,m.ph,mode,1,BLUE);
       return;
     }
@@ -4096,10 +4284,17 @@ function update(dt){
     if(endTimer>2.2)win(2,true);
   }
   else if(state==='won'){
-    // Keep crowd stickmen actively cheering and jumping behind the win popup!
-    crowd.members.forEach(m=>{m.ph+=dt*14;});
+    // Keep crowd stickmen actively cheering on their stairs/ground behind the win popup!
+    crowd.members.forEach(m=>{
+      m.ph+=dt*12;
+      if(m.fixed){
+        if(m.fixedX!==undefined)m.wx=m.fixedX;
+        if(m.fixedY!==undefined)m.wy=m.fixedY;
+        if(m.fixedD!==undefined)m.wd=m.fixedD;
+      }
+    });
   }
-  updateMembers(dt);updateDebris(dt);updateLevelVisuals(dt);updateParticles(dt);
+  updateMembers(dt);updateDebris(dt);updateLevelVisuals(dt);updateParticles(dt);updateConfetti(dt);
   if(ambientWeather)ambientWeather.update(dt, crowd.x, -crowd.d, time);
   if(level&&(state==='play'||state==='battle'))$('barFill').style.width=(clamp(crowd.d/level.L,0,1)*100).toFixed(1)+'%';
   updateCamera(dt);drawScene();
@@ -4111,15 +4306,15 @@ function flashMsg(txt){if(!txt)return;const m=$('msg');m.textContent=txt;m.class
 function updateCoins(bump){$('coinTxt').textContent=save.coins+runCoins;if(bump){const c=$('coins');c.classList.add('bump');setTimeout(()=>c.classList.remove('bump'),120);}}
 function updateUpgrades(){
   document.querySelectorAll('.card').forEach(c=>{
-    const k=c.dataset.up;const l=save.up[k];const cost=upCost(l);
-    c.querySelector('.cost').textContent=cost;
+    const k=c.dataset.up;const l=save.up[k];const cost=upCost(l,k);
+    c.querySelector('.cost').textContent=fmtCost(cost);
     c.querySelector('.v').textContent=k==='crowd'?startCount():k==='gate'?'+'+gateBonus():'x'+incomeMult().toFixed(2).replace(/0$/,'');
     c.classList.toggle('no',save.coins<cost);
   });
 }
 document.querySelectorAll('.card').forEach(c=>{
   c.addEventListener('pointerdown',ev=>{ev.stopPropagation();ensureAudio();
-    const k=c.dataset.up;const cost=upCost(save.up[k]);
+    const k=c.dataset.up;const cost=upCost(save.up[k],k);
     if(state!=='menu')return;
     if(save.coins<cost){tone(200,.12,'square',.06,150);c.animate([{transform:'translateX(-5px)'},{transform:'translateX(5px)'},{transform:'translateX(0)'}],{duration:180});return;}
     save.coins-=cost;save.up[k]++;persist();sCoin();vib(15);
@@ -4133,6 +4328,24 @@ function refreshToggles(){$('togSound').classList.toggle('on',save.sound);$('tog
 $('gear').addEventListener('pointerdown',e=>{e.stopPropagation();ensureAudio();openSettings();});
 $('btnResume').addEventListener('click',closeSettings);
 $('btnRestart').addEventListener('click',()=>{closeSettings();save.coins+=0;resetRun();});
+const _btnResetUps=$('btnResetUps');
+if(_btnResetUps){
+  _btnResetUps.addEventListener('click',()=>{
+    let refund=0;
+    for(let l=1;l<save.up.crowd;l++)refund+=upCost(l,'crowd');
+    for(let l=1;l<save.up.gate;l++)refund+=upCost(l,'gate');
+    for(let l=1;l<save.up.income;l++)refund+=upCost(l,'income');
+    save.coins+=refund;
+    save.up={crowd:1,gate:1,income:1};
+    persist();
+    crowd.count=startCount();
+    syncCrowd(true);
+    updateUpgrades();
+    updateCoins(true);
+    closeSettings();
+    flashMsg('UPGRADES RESET: +'+fmtCost(refund)+' COINS REFUNDED!');
+  });
+}
 $('togSound').addEventListener('click',()=>{save.sound=!save.sound;persist();refreshToggles();});
 $('togVib').addEventListener('click',()=>{save.vib=!save.vib;persist();refreshToggles();});
 $('btnNext').addEventListener('click',()=>{ensureAudio();nextLevel();});

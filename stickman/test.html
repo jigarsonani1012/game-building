@@ -246,7 +246,7 @@ const TRACK_PALETTES = [
     uiStroke: '#173a73',
     uiCardShadow: '#a0b9d6',
     weather: null,
-    decos: ['rock']
+    decos: []
   },
   {
     name: 'Emerald Jade',
@@ -1352,14 +1352,6 @@ function buildLevel(n){
     curWaterTex.repeat.set(40,(tlen+500)/20);
     const water=new THREE.Mesh(new THREE.PlaneGeometry(800,tlen+500),new THREE.MeshStandardMaterial({map:curWaterTex,roughness:pal.waterRoughness||.18,metalness:pal.waterMetalness||.1,envMapIntensity:.8}));
     water.rotation.x=-Math.PI/2;water.position.set(0,-9,-(tlen/2-22));water.receiveShadow=true;grp.add(water);lv.water=curWaterTex;
-    for(let sd = 15; sd < endD - 12; sd += 24){
-      [-1, 1].forEach((side, idx) => {
-        if(Math.sin(sd * 1.5 + idx) > -0.2){
-          const rX = side * (HALF + 4.5 + Math.abs(Math.sin(sd * 2.3)) * 6);
-          grp.add(makeScenery('rock', rX, -sd, -6.5, pal));
-        }
-      });
-    }
   } else {
     lv.water = null;
     const groundGeo = new THREE.PlaneGeometry(800, tlen + 500);
@@ -3286,19 +3278,36 @@ function updateTower(dt){
   else if(T.phase==='done'){
     if(T.t>1.3&&state==='tower'){win(T.mult,false);}
   }
-  // members positioning
+  // members positioning & animation
   const sp=T.phase==='gather'?8:(T.phase==='runway'?16:24);
+  const activeCount=Math.max(1,crowd.members.filter(cm=>!cm.fixed).length);
   for(const m of crowd.members){
-    if(m.fixed){continue;}
+    if(m.fixed){
+      m.ph+=dt*(10+(m.row%3)*2);
+      continue;
+    }
     let tx=T.bx,ty=T.by,td=T.bd;
-    if(T.phase==='chest'||T.phase==='runway'){
-      tx=-.55;
+    if(T.phase==='chest'){
+      tx=-.55+(m.col-(activeCount-1)/2)*.32;
       ty=level.chest?level.chest.topY:T.by;
       td=T.bd;
+      m.ph+=dt*14;
+    } else if(T.phase==='runway'){
+      tx=(m.col-(activeCount-1)/2)*.35;
+      ty=level.chest?level.chest.topY:T.by;
+      td=T.bd;
+      m.ph+=dt*16; // Energetic running stride animation down the runway!
     } else {
       const rw=rowW(m.row);
       tx=T.bx+(m.col-(rw-1)/2)*.38;
       ty=T.by+(m.row-T.dropped)*.78;
+      if(m.row===T.dropped&&T.phase==='climb'){
+        m.ph+=dt*15; // Climbers actively running up the steps
+      } else if(T.phase==='gather'){
+        m.ph+=dt*10;
+      } else {
+        m.ph+=dt*6;  // Tower pyramid hold
+      }
     }
     const k=Math.min(1,dt*sp);
     m.wx+=(tx-m.wx)*k;

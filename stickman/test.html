@@ -25,18 +25,19 @@ html,body{width:100%;height:100%;overflow:hidden;background:#bfe6ff;font-family:
 #topFog{position:fixed;top:0;left:0;right:0;height:54%;pointer-events:none;z-index:1;background:linear-gradient(180deg,rgba(152,191,230,.58) 0%,rgba(152,191,230,.30) 40%,rgba(152,191,230,.08) 75%,transparent 100%);transition:background .5s ease}
 #sideFog{position:fixed;top:0;left:0;right:0;bottom:16%;pointer-events:none;z-index:1;background:linear-gradient(to right,rgba(152,191,230,.40) 0%,rgba(152,191,230,.18) 10%,transparent 24%,transparent 76%,rgba(152,191,230,.18) 90%,rgba(152,191,230,.40) 100%);-webkit-mask-image:linear-gradient(180deg,#000 0%,#000 66%,transparent 100%);mask-image:linear-gradient(180deg,#000 0%,#000 66%,transparent 100%);transition:background .5s ease}
 .st{color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.18),-2px -2px 0 var(--theme-stroke,#173a73),2px -2px 0 var(--theme-stroke,#173a73),-2px 2px 0 var(--theme-stroke,#173a73),2px 2px 0 var(--theme-stroke,#173a73),0 3px 0 var(--theme-stroke,#173a73)}
-#top{position:absolute;top:max(14px,env(safe-area-inset-top));left:0;right:0;display:flex;justify-content:center;transition:opacity .3s}
-.prog{display:flex;align-items:center;gap:6px}
-.lv{width:42px;height:42px;border-radius:50%;background:linear-gradient(var(--theme-accent2,#56a6ff),var(--theme-accent,#2a72f0));border:3px solid #fff;display:grid;place-items:center;color:#fff;font-size:20px;box-shadow:0 3px 0 rgba(0,0,0,.18),0 0 12px var(--theme-glow,rgba(42,114,240,.4));text-shadow:0 2px 0 rgba(0,0,0,.25);transition:all .35s ease}
+#top{position:absolute;top:max(10px,env(safe-area-inset-top));left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));display:flex;align-items:center;justify-content:space-between;gap:6px;pointer-events:none;z-index:5;transition:opacity .3s}
+.prog{display:flex;align-items:center;justify-content:center;gap:5px;flex:1;min-width:0;max-width:320px;margin:0 auto}
+.lv{width:clamp(32px,4.5vw,40px);height:clamp(32px,4.5vw,40px);flex-shrink:0;border-radius:50%;background:linear-gradient(var(--theme-accent2,#56a6ff),var(--theme-accent,#2a72f0));border:3px solid #fff;display:grid;place-items:center;color:#fff;font-size:clamp(15px,2.2vw,19px);box-shadow:0 3px 0 rgba(0,0,0,.18),0 0 12px var(--theme-glow,rgba(42,114,240,.4));text-shadow:0 2px 0 rgba(0,0,0,.25);transition:all .35s ease}
 .lv.next{background:linear-gradient(#c4d2e0,#97aabd);box-shadow:0 3px 0 rgba(0,0,0,.18)}
-.bar{width:min(44vw,250px);height:18px;border-radius:12px;background:rgba(255,255,255,.55);border:3px solid #fff;overflow:hidden;box-shadow:0 3px 0 rgba(0,0,0,.14)}
+.bar{flex:1;min-width:36px;max-width:210px;height:clamp(14px,2vw,18px);border-radius:12px;background:rgba(255,255,255,.55);border:2.5px solid #fff;overflow:hidden;box-shadow:0 3px 0 rgba(0,0,0,.14)}
 .bar i{display:block;height:100%;width:0;background:linear-gradient(var(--theme-accent2,#7cc0ff),var(--theme-accent,#2a72f0));border-radius:8px;box-shadow:0 0 10px var(--theme-glow,rgba(42,114,240,.5));transition:background .35s ease}
-#coins{position:absolute;right:max(12px,env(safe-area-inset-right));top:max(14px,env(safe-area-inset-top));background:rgba(15,25,45,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:2px solid rgba(255,255,255,.2);border-radius:22px;padding:4px 14px 4px 5px;display:flex;align-items:center;gap:7px;color:#fff;font-size:22px;line-height:1;box-shadow:0 4px 12px rgba(0,0,0,.2);transition:transform .12s}
+#coins{position:relative;flex-shrink:0;pointer-events:auto;background:rgba(15,25,45,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:2px solid rgba(255,255,255,.2);border-radius:22px;padding:3px 10px 3px 4px;display:flex;align-items:center;gap:5px;color:#fff;font-size:clamp(16px,2.5vw,21px);line-height:1;box-shadow:0 4px 12px rgba(0,0,0,.2);transition:transform .12s}
 #coins.bump{transform:scale(1.15)}
-.coin{width:28px;height:28px;border-radius:50%;background:radial-gradient(circle at 35% 32%,#fff7b0 0,#ffd627 38%,#f0a500 75%);border:2px solid #b87400;box-shadow:inset 0 0 0 3px rgba(255,255,255,.28),0 2px 0 rgba(0,0,0,.2);display:inline-block;flex:none}
+.coin{width:clamp(22px,3.2vw,28px);height:clamp(22px,3.2vw,28px);border-radius:50%;background:radial-gradient(circle at 35% 32%,#fff7b0 0,#ffd627 38%,#f0a500 75%);border:2px solid #b87400;box-shadow:inset 0 0 0 3px rgba(255,255,255,.28),0 2px 0 rgba(0,0,0,.2);display:inline-block;flex:none}
 .coin.sm{width:20px;height:20px;border-width:2px}
-#gear{position:absolute;left:max(12px,env(safe-area-inset-left));top:max(14px,env(safe-area-inset-top));width:44px;height:44px;border-radius:12px;border:2px solid rgba(255,255,255,.2);background:rgba(15,25,45,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:grid;place-items:center;pointer-events:auto;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2);transition:transform .08s}
+#gear{position:relative;flex-shrink:0;width:clamp(36px,4.8vw,42px);height:clamp(36px,4.8vw,42px);border-radius:12px;border:2px solid rgba(255,255,255,.2);background:rgba(15,25,45,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:grid;place-items:center;pointer-events:auto;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2);transition:transform .08s}
 #gear:active{transform:scale(.92)}
+#top #gear.hide{display:grid!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
 
 /* Biome Intro Banner (Dancing Line authentic style) */
 #biomeBanner{position:absolute;top:max(66px,calc(env(safe-area-inset-top) + 52px));left:0;right:0;display:flex;flex-direction:column;align-items:center;pointer-events:none;opacity:0;transform:translateY(-8px) scale(0.95);transition:all .45s cubic-bezier(.2,1.4,.4,1)}
@@ -46,21 +47,40 @@ html,body{width:100%;height:100%;overflow:hidden;background:#bfe6ff;font-family:
 .bSub{font-size:11px;color:var(--theme-accent2,#93c5fd);letter-spacing:1px;font-weight:700}
 
 #menu{transition:opacity .25s}
-#hint{position:absolute;left:0;right:0;top:56%;display:flex;flex-direction:column;align-items:center;gap:6px}
-#hint .txt{font-size:clamp(26px,5.4vw,40px);letter-spacing:1px}
-.swipe{position:relative;width:220px;height:70px}
-.swipe .trk{position:absolute;left:20px;right:20px;top:18px;height:10px;border-radius:6px;background:rgba(255,255,255,.55);box-shadow:0 2px 0 rgba(0,0,0,.12)}
-.swipe svg{position:absolute;top:8px;left:50%;width:56px;height:62px;margin-left:-28px;animation:sw 1.6s ease-in-out infinite;filter:drop-shadow(0 3px 0 rgba(0,0,0,.2))}
-@keyframes sw{0%,100%{transform:translateX(-70px) rotate(-8deg)}50%{transform:translateX(70px) rotate(8deg)}}
-#ups{position:absolute;left:0;right:0;bottom:max(18px,env(safe-area-inset-bottom));display:flex;justify-content:center;gap:12px;padding:0 10px}
-.card{pointer-events:auto;width:min(29vw,124px);background:linear-gradient(#ffffff,#eaf2fb);border-radius:18px;padding:9px 7px 8px;text-align:center;box-shadow:0 6px 0 var(--theme-card-shadow,#a9bdd2),0 10px 18px rgba(0,40,90,.18);cursor:pointer;transition:transform .08s,box-shadow .35s ease;border:3px solid #fff}
-.card:active{transform:translateY(4px);box-shadow:0 2px 0 var(--theme-card-shadow,#a9bdd2)}
-.card .ic{height:40px;display:grid;place-items:center}
-.card .t{font-size:13px;color:#4a6585;letter-spacing:.3px}
-.card .v{font-size:21px;color:var(--theme-accent,#1f5fd6);margin:2px 0 6px;transition:color .35s ease}
-.card .btn{display:flex;align-items:center;justify-content:center;gap:5px;background:linear-gradient(#62dd4b,#2fb12a);border-radius:11px;color:#fff;font-size:18px;padding:5px 0;box-shadow:0 3px 0 #1e7d1b;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+#hint{position:absolute;left:0;right:0;bottom:calc(max(14px,env(safe-area-inset-bottom)) + clamp(95px,17vh,155px));display:flex;flex-direction:column;align-items:center;gap:clamp(3px,1vh,6px);pointer-events:none}
+#hint .txt{font-size:clamp(19px,min(5vw,4vh),36px);letter-spacing:1px}
+.swipe{position:relative;width:clamp(150px,26vw,220px);height:clamp(44px,7.5vh,68px)}
+.swipe .trk{position:absolute;left:15px;right:15px;top:calc(50% - 15px);height:8px;border-radius:5px;background:rgba(255,255,255,.55);box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.swipe svg{position:absolute;top:calc(50% - 24px);left:50%;width:clamp(40px,6.5vw,56px);height:clamp(44px,7vh,62px);margin-left:calc(-1 * clamp(40px,6.5vw,56px) / 2);animation:sw 1.6s ease-in-out infinite;filter:drop-shadow(0 3px 0 rgba(0,0,0,.2))}
+@keyframes sw{0%,100%{transform:translateX(-48px) rotate(-8deg)}50%{transform:translateX(48px) rotate(8deg)}}
+#ups{position:absolute;left:0;right:0;bottom:max(12px,env(safe-area-inset-bottom));display:flex;justify-content:center;gap:clamp(6px,1.6vw,12px);padding:0 8px}
+.card{pointer-events:auto;width:clamp(88px,min(29vw,14vh),124px);background:linear-gradient(#ffffff,#eaf2fb);border-radius:clamp(12px,1.8vh,18px);padding:clamp(5px,1vh,9px) clamp(5px,1vw,8px);text-align:center;box-shadow:0 clamp(3px,.7vh,6px) 0 var(--theme-card-shadow,#a9bdd2),0 8px 16px rgba(0,40,90,.18);cursor:pointer;transition:transform .08s,box-shadow .35s ease;border:clamp(2px,.35vh,3px) solid #fff}
+.card:active{transform:translateY(3px);box-shadow:0 2px 0 var(--theme-card-shadow,#a9bdd2)}
+.card .ic{height:clamp(24px,4.5vh,40px);display:grid;place-items:center}
+.card .ic svg{width:auto;height:82%;max-height:36px}
+.card .t{font-size:clamp(10px,1.6vh,13px);color:#4a6585;letter-spacing:.2px;white-space:nowrap}
+.card .v{font-size:clamp(15px,2.6vh,21px);color:var(--theme-accent,#1f5fd6);margin:clamp(1px,.3vh,2px) 0 clamp(2px,.6vh,6px);transition:color .35s ease}
+.card .btn{display:flex;align-items:center;justify-content:center;gap:4px;background:linear-gradient(#62dd4b,#2fb12a);border-radius:clamp(8px,1.2vh,11px);color:#fff;font-size:clamp(13px,2.2vh,18px);padding:clamp(3px,.5vh,5px) 0;box-shadow:0 clamp(2px,.4vh,3px) 0 #1e7d1b;text-shadow:0 1px 0 rgba(0,0,0,.25)}
+.card .btn .coin{width:clamp(15px,2.4vh,20px);height:clamp(15px,2.4vh,20px)}
 .card.no .btn{background:linear-gradient(#c3ccd6,#9aa6b3);box-shadow:0 3px 0 #75808c}
 .card.max .btn{background:linear-gradient(#ffb43a,#ff8a00);box-shadow:0 3px 0 #b25e00}
+
+@media (max-height: 520px) {
+  #hint{bottom:calc(max(8px,env(safe-area-inset-bottom)) + 92px);gap:2px}
+  #hint .txt{font-size:clamp(17px,4vh,22px)}
+  .swipe{width:130px;height:40px}
+  .swipe .trk{top:12px;height:6px}
+  .swipe svg{top:2px;width:36px;height:40px;margin-left:-18px}
+  @keyframes sw{0%,100%{transform:translateX(-36px) rotate(-8deg)}50%{transform:translateX(36px) rotate(8deg)}}
+  #ups{bottom:max(8px,env(safe-area-inset-bottom));gap:8px}
+  .card{width:clamp(92px,18vw,112px);padding:4px 6px;border-radius:12px;box-shadow:0 3px 0 var(--theme-card-shadow,#a9bdd2),0 6px 12px rgba(0,40,90,.16);border-width:2px}
+  .card .ic{height:24px}
+  .card .ic svg{height:20px}
+  .card .t{font-size:10px}
+  .card .v{font-size:15px;margin:0 0 2px}
+  .card .btn{font-size:13px;padding:2px 0;border-radius:7px;box-shadow:0 2px 0 #1e7d1b}
+  .card .btn .coin{width:15px;height:15px}
+}
 .panel{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(ellipse at center,rgba(10,30,70,.45),rgba(10,30,70,.75));backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .3s,visibility .3s;z-index:10}
 .panel.on{opacity:1;visibility:visible;pointer-events:auto}
 .panel:not(.on) *{pointer-events:none!important}
@@ -98,10 +118,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:#bfe6ff;font-family:
 <div id="topFog"></div>
 <div id="sideFog"></div>
 <div class="ui">
-  <div id="top"><div class="prog"><div class="lv" id="lvCur">1</div><div class="bar"><i id="barFill"></i></div><div class="lv next" id="lvNext">2</div></div></div>
+  <div id="top">
+    <button id="gear" aria-label="Settings"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1L11 21h4l.4-2.9a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button>
+    <div class="prog"><div class="lv" id="lvCur">1</div><div class="bar"><i id="barFill"></i></div><div class="lv next" id="lvNext">2</div></div>
+    <div id="coins"><span class="coin"></span><span id="coinTxt">0</span></div>
+  </div>
   <div id="biomeBanner"><div class="bTag"><span class="bName" id="biomeName">TROPICAL AZURE BAY</span><span class="bSub" id="biomeSub">LEVEL 1</span></div></div>
-  <div id="coins"><span class="coin"></span><span id="coinTxt">0</span></div>
-  <button id="gear" aria-label="Settings"><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1L11 21h4l.4-2.9a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button>
   <div id="msg" class="st"></div>
   <div id="menu">
     <div id="hint"><div class="swipe"><div class="trk"></div>
@@ -851,29 +873,23 @@ function makeTrackTex(pal){
   if(!c){
     c = document.createElement('canvas');c.width = 512;c.height = 512;
     const g = c.getContext('2d');
+    g.fillStyle = pal.even;
+    g.fillRect(0, 0, 512, 512);
     const bands = 4, h = 512 / bands, peak = 92;
     for(let i = -2; i <= bands + 2; i++){
       const y = i * h;
       const isEven = ((i % 2 + 2) % 2) === 0;
-      // Single uniform chevron band spanning full width edge to edge
+      // Single uniform chevron band spanning full width edge to edge without separator borders
       g.fillStyle = isEven ? pal.even : pal.odd;
       g.beginPath();
       g.moveTo(0, y);
       g.lineTo(256, y - peak);
       g.lineTo(512, y);
-      g.lineTo(512, y + h);
-      g.lineTo(256, y + h - peak);
-      g.lineTo(0, y + h);
+      g.lineTo(512, y + h + 1);
+      g.lineTo(256, y + h + 1 - peak);
+      g.lineTo(0, y + h + 1);
       g.closePath();
       g.fill();
-      // Perfectly aligned continuous divider stroke across full width
-      g.strokeStyle = pal.stroke;
-      g.lineWidth = 3;
-      g.beginPath();
-      g.moveTo(0, y);
-      g.lineTo(256, y - peak);
-      g.lineTo(512, y);
-      g.stroke();
     }
     // Subtle outer edge trim
     g.strokeStyle = pal.edge || pal.stroke;
@@ -2731,33 +2747,53 @@ function createThemedFortress(th, pal, scale = 1.0){
   const keep=new THREE.Mesh(new THREE.BoxGeometry(6.8,8.6,3.4),cMat);
   keep.position.set(0,4.3,-1.6);keep.castShadow=true;c.add(keep);
   for(let i=0;i<6;i++){
-    const b=new THREE.Mesh(new THREE.BoxGeometry(.68,.68,3.5),cTrim);
-    b.position.set(-2.8+i*1.12,8.85,-1.6);b.castShadow=true;c.add(b);
+    const b=new THREE.Mesh(new THREE.BoxGeometry(.68,.68,.46),cTrim);
+    b.position.set(-2.8+i*1.12,8.85,.05);b.castShadow=true;c.add(b);
     if(th.hasSnowCaps){
-      const sc=new THREE.Mesh(new THREE.BoxGeometry(.72,.14,3.55),snowMat);
-      sc.position.set(-2.8+i*1.12,9.22,-1.6);c.add(sc);
+      const sc=new THREE.Mesh(new THREE.BoxGeometry(.72,.14,.50),snowMat);
+      sc.position.set(-2.8+i*1.12,9.22,.05);c.add(sc);
     }
   }
   let roofTopY = 9.70;
   if(th.towerStyle==='conical_spire'){
-    const keepRoof=new THREE.Mesh(new THREE.ConeGeometry(4.4,2.2,4),roofMat);
-    keepRoof.rotation.y=Math.PI/4;keepRoof.position.set(0,9.9,-1.6);keepRoof.castShadow=true;c.add(keepRoof);
-    roofTopY = 11.0;
+    const keepTurret=new THREE.Mesh(new THREE.CylinderGeometry(1.7,1.8,1.6,24),cMat);
+    keepTurret.position.set(0,9.4,-1.6);keepTurret.castShadow=true;c.add(keepTurret);
+    const turretLedge=new THREE.Mesh(new THREE.CylinderGeometry(1.9,1.7,.35,24),cTrim);
+    turretLedge.position.set(0,10.25,-1.6);turretLedge.castShadow=true;c.add(turretLedge);
+    const keepRoof=new THREE.Mesh(new THREE.ConeGeometry(1.9,3.6,24),roofMat);
+    keepRoof.position.set(0,12.1,-1.6);keepRoof.castShadow=true;c.add(keepRoof);
+    roofTopY = 13.9;
     if(th.hasSnowCaps){
-      const cap=new THREE.Mesh(new THREE.ConeGeometry(2.2,1.1,4),snowMat);
-      cap.rotation.y=Math.PI/4;cap.position.set(0,10.45,-1.6);c.add(cap);
+      const cap=new THREE.Mesh(new THREE.ConeGeometry(1.02,1.84,24),snowMat);
+      cap.position.set(0,13.02,-1.6);c.add(cap);
+      const snowBrim=new THREE.Mesh(new THREE.CylinderGeometry(1.06,1.06,.12,24),snowMat);
+      snowBrim.position.set(0,12.1,-1.6);c.add(snowBrim);
     }
   } else if(th.towerStyle==='gilded_dome'){
-    const keepDome=new THREE.Mesh(new THREE.SphereGeometry(2.8,24,14,0,Math.PI*2,0,Math.PI/2),roofMat);
-    keepDome.position.set(0,8.8,-1.6);keepDome.castShadow=true;c.add(keepDome);
-    roofTopY = 11.6;
+    const keepTurret=new THREE.Mesh(new THREE.CylinderGeometry(1.8,1.85,1.4,24),cMat);
+    keepTurret.position.set(0,9.3,-1.6);keepTurret.castShadow=true;c.add(keepTurret);
+    const turretLedge=new THREE.Mesh(new THREE.CylinderGeometry(2.0,1.8,.3,24),cTrim);
+    turretLedge.position.set(0,10.1,-1.6);turretLedge.castShadow=true;c.add(turretLedge);
+    const keepDome=new THREE.Mesh(new THREE.SphereGeometry(1.9,24,14,0,Math.PI*2,0,Math.PI/2),roofMat);
+    keepDome.position.set(0,10.25,-1.6);keepDome.castShadow=true;c.add(keepDome);
+    roofTopY = 12.15;
   } else if(th.towerStyle==='needle_spire'){
-    const keepSpire=new THREE.Mesh(new THREE.ConeGeometry(2.8,3.4,8),roofMat);
-    keepSpire.position.set(0,10.1,-1.6);keepSpire.castShadow=true;c.add(keepSpire);
-    roofTopY = 11.8;
+    const keepTurret=new THREE.Mesh(new THREE.CylinderGeometry(1.65,1.75,1.8,8),cMat);
+    keepTurret.position.set(0,9.5,-1.6);keepTurret.castShadow=true;c.add(keepTurret);
+    const turretLedge=new THREE.Mesh(new THREE.CylinderGeometry(1.85,1.65,.35,8),cTrim);
+    turretLedge.position.set(0,10.35,-1.6);turretLedge.castShadow=true;c.add(turretLedge);
     if(th.hasSnowCaps){
-      const cap=new THREE.Mesh(new THREE.ConeGeometry(1.4,1.7,8),snowMat);
-      cap.rotation.y=Math.PI/4;cap.position.set(0,10.95,-1.6);c.add(cap);
+      const scLedge=new THREE.Mesh(new THREE.CylinderGeometry(1.88,1.88,.10,8),snowMat);
+      scLedge.position.set(0,10.53,-1.6);c.add(scLedge);
+    }
+    const keepSpire=new THREE.Mesh(new THREE.ConeGeometry(1.85,4.0,8),roofMat);
+    keepSpire.position.set(0,12.55,-1.6);keepSpire.castShadow=true;c.add(keepSpire);
+    roofTopY = 14.55;
+    if(th.hasSnowCaps){
+      const cap=new THREE.Mesh(new THREE.ConeGeometry(0.98,2.04,8),snowMat);
+      cap.position.set(0,13.57,-1.6);c.add(cap);
+      const snowBrim=new THREE.Mesh(new THREE.CylinderGeometry(1.02,1.02,.12,8),snowMat);
+      snowBrim.position.set(0,12.55,-1.6);c.add(snowBrim);
     }
   } else if(th.towerStyle==='crenellated_square'){
     const crown=new THREE.Mesh(new THREE.BoxGeometry(7.2,.8,3.8),roofMat);
@@ -2930,6 +2966,12 @@ function createThemedFortress(th, pal, scale = 1.0){
       ledge.position.set(tx,7.35,0);ledge.castShadow=true;c.add(ledge);
       const roof=new THREE.Mesh(new THREE.ConeGeometry(1.85,3.2,24),roofMat);
       roof.position.set(tx,9.0,0);roof.castShadow=true;c.add(roof);
+      if(th.hasSnowCaps){
+        const cap=new THREE.Mesh(new THREE.ConeGeometry(1.0,1.66,24),snowMat);
+        cap.position.set(tx,9.83,0);c.add(cap);
+        const snowBrim=new THREE.Mesh(new THREE.CylinderGeometry(1.04,1.04,.12,24),snowMat);
+        snowBrim.position.set(tx,9.0,0);c.add(snowBrim);
+      }
       const finial=new THREE.Mesh(new THREE.SphereGeometry(.14,10,8),gold);
       finial.position.set(tx,10.65,0);c.add(finial);
       const win=new THREE.Mesh(new THREE.BoxGeometry(.25,.9,.16),dark);
@@ -2943,8 +2985,10 @@ function createThemedFortress(th, pal, scale = 1.0){
       const spire=new THREE.Mesh(new THREE.ConeGeometry(1.6,4.2,8),roofMat);
       spire.position.set(tx,10.2,0);spire.castShadow=true;c.add(spire);
       if(th.hasSnowCaps){
-        const cap=new THREE.Mesh(new THREE.ConeGeometry(0.8,1.8,8),snowMat);
-        cap.position.set(tx,11.4,0);c.add(cap);
+        const cap=new THREE.Mesh(new THREE.ConeGeometry(0.88,1.84,8),snowMat);
+        cap.position.set(tx,11.42,0);c.add(cap);
+        const snowBrim=new THREE.Mesh(new THREE.CylinderGeometry(0.92,0.92,.12,8),snowMat);
+        snowBrim.position.set(tx,10.5,0);c.add(snowBrim);
       }
       const finial=new THREE.Mesh(new THREE.SphereGeometry(.12,8,8),gold);
       finial.position.set(tx,12.35,0);c.add(finial);
@@ -4018,8 +4062,8 @@ function updateLevelVisuals(dt){
       if(K.weaponGroup){
         K.weaponGroup.rotation.x=lerp(Math.PI/3.2,0,easeKd); // Flattens weapon horizontal with ground plane
         K.weaponGroup.rotation.y=0;
-        K.weaponGroup.rotation.z=lerp(-0.12,0.25,easeKd);
-        K.weaponGroup.position.set(0,-0.25,0.05*easeKd);
+        K.weaponGroup.rotation.z=lerp(-0.12,1.15,easeKd); // Orients weapon at diagonal cross angle
+        K.weaponGroup.position.set(0,-0.25,0.08*easeKd);
       }
       if(K.shieldGroup){
         K.shieldGroup.rotation.set(0,lerp(-Math.PI/2.2,0,easeKd),0);

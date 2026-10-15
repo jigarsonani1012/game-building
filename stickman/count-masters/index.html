@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+<title>Count Masters: Stickman Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<canvas id="c" tabindex="0"></canvas>
+<div id="topFog"></div>
+<div id="sideFog"></div>
+<div class="ui">
+  <div id="top">
+    <button id="gear" aria-label="Settings"><svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1L11 21h4l.4-2.9a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg></button>
+    <div class="prog"><div class="lv" id="lvCur">1</div><div class="bar"><i id="barFill"></i></div><div class="lv next" id="lvNext">2</div></div>
+    <div id="coins"><span class="coin"></span><span id="coinTxt">0</span></div>
+  </div>
+  <div id="biomeBanner"><div class="bTag"><span class="bName" id="biomeName">TROPICAL AZURE BAY</span><span class="bSub" id="biomeSub">LEVEL 1</span></div></div>
+  <div id="msg" class="st"></div>
+  <div id="menu">
+    <div id="hint"><div class="swipe"><div class="trk"></div>
+      <svg viewBox="0 0 56 62"><path d="M20 30V9a5 5 0 0 1 10 0v15l13 3c4 1 6 4 5.4 8l-2.4 15c-.6 4-3.6 7-7.6 7H26c-3 0-5-1-7-3.5L8 39c-2-2.5-1.6-5.5.6-7 2-1.4 4.6-1 6.4 1z" fill="#fff" stroke="#173a73" stroke-width="3" stroke-linejoin="round"/></svg>
+    </div><div class="txt st">HOLD &amp; DRAG</div></div>
+    <div id="ups">
+      <div class="card" data-up="crowd"><div class="ic"><svg width="44" height="38" viewBox="0 0 44 38"><g fill="#2f7dff"><circle cx="22" cy="7" r="5"/><rect x="18" y="13" width="8" height="13" rx="4"/><circle cx="9" cy="12" r="4"/><rect x="6" y="17" width="6" height="11" rx="3"/><circle cx="35" cy="12" r="4"/><rect x="32" y="17" width="6" height="11" rx="3"/></g><rect x="4" y="31" width="36" height="5" rx="2.5" fill="#cfe0f3"/></svg></div><div class="t">START CROWD</div><div class="v">1</div><div class="btn"><span class="coin sm"></span><span class="cost">250</span></div></div>
+      <div class="card" data-up="gate"><div class="ic"><svg width="44" height="38" viewBox="0 0 44 38"><rect x="3" y="4" width="38" height="30" rx="6" fill="#4fa0ff" opacity=".85"/><rect x="3" y="4" width="38" height="30" rx="6" fill="none" stroke="#fff" stroke-width="3"/><text x="22" y="27" text-anchor="middle" font-family="Lilita One,sans-serif" font-size="20" fill="#fff">+N</text></svg></div><div class="t">GATE BONUS</div><div class="v">+0</div><div class="btn"><span class="coin sm"></span><span class="cost">140</span></div></div>
+      <div class="card" data-up="income"><div class="ic"><svg width="44" height="38" viewBox="0 0 44 38"><circle cx="17" cy="21" r="12" fill="#ffd21f" stroke="#c98500" stroke-width="3"/><circle cx="28" cy="15" r="12" fill="#ffe14d" stroke="#c98500" stroke-width="3"/><text x="28" y="21" text-anchor="middle" font-family="Lilita One,sans-serif" font-size="15" fill="#b97300">$</text></svg></div><div class="t">INCOME</div><div class="v">x1.0</div><div class="btn"><span class="coin sm"></span><span class="cost">90</span></div></div>
+    </div>
+  </div>
+  <div class="panel" id="winP"><h1 class="st" id="winT">LEVEL 1<br>COMPLETED!</h1><div class="mult st" id="winM"></div><div class="reward"><span class="coin"></span><span id="winC">0</span></div><button class="big" id="btnNext">CONTINUE</button></div>
+  <div class="panel" id="loseP"><h1 class="st">LEVEL FAILED</h1><div class="sub st" id="loseS">Your crowd was defeated</div><button class="big red" id="btnRetry">TRY AGAIN</button></div>
+  <div class="panel" id="setP"><div class="box"><h2>SETTINGS</h2>
+    <div class="row"><span>Sound</span><button class="tog" id="togSound"></button></div>
+    <div class="row"><span>Vibration</span><button class="tog" id="togVib"></button></div>
+    <button class="big blue" id="btnResume">RESUME</button>
+    <button class="big red" id="btnRestart">RESTART LEVEL</button>
+    <button id="btnResetUps">Erase Game Progress</button>
+  </div></div>
+  <div class="panel" id="confirmP">
+    <div class="box" id="confirmBox">
+      <div id="confirmIcon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+      </div>
+      <h2>ERASE PROGRESS?</h2>
+      <div id="confirmSubTxt">
+        Are you sure? This will permanently wipe your <b style="color:#1f5fd6">Level</b>, <b style="color:#f59e0b">Coins</b>, and <b style="color:#10b981">Upgrades</b> to start fresh from Level 1.
+      </div>
+      <div id="confirmWarnTag">
+        <span>⚠️ THIS CANNOT BE UNDONE</span>
+      </div>
+      <div id="confirmBtnRow">
+        <button class="big" id="btnCancelReset">CANCEL</button>
+        <button class="big red" id="btnConfirmReset">YES, ERASE</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="loading" class="st">LOADING...</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

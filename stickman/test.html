@@ -259,11 +259,11 @@ try{
 }catch(e){}
 function persist(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(save));}catch(e){}}
 
-// Upgrade Config: Start crowd doubles in price every level: 250 -> 500 -> 1K -> 2K -> 4K...
+// Upgrade Config: Upgrades double in price every level (scale: 2.0)
 const UP_CONFIG={
-  crowd:  {base:250, scale:2.0},  // Level 1->2: 250, 2->3: 500, 3->4: 1000 (1K), 4->5: 2000 (2K), 5->6: 4K, 6->7: 8K, 7->8: 16K...
-  gate:   {base:140, scale:1.40}, // Level 1->2: 140, 2->3: 196, 3->4: 274...
-  income: {base:90,  scale:1.34}  // Level 1->2: 90,  2->3: 121, 3->4: 162...
+  crowd:  {base:250, scale:2.0},  // Level 1->2: 250, 2->3: 500, 3->4: 1000 (1K), 4->5: 2000 (2K)...
+  gate:   {base:140, scale:2.0},  // Level 1->2: 140, 2->3: 280, 3->4: 560, 4->5: 1120 (1.1K)...
+  income: {base:90,  scale:2.0}   // Level 1->2: 90,  2->3: 180, 3->4: 360, 4->5: 720...
 };
 const startCount=()=>1+(save.up.crowd-1);
 const gateBonus=()=>save.up.gate-1;
@@ -379,12 +379,12 @@ function rr(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);
 function canvasTex(c){const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=renderer.capabilities.getMaxAnisotropy();return t;}
 const FONT='"Lilita One", "Arial Black", sans-serif';
 
-/* Vibrant Curated Track & Biome Palettes (changes per level) */
+/* Vibrant Curated Track & Biome Palettes */
 const TRACK_PALETTES = [
   {
     name: 'Ocean Slate',
     biome: 'Tropical Azure Bay',
-    groundType: 'water', // COASTAL BRIDGE OVER WATER
+    groundType: 'water', // 1. COASTAL BRIDGE OVER WATER
     even: '#627692',
     odd: '#536680',
     stroke: 'rgba(25, 38, 55, 0.55)',
@@ -412,64 +412,8 @@ const TRACK_PALETTES = [
     decos: []
   },
   {
-    name: 'Emerald Jade',
-    biome: 'Lush Forest Meadow',
-    groundType: 'terrain', // SOLID GRASSY TERRAIN! NO WATER!
-    groundColor: '#3a7544',
-    groundRoughness: 0.85,
-    even: '#488570',
-    odd: '#38725e',
-    stroke: 'rgba(18, 48, 38, 0.55)',
-    edge: 'rgba(22, 58, 46, 0.6)',
-    side: '#7ebca6',
-    pillar: '#a3d4c3',
-    skyTop: '#20564b',
-    skyMid: '#5b9e8f',
-    skyBot: '#88c2b3',
-    fog: '#88c2b3',
-    hemiSky: 0xf0fff4,
-    hemiGround: 0x5f998a,
-    sunCol: 0xfafff0,
-    cloudEmissive: 0x76a394,
-    uiAccent: '#059669',
-    uiAccent2: '#34d399',
-    uiGlow: 'rgba(16, 185, 129, 0.45)',
-    uiStroke: '#064e3b',
-    uiCardShadow: '#86bfae',
-    weather: null,
-    decos: ['tree', 'bush', 'rock']
-  },
-  {
-    name: 'Sunset Terracotta',
-    biome: 'Ancient Golden Desert', // SOLID DESERT SAND! NO WATER!
-    groundType: 'terrain',
-    groundColor: '#d69956',
-    groundRoughness: 0.9,
-    even: '#9e5c54',
-    odd: '#8a4941',
-    stroke: 'rgba(60, 24, 20, 0.55)',
-    edge: 'rgba(72, 30, 26, 0.6)',
-    side: '#c28982',
-    pillar: '#d9aaa4',
-    skyTop: '#2b5a8c',
-    skyMid: '#c0834c',
-    skyBot: '#deb078',
-    fog: '#deb078',
-    hemiSky: 0xfff6ee,
-    hemiGround: 0xa87442,
-    sunCol: 0xfff3db,
-    cloudEmissive: 0xb88e60,
-    uiAccent: '#d97706',
-    uiAccent2: '#fbbf24',
-    uiGlow: 'rgba(217, 119, 6, 0.35)',
-    uiStroke: '#78350f',
-    uiCardShadow: '#cfa276',
-    weather: null,
-    decos: ['pyramid', 'dune', 'cactus', 'rock', 'spyramid']
-  },
-  {
     name: 'Teal Breeze',
-    biome: 'Frosted Alpine Snowfield', // SOLID SNOW! NO WATER!
+    biome: 'Frosted Alpine Snowfield', // 2. SOLID SNOW & ICE!
     groundType: 'terrain',
     groundColor: '#e5eff8',
     groundRoughness: 0.75,
@@ -496,8 +440,64 @@ const TRACK_PALETTES = [
     decos: ['pine', 'ice', 'mountain', 'rock']
   },
   {
+    name: 'Forest Olive',
+    biome: 'Primeval Mossy Bayou', // 3. SOLID MOSSY DEEP FOREST!
+    groundType: 'terrain',
+    groundColor: '#2b3d22',
+    groundRoughness: 0.88,
+    even: '#5c7a52',
+    odd: '#4a6741',
+    stroke: 'rgba(24, 44, 18, 0.55)',
+    edge: 'rgba(30, 52, 24, 0.6)',
+    side: '#94b08b',
+    pillar: '#b7ccaee',
+    skyTop: '#233c1e',
+    skyMid: '#567349',
+    skyBot: '#88a679',
+    fog: '#88a679',
+    hemiSky: 0xf2fff0,
+    hemiGround: 0x526e45,
+    sunCol: 0xf8fff0,
+    cloudEmissive: 0x708a62,
+    uiAccent: '#65a30d',
+    uiAccent2: '#a3e635',
+    uiGlow: 'rgba(101, 163, 13, 0.45)',
+    uiStroke: '#365314',
+    uiCardShadow: '#9ab88f',
+    weather: null,
+    decos: ['tree', 'bush', 'rock']
+  },
+  {
+    name: 'Emerald Jade',
+    biome: 'Lush Forest Meadow', // 4. SOLID GRASSY MEADOW!
+    groundType: 'terrain',
+    groundColor: '#3a7544',
+    groundRoughness: 0.85,
+    even: '#488570',
+    odd: '#38725e',
+    stroke: 'rgba(18, 48, 38, 0.55)',
+    edge: 'rgba(22, 58, 46, 0.6)',
+    side: '#7ebca6',
+    pillar: '#a3d4c3',
+    skyTop: '#20564b',
+    skyMid: '#5b9e8f',
+    skyBot: '#88c2b3',
+    fog: '#88c2b3',
+    hemiSky: 0xf0fff4,
+    hemiGround: 0x5f998a,
+    sunCol: 0xfafff0,
+    cloudEmissive: 0x76a394,
+    uiAccent: '#059669',
+    uiAccent2: '#34d399',
+    uiGlow: 'rgba(16, 185, 129, 0.45)',
+    uiStroke: '#064e3b',
+    uiCardShadow: '#86bfae',
+    weather: null,
+    decos: ['tree', 'bush', 'rock']
+  },
+  {
     name: 'Royal Violet',
-    biome: 'Twilight Crystal Cavern', // SOLID OBSIDIAN & CRYSTALS! NO WATER!
+    biome: 'Twilight Crystal Cavern', // 5. SOLID OBSIDIAN & CRYSTALS!
     groundType: 'terrain',
     groundColor: '#251e36',
     groundRoughness: 0.8,
@@ -524,8 +524,92 @@ const TRACK_PALETTES = [
     decos: ['crystal', 'bigcrystal', 'rock']
   },
   {
+    name: 'Cobalt Midnight',
+    biome: 'Midnight Canyon', // 6. SOLID STONE CANYON!
+    groundType: 'terrain',
+    groundColor: '#19243b',
+    groundRoughness: 0.8,
+    even: '#4f669c',
+    odd: '#3d5386',
+    stroke: 'rgba(20, 32, 66, 0.55)',
+    edge: 'rgba(25, 38, 78, 0.6)',
+    side: '#899fcb',
+    pillar: '#adc0e5',
+    skyTop: '#132145',
+    skyMid: '#3b5487',
+    skyBot: '#6b86b5',
+    fog: '#6b86b5',
+    hemiSky: 0xf0f5ff,
+    hemiGround: 0x3a5385,
+    sunCol: 0xf4f8ff,
+    cloudEmissive: 0x58719c,
+    uiAccent: '#2563eb',
+    uiAccent2: '#60a5fa',
+    uiGlow: 'rgba(37, 99, 235, 0.5)',
+    uiStroke: '#1e3a8a',
+    uiCardShadow: '#93a7d4',
+    weather: null,
+    decos: ['crystal', 'rock', 'mountain']
+  },
+  {
+    name: 'Obsidian Steel',
+    biome: 'Volcanic Molten Crust', // 7. SOLID OBSIDIAN ROCK & MAGMA!
+    groundType: 'terrain',
+    groundColor: '#1a1819',
+    groundRoughness: 0.85,
+    even: '#424752',
+    odd: '#343842',
+    stroke: 'rgba(18, 20, 26, 0.65)',
+    edge: 'rgba(22, 26, 34, 0.7)',
+    side: '#747c8c',
+    pillar: '#9aa2b3',
+    skyTop: '#0d0f14',
+    skyMid: '#1a1d24',
+    skyBot: '#262a33',
+    fog: '#262a33',
+    hemiSky: 0xf1f5f9,
+    hemiGround: 0x1f242d,
+    sunCol: 0xfff7ed,
+    cloudEmissive: 0x343b47,
+    uiAccent: '#ea580c',
+    uiAccent2: '#f97316',
+    uiGlow: 'rgba(234, 88, 12, 0.22)',
+    uiStroke: '#1f2937',
+    uiCardShadow: '#282d38',
+    weather: null,
+    decos: ['rock', 'mountain']
+  },
+  {
+    name: 'Sunset Terracotta',
+    biome: 'Ancient Golden Desert', // 8. SOLID DESERT SAND!
+    groundType: 'terrain',
+    groundColor: '#d69956',
+    groundRoughness: 0.9,
+    even: '#9e5c54',
+    odd: '#8a4941',
+    stroke: 'rgba(60, 24, 20, 0.55)',
+    edge: 'rgba(72, 30, 26, 0.6)',
+    side: '#c28982',
+    pillar: '#d9aaa4',
+    skyTop: '#2b5a8c',
+    skyMid: '#c0834c',
+    skyBot: '#deb078',
+    fog: '#deb078',
+    hemiSky: 0xfff6ee,
+    hemiGround: 0xa87442,
+    sunCol: 0xfff3db,
+    cloudEmissive: 0xb88e60,
+    uiAccent: '#d97706',
+    uiAccent2: '#fbbf24',
+    uiGlow: 'rgba(217, 119, 6, 0.35)',
+    uiStroke: '#78350f',
+    uiCardShadow: '#cfa276',
+    weather: null,
+    decos: ['pyramid', 'dune', 'cactus', 'rock', 'spyramid']
+  },
+  {
     name: 'Golden Russet',
-    biome: 'Golden Autumn Valley', // SOLID AUTUMN SOIL! NO WATER!
+    biome: 'Golden Autumn Valley', // 9. SOLID AUTUMN SOIL!
     groundType: 'terrain',
     groundColor: '#965935',
     groundRoughness: 0.85,
@@ -553,7 +637,7 @@ const TRACK_PALETTES = [
   },
   {
     name: 'Desert Amber',
-    biome: 'Wild Savanna Plains', // SOLID SAVANNA GRASSLAND! NO WATER!
+    biome: 'Wild Savanna Plains', // 10. SOLID SAVANNA GRASSLAND!
     groundType: 'terrain',
     groundColor: '#ba8538',
     groundRoughness: 0.88,
@@ -578,95 +662,22 @@ const TRACK_PALETTES = [
     uiCardShadow: '#cca87c',
     weather: null,
     decos: ['acacia', 'rock', 'dune']
-  },
-  {
-    name: 'Cobalt Midnight',
-    biome: 'Midnight Canyon', // SOLID STONE CANYON! NO WATER!
-    groundType: 'terrain',
-    groundColor: '#19243b',
-    groundRoughness: 0.8,
-    even: '#4f669c',
-    odd: '#3d5386',
-    stroke: 'rgba(20, 32, 66, 0.55)',
-    edge: 'rgba(25, 38, 78, 0.6)',
-    side: '#899fcb',
-    pillar: '#adc0e5',
-    skyTop: '#132145',
-    skyMid: '#3b5487',
-    skyBot: '#6b86b5',
-    fog: '#6b86b5',
-    hemiSky: 0xf0f5ff,
-    hemiGround: 0x3a5385,
-    sunCol: 0xf4f8ff,
-    cloudEmissive: 0x58719c,
-    uiAccent: '#2563eb',
-    uiAccent2: '#60a5fa',
-    uiGlow: 'rgba(37, 99, 235, 0.5)',
-    uiStroke: '#1e3a8a',
-    uiCardShadow: '#93a7d4',
-    weather: null,
-    decos: ['crystal', 'rock', 'mountain']
-  },
-  {
-    name: 'Forest Olive',
-    biome: 'Primeval Mossy Bayou', // SOLID MOSSY DEEP FOREST! NO WATER!
-    groundType: 'terrain',
-    groundColor: '#2b3d22',
-    groundRoughness: 0.88,
-    even: '#5c7a52',
-    odd: '#4a6741',
-    stroke: 'rgba(24, 44, 18, 0.55)',
-    edge: 'rgba(30, 52, 24, 0.6)',
-    side: '#94b08b',
-    pillar: '#b7ccaee',
-    skyTop: '#233c1e',
-    skyMid: '#567349',
-    skyBot: '#88a679',
-    fog: '#88a679',
-    hemiSky: 0xf2fff0,
-    hemiGround: 0x526e45,
-    sunCol: 0xf8fff0,
-    cloudEmissive: 0x708a62,
-    uiAccent: '#65a30d',
-    uiAccent2: '#a3e635',
-    uiGlow: 'rgba(101, 163, 13, 0.45)',
-    uiStroke: '#365314',
-    uiCardShadow: '#9ab88f',
-    weather: null,
-    decos: ['tree', 'bush', 'rock']
-  },
-  {
-    name: 'Obsidian Steel',
-    biome: 'Volcanic Molten Crust', // SOLID OBSIDIAN ROCK! NO WATER!
-    groundType: 'terrain',
-    groundColor: '#1a1819',
-    groundRoughness: 0.85,
-    even: '#424752',
-    odd: '#343842',
-    stroke: 'rgba(18, 20, 26, 0.65)',
-    edge: 'rgba(22, 26, 34, 0.7)',
-    side: '#747c8c',
-    pillar: '#9aa2b3',
-    skyTop: '#0d0f14',
-    skyMid: '#1a1d24',
-    skyBot: '#262a33',
-    fog: '#262a33',
-    hemiSky: 0xf1f5f9,
-    hemiGround: 0x1f242d,
-    sunCol: 0xfff7ed,
-    cloudEmissive: 0x343b47,
-    uiAccent: '#ea580c',
-    uiAccent2: '#f97316',
-    uiGlow: 'rgba(234, 88, 12, 0.22)',
-    uiStroke: '#1f2937',
-    uiCardShadow: '#282d38',
-    weather: null,
-    decos: ['rock', 'mountain']
   }
 ];
 
+function getTrackPaletteIndex(levelNum){
+  const l = Math.max(1, levelNum);
+  const firstPhaseTotal = TRACK_PALETTES.length * 5; // First cycle: 10 biomes * 5 levels each = Levels 1 to 50
+  if(l <= firstPhaseTotal){
+    return Math.floor((l - 1) / 5) % TRACK_PALETTES.length;
+  }
+  // From Level 51 onwards: changes every 10 levels
+  const afterOffset = l - 1 - firstPhaseTotal;
+  return Math.floor(afterOffset / 10) % TRACK_PALETTES.length;
+}
+
 function getTrackPalette(levelNum){
-  const idx = Math.max(0, (levelNum - 1)) % TRACK_PALETTES.length;
+  const idx = getTrackPaletteIndex(levelNum);
   return TRACK_PALETTES[idx];
 }
 
@@ -784,7 +795,8 @@ function applyThemeUI(pal, levelNum){
     const bSub = $('biomeSub');
     if(bName) bName.textContent = pal.biome.toUpperCase();
     const isBoss = (levelNum % 3 === 0);
-    if(bSub) bSub.textContent = isBoss ? 'BOSS BATTLE · LEVEL ' + levelNum : 'BIOME ' + (((levelNum - 1) % 10) + 1) + ' · LEVEL ' + levelNum;
+    const biomeIdx = (typeof getTrackPaletteIndex === 'function') ? getTrackPaletteIndex(levelNum) : 0;
+    if(bSub) bSub.textContent = isBoss ? 'BOSS BATTLE · LEVEL ' + levelNum : 'BIOME ' + (biomeIdx + 1) + ' · LEVEL ' + levelNum;
     bb.classList.remove('show');
     void bb.offsetWidth;
     bb.classList.add('show');
@@ -1290,6 +1302,10 @@ const pMesh=new THREE.InstancedMesh(partGeo,new THREE.MeshBasicMaterial({color:0
 pMesh.frustumCulled=false;pMesh.setColorAt(0,WHITE);pMesh.count=0;scene.add(pMesh);
 const particles=[];
 function burst(x,y,z,col,n,spd,up){
+  let c = WHITE;
+  if(col instanceof THREE.Color) c = col;
+  else if(typeof col === 'string') c = new THREE.Color(col);
+  else if(col) c = col;
   for(let i=0;i<(n||3);i++){
     if(particles.length>=PMAX)particles.shift();
     const a=Math.random()*6.28,s=(spd||3.8)*(.5+Math.random()*.6);
@@ -1299,7 +1315,7 @@ function burst(x,y,z,col,n,spd,up){
       vy:(up||3.0)*(.6+Math.random()*.8),
       vz:Math.sin(a)*s,
       life:.25+Math.random()*.2,
-      col:col||WHITE,
+      col:c,
       sc:.9+Math.random()*.5
     });
   }
@@ -1322,7 +1338,11 @@ function updateParticles(dt){
     _s.set(s,s,s);
     _m4.compose(_p,_q,_s);
     pMesh.setMatrixAt(n,_m4);
-    pMesh.setColorAt(n,p.col);
+    if(p.col && typeof p.col.toArray === 'function'){
+      pMesh.setColorAt(n,p.col);
+    } else {
+      pMesh.setColorAt(n,WHITE);
+    }
     n++;
   }
   const prevPCount=pMesh.count;
@@ -1715,19 +1735,29 @@ function buildLevel(n){
   const levTier=Math.min(8,actualN-1); // Scales smoothly across levels without a premature hard choke
   let d=26,i=0,last='';
   let gateEncounter=0,lastMultEncounter=-99;
-  const obsPool=['cleaver','saw','spinner','roller'];
-  if(actualN>=2)obsPool.push('cleaver','saw');
-  if(actualN>=3)obsPool.push('saw','cleaver','roller');
-  if(actualN>=4)obsPool.push('hammer');
-  if(actualN>=5)obsPool.push('cleaver','saw','spinner2');
+  const baseObs=['cleaver','saw','spinner','roller'];
+  if(actualN>=2)baseObs.push('hammer');
+  if(actualN>=3)baseObs.push('spinner2');
+  let coneTrapPlaced=false;
+  let lastObsType='';
 
   while(d<L-24){
     let type;
     if(i===0)type='gates';
     else if(i===1)type='obstacle'; // Guaranteed Guillotine Cleaver Chopper immediately after opening gate!
-    else if(last==='gates'){const r=R();if(d>40&&r<.40)type='enemy';else if(r<.88)type='obstacle';else type=(r<.8&&d>40)?'enemy':'coins';}
-    else if(last==='obstacle'){type=R()<.65?'gates':'enemy';}
-    else type=R()<.80?'gates':'obstacle';
+    else if(last==='gates'){
+      const r=R();
+      if(d>26&&r<.60)type='enemy';
+      else if(r<.90)type='obstacle';
+      else type='coins';
+    }
+    else if(last==='obstacle'){
+      type=R()<.50?'gates':'enemy';
+    }
+    else if(last==='enemy'){
+      type=R()<.65?'gates':'obstacle';
+    }
+    else type=R()<.60?'gates':'obstacle';
     if(type==='gates'){
       let hasMultInPair=false;
       // Allow multiplier only if cooldown is satisfied (not back-to-back) and crowd is not already oversized
@@ -1773,23 +1803,33 @@ function buildLevel(n){
       if(R()<.4){const cx=[-2.6,2.6][ri(0,1)];addCoins(grp,lv,d+5,cx,4);}
       d+=18;
     }else if(type==='enemy'){
-      // Slightly increased enemy squad size (player still comfortably outnumbers and wins!):
-      // Level 1: 11 to 18
-      // Level 2: 13 to 21
-      // Level 3: 15 to 24
-      // Level 4: 17 to 27
-      // Level 5+: 19 to 30 (capped at 36 max, cleanly beatable!)
+      // Fair & exciting enemy squad size (player comfortably outnumbers and wins!):
+      // Level 1: 10 to 16
+      // Level 2: 12 to 19
+      // Level 3: 14 to 22
+      // Level 4: 16 to 25
+      // Level 5+: 18 to 28 (capped at 32 max, cleanly beatable!)
       const levCap = Math.min(5, actualN - 1);
-      const baseMin = 11 + levCap * 2;
-      const baseMax = 18 + levCap * 3;
-      // Safety guarantee: capped at ~58% of player army (B), ensuring player always wins with survivors!
-      const fairMaxFromB = Math.max(10, Math.floor(B * 0.58));
-      const k = clamp(ri(baseMin, baseMax), 10, Math.min(36, fairMaxFromB));
-      B = Math.max(8, B - k);
+      const baseMin = 10 + levCap * 2;
+      const baseMax = 16 + levCap * 3;
+      // Safety guarantee: capped at ~55% of player army (B), ensuring player always wins with survivors!
+      const fairMaxFromB = Math.max(6, Math.floor(B * 0.55));
+      const k = clamp(ri(baseMin, baseMax), 6, Math.min(32, fairMaxFromB));
+      B = Math.max(6, B - k);
       lv.enemies.push(makeEnemy(d+4, rf(-1.2, 1.2), k));
       d+=20;
     }else if(type==='obstacle'){
-      const ot=(i===1)?'cleaver':((i===3&&R()<0.75)?'saw':obsPool[ri(0,obsPool.length-1)]);
+      // Perfectly balanced obstacle distribution:
+      // Avoid repeating the exact same obstacle consecutively.
+      // coneTrap has an equal 1-in-N weight alongside all other active traps,
+      // appears before the ending stretch (d < L - 48), and spawns at most once per level.
+      const pool = baseObs.filter(t => t !== lastObsType);
+      const allowCone = !coneTrapPlaced && (d < L - 48);
+      const candidates = allowCone ? [...pool, 'coneTrap'] : pool;
+      const ot = candidates[ri(0, candidates.length - 1)];
+      if(ot === 'coneTrap') coneTrapPlaced = true;
+      lastObsType = ot;
+
       lv.obstacles.push(makeObstacle(grp,ot,d+3,R,eqTheme));
       B=Math.round(B*.85);
       d+=18;
@@ -1802,7 +1842,7 @@ function buildLevel(n){
   }
 
   // Guaranteed climax trap right before finish line:
-  // Chopper dual cleavers ("two chakus"), spiked roller ("rounded roller"), or rotating bar ("that one rotate")
+  // Chopper dual cleavers, spiked roller, or rotating bar (classic climax traps only; new equipment never appears here)
   // Challenges & trims down wide crowds so they don't enter the stairs with an overwhelming horde!
   const endTrapPool = ['cleaver2', 'roller', 'spinner'];
   if(actualN >= 2) endTrapPool.push('cleaver2', 'roller');
@@ -1815,6 +1855,7 @@ function buildLevel(n){
   lv.bossTier=tier;
   lv.bossHP=Math.max(65,Math.round(Math.min(B,160)*(1.2*tier.hpMult))+25*(Math.floor((actualN-1)/3)));
   if(endType==='stairs')buildStairs(grp,lv);else buildBoss(grp,lv);
+  if(typeof renderer!=='undefined'&&renderer&&scene&&camera)renderer.compile(scene,camera);
   return lv;
 }
 
@@ -1884,6 +1925,43 @@ function syncGroup(arr,count,maxv,instant){
   while(arr.length>want)arr.pop();
   if(arr.length!==wasN&&!instant)repackSlots(arr);
 }
+
+/* ================= SHARED TRAP ASSETS & PRE-COMPILED MATERIALS ================= */
+const C_GREEN = new THREE.Color('#22c55e');
+const C_YELLOW = new THREE.Color('#facc15');
+const C_DUST = new THREE.Color('#94a3b8');
+
+const TRAP_ASSETS = (function(){
+  const mkMat = (p) => { const m = new THREE.MeshStandardMaterial(p); m.userData.shared = true; return m; };
+  const mkBasic = (p) => { const m = new THREE.MeshBasicMaterial(p); m.userData.shared = true; return m; };
+
+  // Geometries
+  const coneGeo = new THREE.ConeGeometry(0.18, 0.85, 12);
+  coneGeo.translate(0, 0.425, 0);
+  coneGeo.userData.shared = true;
+
+  const collarGeo = new THREE.CylinderGeometry(0.24, 0.28, 0.04, 14);
+  collarGeo.userData.shared = true;
+  const btnBaseGeo = new THREE.CylinderGeometry(0.88, 0.98, 0.08, 28);
+  btnBaseGeo.userData.shared = true;
+
+  const btnPlungerGeo = new THREE.CylinderGeometry(0.68, 0.74, 0.16, 28);
+  btnPlungerGeo.userData.shared = true;
+
+  const waveGeo = new THREE.RingGeometry(0.88, 1.08, 32);
+  waveGeo.rotateX(-Math.PI / 2);
+  waveGeo.userData.shared = true;
+
+  return {
+    coneGeo, collarGeo, btnBaseGeo, btnPlungerGeo, waveGeo,
+
+    // Materials
+    btnBaseMat: mkMat({color:'#ffffff', roughness:0.35, metalness:0.1}),
+    btnIdleMat: mkMat({color: '#22c55e', roughness: 0.35, emissive: '#15803d', emissiveIntensity: 0.25}),
+    btnActiveMat: mkMat({color: '#4ade80', roughness: 0.2, emissive: '#22c55e', emissiveIntensity: 0.95}),
+    waveMat: mkBasic({color: '#22c55e', transparent: true, opacity: 0.0, depthWrite: false})
+  };
+})();
 
 /* ================= OBSTACLES ================= */
 function makeObstacle(grp,type,d,R,eqTheme){
@@ -2210,6 +2288,135 @@ function makeObstacle(grp,type,d,R,eqTheme){
         }
       }
       return false;
+    };
+  }else if(type==='coneTrap'){
+    // Authentic Retractable Floor Cone Spike Trap with Floor Pressure Button (Count Masters style)
+    const bOffset = 13.0;
+    const buttonD = d - bOffset;
+    const bX = (R() < 0.34) ? 0 : ((R() < 0.5) ? -1.8 : 1.8);
+    o.buttonX = bX;
+    o.buttonD = buttonD;
+    o.buttonRadius = 0.95;
+    o.pressed = false;
+
+    // 1. Floor Button Assembly: Clean Circular Button Base, Neon Plunger, and Shockwave Ring
+    // (Square base plate and warning chevrons removed per user request)
+    const btnGroup = new THREE.Group();
+    btnGroup.position.set(bX, 0, bOffset);
+    o.g.add(btnGroup);
+
+    const btnBase = new THREE.Mesh(TRAP_ASSETS.btnBaseGeo, TRAP_ASSETS.btnBaseMat);
+    btnBase.position.y = 0.04;
+    btnBase.receiveShadow = true; btnBase.castShadow = true;
+    btnGroup.add(btnBase);
+
+    const btnPlunger = new THREE.Mesh(TRAP_ASSETS.btnPlungerGeo, TRAP_ASSETS.btnIdleMat);
+    btnPlunger.position.y = 0.12;
+    btnPlunger.castShadow = true;
+    btnGroup.add(btnPlunger);
+
+    const waveMesh = new THREE.Mesh(TRAP_ASSETS.waveGeo, TRAP_ASSETS.waveMat.clone());
+    waveMesh.position.y = 0.06;
+    btnGroup.add(waveMesh);
+
+    o.btnY = 0.12;
+    o.targetBtnY = 0.12;
+    o.sinkProgress = 0.0;
+    o.sinkDuration = 0.55;
+    o.waveScale = 1.0;
+    o.waveOpacity = 0.0;
+    o.locked = false;
+
+    // 2. Retractable Cone Spike Field across the road (Themed with eqTheme.spikeMat & eqTheme.frameMat)
+    const spikeGroup = new THREE.Group();
+    o.g.add(spikeGroup);
+    o.spikeGroup = spikeGroup;
+    o.spikeY = 0;
+
+    const rows = [
+      { oz: 0.55, xs: [-3.3, -2.2, -1.1, 0, 1.1, 2.2, 3.3] },
+      { oz: 0.0,  xs: [-3.85, -2.75, -1.65, -0.55, 0.55, 1.65, 2.75, 3.85] },
+      { oz: -0.55, xs: [-3.3, -2.2, -1.1, 0, 1.1, 2.2, 3.3] }
+    ];
+
+    rows.forEach(r => {
+      r.xs.forEach(x => {
+        const collar = new THREE.Mesh(TRAP_ASSETS.collarGeo, eqTheme.frameMat);
+        collar.position.set(x, 0.02, r.oz);
+        collar.receiveShadow = true;
+        o.g.add(collar);
+
+        const cone = new THREE.Mesh(TRAP_ASSETS.coneGeo, eqTheme.spikeMat);
+        cone.position.set(x, 0, r.oz);
+        cone.castShadow = true;
+        spikeGroup.add(cone);
+      });
+    });
+
+    o.press = () => {
+      if(o.pressed) return;
+      o.pressed = true;
+      o.targetBtnY = 0.03;
+      o.waveOpacity = 0.95;
+      o.waveScale = 1.0;
+      btnPlunger.material = TRAP_ASSETS.btnActiveMat;
+      tone(560, 0.10, 'triangle', 0.25, 920);
+      tone(180, 0.35, 'sawtooth', 0.20, 60);
+      vib(25);
+      burst(o.buttonX, 0.15, -o.buttonD, C_GREEN, 14, 3.2, 4.0);
+    };
+
+    o.update = (t, dt) => {
+      if(!o.pressed && Math.abs(crowd.d - o.buttonD) < (crowd.R + 1.2)){
+        const dist = Math.hypot(crowd.x - o.buttonX, crowd.d - o.buttonD);
+        if(dist < (crowd.R + o.buttonRadius)){
+          o.press();
+        } else {
+          for(let i=0; i<crowd.members.length; i++){
+            const m = crowd.members[i];
+            if(Math.hypot((crowd.x + m.ox) - o.buttonX, (crowd.d + m.oz) - o.buttonD) < (o.buttonRadius + 0.3)){
+              o.press();
+              break;
+            }
+          }
+        }
+      }
+
+      // Smooth mechanical plunger squash
+      o.btnY = lerp(o.btnY, o.targetBtnY, 1 - Math.exp(-dt * 22));
+      btnPlunger.position.y = o.btnY;
+
+      // Expanding green shockwave ring
+      if(o.waveOpacity > 0.01){
+        o.waveScale += dt * 5.2;
+        o.waveOpacity = Math.max(0, o.waveOpacity - dt * 2.2);
+        waveMesh.scale.set(o.waveScale, o.waveScale, o.waveScale);
+        waveMesh.material.opacity = o.waveOpacity;
+      }
+
+      // Smooth physical mechanical descent over sinkDuration
+      if(o.pressed){
+        if(o.sinkProgress < 1.0){
+          o.sinkProgress = Math.min(1.0, o.sinkProgress + dt / o.sinkDuration);
+          const p = o.sinkProgress;
+          const ease = 1 - Math.pow(1 - p, 3);
+          o.spikeY = -0.98 * ease;
+          spikeGroup.position.y = o.spikeY;
+
+          if(o.sinkProgress >= 1.0 && !o.locked){
+            o.locked = true;
+            spikeGroup.visible = false;
+            tone(140, 0.08, 'triangle', 0.20, 60);
+            tone(820, 0.04, 'square', 0.16, 820);
+            vib(15);
+          }
+        }
+      }
+    };
+
+    o.hit = (x, dd) => {
+      if(o.spikeY < -0.32) return false;
+      return (Math.abs(dd - d) < 0.75 && Math.abs(x) < 3.9);
     };
   }
   o.update(0,0);
@@ -3271,6 +3478,10 @@ function killMember(i,kind,obs){
     vx=(obs&&obs.sides&&obs.sides[0]>0?-1:1)*(6.8+Math.random()*4.0);
     vy=5.5+Math.random()*3.5;
     vd=(Math.random()-.5)*5.0;
+  } else if(kind==='coneTrap'){
+    vy=6.0+Math.random()*4.0;
+    vx=(Math.random()-.5)*4.5;
+    vd=(Math.random()-.5)*4.5;
   }
   
   spawnDebris(wx,.35,wd,vx,vy,vd,BLUE);
@@ -3392,14 +3603,16 @@ function checkObstacles(){
     const m=crowd.members[i];if(m.sc<.5)continue;const wx=crowd.x+m.ox,wd=cD+m.oz;
     for(let j=0;j<level.obstacles.length;j++){
       const o=level.obstacles[j];
+      if(o.type==='coneTrap'&&!o.pressed&&Math.abs(o.buttonD-wd)<1.2&&Math.abs(o.buttonX-wx)<1.05){o.press();}
       if(Math.abs(o.d-cD)>=cR)continue;
-      if(o.hit(wx,wd)){
+      if(o.hit(wx,wd,m.y||0)){
         const vis=crowd.members.length;const per=crowd.count>vis?Math.max(1,Math.round(crowd.count/vis)):1;
         crowd.count=Math.max(0,crowd.count-per);
         killMember(i,o.type,o);
-        if(o.type==='saw')tone(180,.08,'sawtooth',.1,80);
-        else if(o.type==='hammer')tone(90,.2,'triangle',.25,40);
+        if(o.type==='saw')tone(190,.08,'sawtooth',.12,80);
+        else if(o.type==='hammer')tone(80,.22,'triangle',.28,35);
         else if(o.type==='cleaver'||o.type==='cleaver2')tone(220,.12,'sawtooth',.25,110);
+        else if(o.type==='coneTrap')tone(260,.10,'triangle',.18,120);
         else sPop();
         vib(12);killed=true;
         break;
@@ -3875,6 +4088,7 @@ function updateMembers(dt){
       m.ox=clamp(m.ox,-maxRoadX-crowd.x,maxRoadX-crowd.x);
       m.sc=Math.min(1,m.sc+dt*6.0);
       m.ph+=dt*(st==='boss'?11:(runAnim?11:5));
+      m.y=0;
     }
   }
   
@@ -4006,7 +4220,7 @@ function drawScene(){
     }
     else if(st==='boss'){mode=5;ry=Math.atan2(-wx,-(level.kingD-wd))+Math.PI;}
     else if(st==='bossWin'||st==='won')mode=2;
-    drawMan(wx,0,-wd,ry,m.ph,mode,m.sc,BLUE);
+    drawMan(wx,m.y||0,-wd,ry,m.ph,mode,m.sc,BLUE);
   });
   // enemies
   if(level)for(const e of level.enemies){
@@ -4028,7 +4242,16 @@ function drawScene(){
   // badge
   const b=crowd.badge.sp;
   if(towerMode){b.visible=false;}
-  else{b.visible=crowd.count>0;b.position.set(crowd.x,1.3+Math.min(.6,crowd.R*.12),-crowd.d);}
+  else{
+    let avgY=0;
+    if(crowd.members.length){
+      let sumY=0;
+      for(let i=0; i<crowd.members.length; i++) sumY += (crowd.members[i].y || 0);
+      avgY = sumY / crowd.members.length;
+    }
+    b.visible=crowd.count>0;
+    b.position.set(crowd.x, 1.3+Math.min(.6,crowd.R*.12)+avgY, -crowd.d);
+  }
 }
 
 function spawnKingBomb(targetX,targetD,flightDuration,arcPeak){

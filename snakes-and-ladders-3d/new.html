@@ -24,8 +24,7 @@ html,body{margin:0;padding:0;background:#000;overflow:hidden;width:100%;height:1
 <script>
 'use strict';
 /* =====================================================================
-   SNAKES AND LADDERS  -  faithful single-file rebuild
-   (reference: Code This Lab "Snakes and Ladders" as published on CrazyGames)
+   SNAKES AND LADDERS & CHUTES - PRO EDITION
    ===================================================================== */
 const W=1360, H=640, HW=W/2, HH=H/2, EDGE_X=250, EDGE_Y=5;
 const FONT='"Lilita One","Arial Black","Arial Rounded MT Bold",Arial,sans-serif';
@@ -40,19 +39,22 @@ const LADDERS_SQUARES=[1,4,9,21,28,36,51,71,80];
 const OBSTACLES_SQUARES=[16,47,49,56,62,64,87,93,95,98];
 const OBSTACLES_MOVEMENT_SQUARES=[[16,6],[47,26],[49,11],[56,53],[62,19],[64,60],[87,24],[93,73],[95,75],[98,78]];
 const LADDER_MOVEMENT_SQUARES=[[1,38],[4,14],[9,31],[21,42],[28,84],[36,44],[51,67],[71,91],[80,100]];
-const BOARD_SQUARES=[[334,565],[435,565],[490,565],[540,565],[600,565],[655,565],[710,565],[765,565],[820,565],[875,565],[925,565],[925,510],[875,510],[820,510],[765,510],[710,510],[655,510],[600,510],[540,510],[490,510],[435,510],[435,455],[490,455],[540,455],[600,455],[655,455],[710,455],[765,455],[820,455],[875,455],[925,455],[925,400],[875,400],[820,400],[765,400],[710,400],[655,400],[600,400],[540,400],[490,400],[435,400],[435,345],[490,345],[540,345],[600,345],[655,345],[710,345],[765,345],[820,345],[875,345],[925,345],[925,290],[875,290],[820,290],[765,290],[710,290],[655,290],[600,290],[540,290],[490,290],[435,290],[435,235],[490,235],[540,235],[600,235],[655,235],[710,235],[765,235],[820,235],[875,235],[925,235],[925,180],[875,180],[820,180],[765,180],[710,180],[655,180],[600,180],[540,180],[490,180],[435,180],[435,125],[490,125],[540,125],[600,125],[655,125],[710,125],[765,125],[820,125],[875,125],[925,125],[925,70],[875,70],[820,70],[765,70],[710,70],[655,70],[600,70],[540,70],[490,70],[435,70]];
+const LADDERS_BELOW=[[1,38],[4,14],[9,31],[28,84]];
+const LADDERS_UPPER=[[21,42],[36,44],[51,67],[71,91],[80,100]];
+const BOARD_SQUARES=[[334,565],[435,565],[490,565],[545,565],[600,565],[655,565],[710,565],[765,565],[820,565],[875,565],[930,565],[930,510],[875,510],[820,510],[765,510],[710,510],[655,510],[600,510],[545,510],[490,510],[435,510],[435,455],[490,455],[545,455],[600,455],[655,455],[710,455],[765,455],[820,455],[875,455],[930,455],[930,400],[875,400],[820,400],[765,400],[710,400],[655,400],[600,400],[545,400],[490,400],[435,400],[435,345],[490,345],[545,345],[600,345],[655,345],[710,345],[765,345],[820,345],[875,345],[930,345],[930,290],[875,290],[820,290],[765,290],[710,290],[655,290],[600,290],[545,290],[490,290],[435,290],[435,235],[490,235],[545,235],[600,235],[655,235],[710,235],[765,235],[820,235],[875,235],[930,235],[930,180],[875,180],[820,180],[765,180],[710,180],[655,180],[600,180],[545,180],[490,180],[435,180],[435,125],[490,125],[545,125],[600,125],[655,125],[710,125],[765,125],[820,125],[875,125],[930,125],[930,70],[875,70],[820,70],[765,70],[710,70],[655,70],[600,70],[545,70],[490,70],[435,70]];
 const ZERO_SQUARE_POSITIONS=[[370,530],[370,580],[340,530],[340,580],[310,530],[310,580]];
 const CHUTES_COORDS={
- 16:[[635.8,507.8],[589.7,528.3],[577.3,545.8],[595.15,564.3],[647.7,568.8],[696.15,576.25]],
- 47:[[785.25,348.3],[812.15,367.8],[820.25,388.3],[804.1,409.3],[759.65,423.8],[723.65,441.75]],
- 49:[[878.75,364.3],[892.15,383.3],[898.75,411.8],[904.1,443.3],[913.65,469.8],[930.15,497.75]],
- 56:[[666.3,276.8],[702.25,276.8],[729.75,286.8],[759.1,295.3],[798.15,295.3]],
- 62:[[508.3,239.8],[541.8,282.5],[550.3,298.8],[545.65,319.3],[510.7,365.9],[501.6,387.4],[506.2,410.4],[541.8,451.75],[548.7,480.75],[501.6,519.25]],
- 64:[[582.3,228.3],[561.7,229.8],[541.8,241.7],[519.65,258.8],[503.2,273.4],[477.6,285.4],[447.2,295.9]],
- 87:[[767.75,147.3],[750.15,195.5],[736.75,208.9],[647.65,251.3],[629.2,270.9],[623.6,297.4],[640.7,326.4],[677.15,350.25],[693.15,368.25],[694.65,390.25],[683.65,411.25],[663.75,430.25],[621.65,449.75]],
- 93:[[838.75,70.85],[880.65,82.5],[885.15,96.9],[880.65,112.3],[858.7,133.9],[835.6,153.4],[822.2,170.9]],
- 95:[[683.75,63.35],[649.2,80.4],[643.7,95.9],[653.6,108.3],[702.2,133.9],[714.1,151.9],[711.7,172.4]],
- 98:[[516.75,62.35],[482.2,79.4],[476.7,94.9],[486.6,107.3],[535.2,132.9],[547.1,150.9],[544.7,171.4]]};
+ 16:[[648,510],[598,514],[562,524],[546,544],[562,564],[612,574],[696,576]],
+ 47:[[782,352],[814,368],[822,392],[804,412],[768,426],[718,442]],
+ 49:[[872,355],[888,385],[894,420],[902,465],[918,518]],
+ 56:[[660,284],[696,278],[742,286],[786,294],[818,292]],
+ 62:[[500,236],[542,278],[552,335],[526,395],[504,455],[532,504],[536,522]],
+ 64:[[585,232],[554,236],[518,248],[480,268],[442,292]],
+ 87:[[760,140],[750,185],[725,206],[665,236],[618,275],[616,310],[666,360],[695,400],[685,435],[648,455],[595,455]],
+ 93:[[832,68],[868,74],[892,94],[890,122],[860,152],[822,176]],
+ 95:[[676,68],[646,82],[636,106],[656,134],[702,154],[714,178]],
+ 98:[[514,68],[482,82],[472,106],[490,134],[536,154],[546,178]]
+};
 const STEP_LENGTH=10, LADDERS_SPEED=1000, SNAKE_SPEED=800;
 
 /* ---------------- texts (localisation strings of the reference) ---------------- */
@@ -64,7 +66,7 @@ const T={
  SELECT_PLAYERS:'SELECT PLAYERS', SELECT_COLOUR:'SELECT YOUR COLOUR', GAMES_PLAYED:'GAMES PLAYED',
  GAMES_WON:'GAMES WON', WIN:'YOU WON', LOSE:'YOU LOSE', PAUSE:'PAUSE', ARE_SURE:'ARE YOU SURE?',
  GOOD:['GREAT!','COOL!','NICE!','SUPER!','GOOD!'], BAD:['BAD ROLL!','NOOOO!','SORRY...','UNLUCKY!','BAD RESULT!'],
- PRELOADER_CONTINUE:'START', CREDITS_DEVELOPED:'Developed by', LINK:'www.codethislab.com'
+ PRELOADER_CONTINUE:'START', CREDITS_DEVELOPED:'Developed by', LINK:'www.jigargames.com'
 };
 
 /* ---------------- player palettes ---------------- */
@@ -282,7 +284,7 @@ function getBoard(mode){
  if(boardCache[mode])return boardCache[mode];
  const c=mkHi(W,H),g=c.getContext('2d'),R=seeded(mode?777:99);
  g.drawImage(getGrass(),0,0,W,H);
- const SQ=50,L=410,Rr=950,Tp=45,B=590;
+ const SQ=53,L=408,Rr=957,Tp=43,B=592;
  // dirt/ board base under squares
  g.fillStyle='rgba(0,0,0,0.25)';rr(g,L-6,Tp-6,Rr-L+12,B-Tp+12,6);g.fill();
  // start pen ground
@@ -312,8 +314,15 @@ function getBoard(mode){
  // pen stones (loop out to the left of the bottom-left corner)
  drawStonePath(g,[[L-o,502],[300,502],[285,520],[285,585],[300,603],[L-o,603]],R,12);
  // ladders / chutes
- if(mode===MODE_SNAKES){for(const [a,b] of LADDER_MOVEMENT_SQUARES)drawLadder(g,BOARD_SQUARES[a],BOARD_SQUARES[b],R);for(let i=0;i<10;i++)drawSnakeBody(g,getSnake(i),-1)}
- else{for(const [a,b] of LADDER_MOVEMENT_SQUARES)drawLadder(g,BOARD_SQUARES[a],BOARD_SQUARES[b],R,true);for(const k of OBSTACLES_SQUARES)drawChute(g,k)}
+ if(mode===MODE_SNAKES){
+  for(const [a,b] of LADDERS_BELOW)drawLadder(g,BOARD_SQUARES[a],BOARD_SQUARES[b],R);
+  for(let i=0;i<10;i++)drawSnakeBody(g,getSnake(i),-1);
+  for(const [a,b] of LADDERS_UPPER)drawLadder(g,BOARD_SQUARES[a],BOARD_SQUARES[b],R);
+ } else {
+  for(const [a,b] of LADDERS_BELOW)drawLadder(g,BOARD_SQUARES[a],BOARD_SQUARES[b],R,true);
+  for(const k of OBSTACLES_SQUARES)drawChute(g,k);
+  for(const [a,b] of LADDERS_UPPER)drawLadder(g,BOARD_SQUARES[a],BOARD_SQUARES[b],R,true);
+ }
  return boardCache[mode]=c;
 }
 function drawLadder(g,a,b,R,kids){
@@ -333,45 +342,209 @@ function drawLadder(g,a,b,R,kids){
  }
  g.restore();
 }
-/* Catmull-Rom sampling used by chutes */
+/* Centripetal Catmull-Rom spline: perfectly smooth, no cusps, no kinks */
 function samplePath(pts,spacing){
- const out=[];const P=i=>pts[clamp(i,0,pts.length-1)];
- let prev=null,carry=0;
- for(let i=0;i<pts.length-1;i++){
-  const p0=P(i-1),p1=P(i),p2=P(i+1),p3=P(i+2);
-  for(let t=0;t<1;t+=0.02){
-   const t2=t*t,t3=t2*t;
-   const x=.5*((2*p1[0])+(-p0[0]+p2[0])*t+(2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2+(-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3);
-   const y=.5*((2*p1[1])+(-p0[1]+p2[1])*t+(2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2+(-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3);
-   if(!prev){out.push([x,y]);prev=[x,y];continue}
-   const d=Math.hypot(x-prev[0],y-prev[1]);carry+=d;prev=[x,y];
-   if(carry>=spacing){out.push([x,y]);carry=0}
+ const N=pts.length;
+ if(N<2)return pts;
+ const pStart=[2*pts[0][0]-pts[1][0], 2*pts[0][1]-pts[1][1]];
+ const pEnd=[2*pts[N-1][0]-pts[N-2][0], 2*pts[N-1][1]-pts[N-2][1]];
+ const P=[pStart, ...pts, pEnd];
+ const out=[];
+ let prev=null;
+ for(let i=1;i<P.length-2;i++){
+  const p0=P[i-1], p1=P[i], p2=P[i+1], p3=P[i+2];
+  const tj=(ti,pi,pj)=>ti+Math.hypot(pj[0]-pi[0],pj[1]-pi[1])**0.5;
+  const t0=0, t1=tj(t0,p0,p1), t2=tj(t1,p1,p2), t3=tj(t2,p2,p3);
+  if(t2<=t1)continue;
+  const steps=Math.max(12,Math.round((t2-t1)*8));
+  for(let s=0;s<steps;s++){
+   const t=t1+(t2-t1)*(s/steps);
+   const A1=[(t1-t)/(t1-t0)*p0[0]+(t-t0)/(t1-t0)*p1[0], (t1-t)/(t1-t0)*p0[1]+(t-t0)/(t1-t0)*p1[1]];
+   const A2=[(t2-t)/(t2-t1)*p1[0]+(t-t1)/(t2-t1)*p2[0], (t2-t)/(t2-t1)*p1[1]+(t-t1)/(t2-t1)*p2[1]];
+   const A3=[(t3-t)/(t3-t2)*p2[0]+(t-t2)/(t3-t2)*p3[0], (t3-t)/(t3-t2)*p2[1]+(t-t2)/(t3-t2)*p3[1]];
+   const B1=[(t2-t)/(t2-t0)*A1[0]+(t-t0)/(t2-t0)*A2[0], (t2-t)/(t2-t0)*A1[1]+(t-t0)/(t2-t0)*A2[1]];
+   const B2=[(t3-t)/(t3-t1)*A2[0]+(t-t1)/(t3-t1)*A3[0], (t3-t)/(t3-t1)*A2[1]+(t-t1)/(t3-t1)*A3[1]];
+   const C=[(t2-t)/(t2-t1)*B1[0]+(t-t1)/(t2-t1)*B2[0], (t2-t)/(t2-t1)*B1[1]+(t-t1)/(t2-t1)*B2[1]];
+   if(!prev||Math.hypot(C[0]-prev[0],C[1]-prev[1])>=(spacing||1.5)){
+    out.push(C);
+    prev=C;
+   }
   }
  }
- out.push(pts[pts.length-1]);return out;
+ out.push(pts[N-1]);
+ return out;
 }
+/* Precise authentic chute color themes matching the reference game */
+const CHUTE_THEMES={
+ 16:{body:'#ffad26',light:'#ffbe4d',dark:'#b85200'}, // 16->6 Yellow/Orange
+ 47:{body:'#ff6292',light:'#ff8eb2',dark:'#b01c4e'}, // 47->26 Pink
+ 49:{body:'#33abff',light:'#70c5ff',dark:'#0e5f9e'}, // 49->11 Sky Blue
+ 56:{body:'#7adb32',light:'#9ee762',dark:'#327c10'}, // 56->53 Lime Green
+ 62:{body:'#a15feb',light:'#be8df2',dark:'#55208c'}, // 62->19 Violet/Purple
+ 64:{body:'#ffad26',light:'#ffbe4d',dark:'#b85200'}, // 64->60 Yellow/Orange
+ 87:{body:'#ff6292',light:'#ff8eb2',dark:'#b01c4e'}, // 87->24 Pink
+ 93:{body:'#33abff',light:'#70c5ff',dark:'#0e5f9e'}, // 93->73 Sky Blue
+ 95:{body:'#7adb32',light:'#9ee762',dark:'#327c10'}, // 95->75 Lime Green
+ 98:{body:'#a15feb',light:'#be8df2',dark:'#55208c'}  // 98->78 Violet/Purple
+};
 const chutePaths={};
-function getChutePath(k){return chutePaths[k]||(chutePaths[k]=samplePath(CHUTES_COORDS[k],STEP_LENGTH))}
-const CHUTE_COLS=['#ffb52e','#ff5f8a','#3ab0ff','#8ad13a','#b06cff'];
-function drawChute(g,k){
- const pts=getChutePath(k),idx=OBSTACLES_SQUARES.indexOf(k),col=CHUTE_COLS[idx%CHUTE_COLS.length];
- g.save();g.lineCap='round';g.lineJoin='round';
- const path=()=>{g.beginPath();g.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)g.lineTo(pts[i][0],pts[i][1])};
- // legs/supports
- g.strokeStyle='rgba(0,0,0,0.28)';g.lineWidth=26;g.save();g.translate(3,6);path();g.stroke();g.restore();
- g.strokeStyle=shade(col,-.45);g.lineWidth=26;path();g.stroke();
- g.strokeStyle=col;g.lineWidth=20;path();g.stroke();
- g.strokeStyle=shade(col,.45);g.lineWidth=8;path();g.stroke();
- g.strokeStyle='rgba(255,255,255,0.55)';g.lineWidth=2.5;path();g.stroke();
- // top platform + small ladder
- const [sx,sy]=pts[0];
- g.fillStyle='rgba(0,0,0,0.3)';g.beginPath();g.ellipse(sx+2,sy+6,18,9,0,0,7);g.fill();
- g.fillStyle=shade(col,-.3);rr(g,sx-18,sy-6,36,12,5);g.fill();
- g.fillStyle='#ffffff';rr(g,sx-15,sy-8,30,8,3);g.fill();
- g.strokeStyle='#8b8f98';g.lineWidth=3;for(const dx of[-9,9]){g.beginPath();g.moveTo(sx+dx,sy-6);g.lineTo(sx+dx,sy-28);g.stroke()}
- for(let yy=sy-12;yy>sy-28;yy-=6){g.beginPath();g.moveTo(sx-9,yy);g.lineTo(sx+9,yy);g.stroke()}
+function getChutePath(k){return chutePaths[k]||(chutePaths[k]=samplePath(CHUTES_COORDS[k],1.2))}
+const chuteNormalsCache={};
+function computePathNormals(pts){
+ const N=pts.length,raw_n=[],span=4;
+ for(let i=0;i<N;i++){
+  const p0=pts[Math.max(0,i-span)],p1=pts[Math.min(N-1,i+span)];
+  const dx=p1[0]-p0[0],dy=p1[1]-p0[1],L=Math.hypot(dx,dy)||1;
+  raw_n.push([-dy/L, dx/L]);
+ }
+ for(let i=1;i<N;i++){
+  if((raw_n[i][0]*raw_n[i-1][0]+raw_n[i][1]*raw_n[i-1][1])<0){
+   raw_n[i][0]=-raw_n[i][0];raw_n[i][1]=-raw_n[i][1];
+  }
+ }
+ if(raw_n.length>0&&raw_n[0][1]>0){
+  for(let i=0;i<N;i++){raw_n[i][0]=-raw_n[i][0];raw_n[i][1]=-raw_n[i][1];}
+ }
+ const normals=[];
+ for(let i=0;i<N;i++){
+  let sx=0, sy=0;
+  for(let j=Math.max(0,i-4);j<=Math.min(N-1,i+4);j++){
+   sx+=raw_n[j][0]; sy+=raw_n[j][1];
+  }
+  const L=Math.hypot(sx,sy)||1;
+  normals.push([sx/L, sy/L]);
+ }
+ return normals;
+}
+function getCachedChuteNormals(k){
+ if(chuteNormalsCache[k])return chuteNormalsCache[k];
+ return chuteNormalsCache[k]=computePathNormals(getChutePath(k));
+}
+
+function renderChuteAlongPath(g,pts,theme,r_out,r_in,hasShadow,normals){
+ normals=normals||computePathNormals(pts);
+ const N=pts.length;
+ if(N<2)return;
+ r_out=r_out||16.0;
+ r_in=r_in||(r_out*0.7);
+
+ const pOutL=[], pInL=[], pInR=[], pOutR=[];
+ for(let i=0;i<N;i++){
+  const [px,py]=pts[i],[nx,ny]=normals[i];
+  pOutL.push([px+nx*r_out, py+ny*r_out]);
+  pInL.push([px+nx*r_in, py+ny*r_in]);
+  pInR.push([px-nx*r_in, py-ny*r_in]);
+  pOutR.push([px-nx*r_out, py-ny*r_out]);
+ }
+
+ g.save();
+ g.lineCap='round';
+ g.lineJoin='round';
+
+ // 1. Ambient Drop Shadow underneath the entire slide
+ if(hasShadow!==false){
+  g.save();
+  g.translate(3,6);
+  g.fillStyle='rgba(0,0,0,0.28)';
+  g.beginPath();
+  g.moveTo(pOutL[0][0],pOutL[0][1]);
+  for(let i=1;i<N;i++)g.lineTo(pOutL[i][0],pOutL[i][1]);
+  for(let i=N-1;i>=0;i--)g.lineTo(pOutR[i][0],pOutR[i][1]);
+  g.closePath();
+  g.fill();
+  g.restore();
+ }
+
+ // 2. Main Sliding Bed (Trough Floor)
+ g.fillStyle=theme.body;
+ g.beginPath();
+ g.moveTo(pOutL[0][0],pOutL[0][1]);
+ for(let i=1;i<N;i++)g.lineTo(pOutL[i][0],pOutL[i][1]);
+ for(let i=N-1;i>=0;i--)g.lineTo(pOutR[i][0],pOutR[i][1]);
+ g.closePath();
+ g.fill();
+
+ // 3. Upper Raised Guard Wall
+ g.fillStyle=theme.dark;
+ g.beginPath();
+ g.moveTo(pOutL[0][0],pOutL[0][1]);
+ for(let i=1;i<N;i++)g.lineTo(pOutL[i][0],pOutL[i][1]);
+ for(let i=N-1;i>=0;i--)g.lineTo(pInL[i][0],pInL[i][1]);
+ g.closePath();
+ g.fill();
+
+ // 4. Lower Raised Guard Wall
+ g.fillStyle=shade(theme.body,-0.18);
+ g.beginPath();
+ g.moveTo(pInR[0][0],pInR[0][1]);
+ for(let i=1;i<N;i++)g.lineTo(pInR[i][0],pInR[i][1]);
+ for(let i=N-1;i>=0;i--)g.lineTo(pOutR[i][0],pOutR[i][1]);
+ g.closePath();
+ g.fill();
+
+ // 5. Inner Wall Drop Shadow onto the Sliding Floor
+ g.fillStyle='rgba(0,0,0,0.22)';
+ g.beginPath();
+ g.moveTo(pInL[0][0],pInL[0][1]);
+ for(let i=1;i<N;i++)g.lineTo(pInL[i][0],pInL[i][1]);
+ for(let i=N-1;i>=0;i--){
+  const [px,py]=pts[i],[nx,ny]=normals[i];
+  g.lineTo(px+nx*(r_out*0.25), py+ny*(r_out*0.25));
+ }
+ g.closePath();
+ g.fill();
+
+ // 6. Upper Wall Light Ridge (Highlight catching top edge)
+ if(N>4){
+  g.strokeStyle='rgba(255,255,255,0.45)';
+  g.lineWidth=1.3;
+  g.beginPath();
+  const p0=[pts[2][0]+normals[2][0]*(r_out*0.89), pts[2][1]+normals[2][1]*(r_out*0.89)];
+  g.moveTo(p0[0],p0[1]);
+  for(let i=3;i<=N-3;i++){
+   g.lineTo(pts[i][0]+normals[i][0]*(r_out*0.89), pts[i][1]+normals[i][1]*(r_out*0.89));
+  }
+  g.stroke();
+ }
+
+ // 7. The 2 Inner Crease Lines
+ if(N>5){
+  g.strokeStyle='#2b1406';
+  g.lineWidth=2.0;
+
+  g.beginPath();
+  g.moveTo(pInL[2][0],pInL[2][1]);
+  for(let i=3;i<=N-3;i++)g.lineTo(pInL[i][0],pInL[i][1]);
+  g.stroke();
+
+  g.beginPath();
+  g.moveTo(pInR[2][0],pInR[2][1]);
+  for(let i=3;i<=N-3;i++)g.lineTo(pInR[i][0],pInR[i][1]);
+  g.stroke();
+ }
+
+ // 8. UNIFIED GAPLESS CONTINUOUS OUTER BORDER
+ g.beginPath();
+ g.moveTo(pOutL[0][0],pOutL[0][1]);
+ for(let i=1;i<N;i++)g.lineTo(pOutL[i][0],pOutL[i][1]);
+ g.lineTo(pOutR[N-1][0],pOutR[N-1][1]);
+ for(let i=N-2;i>=0;i--)g.lineTo(pOutR[i][0],pOutR[i][1]);
+ g.closePath();
+ g.strokeStyle='#221105';
+ g.lineWidth=2.8;
+ g.lineJoin='round';
+ g.lineCap='round';
+ g.stroke();
+
  g.restore();
 }
+
+function drawChute(g,k){
+ const pts=getChutePath(k),theme=CHUTE_THEMES[k]||CHUTE_THEMES[16];
+ renderChuteAlongPath(g,pts,theme,16.0,11.2,true,getCachedChuteNormals(k));
+}
+
+
 
 /* ---------- snakes ---------- */
 const SNAKE_COLS=['#e23b2e','#2fa84f','#8a4fd8','#f28c1c','#1f8fe0','#e23b2e','#2fa84f','#e94c9b','#f28c1c','#1f8fe0'];
@@ -552,14 +725,17 @@ function drawPawnShadow(g,x,y,a){g.save();g.globalAlpha=a==null?1:a;g.fillStyle=
 /* ---------- kids (Chutes mode characters) ---------- */
 function drawKid(g,x,y,ci,pose,t,flip,s){
  s=s||1;const col=KID_COLORS[ci],skin='#f7cfa6',skinD='#d9a77a';
- g.save();g.translate(x,y);g.scale((flip?-1:1)*s,s);
+ g.save();g.translate(x,y);
  g.lineWidth=1.6;g.strokeStyle='rgba(40,20,10,0.6)';g.lineJoin='round';
  let legA=0,armA=0,bob=0,sit=pose==='slide';
  if(pose==='walk'){legA=Math.sin(t*2*Math.PI*3.3)*0.75;armA=-legA}
  else if(pose==='idle'){bob=Math.sin(t*2)*1.2}
  g.translate(0,bob);
  const leg=(dx,a,ahead)=>{g.save();g.translate(dx,-22);g.rotate(sit?-1.4:a);g.fillStyle=skin;rr(g,-4.5,0,9,16,4);g.fill();g.stroke();g.fillStyle='#3a3a48';rr(g,-6,13,13,8,4);g.fill();g.stroke();g.restore()};
- const arm=(dx,a)=>{g.save();g.translate(dx,-44);g.rotate(sit?-2.4:a);g.fillStyle=col;rr(g,-4,0,8,12,4);g.fill();g.stroke();g.fillStyle=skin;g.beginPath();g.arc(0,16,5,0,7);g.fill();g.stroke();g.restore()};
+ const arm=(dx,a)=>{g.save();g.translate(dx,-44);g.rotate(sit?(dx<0?2.4:-2.4):a);g.fillStyle=col;rr(g,-4,0,8,12,4);g.fill();g.stroke();g.fillStyle=skin;g.beginPath();g.arc(0,16,5,0,7);g.fill();g.stroke();g.restore()};
+ // below head: body & limbs (swapped for walking/standing, normal for falling)
+ const bFlip=sit?flip:!flip;
+ g.save();g.scale((bFlip?-1:1)*s,s);
  // back limbs
  leg(-5,-legA);arm(-13,-armA*0.8);
  // body (shirt)
@@ -570,6 +746,9 @@ function drawKid(g,x,y,ci,pose,t,flip,s){
  g.fillStyle='rgba(255,255,255,0.5)';g.beginPath();g.arc(0,-36,4,0,7);g.fill();
  // front limbs
  leg(5,legA);arm(13,armA*0.8);
+ g.restore();
+ // head, cap and face
+ g.save();g.scale((flip?-1:1)*s,s);
  // head
  g.fillStyle=skin;g.beginPath();g.arc(0,-62,17,0,7);g.fill();g.stroke();
  // ears
@@ -583,6 +762,7 @@ function drawKid(g,x,y,ci,pose,t,flip,s){
  g.fillStyle='#fff';g.beginPath();g.arc(-5.8,-59.2,.9,0,7);g.arc(5.2,-59.2,.9,0,7);g.fill();
  g.fillStyle='rgba(255,120,120,0.5)';g.beginPath();g.ellipse(-10,-53,3.5,2,0,0,7);g.ellipse(11,-53,3.5,2,0,0,7);g.fill();
  g.strokeStyle='#8a3a2a';g.lineWidth=1.8;g.beginPath();g.arc(1,-54,5,0.2,Math.PI-0.2);g.stroke();
+ g.restore();
  g.restore();
 }
 
@@ -826,7 +1006,7 @@ class CreditsPanel{
   this.y=H+220;this.dim=0;
   const L=App.pushLayer({modal:true,draw:g=>this.draw(g),onDown:()=>this.close()});
   this.L=L;
-  L.add(new Button({x:HW,y:HH+110,w:320,h:40,silent:true,onClick:()=>{window.open('https://www.codethislab.com','_blank')},draw(){}}));
+  L.add(new Button({x:HW,y:HH+110,w:320,h:40,silent:true,onClick:()=>{window.open('https://www.jigargames.com','_blank')},draw(){}}));
   L.add(iconButton(HW+270,HH-165,60,'exit','x',()=>this.close()));
   TWUI.get(this).to({dim:.5},300);TWUI.get(this).to({y:0},1000,Ease.backOut);
   const self=this;for(const w of L.widgets){const oy=w.y;Object.defineProperty(w,'py',{get(){return oy+self.y}})}
@@ -835,7 +1015,7 @@ class CreditsPanel{
  draw(g){dimScreen(g,this.dim);g.save();g.translate(0,this.y);drawMsgBox(g,HW,HH);
   text(g,T.CREDITS_DEVELOPED,HW,HH-90,40,COL_PRIMARY,COL_SECONDARY,5);
   // developer mark
-  g.save();g.translate(HW,HH);glossRect(g,-120,-38,240,76,18,'#2b7ed8');text(g,'CODE THIS LAB',0,2,32,'#fff','#003060',5);g.restore();
+  g.save();g.translate(HW,HH);glossRect(g,-120,-38,240,76,18,'#2b7ed8');text(g,'JIGAR GAMES',0,2,32,'#fff','#003060',5);g.restore();
   text(g,T.LINK,HW,HH+110,28,COL_PRIMARY,COL_SECONDARY,5);g.restore()}
 }
 
@@ -848,9 +1028,17 @@ class ModeChoose{
   L.add(iconButton(W-41,41,60,'exit','x',()=>App.setScreen(Menu),{ax:'r'}));
   L.add(audioToggle(W-110,41,{ax:'r'}));
   L.add(new Button({x:HW-100,y:HH+30,w:160,h:162,onClick:()=>{App.mode=MODE_SNAKES;App.setScreen(OpponentsChoose)},draw(g){glossRect(g,-80,-81,160,162,30,BTN.mode0);drawLadder(g,[-55,55],[-10,-45],seeded(5));renderSnake(g,{pts:samplePath([[48,-50],[22,-20],[52,10],[25,45]],3),col:'#e23b2e'},-1,true);drawPawn(g,-30,62,2,1.15);drawPawn(g,0,66,4,1.15);text(g,'SNAKES',0,-62,22,'#fff','#7a3b08',4)}}));
-  L.add(new Button({x:HW+100,y:HH+30,w:160,h:162,onClick:()=>{App.mode=MODE_CHUTES;App.setScreen(OpponentsChoose)},draw(g){glossRect(g,-80,-81,160,162,30,BTN.mode1);
-    g.save();g.lineCap='round';g.strokeStyle='#1c5fa0';g.lineWidth=22;g.beginPath();g.moveTo(-40,-20);g.quadraticCurveTo(-10,60,52,60);g.stroke();g.strokeStyle='#ffb52e';g.lineWidth=16;g.stroke();g.strokeStyle='#ffe08a';g.lineWidth=5;g.stroke();g.restore();
-    drawKid(g,-38,-10,1,'slide',0,false,.7);text(g,'CHUTES',0,-62,22,'#fff','#0b3d6b',4)}}));
+  L.add(new Button({x:HW+100,y:HH+30,w:160,h:162,onClick:()=>{App.mode=MODE_CHUTES;App.setScreen(OpponentsChoose)},draw(g){
+    glossRect(g,-80,-81,160,162,30,BTN.mode1);
+    const cpts=[[-48,-32],[-30,-4],[-8,26],[24,48],[54,50]],smp=samplePath(cpts,1.2);
+    renderChuteAlongPath(g,smp,CHUTE_THEMES[49],15.0,10.5,true);
+    g.save();
+    g.translate(-26,6);
+    g.rotate(0.25);
+    drawKid(g,0,0,1,'slide',0,false,.68);
+    g.restore();
+    text(g,'CHUTES',0,-62,22,'#fff','#0b3d6b',4);
+  }}));
   App.fadeIn(1000);
  }
  draw(g){g.drawImage(getGrass(),0,0,W,H);dimScreen(g,.5);drawMsgBox(g,HW,HH);drawTitle(g,T.SELECT_MODE)}
@@ -1219,7 +1407,7 @@ class HelpPanel{
   const sx=HW+200,sy=HH+80,b=this.anim.b;
   g.save();
   if(m===MODE_SNAKES){const sd=this.snk||(this.snk={pts:samplePath([[sx-40,sy-60],[sx-5,sy-30],[sx+35,sy-5],[sx+10,sy+25],[sx+45,sy+45]],3),col:'#e23b2e'});renderSnake(g,sd,-1,true);const i=Math.floor(b*(sd.pts.length-1)),p=sd.pts[i];drawPawn(g,p[0],p[1]+6,3,.9)}
-  else{const path=this.cp||(this.cp=samplePath([[sx-45,sy-55],[sx-20,sy-25],[sx+20,sy-5],[sx+10,sy+25],[sx+50,sy+45]],6));g.save();g.lineCap='round';g.lineJoin='round';const pp=()=>{g.beginPath();g.moveTo(path[0][0],path[0][1]);for(const p of path)g.lineTo(p[0],p[1])};g.strokeStyle='#1c5fa0';g.lineWidth=22;pp();g.stroke();g.strokeStyle='#ffb52e';g.lineWidth=16;pp();g.stroke();g.strokeStyle='#ffe08a';g.lineWidth=5;pp();g.stroke();g.restore();const i=Math.floor(b*(path.length-1)),p=path[i];drawKid(g,p[0],p[1]+8,3,'slide',0,false,.7)}
+  else{const path=this.cp||(this.cp=samplePath([[sx-45,sy-55],[sx-20,sy-25],[sx+20,sy-5],[sx+10,sy+25],[sx+50,sy+45]],1.2));renderChuteAlongPath(g,path,CHUTE_THEMES[47],15.0,10.5,true);const i=Math.floor(b*(path.length-1)),p=path[i];drawKid(g,p[0],p[1]+8,3,'slide',0,false,.7)}
   g.restore();
  }
 }
@@ -1286,12 +1474,12 @@ function resize(){
  canvas.style.width=dw+'px';canvas.style.height=dh+'px';canvas.style.left=left+'px';canvas.style.top=top+'px';
  const q=clamp(Math.ceil(k*2)/2,1,2.5);
  if(q!==Q){clearTimeout(resize.tm);if(!grassTex){Q=q}else resize.tm=setTimeout(()=>{Q=q;invalidateCaches()},250)}
- const rot=document.getElementById('rot');rot.classList.toggle('show',isMobile&&h>w&&w<900);
+ const rot=document.getElementById('rot');if(rot)rot.classList.toggle('show',isMobile&&h>w&&w<900);
 }
 addEventListener('resize',resize);addEventListener('orientationchange',()=>setTimeout(resize,200));resize();
 document.addEventListener('fullscreenchange',()=>{App.fullscreen=!!document.fullscreenElement;for(const l of App.layers)for(const w of l.widgets)if(w.kind==='fullscreen')w.active=App.fullscreen;setTimeout(resize,100)});
 function toCanvas(e){return[(e.clientX-App.cssX)/App.scale,(e.clientY-App.cssY)/App.scale]}
-canvas.addEventListener('pointerdown',e=>{e.preventDefault();Snd.resume();const [x,y]=toCanvas(e);App.down(x,y)},{passive:false});
+canvas.addEventListener('pointerdown',e=>{e.preventDefault();Snd.init();Snd.resume();const [x,y]=toCanvas(e);App.down(x,y)},{passive:false});
 addEventListener('pointerup',e=>{const [x,y]=toCanvas(e);App.up(x,y)});
 addEventListener('pointercancel',()=>{if(App.pressedW){App.pressedW.pressed=false;App.pressedW=null}});
 canvas.addEventListener('pointermove',e=>{const [x,y]=toCanvas(e);App.move(x,y)});
@@ -1309,7 +1497,12 @@ function frame(now){
  for(const l of App.layers){if(!l.visible)continue;ctx.save();ctx.globalAlpha=l.alpha;if(l.draw)l.draw(ctx);for(const w of l.widgets)w.render(ctx);ctx.restore()}
  if(App.fade.a>0){ctx.fillStyle=`rgba(0,0,0,${App.fade.a})`;ctx.fillRect(0,0,W,H)}
 }
-App.setScreen(Preloader);
+if(typeof location!=='undefined'&&location.search.includes('test=chutes')){
+ App.mode=MODE_CHUTES;
+ App.pushLayer({draw:g=>g.drawImage(getBoard(MODE_CHUTES),0,0)});
+}else{
+ App.setScreen(Menu);
+}
 requestAnimationFrame(frame);
 </script>
 </body>

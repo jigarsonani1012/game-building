@@ -1536,318 +1536,763 @@
         98: { body: "#a15feb", light: "#be8df2", dark: "#55208c" }, // 98->78 Violet/Purple
       };
       const chutePaths = {};
-function getChutePath(k){return chutePaths[k]||(chutePaths[k]=samplePath(CHUTES_COORDS[k],1.2))}
-const chuteNormalsCache={};
-function computePathNormals(pts){
- const N=pts.length,raw_n=[],span=4;
- for(let i=0;i<N;i++){
-  const p0=pts[Math.max(0,i-span)],p1=pts[Math.min(N-1,i+span)];
-  const dx=p1[0]-p0[0],dy=p1[1]-p0[1],L=Math.hypot(dx,dy)||1;
-  raw_n.push([-dy/L, dx/L]);
- }
- for(let i=1;i<N;i++){
-  if((raw_n[i][0]*raw_n[i-1][0]+raw_n[i][1]*raw_n[i-1][1])<0){
-   raw_n[i][0]=-raw_n[i][0];raw_n[i][1]=-raw_n[i][1];
-  }
- }
- if(raw_n.length>0&&raw_n[0][1]>0){
-  for(let i=0;i<N;i++){raw_n[i][0]=-raw_n[i][0];raw_n[i][1]=-raw_n[i][1];}
- }
- const normals=[];
- for(let i=0;i<N;i++){
-  let sx=0, sy=0;
-  for(let j=Math.max(0,i-4);j<=Math.min(N-1,i+4);j++){
-   sx+=raw_n[j][0]; sy+=raw_n[j][1];
-  }
-  const L=Math.hypot(sx,sy)||1;
-  normals.push([sx/L, sy/L]);
- }
- return normals;
-}
-function getCachedChuteNormals(k){
- if(chuteNormalsCache[k])return chuteNormalsCache[k];
- return chuteNormalsCache[k]=computePathNormals(getChutePath(k));
-}
+      function getChutePath(k) {
+        return (
+          chutePaths[k] || (chutePaths[k] = samplePath(CHUTES_COORDS[k], 1.2))
+        );
+      }
+      const chuteNormalsCache = {};
+      function computePathNormals(pts) {
+        const N = pts.length,
+          raw_n = [],
+          span = 4;
+        for (let i = 0; i < N; i++) {
+          const p0 = pts[Math.max(0, i - span)],
+            p1 = pts[Math.min(N - 1, i + span)];
+          const dx = p1[0] - p0[0],
+            dy = p1[1] - p0[1],
+            L = Math.hypot(dx, dy) || 1;
+          raw_n.push([-dy / L, dx / L]);
+        }
+        for (let i = 1; i < N; i++) {
+          if (
+            raw_n[i][0] * raw_n[i - 1][0] + raw_n[i][1] * raw_n[i - 1][1] <
+            0
+          ) {
+            raw_n[i][0] = -raw_n[i][0];
+            raw_n[i][1] = -raw_n[i][1];
+          }
+        }
+        if (raw_n.length > 0 && raw_n[0][1] > 0) {
+          for (let i = 0; i < N; i++) {
+            raw_n[i][0] = -raw_n[i][0];
+            raw_n[i][1] = -raw_n[i][1];
+          }
+        }
+        const normals = [];
+        for (let i = 0; i < N; i++) {
+          let sx = 0,
+            sy = 0;
+          for (let j = Math.max(0, i - 4); j <= Math.min(N - 1, i + 4); j++) {
+            sx += raw_n[j][0];
+            sy += raw_n[j][1];
+          }
+          const L = Math.hypot(sx, sy) || 1;
+          normals.push([sx / L, sy / L]);
+        }
+        return normals;
+      }
+      function getCachedChuteNormals(k) {
+        if (chuteNormalsCache[k]) return chuteNormalsCache[k];
+        return (chuteNormalsCache[k] = computePathNormals(getChutePath(k)));
+      }
 
-function renderChuteAlongPath(g,pts,theme,r_out,r_in,hasShadow,normals){
- normals=normals||computePathNormals(pts);
- const N=pts.length;
- if(N<2)return;
- r_out=r_out||16.0;
- r_in=r_in||(r_out*0.7);
+      function renderChuteAlongPath(
+        g,
+        pts,
+        theme,
+        r_out,
+        r_in,
+        hasShadow,
+        normals,
+      ) {
+        normals = normals || computePathNormals(pts);
+        const N = pts.length;
+        if (N < 2) return;
+        r_out = r_out || 16.0;
+        r_in = r_in || r_out * 0.7;
 
- const pOutL=[], pInL=[], pInR=[], pOutR=[];
- for(let i=0;i<N;i++){
-  const [px,py]=pts[i],[nx,ny]=normals[i];
-  pOutL.push([px+nx*r_out, py+ny*r_out]);
-  pInL.push([px+nx*r_in, py+ny*r_in]);
-  pInR.push([px-nx*r_in, py-ny*r_in]);
-  pOutR.push([px-nx*r_out, py-ny*r_out]);
- }
+        const pOutL = [],
+          pInL = [],
+          pInR = [],
+          pOutR = [];
+        for (let i = 0; i < N; i++) {
+          const [px, py] = pts[i],
+            [nx, ny] = normals[i];
+          pOutL.push([px + nx * r_out, py + ny * r_out]);
+          pInL.push([px + nx * r_in, py + ny * r_in]);
+          pInR.push([px - nx * r_in, py - ny * r_in]);
+          pOutR.push([px - nx * r_out, py - ny * r_out]);
+        }
 
- g.save();
- g.lineCap='round';
- g.lineJoin='round';
+        g.save();
+        g.lineCap = "round";
+        g.lineJoin = "round";
 
- // 1. Ambient Drop Shadow underneath the entire slide
- if(hasShadow!==false){
-  g.save();
-  g.translate(3,6);
-  g.fillStyle='rgba(0,0,0,0.28)';
-  g.beginPath();
-  g.moveTo(pOutL[0][0],pOutL[0][1]);
-  for(let i=1;i<N;i++)g.lineTo(pOutL[i][0],pOutL[i][1]);
-  for(let i=N-1;i>=0;i--)g.lineTo(pOutR[i][0],pOutR[i][1]);
-  g.closePath();
-  g.fill();
-  g.restore();
- }
+        // 1. Ambient Drop Shadow underneath the entire slide
+        if (hasShadow !== false) {
+          g.save();
+          g.translate(3, 6);
+          g.fillStyle = "rgba(0,0,0,0.28)";
+          g.beginPath();
+          g.moveTo(pOutL[0][0], pOutL[0][1]);
+          for (let i = 1; i < N; i++) g.lineTo(pOutL[i][0], pOutL[i][1]);
+          for (let i = N - 1; i >= 0; i--) g.lineTo(pOutR[i][0], pOutR[i][1]);
+          g.closePath();
+          g.fill();
+          g.restore();
+        }
 
- // 2. Main Sliding Bed (Trough Floor)
- g.fillStyle=theme.body;
- g.beginPath();
- g.moveTo(pOutL[0][0],pOutL[0][1]);
- for(let i=1;i<N;i++)g.lineTo(pOutL[i][0],pOutL[i][1]);
- for(let i=N-1;i>=0;i--)g.lineTo(pOutR[i][0],pOutR[i][1]);
- g.closePath();
- g.fill();
+        // 2. Main Sliding Bed (Trough Floor)
+        g.fillStyle = theme.body;
+        g.beginPath();
+        g.moveTo(pOutL[0][0], pOutL[0][1]);
+        for (let i = 1; i < N; i++) g.lineTo(pOutL[i][0], pOutL[i][1]);
+        for (let i = N - 1; i >= 0; i--) g.lineTo(pOutR[i][0], pOutR[i][1]);
+        g.closePath();
+        g.fill();
 
- // 3. Upper Raised Guard Wall
- g.fillStyle=theme.dark;
- g.beginPath();
- g.moveTo(pOutL[0][0],pOutL[0][1]);
- for(let i=1;i<N;i++)g.lineTo(pOutL[i][0],pOutL[i][1]);
- for(let i=N-1;i>=0;i--)g.lineTo(pInL[i][0],pInL[i][1]);
- g.closePath();
- g.fill();
+        // 3. Upper Raised Guard Wall
+        g.fillStyle = theme.dark;
+        g.beginPath();
+        g.moveTo(pOutL[0][0], pOutL[0][1]);
+        for (let i = 1; i < N; i++) g.lineTo(pOutL[i][0], pOutL[i][1]);
+        for (let i = N - 1; i >= 0; i--) g.lineTo(pInL[i][0], pInL[i][1]);
+        g.closePath();
+        g.fill();
 
- // 4. Lower Raised Guard Wall
- g.fillStyle=shade(theme.body,-0.18);
- g.beginPath();
- g.moveTo(pInR[0][0],pInR[0][1]);
- for(let i=1;i<N;i++)g.lineTo(pInR[i][0],pInR[i][1]);
- for(let i=N-1;i>=0;i--)g.lineTo(pOutR[i][0],pOutR[i][1]);
- g.closePath();
- g.fill();
+        // 4. Lower Raised Guard Wall
+        g.fillStyle = shade(theme.body, -0.18);
+        g.beginPath();
+        g.moveTo(pInR[0][0], pInR[0][1]);
+        for (let i = 1; i < N; i++) g.lineTo(pInR[i][0], pInR[i][1]);
+        for (let i = N - 1; i >= 0; i--) g.lineTo(pOutR[i][0], pOutR[i][1]);
+        g.closePath();
+        g.fill();
 
- // 5. Inner Wall Drop Shadow onto the Sliding Floor
- g.fillStyle='rgba(0,0,0,0.22)';
- g.beginPath();
- g.moveTo(pInL[0][0],pInL[0][1]);
- for(let i=1;i<N;i++)g.lineTo(pInL[i][0],pInL[i][1]);
- for(let i=N-1;i>=0;i--){
-  const [px,py]=pts[i],[nx,ny]=normals[i];
-  g.lineTo(px+nx*(r_out*0.25), py+ny*(r_out*0.25));
- }
- g.closePath();
- g.fill();
+        // 5. Inner Wall Drop Shadow onto the Sliding Floor
+        g.fillStyle = "rgba(0,0,0,0.22)";
+        g.beginPath();
+        g.moveTo(pInL[0][0], pInL[0][1]);
+        for (let i = 1; i < N; i++) g.lineTo(pInL[i][0], pInL[i][1]);
+        for (let i = N - 1; i >= 0; i--) {
+          const [px, py] = pts[i],
+            [nx, ny] = normals[i];
+          g.lineTo(px + nx * (r_out * 0.25), py + ny * (r_out * 0.25));
+        }
+        g.closePath();
+        g.fill();
 
- // 6. Upper Wall Light Ridge (Highlight catching top edge)
- if(N>4){
-  g.strokeStyle='rgba(255,255,255,0.45)';
-  g.lineWidth=1.3;
-  g.beginPath();
-  const p0=[pts[2][0]+normals[2][0]*(r_out*0.89), pts[2][1]+normals[2][1]*(r_out*0.89)];
-  g.moveTo(p0[0],p0[1]);
-  for(let i=3;i<=N-3;i++){
-   g.lineTo(pts[i][0]+normals[i][0]*(r_out*0.89), pts[i][1]+normals[i][1]*(r_out*0.89));
-  }
-  g.stroke();
- }
+        // 6. Upper Wall Light Ridge (Highlight catching top edge)
+        if (N > 4) {
+          g.strokeStyle = "rgba(255,255,255,0.45)";
+          g.lineWidth = 1.3;
+          g.beginPath();
+          const p0 = [
+            pts[2][0] + normals[2][0] * (r_out * 0.89),
+            pts[2][1] + normals[2][1] * (r_out * 0.89),
+          ];
+          g.moveTo(p0[0], p0[1]);
+          for (let i = 3; i <= N - 3; i++) {
+            g.lineTo(
+              pts[i][0] + normals[i][0] * (r_out * 0.89),
+              pts[i][1] + normals[i][1] * (r_out * 0.89),
+            );
+          }
+          g.stroke();
+        }
 
- // 7. The 2 Inner Crease Lines
- if(N>5){
-  g.strokeStyle='#2b1406';
-  g.lineWidth=2.0;
+        // 7. The 2 Inner Crease Lines
+        if (N > 5) {
+          g.strokeStyle = "#2b1406";
+          g.lineWidth = 2.0;
 
-  g.beginPath();
-  g.moveTo(pInL[2][0],pInL[2][1]);
-  for(let i=3;i<=N-3;i++)g.lineTo(pInL[i][0],pInL[i][1]);
-  g.stroke();
+          g.beginPath();
+          g.moveTo(pInL[2][0], pInL[2][1]);
+          for (let i = 3; i <= N - 3; i++) g.lineTo(pInL[i][0], pInL[i][1]);
+          g.stroke();
 
-  g.beginPath();
-  g.moveTo(pInR[2][0],pInR[2][1]);
-  for(let i=3;i<=N-3;i++)g.lineTo(pInR[i][0],pInR[i][1]);
-  g.stroke();
- }
+          g.beginPath();
+          g.moveTo(pInR[2][0], pInR[2][1]);
+          for (let i = 3; i <= N - 3; i++) g.lineTo(pInR[i][0], pInR[i][1]);
+          g.stroke();
+        }
 
- // 8. UNIFIED GAPLESS CONTINUOUS OUTER BORDER
- g.beginPath();
- g.moveTo(pOutL[0][0],pOutL[0][1]);
- for(let i=1;i<N;i++)g.lineTo(pOutL[i][0],pOutL[i][1]);
- g.lineTo(pOutR[N-1][0],pOutR[N-1][1]);
- for(let i=N-2;i>=0;i--)g.lineTo(pOutR[i][0],pOutR[i][1]);
- g.closePath();
- g.strokeStyle='#221105';
- g.lineWidth=2.8;
- g.lineJoin='round';
- g.lineCap='round';
- g.stroke();
+        // 8. UNIFIED GAPLESS CONTINUOUS OUTER BORDER
+        g.beginPath();
+        g.moveTo(pOutL[0][0], pOutL[0][1]);
+        for (let i = 1; i < N; i++) g.lineTo(pOutL[i][0], pOutL[i][1]);
+        g.lineTo(pOutR[N - 1][0], pOutR[N - 1][1]);
+        for (let i = N - 2; i >= 0; i--) g.lineTo(pOutR[i][0], pOutR[i][1]);
+        g.closePath();
+        g.strokeStyle = "#221105";
+        g.lineWidth = 2.8;
+        g.lineJoin = "round";
+        g.lineCap = "round";
+        g.stroke();
 
- g.restore();
-}
+        g.restore();
+      }
 
-function drawChute(g,k){
- const pts=getChutePath(k),theme=CHUTE_THEMES[k]||CHUTE_THEMES[16];
- renderChuteAlongPath(g,pts,theme,16.0,11.2,true,getCachedChuteNormals(k));
-}
+      function drawChute(g, k) {
+        const pts = getChutePath(k),
+          theme = CHUTE_THEMES[k] || CHUTE_THEMES[16];
+        renderChuteAlongPath(
+          g,
+          pts,
+          theme,
+          16.0,
+          11.2,
+          true,
+          getCachedChuteNormals(k),
+        );
+      }
 
+      /* ---------- snakes ---------- */
+      const SNAKE_COLS = [
+        "#e23b2e",
+        "#2fa84f",
+        "#8a4fd8",
+        "#f28c1c",
+        "#1f8fe0",
+        "#e23b2e",
+        "#2fa84f",
+        "#e94c9b",
+        "#f28c1c",
+        "#1f8fe0",
+      ];
+      function buildSnakePath(idx) {
+        if (idx === 3) {
+          // Handle snake in the red box (56 -> 53) with smooth gentle posture
+          return samplePath(
+            [
+              [655, 290],
+              [696, 275],
+              [740, 272],
+              [782, 280],
+              [820, 290],
+            ],
+            3,
+          );
+        }
+        const [hs, ts] = OBSTACLES_MOVEMENT_SQUARES[idx];
+        const h = BOARD_SQUARES[hs],
+          t = BOARD_SQUARES[ts];
+        const dx = t[0] - h[0],
+          dy = t[1] - h[1],
+          len = Math.hypot(dx, dy),
+          nx = -dy / len,
+          ny = dx / len;
+        const n = len < 120 ? 2 : len < 260 ? 3 : 4,
+          amp = Math.min(34, len * 0.16),
+          R = seeded(idx * 31 + 7);
+        const pts = [h.slice()];
+        for (let i = 1; i <= n; i++) {
+          const tt = i / (n + 1),
+            s = i % 2 ? 1 : -1;
+          const a = amp * (0.75 + R() * 0.4);
+          pts.push([h[0] + dx * tt + nx * a * s, h[1] + dy * tt + ny * a * s]);
+        }
+        pts.push(t.slice());
+        for (const p of pts) {
+          p[0] = clamp(p[0], 425, 935);
+          p[1] = clamp(p[1], 55, 580);
+        }
+        return samplePath(pts, 3);
+      }
+      const snakeData = [];
+      function getSnake(idx) {
+        if (snakeData[idx]) return snakeData[idx];
+        const pts = buildSnakePath(idx);
+        const sd = { pts, col: SNAKE_COLS[idx], cache: null, seed: idx + 1 };
+        return (snakeData[idx] = sd);
+      }
+      /* body widths: thick neck tapering to a pointed tail; optional travelling bulge (swallowed pawn) */
+      function snakeWidths(sd, bulgeU) {
+        const N = sd.pts.length,
+          ws = new Array(N),
+          bi = bulgeU >= 0 ? bulgeU * (N - 1) : -1e9,
+          amp = bulgeU >= 0 ? 13.5 * Math.min(1, (1 - bulgeU) * 8 + 0.35) : 0;
+        for (let i = 0; i < N; i++) {
+          const t = i / (N - 1);
+          let w = 2.8 + 19.6 * Math.pow(1 - t, 0.7);
+          const d = (i - bi) / 11;
+          w += amp * Math.exp(-d * d);
+          ws[i] = w;
+        }
+        return ws;
+      }
+      function snakeNormals(pts) {
+        const N = pts.length,
+          n = [];
+        for (let i = 0; i < N; i++) {
+          const a = pts[Math.max(0, i - 1)],
+            b = pts[Math.min(N - 1, i + 1)];
+          let nx = -(b[1] - a[1]),
+            ny = b[0] - a[0];
+          const l = Math.hypot(nx, ny) || 1;
+          n.push([nx / l, ny / l]);
+        }
+        return n;
+      }
+      function drawSnakeBody(g, sd, bulgeU) {
+        const pts = sd.pts,
+          N = pts.length,
+          col = sd.col,
+          ws = snakeWidths(sd, bulgeU),
+          nr = snakeNormals(pts);
+        const off = (i, f) => [
+          pts[i][0] + nr[i][0] * ws[i] * f,
+          pts[i][1] + nr[i][1] * ws[i] * f,
+        ];
+        // closed polygon between two offset functions
+        const band = (fa, fb) => {
+          g.beginPath();
+          for (let i = 0; i < N; i++) {
+            const p = off(i, fa(i));
+            i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]);
+          }
+          for (let i = N - 1; i >= 0; i--) {
+            const p = off(i, fb(i));
+            g.lineTo(p[0], p[1]);
+          }
+          g.closePath();
+        };
+        const body = () =>
+          band(
+            () => 0.5,
+            () => -0.5,
+          );
+        // light comes from screen-top: shift highlight toward whichever side faces up
+        const up = (i) => -nr[i][1];
+        g.save();
+        g.lineJoin = "round";
+        g.lineCap = "round";
+        g.fillStyle = col;
+        body();
+        g.fill();
+        g.save();
+        body();
+        g.clip();
+        // cream bands (wrap around the tube)
+        const period = 13,
+          bw = 4;
+        for (let i = 0; i < N - 1; i++) {
+          const k = i % period;
+          if (k >= bw) continue;
+          g.fillStyle = k === 0 || k === bw - 1 ? "#eadcbc" : "#fff6df";
+          const a1 = off(i, 0.75),
+            a2 = off(i + 1, 0.75),
+            b2 = off(i + 1, -0.75),
+            b1 = off(i, -0.75);
+          g.beginPath();
+          g.moveTo(a1[0], a1[1]);
+          g.lineTo(a2[0], a2[1]);
+          g.lineTo(b2[0], b2[1]);
+          g.lineTo(b1[0], b1[1]);
+          g.closePath();
+          g.fill();
+        }
+        // fine scale ticks on the coloured parts
+        g.strokeStyle = "rgba(0,0,0,0.10)";
+        g.lineWidth = 1;
+        for (let i = 6; i < N - 4; i += 3) {
+          if (i % period < bw + 1) continue;
+          const p = off(i, i % 2 ? 0.2 : -0.2);
+          g.beginPath();
+          g.arc(p[0], p[1], ws[i] * 0.13, 0, Math.PI);
+          g.stroke();
+        }
+        // round shading: dark underside, soft highlight, specular line
 
+        g.fillStyle = "rgba(255,255,255,0.30)";
+        band(
+          (i) => up(i) * 0.22 + 0.13,
+          (i) => up(i) * 0.22 - 0.13,
+        );
+        g.fill();
+        g.fillStyle = "rgba(255,255,255,0.55)";
+        band(
+          (i) => up(i) * 0.27 + 0.04,
+          (i) => up(i) * 0.27 - 0.04,
+        );
+        g.fill();
+        g.restore();
+        g.strokeStyle = shade(col, -0.68);
+        g.lineWidth = 1.8;
+        body();
+        g.stroke();
+        g.restore();
+      }
+      /* idle life: tongue flicks, blinks, breathing, gentle head sway */
+      function snakeIdleState(sd, now) {
+        const seed = sd.seed || 0,
+          ph = (now + seed * 977) % 3600,
+          tongue = ph < 620 ? Math.sin((Math.PI * ph) / 620) : 0;
+        const bp = (now + seed * 1531) % 4700,
+          blink = bp < 180 ? Math.sin((Math.PI * bp) / 180) : 0;
+        return {
+          open: 0,
+          lift: 0,
+          scale: 1,
+          squash: 1 + Math.sin(now / 700 + seed) * 0.025,
+          turn: Math.sin(now / 1500 + seed * 2) * 0.07,
+          tongue,
+          blink,
+          tw: now,
+        };
+      }
+      /* eat timeline (ms): lunge & open 0-300, hold, chomp 440-560, swallow 560-1360 */
+      const EAT_CHOMP = 440,
+        EAT_SWALLOW = 560,
+        EAT_END = EAT_SWALLOW + SNAKE_SPEED;
+      function snakeEatState(t, now) {
+        let open = 0,
+          lift = 0,
+          scale = 1,
+          squash = 1,
+          bulge = -1,
+          turn = 0,
+          happy = false,
+          angry = 0;
+        if (t < 300) {
+          const u = t / 300;
+          open = Ease.backOut(u);
+          lift = Ease.quadOut(u);
+          scale = 1 + 0.08 * u;
+          angry = u;
+        } else if (t < EAT_CHOMP) {
+          open = 1 + Math.sin((t - 300) / 20) * 0.05;
+          lift = 1;
+          scale = 1.08;
+          angry = 1;
+        } else if (t < EAT_SWALLOW) {
+          const u = (t - EAT_CHOMP) / (EAT_SWALLOW - EAT_CHOMP);
+          open = Math.max(0, 1 - u * 3.5);
+          lift = lerp(1, 0.15, Ease.quadOut(u));
+          scale = lerp(1.08, 1.02, u);
+          squash = 1 - 0.2 * Math.sin(Math.PI * u);
+          turn = Math.sin(u * Math.PI * 4) * 0.12;
+          angry = 1 - u;
+        } else {
+          const u = clamp((t - EAT_SWALLOW) / SNAKE_SPEED, 0, 1);
+          lift = lerp(0.15, 0, u);
+          bulge = u;
+          squash = 1 + 0.05 * Math.sin(u * Math.PI * 3);
+          happy = true;
+          turn = Math.sin(u * Math.PI * 2) * 0.05;
+        }
+        return {
+          open,
+          lift,
+          scale,
+          squash,
+          bulge,
+          turn,
+          happy,
+          angry,
+          tongue: 0,
+          blink: happy ? 0.55 : 0,
+          tw: now,
+        };
+      }
+      function snakeDir(sd) {
+        if (sd.dir == null) {
+          const p = sd.pts,
+            q = p[Math.min(p.length - 1, 9)];
+          sd.dir = Math.atan2(p[0][1] - q[1], p[0][0] - q[0]);
+        }
+        return sd.dir;
+      }
+      function snakeMouthPos(sd) {
+        const d = snakeDir(sd),
+          [x, y] = sd.pts[0];
+        return [x + Math.cos(d) * 27, y + Math.sin(d) * 27 - 9.5];
+      }
+      /* top-down cartoon head pointing along the body; eyes stay screen-upright so the face always reads */
+      function drawSnakeHead(g, sd, st) {
+        const col = sd.col,
+          dk = shade(col, -0.45),
+          lt = shade(col, 0.5),
+          ol = shade(col, -0.68);
+        const open = st.open || 0,
+          lift = st.lift || 0,
+          s = (st.scale || 1) * 0.96 * (1 + lift * 0.22),
+          sq = st.squash || 1;
+        const [hx, hy] = sd.pts[0],
+          ang = snakeDir(sd) + (st.turn || 0),
+          ca = Math.cos(ang),
+          sa = Math.sin(ang);
+        const toLocal = (vx, vy) => [vx * ca + vy * sa, -vx * sa + vy * ca];
+        g.save();
+        const base = g.getTransform();
+        g.translate(hx, hy);
 
-/* ---------- snakes ---------- */
-const SNAKE_COLS=['#e23b2e','#2fa84f','#8a4fd8','#f28c1c','#1f8fe0','#e23b2e','#2fa84f','#e94c9b','#f28c1c','#1f8fe0'];
-function buildSnakePath(idx){
- const [hs,ts]=OBSTACLES_MOVEMENT_SQUARES[idx];const h=BOARD_SQUARES[hs],t=BOARD_SQUARES[ts];
- const dx=t[0]-h[0],dy=t[1]-h[1],len=Math.hypot(dx,dy),nx=-dy/len,ny=dx/len;
- const n=len<120?2:len<260?3:4,amp=Math.min(34,len*0.16),R=seeded(idx*31+7);
- const pts=[h.slice()];
- for(let i=1;i<=n;i++){const tt=i/(n+1),s=(i%2?1:-1);const a=amp*(0.75+R()*0.4);pts.push([h[0]+dx*tt+nx*a*s,h[1]+dy*tt+ny*a*s])}
- pts.push(t.slice());
- for(const p of pts){p[0]=clamp(p[0],425,935);p[1]=clamp(p[1],55,580)}
- return samplePath(pts,3);
-}
-const snakeData=[];
-function getSnake(idx){
- if(snakeData[idx])return snakeData[idx];
- const pts=buildSnakePath(idx);const sd={pts,col:SNAKE_COLS[idx],cache:null,seed:idx+1};
- return snakeData[idx]=sd;
-}
-/* body widths: thick neck tapering to a pointed tail; optional travelling bulge (swallowed pawn) */
-function snakeWidths(sd,bulgeU){
- const N=sd.pts.length,ws=new Array(N),bi=bulgeU>=0?bulgeU*(N-1):-1e9,amp=bulgeU>=0?13*Math.min(1,(1-bulgeU)*8+0.35):0;
- for(let i=0;i<N;i++){const t=i/(N-1);let w=2.2+16.8*Math.pow(1-t,0.7);const d=(i-bi)/11;w+=amp*Math.exp(-d*d);ws[i]=w}
- return ws;
-}
-function snakeNormals(pts){const N=pts.length,n=[];for(let i=0;i<N;i++){const a=pts[Math.max(0,i-1)],b=pts[Math.min(N-1,i+1)];let nx=-(b[1]-a[1]),ny=b[0]-a[0];const l=Math.hypot(nx,ny)||1;n.push([nx/l,ny/l])}return n}
-function drawSnakeBody(g,sd,bulgeU){
- const pts=sd.pts,N=pts.length,col=sd.col,ws=snakeWidths(sd,bulgeU),nr=snakeNormals(pts);
- const off=(i,f)=>[pts[i][0]+nr[i][0]*ws[i]*f,pts[i][1]+nr[i][1]*ws[i]*f];
- // closed polygon between two offset functions
- const band=(fa,fb)=>{g.beginPath();for(let i=0;i<N;i++){const p=off(i,fa(i));i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1])}for(let i=N-1;i>=0;i--){const p=off(i,fb(i));g.lineTo(p[0],p[1])}g.closePath()};
- const body=()=>band(()=>.5,()=>-.5);
- // light comes from screen-top: shift highlight toward whichever side faces up
- const up=i=>-nr[i][1];
- g.save();g.lineJoin='round';g.lineCap='round';
- g.save();g.translate(4,7);g.fillStyle='rgba(0,0,0,0.18)';body();g.fill();g.translate(-2,-3);g.fillStyle='rgba(0,0,0,0.16)';body();g.fill();g.restore();
- g.fillStyle=col;body();g.fill();
- g.save();body();g.clip();
- // cream bands (wrap around the tube)
- const period=13,bw=4;
- for(let i=0;i<N-1;i++){const k=i%period;if(k>=bw)continue;
-  g.fillStyle=(k===0||k===bw-1)?'#eadcbc':'#fff6df';
-  const a1=off(i,.75),a2=off(i+1,.75),b2=off(i+1,-.75),b1=off(i,-.75);
-  g.beginPath();g.moveTo(a1[0],a1[1]);g.lineTo(a2[0],a2[1]);g.lineTo(b2[0],b2[1]);g.lineTo(b1[0],b1[1]);g.closePath();g.fill()}
- // fine scale ticks on the coloured parts
- g.strokeStyle='rgba(0,0,0,0.10)';g.lineWidth=1;
- for(let i=6;i<N-4;i+=3){if(i%period<bw+1)continue;const p=off(i,(i%2?.2:-.2));g.beginPath();g.arc(p[0],p[1],ws[i]*.13,0,Math.PI);g.stroke()}
- // round shading: dark underside, soft highlight, specular line
- g.fillStyle='rgba(25,0,35,0.30)';band(i=>-up(i)*.55-.12,i=>-up(i)*.55-.75);g.fill();
- g.fillStyle='rgba(25,0,35,0.14)';band(i=>-up(i)*.3,i=>-up(i)*.3-.4);g.fill();
- g.fillStyle='rgba(255,255,255,0.30)';band(i=>up(i)*.22+.13,i=>up(i)*.22-.13);g.fill();
- g.fillStyle='rgba(255,255,255,0.55)';band(i=>up(i)*.27+.04,i=>up(i)*.27-.04);g.fill();
- g.restore();
- g.strokeStyle=shade(col,-.68);g.lineWidth=1.8;body();g.stroke();
- g.restore();
-}
-/* idle life: tongue flicks, blinks, breathing, gentle head sway */
-function snakeIdleState(sd,now){
- const seed=sd.seed||0,ph=(now+seed*977)%3600,tongue=ph<620?Math.sin(Math.PI*ph/620):0;
- const bp=(now+seed*1531)%4700,blink=bp<180?Math.sin(Math.PI*bp/180):0;
- return {open:0,lift:0,scale:1,squash:1+Math.sin(now/700+seed)*0.025,turn:Math.sin(now/1500+seed*2)*0.07,tongue,blink,tw:now};
-}
-/* eat timeline (ms): lunge & open 0-300, hold, chomp 440-560, swallow 560-1360 */
-const EAT_CHOMP=440,EAT_SWALLOW=560,EAT_END=EAT_SWALLOW+SNAKE_SPEED;
-function snakeEatState(t,now){
- let open=0,lift=0,scale=1,squash=1,bulge=-1,turn=0,happy=false,angry=0;
- if(t<300){const u=t/300;open=Ease.backOut(u);lift=Ease.quadOut(u);scale=1+.08*u;angry=u}
- else if(t<EAT_CHOMP){open=1+Math.sin((t-300)/20)*.05;lift=1;scale=1.08;angry=1}
- else if(t<EAT_SWALLOW){const u=(t-EAT_CHOMP)/(EAT_SWALLOW-EAT_CHOMP);open=Math.max(0,1-u*3.5);lift=lerp(1,.15,Ease.quadOut(u));scale=lerp(1.08,1.02,u);squash=1-.2*Math.sin(Math.PI*u);turn=Math.sin(u*Math.PI*4)*.12;angry=1-u}
- else{const u=clamp((t-EAT_SWALLOW)/SNAKE_SPEED,0,1);lift=lerp(.15,0,u);bulge=u;squash=1+.05*Math.sin(u*Math.PI*3);happy=true;turn=Math.sin(u*Math.PI*2)*.05}
- return {open,lift,scale,squash,bulge,turn,happy,angry,tongue:0,blink:happy?.55:0,tw:now};
-}
-function snakeDir(sd){if(sd.dir==null){const p=sd.pts,q=p[Math.min(p.length-1,9)];sd.dir=Math.atan2(p[0][1]-q[1],p[0][0]-q[0])}return sd.dir}
-function snakeMouthPos(sd){const d=snakeDir(sd),[x,y]=sd.pts[0];return[x+Math.cos(d)*28,y+Math.sin(d)*28-10]}
-/* top-down cartoon head pointing along the body; eyes stay screen-upright so the face always reads */
-function drawSnakeHead(g,sd,st){
- const col=sd.col,dk=shade(col,-.45),lt=shade(col,.5),ol=shade(col,-.68);
- const open=st.open||0,lift=st.lift||0,s=(st.scale||1)*(1+lift*.22),sq=st.squash||1;
- const [hx,hy]=sd.pts[0],ang=snakeDir(sd)+(st.turn||0),ca=Math.cos(ang),sa=Math.sin(ang);
- const toLocal=(vx,vy)=>[vx*ca+vy*sa,-vx*sa+vy*ca];
- g.save();const base=g.getTransform();
- g.translate(hx,hy);
- g.save();g.translate(3+lift*7,5+lift*13);g.rotate(ang);g.fillStyle=`rgba(0,0,0,${.3-.12*lift})`;g.beginPath();g.ellipse(4,0,23*s,17*s,0,0,7);g.fill();g.restore();
- g.translate(0,-lift*10);g.rotate(ang);g.scale(s,s*sq);
- g.lineJoin='round';g.lineCap='round';
- const headPath=()=>{g.beginPath();g.moveTo(-15,0);g.bezierCurveTo(-17,-12,-7,-19.5,4,-19);g.bezierCurveTo(16,-18.5,25,-10,25,0);g.bezierCurveTo(25,10,16,18.5,4,19);g.bezierCurveTo(-7,19.5,-17,12,-15,0);g.closePath()};
- if(open>0.02){
-  const L=8+17*open;
-  g.save();g.translate(15,0);
-  g.fillStyle='#f3dcae';g.strokeStyle=ol;g.lineWidth=1.8;g.beginPath();g.ellipse(L*.5,0,L*.7+5,15.5,0,0,7);g.fill();g.stroke();
-  const mg=g.createRadialGradient(L*.25,0,1,L*.4,0,L*.7+4);mg.addColorStop(0,'#2a0209');mg.addColorStop(.55,'#6d0c1d');mg.addColorStop(1,'#a3182f');
-  g.fillStyle=mg;g.beginPath();g.ellipse(L*.45,0,L*.6+3,12.5,0,0,7);g.fill();
-  g.fillStyle='#ff6f8f';g.beginPath();g.ellipse(L*.55,0,L*.35+2,4.5,0,0,7);g.fill();
-  g.strokeStyle='rgba(160,20,50,0.7)';g.lineWidth=1;g.beginPath();g.moveTo(L*.3,0);g.lineTo(L*.85+2,0);g.stroke();
-  g.fillStyle='#fff';g.strokeStyle='rgba(60,20,30,0.5)';g.lineWidth=.8;
-  for(const sy of[-1,1]){g.beginPath();g.moveTo(L+2,sy*8.5);g.lineTo(L-5,sy*10.5);g.lineTo(L-2,sy*4.5);g.closePath();g.fill();g.stroke()}
-  g.restore();
-  if(st.inside){const cur=g.getTransform();g.setTransform(base);st.inside(g);g.setTransform(cur)}
-  g.translate(-5*open,0);
- }
- const [lx,ly]=toLocal(-.45,-.9);
- const hg=g.createRadialGradient(4+lx*9,ly*9,2,4,0,27);hg.addColorStop(0,lt);hg.addColorStop(.5,col);hg.addColorStop(1,dk);
- g.fillStyle=hg;headPath();g.fill();
- g.save();headPath();g.clip();
- g.fillStyle=shade(col,-.3);g.globalAlpha=.75;
- g.beginPath();g.moveTo(-16,0);g.lineTo(-5,-7.5);g.lineTo(7,0);g.lineTo(-5,7.5);g.closePath();g.fill();
- g.fillStyle='#fff6df';g.globalAlpha=.9;g.beginPath();g.moveTo(-11,0);g.lineTo(-5,-3.6);g.lineTo(1.5,0);g.lineTo(-5,3.6);g.closePath();g.fill();
- g.globalAlpha=1;
- g.fillStyle='rgba(255,243,215,0.45)';g.beginPath();g.ellipse(19,0,8,12.5,0,0,7);g.fill();
- g.strokeStyle='rgba(255,255,255,0.35)';g.lineWidth=3;g.translate(lx*1.5,ly*1.5);headPath();g.stroke();
- g.restore();
- g.strokeStyle=ol;g.lineWidth=1.9;headPath();g.stroke();
- g.fillStyle='rgba(255,255,255,0.55)';g.beginPath();g.ellipse(6+lx*10,ly*10,6,2.6,Math.atan2(ly,lx)+Math.PI/2,0,7);g.fill();
- g.fillStyle=ol;g.beginPath();g.ellipse(21.5,-4.2,1.5,1,0.4,0,7);g.ellipse(21.5,4.2,1.5,1,-0.4,0,7);g.fill();
- if(open<0.2){
-  g.strokeStyle=ol;g.lineWidth=1.7;const curl=st.happy?2.6:1.6;
-  for(const sy of[-1,1]){g.beginPath();g.moveTo(24.2,0);g.quadraticCurveTo(22,sy*11.5,10,sy*15.2);g.quadraticCurveTo(7,sy*16,6.5,sy*(15.5-curl*1.8));g.stroke()}
-  g.fillStyle='rgba(255,120,150,0.5)';g.beginPath();g.ellipse(10,-12.5,3.6,2.2,0.3,0,7);g.ellipse(10,12.5,3.6,2.2,-0.3,0,7);g.fill();
-  const e=st.tongue||0;
-  if(e>0.02){const tw=st.tw||0,wig=Math.sin(tw/26)*2.4*e,Lt=3+15*e;
-   g.strokeStyle='#5c0716';g.lineWidth=3.4;g.beginPath();g.moveTo(24,0);g.quadraticCurveTo(24+Lt*.6,wig,24+Lt,wig*.6);g.stroke();
-   g.strokeStyle='#ef2b4c';g.lineWidth=2.2;g.stroke();
-   g.lineWidth=1.7;g.beginPath();g.moveTo(24+Lt,wig*.6);g.lineTo(24+Lt+4,wig*.6-3.2);g.moveTo(24+Lt,wig*.6);g.lineTo(24+Lt+4,wig*.6+3.2);g.stroke()}
- }
- const look=st.look||[0,0],blink=st.blink||0,wide=1+open*.18;
- for(const sy of[-1,1]){
-  g.save();g.translate(-.5,sy*10.5);g.rotate(-ang);
-  const r=7.6*wide;
-  g.fillStyle='rgba(0,0,0,0.25)';g.beginPath();g.ellipse(.6,1.6,r+1.2,r+1,0,0,7);g.fill();
-  const eg=g.createRadialGradient(-2,-3,1,0,0,r);eg.addColorStop(0,'#ffffff');eg.addColorStop(.7,'#f4f6fa');eg.addColorStop(1,'#c9d2de');
-  g.fillStyle=eg;g.beginPath();g.arc(0,0,r,0,7);g.fill();
-  g.save();g.beginPath();g.arc(0,0,r,0,7);g.clip();
-  const ir=r*.62,px=clamp(look[0],-1,1)*r*.3,py=clamp(look[1],-1,1)*r*.3;
-  const ig=g.createRadialGradient(px,py-ir*.3,.5,px,py,ir);ig.addColorStop(0,'#d4f57a');ig.addColorStop(.6,'#5aa31f');ig.addColorStop(1,'#2c5a0c');
-  g.fillStyle=ig;g.beginPath();g.arc(px,py,ir,0,7);g.fill();
-  g.fillStyle='#0d0d10';g.beginPath();g.ellipse(px,py,ir*(open>.3?.32:.5),ir*.8,0,0,7);g.fill();
-  g.fillStyle='#fff';g.beginPath();g.arc(px-ir*.38,py-ir*.42,ir*.3,0,7);g.fill();g.beginPath();g.arc(px+ir*.35,py+ir*.35,ir*.14,0,7);g.fill();
-  const lid=clamp(Math.max(open>0.05?0:.2,blink),0,1);
-  if(lid>0.01){const ly2=-r+2*r*lid,bow=3*(1-lid);const lg=g.createLinearGradient(0,-r,0,ly2);lg.addColorStop(0,lt);lg.addColorStop(1,col);g.fillStyle=lg;g.beginPath();g.moveTo(-r-1,-r-1);g.lineTo(r+1,-r-1);g.lineTo(r+1,ly2);g.quadraticCurveTo(0,ly2+bow,-r-1,ly2);g.closePath();g.fill();
-   g.strokeStyle=ol;g.lineWidth=1.5;g.beginPath();g.moveTo(-r,ly2);g.quadraticCurveTo(0,ly2+bow,r,ly2);g.stroke()}
-  g.restore();
-  g.strokeStyle=ol;g.lineWidth=1.8;g.beginPath();g.arc(0,0,r,0,7);g.stroke();
-  const an=st.angry||0;if(an>0.02){const ex=-ca*.5-(-sa)*(sy*10.5);const inward=(-sa*sy*10.5+ca*(-.5))<0?1:-1;g.globalAlpha=an;g.strokeStyle=ol;g.lineWidth=3.2;g.beginPath();g.moveTo(-inward*r*.9,-r-4);g.lineTo(inward*r*.6,-r-.5);g.stroke();g.globalAlpha=1}
-  g.restore();
- }
- g.restore();
-}
-/* convenience used by menu/help/logo art */
-function renderSnake(g,sd,bulgeIdx,mouthOpen){
- drawSnakeBody(g,sd,-1);
- const st=snakeIdleState(sd,performance.now());st.turn=0;if(mouthOpen){st.happy=true;st.tongue=.8}
- drawSnakeHead(g,sd,st);
-}
+        g.translate(0, -lift * 10);
+        g.rotate(ang);
+        g.scale(s, s * sq);
+        g.lineJoin = "round";
+        g.lineCap = "round";
+        const headPath = () => {
+          g.beginPath();
+          g.moveTo(-15, 0);
+          g.bezierCurveTo(-17, -12, -7, -19.5, 4, -19);
+          g.bezierCurveTo(16, -18.5, 25, -10, 25, 0);
+          g.bezierCurveTo(25, 10, 16, 18.5, 4, 19);
+          g.bezierCurveTo(-7, 19.5, -17, 12, -15, 0);
+          g.closePath();
+        };
+        if (open > 0.02) {
+          const L = 8 + 17 * open;
+          g.save();
+          g.translate(15, 0);
+          g.fillStyle = "#f3dcae";
+          g.strokeStyle = ol;
+          g.lineWidth = 1.8;
+          g.beginPath();
+          g.ellipse(L * 0.5, 0, L * 0.7 + 5, 15.5, 0, 0, 7);
+          g.fill();
+          g.stroke();
+          const mg = g.createRadialGradient(
+            L * 0.25,
+            0,
+            1,
+            L * 0.4,
+            0,
+            L * 0.7 + 4,
+          );
+          mg.addColorStop(0, "#2a0209");
+          mg.addColorStop(0.55, "#6d0c1d");
+          mg.addColorStop(1, "#a3182f");
+          g.fillStyle = mg;
+          g.beginPath();
+          g.ellipse(L * 0.45, 0, L * 0.6 + 3, 12.5, 0, 0, 7);
+          g.fill();
+          g.fillStyle = "#ff6f8f";
+          g.beginPath();
+          g.ellipse(L * 0.55, 0, L * 0.35 + 2, 4.5, 0, 0, 7);
+          g.fill();
+          g.strokeStyle = "rgba(160,20,50,0.7)";
+          g.lineWidth = 1;
+          g.beginPath();
+          g.moveTo(L * 0.3, 0);
+          g.lineTo(L * 0.85 + 2, 0);
+          g.stroke();
+          g.fillStyle = "#fff";
+          g.strokeStyle = "rgba(60,20,30,0.5)";
+          g.lineWidth = 0.8;
+          for (const sy of [-1, 1]) {
+            g.beginPath();
+            g.moveTo(L + 2, sy * 8.5);
+            g.lineTo(L - 5, sy * 10.5);
+            g.lineTo(L - 2, sy * 4.5);
+            g.closePath();
+            g.fill();
+            g.stroke();
+          }
+          g.restore();
+          if (st.inside) {
+            const cur = g.getTransform();
+            g.setTransform(base);
+            st.inside(g);
+            g.setTransform(cur);
+          }
+          g.translate(-5 * open, 0);
+        }
+        const [lx, ly] = toLocal(-0.45, -0.9);
+        const hg = g.createRadialGradient(4 + lx * 9, ly * 9, 2, 4, 0, 27);
+        hg.addColorStop(0, lt);
+        hg.addColorStop(0.5, col);
+        hg.addColorStop(1, dk);
+        g.fillStyle = hg;
+        headPath();
+        g.fill();
+        g.save();
+        headPath();
+        g.clip();
+        g.fillStyle = shade(col, -0.3);
+        g.globalAlpha = 0.75;
+        g.beginPath();
+        g.moveTo(-16, 0);
+        g.lineTo(-5, -7.5);
+        g.lineTo(7, 0);
+        g.lineTo(-5, 7.5);
+        g.closePath();
+        g.fill();
+        g.fillStyle = "#fff6df";
+        g.globalAlpha = 0.9;
+        g.beginPath();
+        g.moveTo(-11, 0);
+        g.lineTo(-5, -3.6);
+        g.lineTo(1.5, 0);
+        g.lineTo(-5, 3.6);
+        g.closePath();
+        g.fill();
+        g.globalAlpha = 1;
+        g.fillStyle = "rgba(255,243,215,0.45)";
+        g.beginPath();
+        g.ellipse(19, 0, 8, 12.5, 0, 0, 7);
+        g.fill();
+        g.strokeStyle = "rgba(255,255,255,0.35)";
+        g.lineWidth = 3;
+        g.translate(lx * 1.5, ly * 1.5);
+        headPath();
+        g.stroke();
+        g.restore();
+        g.strokeStyle = ol;
+        g.lineWidth = 1.9;
+        headPath();
+        g.stroke();
+        g.fillStyle = "rgba(255,255,255,0.55)";
+        g.beginPath();
+        g.ellipse(
+          6 + lx * 10,
+          ly * 10,
+          6,
+          2.6,
+          Math.atan2(ly, lx) + Math.PI / 2,
+          0,
+          7,
+        );
+        g.fill();
+        g.fillStyle = ol;
+        g.beginPath();
+        g.ellipse(21.5, -4.2, 1.5, 1, 0.4, 0, 7);
+        g.ellipse(21.5, 4.2, 1.5, 1, -0.4, 0, 7);
+        g.fill();
+        if (open < 0.2) {
+          g.strokeStyle = ol;
+          g.lineWidth = 1.7;
+          const curl = st.happy ? 2.6 : 1.6;
+          for (const sy of [-1, 1]) {
+            g.beginPath();
+            g.moveTo(24.2, 0);
+            g.quadraticCurveTo(22, sy * 11.5, 10, sy * 15.2);
+            g.quadraticCurveTo(7, sy * 16, 6.5, sy * (15.5 - curl * 1.8));
+            g.stroke();
+          }
+          g.fillStyle = "rgba(255,120,150,0.5)";
+          g.beginPath();
+          g.ellipse(10, -12.5, 3.6, 2.2, 0.3, 0, 7);
+          g.ellipse(10, 12.5, 3.6, 2.2, -0.3, 0, 7);
+          g.fill();
+          const e = st.tongue || 0;
+          if (e > 0.02) {
+            const tw = st.tw || 0,
+              wig = Math.sin(tw / 26) * 2.4 * e,
+              Lt = 3 + 15 * e;
+            g.strokeStyle = "#5c0716";
+            g.lineWidth = 3.4;
+            g.beginPath();
+            g.moveTo(24, 0);
+            g.quadraticCurveTo(24 + Lt * 0.6, wig, 24 + Lt, wig * 0.6);
+            g.stroke();
+            g.strokeStyle = "#ef2b4c";
+            g.lineWidth = 2.2;
+            g.stroke();
+            g.lineWidth = 1.7;
+            g.beginPath();
+            g.moveTo(24 + Lt, wig * 0.6);
+            g.lineTo(24 + Lt + 4, wig * 0.6 - 3.2);
+            g.moveTo(24 + Lt, wig * 0.6);
+            g.lineTo(24 + Lt + 4, wig * 0.6 + 3.2);
+            g.stroke();
+          }
+        }
+        const look = st.look || [0, 0],
+          blink = st.blink || 0,
+          wide = 1 + open * 0.18;
+        for (const sy of [-1, 1]) {
+          g.save();
+          g.translate(-0.5, sy * 10.5);
+          g.rotate(-ang);
+          const r = 7.6 * wide;
+          g.fillStyle = "rgba(0,0,0,0.25)";
+          g.beginPath();
+          g.ellipse(0.6, 1.6, r + 1.2, r + 1, 0, 0, 7);
+          g.fill();
+          const eg = g.createRadialGradient(-2, -3, 1, 0, 0, r);
+          eg.addColorStop(0, "#ffffff");
+          eg.addColorStop(0.7, "#f4f6fa");
+          eg.addColorStop(1, "#c9d2de");
+          g.fillStyle = eg;
+          g.beginPath();
+          g.arc(0, 0, r, 0, 7);
+          g.fill();
+          g.save();
+          g.beginPath();
+          g.arc(0, 0, r, 0, 7);
+          g.clip();
+          const ir = r * 0.62,
+            px = clamp(look[0], -1, 1) * r * 0.3,
+            py = clamp(look[1], -1, 1) * r * 0.3;
+          const ig = g.createRadialGradient(px, py - ir * 0.3, 0.5, px, py, ir);
+          ig.addColorStop(0, "#d4f57a");
+          ig.addColorStop(0.6, "#5aa31f");
+          ig.addColorStop(1, "#2c5a0c");
+          g.fillStyle = ig;
+          g.beginPath();
+          g.arc(px, py, ir, 0, 7);
+          g.fill();
+          g.fillStyle = "#0d0d10";
+          g.beginPath();
+          g.ellipse(px, py, ir * (open > 0.3 ? 0.32 : 0.5), ir * 0.8, 0, 0, 7);
+          g.fill();
+          g.fillStyle = "#fff";
+          g.beginPath();
+          g.arc(px - ir * 0.38, py - ir * 0.42, ir * 0.3, 0, 7);
+          g.fill();
+          g.beginPath();
+          g.arc(px + ir * 0.35, py + ir * 0.35, ir * 0.14, 0, 7);
+          g.fill();
+          const lid = clamp(Math.max(open > 0.05 ? 0 : 0.2, blink), 0, 1);
+          if (lid > 0.01) {
+            const ly2 = -r + 2 * r * lid,
+              bow = 3 * (1 - lid);
+            const lg = g.createLinearGradient(0, -r, 0, ly2);
+            lg.addColorStop(0, lt);
+            lg.addColorStop(1, col);
+            g.fillStyle = lg;
+            g.beginPath();
+            g.moveTo(-r - 1, -r - 1);
+            g.lineTo(r + 1, -r - 1);
+            g.lineTo(r + 1, ly2);
+            g.quadraticCurveTo(0, ly2 + bow, -r - 1, ly2);
+            g.closePath();
+            g.fill();
+            g.strokeStyle = ol;
+            g.lineWidth = 1.5;
+            g.beginPath();
+            g.moveTo(-r, ly2);
+            g.quadraticCurveTo(0, ly2 + bow, r, ly2);
+            g.stroke();
+          }
+          g.restore();
+          g.strokeStyle = ol;
+          g.lineWidth = 1.8;
+          g.beginPath();
+          g.arc(0, 0, r, 0, 7);
+          g.stroke();
+          const an = st.angry || 0;
+          if (an > 0.02) {
+            const ex = -ca * 0.5 - -sa * (sy * 10.5);
+            const inward = -sa * sy * 10.5 + ca * -0.5 < 0 ? 1 : -1;
+            g.globalAlpha = an;
+            g.strokeStyle = ol;
+            g.lineWidth = 3.2;
+            g.beginPath();
+            g.moveTo(-inward * r * 0.9, -r - 4);
+            g.lineTo(inward * r * 0.6, -r - 0.5);
+            g.stroke();
+            g.globalAlpha = 1;
+          }
+          g.restore();
+        }
+        g.restore();
+      }
+      /* convenience used by menu/help/logo art */
+      function renderSnake(g, sd, bulgeIdx, mouthOpen) {
+        drawSnakeBody(g, sd, -1);
+        const st = snakeIdleState(sd, performance.now());
+        st.turn = 0;
+        if (mouthOpen) {
+          st.happy = true;
+          st.tongue = 0.8;
+        }
+        drawSnakeHead(g, sd, st);
+      }
 
-/* ---------- pawns (Ludo style) ---------- */
+      /* ---------- pawns (Ludo style) ---------- */
 function drawPawn(g,x,y,ci,s){
  s=s||1;const col=PAWN_COLORS[ci];
  g.save();g.translate(x,y);g.scale(s,s);

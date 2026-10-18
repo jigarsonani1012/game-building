@@ -2293,88 +2293,375 @@
       }
 
       /* ---------- pawns (Ludo style) ---------- */
-function drawPawn(g,x,y,ci,s){
- s=s||1;const col=PAWN_COLORS[ci];
- g.save();g.translate(x,y);g.scale(s,s);
- g.lineWidth=1.2;g.strokeStyle='rgba(0,0,0,0.45)';
- // base
- const bg=g.createLinearGradient(-11,0,11,0);bg.addColorStop(0,shade(col,.1));bg.addColorStop(.4,shade(col,.45));bg.addColorStop(1,shade(col,-.45));
- g.fillStyle=bg;g.beginPath();g.ellipse(0,-4,11,5,0,0,7);g.fill();g.stroke();
- g.beginPath();g.moveTo(-11,-4);g.lineTo(-11,-7);g.ellipse(0,-7,11,5,0,Math.PI,0,true);g.lineTo(11,-4);g.ellipse(0,-4,11,5,0,0,Math.PI);g.closePath();g.fillStyle=shade(col,-.3);g.fill();
- g.fillStyle=bg;g.beginPath();g.ellipse(0,-7,11,5,0,0,7);g.fill();g.stroke();
- // body
- const body=g.createLinearGradient(-9,0,9,0);body.addColorStop(0,shade(col,0));body.addColorStop(.35,shade(col,.5));body.addColorStop(.7,col);body.addColorStop(1,shade(col,-.5));
- g.fillStyle=body;g.beginPath();g.moveTo(-9,-8);g.bezierCurveTo(-7,-14,-4,-20,-4,-28);g.lineTo(4,-28);g.bezierCurveTo(4,-20,7,-14,9,-8);g.closePath();g.fill();g.stroke();
- // collar
- g.fillStyle=body;g.beginPath();g.ellipse(0,-28,6.5,3,0,0,7);g.fill();g.stroke();
- // head
- const hg=g.createRadialGradient(-3,-43,1,0,-40,11);hg.addColorStop(0,shade(col,.7));hg.addColorStop(.35,shade(col,.15));hg.addColorStop(1,shade(col,-.5));
- g.fillStyle=hg;g.beginPath();g.arc(0,-40,10.5,0,7);g.fill();g.stroke();
- g.fillStyle='rgba(255,255,255,0.75)';g.beginPath();g.ellipse(-3.5,-44,3,1.8,-.7,0,7);g.fill();
- g.restore();
-}
-function drawPawnShadow(g,x,y,a){g.save();g.globalAlpha=a==null?1:a;g.fillStyle='rgba(0,0,0,0.35)';g.beginPath();g.ellipse(x,y+1,16,7,0,0,7);g.fill();g.restore()}
+      function drawPawn(g, x, y, ci, s) {
+        s = s || 1;
+        const col = PAWN_COLORS[ci];
+        g.save();
+        g.translate(x, y);
+        g.scale(s, s);
+        g.lineWidth = 1.2;
+        g.strokeStyle = "rgba(0,0,0,0.45)";
+        // base
+        const bg = g.createLinearGradient(-11, 0, 11, 0);
+        bg.addColorStop(0, shade(col, 0.1));
+        bg.addColorStop(0.4, shade(col, 0.45));
+        bg.addColorStop(1, shade(col, -0.45));
+        g.fillStyle = bg;
+        g.beginPath();
+        g.ellipse(0, -4, 11, 5, 0, 0, 7);
+        g.fill();
+        g.stroke();
+        g.beginPath();
+        g.moveTo(-11, -4);
+        g.lineTo(-11, -7);
+        g.ellipse(0, -7, 11, 5, 0, Math.PI, 0, true);
+        g.lineTo(11, -4);
+        g.ellipse(0, -4, 11, 5, 0, 0, Math.PI);
+        g.closePath();
+        g.fillStyle = shade(col, -0.3);
+        g.fill();
+        g.fillStyle = bg;
+        g.beginPath();
+        g.ellipse(0, -7, 11, 5, 0, 0, 7);
+        g.fill();
+        g.stroke();
+        // body
+        const body = g.createLinearGradient(-9, 0, 9, 0);
+        body.addColorStop(0, shade(col, 0));
+        body.addColorStop(0.35, shade(col, 0.5));
+        body.addColorStop(0.7, col);
+        body.addColorStop(1, shade(col, -0.5));
+        g.fillStyle = body;
+        g.beginPath();
+        g.moveTo(-9, -8);
+        g.bezierCurveTo(-7, -14, -4, -20, -4, -28);
+        g.lineTo(4, -28);
+        g.bezierCurveTo(4, -20, 7, -14, 9, -8);
+        g.closePath();
+        g.fill();
+        g.stroke();
+        // collar
+        g.fillStyle = body;
+        g.beginPath();
+        g.ellipse(0, -28, 6.5, 3, 0, 0, 7);
+        g.fill();
+        g.stroke();
+        // head
+        const hg = g.createRadialGradient(-3, -43, 1, 0, -40, 11);
+        hg.addColorStop(0, shade(col, 0.7));
+        hg.addColorStop(0.35, shade(col, 0.15));
+        hg.addColorStop(1, shade(col, -0.5));
+        g.fillStyle = hg;
+        g.beginPath();
+        g.arc(0, -40, 10.5, 0, 7);
+        g.fill();
+        g.stroke();
+        g.fillStyle = "rgba(255,255,255,0.75)";
+        g.beginPath();
+        g.ellipse(-3.5, -44, 3, 1.8, -0.7, 0, 7);
+        g.fill();
+        g.restore();
+      }
+      function drawPawnShadow(g, x, y, a) {
+        g.save();
+        g.globalAlpha = a == null ? 1 : a;
+        g.fillStyle = "rgba(0,0,0,0.35)";
+        g.beginPath();
+        g.ellipse(x, y + 1, 16, 7, 0, 0, 7);
+        g.fill();
+        g.restore();
+      }
 
-/* ---------- kids (Chutes mode characters) ---------- */
-function drawKid(g,x,y,ci,pose,t,flip,s){
- s=s||1;const col=KID_COLORS[ci],skin='#f7cfa6',skinD='#d9a77a';
- g.save();g.translate(x,y);
- g.lineWidth=1.6;g.strokeStyle='rgba(40,20,10,0.6)';g.lineJoin='round';
- let legA=0,armA=0,bob=0,sit=pose==='slide';
- if(pose==='walk'){legA=Math.sin(t*2*Math.PI*3.3)*0.75;armA=-legA}
- else if(pose==='idle'){bob=Math.sin(t*2)*1.2}
- g.translate(0,bob);
- const leg=(dx,a,ahead)=>{g.save();g.translate(dx,-22);g.rotate(sit?-1.4:a);g.fillStyle=skin;rr(g,-4.5,0,9,16,4);g.fill();g.stroke();g.fillStyle='#3a3a48';rr(g,-6,13,13,8,4);g.fill();g.stroke();g.restore()};
- const arm=(dx,a)=>{g.save();g.translate(dx,-44);g.rotate(sit?(dx<0?2.4:-2.4):a);g.fillStyle=col;rr(g,-4,0,8,12,4);g.fill();g.stroke();g.fillStyle=skin;g.beginPath();g.arc(0,16,5,0,7);g.fill();g.stroke();g.restore()};
- // below head: body & limbs (swapped for walking/standing, normal for falling)
- const bFlip=sit?flip:!flip;
- g.save();g.scale((bFlip?-1:1)*s,s);
- // back limbs
- leg(-5,-legA);arm(-13,-armA*0.8);
- // body (shirt)
- const sg=g.createLinearGradient(-14,0,14,0);sg.addColorStop(0,shade(col,-.25));sg.addColorStop(.5,shade(col,.25));sg.addColorStop(1,shade(col,-.35));
- g.fillStyle=sg;rr(g,-14,-48,28,30,9);g.fill();g.stroke();
- // shorts
- g.fillStyle='#3d5fa8';rr(g,-13,-28,26,10,5);g.fill();g.stroke();
- g.fillStyle='rgba(255,255,255,0.5)';g.beginPath();g.arc(0,-36,4,0,7);g.fill();
- // front limbs
- leg(5,legA);arm(13,armA*0.8);
- g.restore();
- // head, cap and face
- g.save();g.scale((flip?-1:1)*s,s);
- // head
- g.fillStyle=skin;g.beginPath();g.arc(0,-62,17,0,7);g.fill();g.stroke();
- // ears
- g.beginPath();g.arc(-16,-62,3.5,0,7);g.arc(16,-62,3.5,0,7);g.fill();g.stroke();
- // cap / hair
- g.fillStyle=col;g.beginPath();g.arc(0,-64,17.5,Math.PI,0);g.lineTo(17.5,-62);g.lineTo(-17.5,-62);g.closePath();g.fill();g.stroke();
- g.fillStyle=shade(col,-.2);rr(g,-2,-70,26,6,3);g.fill();g.stroke();
- g.fillStyle='rgba(255,255,255,0.35)';g.beginPath();g.ellipse(-5,-74,6,2.5,-.3,0,7);g.fill();
- // face
- g.fillStyle='#222';g.beginPath();g.ellipse(-5,-58,2.2,3,0,0,7);g.ellipse(6,-58,2.2,3,0,0,7);g.fill();
- g.fillStyle='#fff';g.beginPath();g.arc(-5.8,-59.2,.9,0,7);g.arc(5.2,-59.2,.9,0,7);g.fill();
- g.fillStyle='rgba(255,120,120,0.5)';g.beginPath();g.ellipse(-10,-53,3.5,2,0,0,7);g.ellipse(11,-53,3.5,2,0,0,7);g.fill();
- g.strokeStyle='#8a3a2a';g.lineWidth=1.8;g.beginPath();g.arc(1,-54,5,0.2,Math.PI-0.2);g.stroke();
- g.restore();
- g.restore();
-}
+      /* ---------- kids (Chutes mode characters) ---------- */
+      function drawKid(g, x, y, ci, pose, t, flip, s, tilt) {
+        s = s || 1;
+        const col = KID_COLORS[ci],
+          skin = "#f7cfa6",
+          skinD = "#d9a77a";
+        g.save();
+        g.translate(x, y);
+        if (tilt) g.rotate(tilt);
+        g.lineWidth = 1.6;
+        g.strokeStyle = "rgba(40,20,10,0.6)";
+        g.lineJoin = "round";
+        let legA = 0,
+          armA = 0,
+          bob = 0,
+          sit = pose === "slide";
+        if (pose === "walk") {
+          legA = Math.sin(t * 2 * Math.PI * 3.3) * 0.75;
+          armA = -legA;
+        } else if (pose === "idle") {
+          bob = Math.sin(t * 2) * 1.2;
+        }
+        g.translate(0, sit ? 16 : bob);
+        const leg = (dx, a, ahead) => {
+          g.save();
+          g.translate(dx, -22);
+          const ang = sit ? (dx < 0 ? -0.68 : -0.52) : a;
+          g.rotate(ang);
+          g.fillStyle = skin;
+          rr(g, -4.5, 0, 9, 16, 4);
+          g.fill();
+          g.stroke();
+          g.fillStyle = "#ffffff";
+          g.fillRect(-4.5, 9.5, 9, 3.5);
+          g.strokeRect(-4.5, 9.5, 9, 3.5);
+          g.fillStyle = "#3a3a48";
+          rr(g, -6, 13, 13, 8, 4);
+          g.fill();
+          g.stroke();
+          g.fillStyle = "#e4e7ec";
+          rr(g, -6, 17.5, 13, 3.5, 1.5);
+          g.fill();
+          g.stroke();
+          g.restore();
+        };
+        const wave = sit ? Math.sin(t * 18) * 0.22 : 0;
+        const arm = (dx, a) => {
+          g.save();
+          g.translate(dx, -44);
+          g.rotate(sit ? (dx < 0 ? 2.38 + wave : -2.38 - wave) : a);
+          g.fillStyle = col;
+          rr(g, -4, 0, 8, 12, 4);
+          g.fill();
+          g.stroke();
+          g.fillStyle = skin;
+          g.beginPath();
+          g.arc(0, 16, 5, 0, 7);
+          g.fill();
+          g.stroke();
+          if (sit) {
+            g.beginPath();
+            g.arc(dx < 0 ? 3 : -3, 14, 2, 0, 7);
+            g.fill();
+            g.stroke();
+          }
+          g.restore();
+        };
+        // below head: body & limbs (swapped for walking/standing, normal for falling)
+        const bFlip = sit ? flip : !flip;
+        g.save();
+        g.scale((bFlip ? -1 : 1) * s, s);
+        if (sit) g.rotate(-0.14);
+        // back arm
+        arm(-13, -armA * 0.8);
+        // legs (both under shorts so both are down symmetrically)
+        leg(-5, -legA);
+        leg(5, legA);
+        // body (shirt)
+        const sg = g.createLinearGradient(-14, 0, 14, 0);
+        sg.addColorStop(0, shade(col, -0.25));
+        sg.addColorStop(0.5, shade(col, 0.25));
+        sg.addColorStop(1, shade(col, -0.35));
+        g.fillStyle = sg;
+        rr(g, -14, -48, 28, 30, 9);
+        g.fill();
+        g.stroke();
+        // shorts (rounded flat butt firmly contacting slider)
+        if (sit) {
+          g.fillStyle = "rgba(0,0,0,0.36)";
+          g.beginPath();
+          g.ellipse(0, -16.5, 16, 4.5, 0, 0, Math.PI * 2);
+          g.fill();
+          g.fillStyle = "rgba(255,255,255,0.4)";
+          g.beginPath();
+          g.ellipse(2, -16, 11, 2, 0, 0, Math.PI * 2);
+          g.fill();
+        }
+        g.fillStyle = "#3d5fa8";
+        rr(g, sit ? -15 : -13, -28, sit ? 29 : 26, sit ? 11 : 10, 5);
+        g.fill();
+        g.stroke();
+        g.strokeStyle = "rgba(30,20,10,0.6)";
+        g.lineWidth = 1.6;
+        g.beginPath();
+        g.moveTo(0, -24);
+        g.lineTo(0, -17);
+        g.stroke();
+        g.fillStyle = "rgba(255,255,255,0.5)";
+        g.beginPath();
+        g.arc(0, -36, 4, 0, 7);
+        g.fill();
+        // front arm
+        arm(13, armA * 0.8);
+        g.restore();
+        // head, cap and face
+        g.save();
+        g.scale((flip ? -1 : 1) * s, s);
+        if (sit) g.rotate(-0.08);
+        // head
+        g.fillStyle = skin;
+        g.beginPath();
+        g.arc(0, -62, 17, 0, 7);
+        g.fill();
+        g.stroke();
+        // ears
+        g.beginPath();
+        g.arc(-16, -62, 3.5, 0, 7);
+        g.arc(16, -62, 3.5, 0, 7);
+        g.fill();
+        g.stroke();
+        // hair tufts under cap
+        g.fillStyle = "#5a301a";
+        g.beginPath();
+        g.ellipse(-14.5, -61.5, 3, 4.5, -0.2, 0, 7);
+        g.fill();
+        g.stroke();
+        g.beginPath();
+        g.ellipse(14.5, -61.5, 3, 4.5, 0.2, 0, 7);
+        g.fill();
+        g.stroke();
+        // face features on skin (eyes, eyebrows, nose, mouth)
+        if (sit) {
+          g.fillStyle = "#222";
+          g.beginPath();
+          g.ellipse(-5, -58, 2.6, 3.4, 0, 0, 7);
+          g.ellipse(6, -58, 2.6, 3.4, 0, 0, 7);
+          g.fill();
+          g.fillStyle = "#fff";
+          g.beginPath();
+          g.arc(-6, -59.5, 1.2, 0, 7);
+          g.arc(5, -59.5, 1.2, 0, 7);
+          g.fill();
+          g.beginPath();
+          g.arc(-4.2, -57, 0.7, 0, 7);
+          g.arc(6.8, -57, 0.7, 0, 7);
+          g.fill();
+        } else {
+          g.fillStyle = "#222";
+          g.beginPath();
+          g.ellipse(-5, -58, 2.2, 3, 0, 0, 7);
+          g.ellipse(6, -58, 2.2, 3, 0, 0, 7);
+          g.fill();
+          g.fillStyle = "#fff";
+          g.beginPath();
+          g.arc(-5.8, -59.2, 0.9, 0, 7);
+          g.arc(5.2, -59.2, 0.9, 0, 7);
+          g.fill();
+        }
+        // eyebrows on forehead
+        g.strokeStyle = "#5a301a";
+        g.lineWidth = 1.6;
+        g.lineCap = "round";
+        if (sit) {
+          // startled / worried raised inner eyebrows
+          g.beginPath();
+          g.moveTo(-7.5, -60.5);
+          g.lineTo(-2.5, -62.5);
+          g.stroke();
+          g.beginPath();
+          g.moveTo(7.5, -60.5);
+          g.lineTo(2.5, -62.5);
+          g.stroke();
+        } else {
+          g.beginPath();
+          g.arc(-5, -61.2, 2.5, -Math.PI * 0.8, -Math.PI * 0.2);
+          g.stroke();
+          g.beginPath();
+          g.arc(6, -61.2, 2.5, -Math.PI * 0.8, -Math.PI * 0.2);
+          g.stroke();
+        }
+        // nose & cheeks
+        g.strokeStyle = "#c07c5a";
+        g.lineWidth = 1.5;
+        g.beginPath();
+        g.arc(0.5, -55.5, 1.5, 0.2, Math.PI * 0.8);
+        g.stroke();
+        g.fillStyle = "rgba(255,110,110,0.55)";
+        g.beginPath();
+        g.ellipse(-10, -53, 3.6, 2.2, 0, 0, 7);
+        g.ellipse(11, -53, 3.6, 2.2, 0, 0, 7);
+        g.fill();
+        // mouth: shocked/surprised 'o' gasp when sliding down (penalty), happy smile when idle/walking
+        if (sit) {
+          g.fillStyle = "#3d0f14";
+          g.beginPath();
+          g.ellipse(0.5, -51.5, 3.2, 4.2, 0, 0, Math.PI * 2);
+          g.fill();
+          g.stroke();
+        } else {
+          g.strokeStyle = "#8a3a2a";
+          g.lineWidth = 1.8;
+          g.beginPath();
+          g.arc(1, -54, 5, 0.2, Math.PI - 0.2);
+          g.stroke();
+        }
+        // cap dome & visor drawn OVER head and forehead (visor cleanly in front of forehead)
+        const capFlutter = sit ? Math.sin(t * 22) * 1.2 : 0;
+        g.strokeStyle = "rgba(40,20,10,0.7)";
+        g.lineWidth = 1.6;
+        g.fillStyle = col;
+        g.beginPath();
+        g.arc(0, -64, 17.5, Math.PI, 0);
+        g.lineTo(17.5, -62);
+        g.lineTo(-17.5, -62);
+        g.closePath();
+        g.fill();
+        g.stroke();
+        g.fillStyle = shade(col, -0.2);
+        rr(g, -2, -70 + capFlutter, 26, 6, 3);
+        g.fill();
+        g.stroke();
+        g.fillStyle = "rgba(255,255,255,0.35)";
+        g.beginPath();
+        g.ellipse(-5, -74, 6, 2.5, -0.3, 0, 7);
+        g.fill();
+        g.restore();
 
-/* ---------- dice: project all six faces of one rotating cube ---------- */
-const DIE_FACES=[
- {n:[0,0,1],u:[1,0,0],v:[0,1,0],value:1},
- {n:[0,0,-1],u:[-1,0,0],v:[0,1,0],value:6},
- {n:[1,0,0],u:[0,0,-1],v:[0,1,0],value:3},
- {n:[-1,0,0],u:[0,0,1],v:[0,1,0],value:4},
- {n:[0,1,0],u:[1,0,0],v:[0,0,-1],value:2},
- {n:[0,-1,0],u:[1,0,0],v:[0,0,1],value:5}
-];
-const DIE_PIPS={
- 1:[[0,0]],2:[[-.43,-.43],[.43,.43]],3:[[-.43,-.43],[0,0],[.43,.43]],
- 4:[[-.43,-.43],[.43,-.43],[-.43,.43],[.43,.43]],
- 5:[[-.43,-.43],[.43,-.43],[0,0],[-.43,.43],[.43,.43]],
- 6:[[-.43,-.48],[.43,-.48],[-.43,0],[.43,0],[-.43,.48],[.43,.48]]
-};
-const DIE_FINAL={1:[0,0],2:[Math.PI/2,0],3:[0,-Math.PI/2],4:[0,Math.PI/2],5:[-Math.PI/2,0],6:[Math.PI,0]};
+        g.restore();
+      }
+
+      /* ---------- dice: project all six faces of one rotating cube ---------- */
+      const DIE_FACES = [
+        { n: [0, 0, 1], u: [1, 0, 0], v: [0, 1, 0], value: 1 },
+        { n: [0, 0, -1], u: [-1, 0, 0], v: [0, 1, 0], value: 6 },
+        { n: [1, 0, 0], u: [0, 0, -1], v: [0, 1, 0], value: 3 },
+        { n: [-1, 0, 0], u: [0, 0, 1], v: [0, 1, 0], value: 4 },
+        { n: [0, 1, 0], u: [1, 0, 0], v: [0, 0, -1], value: 2 },
+        { n: [0, -1, 0], u: [1, 0, 0], v: [0, 0, 1], value: 5 },
+      ];
+      const DIE_PIPS = {
+        1: [[0, 0]],
+        2: [
+          [-0.43, -0.43],
+          [0.43, 0.43],
+        ],
+        3: [
+          [-0.43, -0.43],
+          [0, 0],
+          [0.43, 0.43],
+        ],
+        4: [
+          [-0.43, -0.43],
+          [0.43, -0.43],
+          [-0.43, 0.43],
+          [0.43, 0.43],
+        ],
+        5: [
+          [-0.43, -0.43],
+          [0.43, -0.43],
+          [0, 0],
+          [-0.43, 0.43],
+          [0.43, 0.43],
+        ],
+        6: [
+          [-0.43, -0.48],
+          [0.43, -0.48],
+          [-0.43, 0],
+          [0.43, 0],
+          [-0.43, 0.48],
+          [0.43, 0.48],
+        ],
+      };
+      const DIE_FINAL = {
+        1: [0, 0],
+        2: [Math.PI / 2, 0],
+        3: [0, -Math.PI / 2],
+        4: [0, Math.PI / 2],
+        5: [-Math.PI / 2, 0],
+        6: [Math.PI, 0],
+      };
 function drawDie3D(g,x,y,size,rotation){
  const [rx,ry,rz]=rotation,cx=Math.cos(rx),sx=Math.sin(rx),cy=Math.cos(ry),sy=Math.sin(ry),cz=Math.cos(rz),sz=Math.sin(rz);
  const spin=([a,b,c])=>{let Y=b*cx-c*sx,Z=b*sx+c*cx;let X=a*cy+Z*sy;Z=-a*sy+Z*cy;return[X*cz-Y*sz,X*sz+Y*cz,Z]};

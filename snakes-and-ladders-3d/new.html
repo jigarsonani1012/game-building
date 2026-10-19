@@ -4814,51 +4814,154 @@
           this.eaten = false;
         }
       }
-class Dice{
- constructor(game){this.g=game;this.state='hidden';this.t=0;this.value=1;this.alpha=1;this.x=1080;this.y=480;this.h=0;this.angles=[.28,-.35,-.18];this.duration=1120;this.contacts=0}
- fitToView(){
-  if(this.layoutX===App.offX&&this.layoutY===App.offY)return;
-  this.layoutX=App.offX;this.layoutY=App.offY;
-  const right=W-App.offX-20;
-  this.targetX=Math.min(1100,right-85);this.targetY=H-App.offY-173;
-  this.startX=Math.min(right-60,this.targetX+55);this.startY=H-App.offY-83;
-  if(this.state==='shown'){this.x=this.targetX;this.y=this.targetY}
- }
- show(){
-  TW.remove(this);this.g.r=false;this.value=1+irnd(6);this.state='anim';this.t=0;this.alpha=1;this.contacts=0;
-  this.layoutX=null;this.fitToView();
-  this.x=this.startX;this.y=this.startY;this.h=0;
-  const [rx,ry]=DIE_FINAL[this.value];
-  this.end=[rx+.22,ry-.26,.13];
-  this.begin=[this.end[0]-Math.PI*4.8,this.end[1]+Math.PI*3.6,this.end[2]-Math.PI*3.7];
-  this.angles=this.begin.slice();Snd.play('dices');
- }
- update(dt){
-  if(this.state!=='anim')return;this.fitToView();
-  this.t=Math.min(this.duration,this.t+dt);const u=this.t/this.duration;
-  if(u<.52){const p=u/.52;this.x=lerp(this.startX,this.targetX-25,Ease.quadOut(p));this.y=lerp(this.startY,this.targetY+5,p);this.h=115*Math.sin(Math.PI*p)}
-  else if(u<.77){const p=(u-.52)/.25;this.x=lerp(this.targetX-25,this.targetX+8,p);this.y=lerp(this.targetY+5,this.targetY,p);this.h=33*Math.sin(Math.PI*p)}
-  else{const p=(u-.77)/.23;this.x=lerp(this.targetX+8,this.targetX,Ease.quadOut(p));this.y=this.targetY;this.h=9*Math.sin(Math.PI*p)}
-  const spin=1-Math.pow(1-u,2.35);
-  this.angles=this.begin.map((a,i)=>lerp(a,this.end[i],spin));
-  if(u>=.52&&this.contacts<1){this.contacts=1;Snd.play('dice_land')}
-  if(u>=.77&&this.contacts<2){this.contacts=2;Snd.play('dice_land')}
-  if(u>=1){this.x=this.targetX;this.y=this.targetY;this.h=0;this.angles=this.end.slice();this.state='shown';this.g.onDiceEnd(this.value)}
- }
- fadeOut(){if(this.state==='hidden')return;TW.remove(this);TW.get(this).to({alpha:0},200).call(()=>this.hide())}
- hide(){this.state='hidden'}
- draw(g){
-  if(this.state==='hidden')return;this.fitToView();g.save();g.globalAlpha=this.alpha;
-  const px=clamp(this.x,App.offX+64,W-App.offX-64);
-  const ground=this.y+44,sh=1-clamp(this.h/180,0,.7);
-  const shadow=g.createRadialGradient(px,ground,2,px,ground,54*sh);
-  shadow.addColorStop(0,`rgba(20,33,10,${.34*sh})`);shadow.addColorStop(1,'rgba(20,33,10,0)');
-  g.fillStyle=shadow;g.beginPath();g.ellipse(px,ground,54*sh,21*sh,0,0,Math.PI*2);g.fill();
-  if(this.state==='anim'&&this.contacts){const p=this.contacts===1?this.t/this.duration-.52:this.t/this.duration-.77;if(p<.07){g.strokeStyle=`rgba(255,255,255,${.55*(1-p/.07)})`;g.lineWidth=2;g.beginPath();g.ellipse(px,ground,14+p*260,5+p*80,0,0,Math.PI*2);g.stroke()}}
-  drawDie3D(g,px,this.y-this.h,62,this.angles);
-  g.restore();
- }
-}
+      class Dice {
+        constructor(game) {
+          this.g = game;
+          this.state = "hidden";
+          this.t = 0;
+          this.value = 1;
+          this.alpha = 1;
+          this.x = 1080;
+          this.y = 480;
+          this.h = 0;
+          this.angles = [0.28, -0.35, -0.18];
+          this.duration = 1120;
+          this.contacts = 0;
+        }
+        fitToView() {
+          if (this.layoutX === App.offX && this.layoutY === App.offY) return;
+          this.layoutX = App.offX;
+          this.layoutY = App.offY;
+          const right = W - App.offX - 20;
+          this.targetX = Math.min(1100, right - 85);
+          this.targetY = H - App.offY - 173;
+          this.startX = Math.min(right - 60, this.targetX + 55);
+          this.startY = H - App.offY - 83;
+          if (this.state === "shown") {
+            this.x = this.targetX;
+            this.y = this.targetY;
+          }
+        }
+        show() {
+          TW.remove(this);
+          this.g.r = false;
+          this.value = 1 + irnd(6);
+          this.state = "anim";
+          this.t = 0;
+          this.alpha = 1;
+          this.contacts = 0;
+          this.layoutX = null;
+          this.fitToView();
+          this.x = this.startX;
+          this.y = this.startY;
+          this.h = 0;
+          const [rx, ry] = DIE_FINAL[this.value];
+          this.end = [rx + 0.22, ry - 0.26, 0.13];
+          this.begin = [
+            this.end[0] - Math.PI * 4.8,
+            this.end[1] + Math.PI * 3.6,
+            this.end[2] - Math.PI * 3.7,
+          ];
+          this.angles = this.begin.slice();
+          Snd.play("dices");
+        }
+        update(dt) {
+          if (this.state !== "anim") return;
+          this.fitToView();
+          this.t = Math.min(this.duration, this.t + dt);
+          const u = this.t / this.duration;
+          if (u < 0.52) {
+            const p = u / 0.52;
+            this.x = lerp(this.startX, this.targetX - 25, Ease.quadOut(p));
+            this.y = lerp(this.startY, this.targetY + 5, p);
+            this.h = 115 * Math.sin(Math.PI * p);
+          } else if (u < 0.77) {
+            const p = (u - 0.52) / 0.25;
+            this.x = lerp(this.targetX - 25, this.targetX + 8, p);
+            this.y = lerp(this.targetY + 5, this.targetY, p);
+            this.h = 33 * Math.sin(Math.PI * p);
+          } else {
+            const p = (u - 0.77) / 0.23;
+            this.x = lerp(this.targetX + 8, this.targetX, Ease.quadOut(p));
+            this.y = this.targetY;
+            this.h = 9 * Math.sin(Math.PI * p);
+          }
+          const spin = 1 - Math.pow(1 - u, 2.35);
+          this.angles = this.begin.map((a, i) => lerp(a, this.end[i], spin));
+          if (u >= 0.52 && this.contacts < 1) {
+            this.contacts = 1;
+            Snd.play("dice_land");
+          }
+          if (u >= 0.77 && this.contacts < 2) {
+            this.contacts = 2;
+            Snd.play("dice_land");
+          }
+          if (u >= 1) {
+            this.x = this.targetX;
+            this.y = this.targetY;
+            this.h = 0;
+            this.angles = this.end.slice();
+            this.state = "shown";
+            this.g.onDiceEnd(this.value);
+          }
+        }
+        fadeOut() {
+          if (this.state === "hidden") return;
+          TW.remove(this);
+          TW.get(this)
+            .to({ alpha: 0 }, 200)
+            .call(() => this.hide());
+        }
+        hide() {
+          this.state = "hidden";
+        }
+        draw(g) {
+          if (this.state === "hidden") return;
+          this.fitToView();
+          g.save();
+          g.globalAlpha = this.alpha;
+          const px = clamp(this.x, App.offX + 64, W - App.offX - 64);
+          const ground = this.y + 44,
+            sh = 1 - clamp(this.h / 180, 0, 0.7);
+          const shadow = g.createRadialGradient(
+            px,
+            ground,
+            2,
+            px,
+            ground,
+            54 * sh,
+          );
+          shadow.addColorStop(0, `rgba(20,33,10,${0.34 * sh})`);
+          shadow.addColorStop(1, "rgba(20,33,10,0)");
+          g.fillStyle = shadow;
+          g.beginPath();
+          g.ellipse(px, ground, 54 * sh, 21 * sh, 0, 0, Math.PI * 2);
+          g.fill();
+          if (this.state === "anim" && this.contacts) {
+            const p =
+              this.contacts === 1
+                ? this.t / this.duration - 0.52
+                : this.t / this.duration - 0.77;
+            if (p < 0.07) {
+              g.strokeStyle = `rgba(255,255,255,${0.55 * (1 - p / 0.07)})`;
+              g.lineWidth = 2;
+              g.beginPath();
+              g.ellipse(
+                px,
+                ground,
+                14 + p * 260,
+                5 + p * 80,
+                0,
+                0,
+                Math.PI * 2,
+              );
+              g.stroke();
+            }
+          }
+          drawDie3D(g, px, this.y - this.h, 62, this.angles);
+          g.restore();
+        }
+      }
       class Game {
         constructor(num, chosen, vs, colours) {
           this.f = num;

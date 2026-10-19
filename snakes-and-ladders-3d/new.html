@@ -4786,6 +4786,34 @@
       /* =====================================================================
    GAME
    ===================================================================== */
+      class Player {
+        constructor(idx, ci, game) {
+          this.idx = idx;
+          this.ci = ci;
+          this.g = game;
+          this.reset();
+        }
+        reset() {
+          const z = ZERO_SQUARE_POSITIONS[this.idx];
+          this.pos = 0;
+          this.x = z[0];
+          this.y = z[1];
+          this.hop = 0;
+          this.scale = 1;
+          this.shA = 1;
+          this.shVisible = true;
+          this.visible = true;
+          this.flip = false;
+          this.tilt = 0;
+          this.anim = "idle";
+          this.animT = Math.random() * 3;
+          this.arrow = false;
+          this.curve = null;
+          this.curveI = 0;
+          this.curveAcc = 0;
+          this.eaten = false;
+        }
+      }
 class Dice{
  constructor(game){this.g=game;this.state='hidden';this.t=0;this.value=1;this.alpha=1;this.x=1080;this.y=480;this.h=0;this.angles=[.28,-.35,-.18];this.duration=1120;this.contacts=0}
  fitToView(){
@@ -4831,356 +4859,1628 @@ class Dice{
   g.restore();
  }
 }
-class Game{
- constructor(num,chosen,vs,colours){
-  this.f=num;this.v=vs;this.mode=App.mode;this.p=0;
-  if(vs===HUMAN_VS_CPU){const a=shuffle([0,1,2,3,4,5]);a.splice(a.indexOf(chosen),1);this.p=irnd(num);a.splice(this.p,0,chosen);colours=a.slice(0,num)}
-  this.players=colours.map((ci,i)=>new Player(i,ci,this));
-  this.resetVariables();this.msgs=[];this.snakeAnim=null;this.cpuTimer=null;this.fx=[];this.shake=0;this.rings=[];this.sparks=[];
-  this.dice=new Dice(this);
-  this.main=App.pushLayer({draw:g=>this.draw(g),onDown:()=>false});
-  this.ui=new Interface(this);
-  Snd.setMusicVolume(SOUNDTRACK_VOLUME_IN_GAME);
-  App.fadeIn(600);
-  new HelpPanel(this,()=>{this.z=true;this.r=true;this.turnShown=false});
- }
- resetVariables(){this.z=false;this.r=false;this.q=0;this.u=0;this.t=0;this.turnShown=false;this.specialPending=false;this.specialTimer=0;this.specialFn=null;this.chuteFollow=false;this.paused=false}
- pause(v){this.paused=v;App.paused=v}
- onExit(){Snd.setMusicVolume(1);App.setScreen(Menu)}
- sq(n){return BOARD_SQUARES[n]}
- /* ---- turn flow ---- */
- checkForNextTurn(){
-  const P=this.players[this.t];
-  if(this.v===HUMAN_VS_CPU&&this.t!==this.p){P.arrow=false;this.ui.enableDice(false);this.cpuTimer=delay(550,()=>{this.cpuTimer=null;if(this.z&&this.r)this.dice.show()})}
-  else{P.arrow=true;this.ui.enableDice(true)}
-  this.ui.setTurn(this.t);
- }
- launchDices(){if(this.v===HUMAN_VS_CPU&&this.t!==this.p)return;if(!this.ui.diceEnabled||!this.r||!this.z)return;this.dice.show();this.ui.enableDice(false)}
- onDiceEnd(v){this.u=v;this.movePlayer(v)}
- movePlayer(n){this.q=n;this.players[this.t].arrow=false;this.playerAdvance(this.t,this.q)}
- checkToFlip(a){if(this.mode===MODE_SNAKES)return;const P=this.players[a],row=Math.floor((P.pos-1)/10);P.flip=P.pos>0&&row%2===1}
- playerAdvance(a,b){
-  const P=this.players[a];P.pos++;
-  if(b===0){this.playerArrived(a);return}
-  const [cx,cy]=this.sq(P.pos);this.checkToFlip(a);let ease;
-  if(this.mode===MODE_SNAKES){ease=Ease.quadIn;TW.get(P).to({hop:-20},150,Ease.quadIn).to({hop:0},150,Ease.quadIn);TW.get(P).to({shA:.5},150,Ease.quadIn).to({shA:1},150,Ease.quadIn)}
-  else{ease=Ease.linear;P.anim='walk'}
-  TW.get(P).to({x:cx,y:cy},300,ease).call(()=>{Snd.play('step_land');this.rings.push({x:cx,y:cy,t:0});this.checkFinalSquare(a,b-1)});
- }
- checkFinalSquare(a,b){
-  const pos=this.players[a].pos;
-  if(PERFECT_SCORE){if(pos>=LAST_SQUARE&&b>0)this.playerBack(a,b);else this.playerAdvance(a,b)}
-  else{if(pos===LAST_SQUARE)this.onWin(a);else this.playerAdvance(a,b)}
- }
- playerBack(a,b){
-  const P=this.players[a];P.pos--;
-  if(b===0){if(this.mode===MODE_CHUTES)P.anim='idle';P.pos++;this.checkForSpecialSquares(a);return}
-  this.checkToFlip(a);const [cx,cy]=this.sq(P.pos);
-  TW.get(P).to({x:cx,y:cy},100,Ease.quadIn).call(()=>this.playerBack(a,b-1));
- }
- playerArrived(a){const P=this.players[a];if(this.mode===MODE_CHUTES)P.anim='idle';P.pos--;this.checkToFlip(a);this.checkForSpecialSquares(a)}
- checkForAnotherPlayer(sq,a){let c=0;for(const P of this.players)if(P.pos===sq)c++;if(c>1&&sq>0){const off=c%2===0?5*Math.floor(c/2):-5*Math.floor(c/2);const [x,y]=this.sq(sq);TW.get(this.players[a]).to({x:x+off,y:y+off},150)}}
- checkForSpecialSquares(a){
-  const P=this.players[a],pos=P.pos;this.checkForAnotherPlayer(pos,a);
-  if(pos===LAST_SQUARE){this.onWin(a);return}
-  this.specialPending=true;this.specialTimer=0;
-  if(OBSTACLES_SQUARES.includes(pos)){Snd.play('malus');this.showMsg(MSG_BAD);this.specialFn=()=>this.startObstacleAnimation(pos,a)}
-  else if(LADDERS_SQUARES.includes(pos)){Snd.play('bonus');this.showMsg(MSG_GOOD);this.specialFn=()=>this.ladderSquare(a)}
-  else this.specialFn=()=>this.changeTurn();
- }
- startObstacleAnimation(sq,a){
-  const idx=OBSTACLES_SQUARES.indexOf(sq),P=this.players[a];
-  if(this.mode===MODE_SNAKES){
-   P.shVisible=false;P.eaten=true;this.snakeAnim={idx,t:0,dur:EAT_END+90,player:a};
-   const [hx,hy]=snakeMouthPos(getSnake(idx));
-   // pawn is lifted and sucked between the open jaws, then the mouth snaps shut
-   TW.get(P).wait(90).to({hop:-16,scale:.85},170,Ease.quadOut).to({hop:-2,x:hx,y:hy+8,scale:.3},EAT_CHOMP-260,Ease.quadIn).call(()=>{P.visible=false});
-   delay(EAT_CHOMP,()=>{Snd.play('eat');this.shake=5});
-   delay(EAT_END,()=>this.obstacleAnimationOver(a,idx));
-  }else{
-   P.anim='slide';const path=getChutePath(sq);Snd.play('chute');
-   TW.get(P).to({x:path[0][0],y:path[0][1]},150,Ease.quadIn).call(()=>{P.curve=path;P.curveI=0;P.curveAcc=0;this.chuteFollow=true});
-  }
- }
- obstacleAnimationOver(a,idx){
-  const dest=OBSTACLES_MOVEMENT_SQUARES[idx][1],P=this.players[a],[x,y]=this.sq(dest);
-  if(this.mode===MODE_SNAKES){
-   Snd.play('pop');Snd.play('snake');const tp=getSnake(idx).pts;const tl=tp[tp.length-1];
-   P.x=x;P.y=y;P.hop=0;P.scale=0;P.eaten=false;P.visible=true;P.shVisible=true;
-   TW.get(P).to({scale:1.25},170,Ease.quadOut).to({scale:1},260,Ease.backOut);
-   TW.get(P).to({hop:-16},170,Ease.quadOut).to({hop:0},300,Ease.bounceOut);
-   this.puff(tl[0],tl[1]);
-  }
-  else TW.get(P).to({x,y},100,Ease.quadIn).call(()=>{P.anim='idle'});
-  P.pos=dest+1;this.playerArrived(a);
- }
- ladderSquare(a){
-  const P=this.players[a];for(const [from,to] of LADDER_MOVEMENT_SQUARES)if(P.pos===from){const [x,y]=this.sq(to);Snd.play('ladder');P.sparkle=true;if(this.mode===MODE_CHUTES)P.anim='walk';TW.get(P).to({x,y},LADDERS_SPEED,Ease.cubicOut).call(()=>{P.sparkle=false;this.rings.push({x,y,t:0});P.pos=to+1;this.playerArrived(a)})}
- }
- changeTurn(){
-  this.dice.fadeOut();
-  if(this.u!==6){this.t=(this.t+1)%this.f;this.r=true;this.turnShown=false}
-  else{Snd.play('bonus');this.showMsg(MSG_DICE,()=>{if(this.z)this.dice.show()})}
- }
- showMsg(kind,onEnd){
-  let str;if(kind===MSG_DICE)str=T.EXTRA_DICE;else str=(kind===MSG_GOOD?T.GOOD:T.BAD)[irnd(5)];
-  const m={str,kind,s:.55,x:kind===MSG_DICE?HW:0,y:kind===MSG_DICE?-100:HH};TW.get(m).to({s:1},760,Ease.backOut);const ex=kind===MSG_DICE?[HW,H+300]:[W+300,HH];
-  this.msgs.push(m);
-  TW.get(m).to({x:HW,y:HH},700,Ease.cubicIn).wait(700).to({x:ex[0],y:ex[1]},350,Ease.cubicOut).call(()=>{this.msgs=this.msgs.filter(q=>q!==m);onEnd&&onEnd()});
- }
- onWin(a){
-  this.z=false;for(const P of this.players)P.arrow=false;this.ui.enableDice(false);
-  App.gamesPlayed++;
-  const won=this.v===HUMAN_VS_CPU?a===this.p:true;
-  if(won)App.gamesWon++;App.save();
-  if(this.mode===MODE_CHUTES)for(const P of this.players)P.anim='idle';
-  Snd.play(won?'game_win':'game_over');
-  this.end=new EndPanel(this,won);
- }
- puff(x,y){for(let i=0;i<14;i++){const a=Math.random()*Math.PI*2,sp=rnd(40,95);this.fx.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp*.45-12,r:rnd(3.5,7),t:0,max:rnd(380,650)})}}
- restartGame(){
-  TW.clear();this.dice.hide();this.msgs=[];this.snakeAnim=null;this.fx=[];this.shake=0;this.rings=[];this.sparks=[];for(const P of this.players)P.sparkle=false;this.resetVariables();
-  for(const P of this.players)P.reset();this.z=true;this.r=true;this.ui.setTurn(0);
- }
- /* ---- per-frame ---- */
- update(dt){
-  for(const P of this.players)P.animT+=dt/1000;
-  if(this.snakeAnim){this.snakeAnim.t+=dt;if(this.snakeAnim.t>=this.snakeAnim.dur)this.snakeAnim=null}
-  for(const f of this.fx){f.t+=dt;const k=dt/1000;f.x+=f.vx*k;f.y+=f.vy*k;f.vx*=.92;f.vy*=.92}this.fx=this.fx.filter(f=>f.t<f.max);
-  for(const r of this.rings)r.t+=dt;this.rings=this.rings.filter(r=>r.t<450);
-  for(const P of this.players)if(P.sparkle&&Math.random()<dt/22)this.sparks.push({x:P.x+rnd(-15,15),y:P.y-rnd(4,44),vy:-rnd(15,45),t:0,max:rnd(420,720),r:rnd(4,8)});
-  for(const sp of this.sparks){sp.t+=dt;sp.y+=sp.vy*dt/1000}this.sparks=this.sparks.filter(sp=>sp.t<sp.max);
-  if(this.shake>0)this.shake=Math.max(0,this.shake-dt*0.03);
-  if(!this.z)return;
-  this.dice.update(dt);
-  if(this.r&&!this.turnShown){this.turnShown=true;this.checkForNextTurn()}
-  if(this.specialPending){this.specialTimer+=dt;if(this.specialTimer>500){this.specialPending=false;const f=this.specialFn;this.specialFn=null;f&&f()}}
-  if(this.chuteFollow){const P=this.players[this.t];P.curveAcc+=dt;
-   while(P.curveAcc>=1000/30&&P.curve){P.curveAcc-=1000/30;const pt=P.curve[P.curveI];P.flip=pt[0]<P.x;P.x=pt[0];P.y=pt[1];P.curveI++;
-    if(P.curveI>=P.curve.length){this.chuteFollow=false;P.curve=null;const idx=OBSTACLES_SQUARES.indexOf(P.pos);this.obstacleAnimationOver(this.t,idx);break}}}
- }
- draw(g){
-  if(this.shake>0)g.translate((Math.random()-.5)*this.shake,(Math.random()-.5)*this.shake);
-  g.drawImage(getBoard(this.mode),0,0,W,H);
-  if(this.mode===MODE_SNAKES){
-   const now=performance.now(),an=this.snakeAnim,cur=this.players[this.t];
-   const eat=an?snakeEatState(an.t,now):null;
-   if(an&&eat.bulge>=0)drawSnakeBody(g,getSnake(an.idx),eat.bulge);
-   for(let i=0;i<10;i++){const sd=getSnake(i),[hx,hy]=sd.pts[0];
-    let st;
-    if(an&&an.idx===i){st=eat;const P=this.players[an.player];if(P.eaten&&P.visible)st.inside=gg=>drawPawn(gg,P.x,P.y+P.hop,P.ci,P.scale);st.look=[0,.7]}
-    else{st=snakeIdleState(sd,now);let dx=0,dy=.35;if(cur&&this.z){const vx=cur.x-hx,vy=(cur.y-20)-hy,l=Math.hypot(vx,vy)||1;if(l<300){dx=vx/l*.9;dy=vy/l*.9}}st.look=[dx,dy]}
-    drawSnakeHead(g,sd,st);
-   }
-  }
-  for(const r of this.rings){const u=r.t/450;g.strokeStyle=`rgba(255,255,255,${.75*(1-u)})`;g.lineWidth=3.5*(1-u)+.5;g.beginPath();g.ellipse(r.x,r.y+3,9+22*u,3.5+8*u,0,0,7);g.stroke()}
-  const ps=this.players.slice().sort((a,b)=>a.y-b.y);
-  if(this.mode===MODE_SNAKES)for(const P of ps)if(P.visible&&P.shVisible)drawPawnShadow(g,P.x,P.y,P.shA);
-  for(const P of ps){if(!P.visible||P.scale<=0.01||P.eaten)continue;
-   if(this.mode===MODE_SNAKES)drawPawn(g,P.x,P.y+P.hop,P.ci,P.scale);
-   else{g.save();g.fillStyle='rgba(0,0,0,0.25)';g.beginPath();g.ellipse(P.x,P.y+14,18,7,0,0,7);g.fill();g.restore();drawKid(g,P.x,P.y+13,P.ci,P.anim,P.animT,P.flip,P.scale)}
-  }
-  for(const P of ps)if(P.arrow){const bob=Math.sin(performance.now()/160)*6;g.save();g.translate(P.x,P.y-(this.mode===MODE_SNAKES?64:92)+bob);g.fillStyle='#ffd23a';g.strokeStyle='#7a3b08';g.lineWidth=2.5;g.lineJoin='round';g.beginPath();g.moveTo(0,14);g.lineTo(-15,-6);g.lineTo(-6,-6);g.lineTo(-6,-26);g.lineTo(6,-26);g.lineTo(6,-6);g.lineTo(15,-6);g.closePath();g.fill();g.stroke();g.restore()}
-  for(const sp of this.sparks){const u=sp.t/sp.max;drawSpark(g,sp.x,sp.y,sp.r*(1-u*.5),Math.sin(Math.PI*u))}
-  for(const f of this.fx){const u=f.t/f.max;g.fillStyle=`rgba(245,236,214,${(1-u)*.75})`;g.beginPath();g.arc(f.x,f.y,f.r*(1+u*1.2),0,7);g.fill()}
-  this.dice.draw(g);
-  for(const m of this.msgs){g.save();g.translate(m.x,m.y);g.scale(m.s,m.s);const k=m.kind;
-   fancyText(g,m.str,0,0,66,k===MSG_DICE?'#f0fcff':k===MSG_BAD?'#fff0e6':'#fffbd6',k===MSG_DICE?'#3cc0ff':k===MSG_BAD?'#ff6a4a':'#ffc21a',k===MSG_DICE?'#0b3d6b':k===MSG_BAD?'#5a0d0d':'#6b2d00',11);g.restore()}
- }
-}
+      class Game {
+        constructor(num, chosen, vs, colours) {
+          this.f = num;
+          this.v = vs;
+          this.mode = App.mode;
+          this.p = 0;
+          if (vs === HUMAN_VS_CPU) {
+            const a = shuffle([0, 1, 2, 3, 4, 5]);
+            a.splice(a.indexOf(chosen), 1);
+            this.p = irnd(num);
+            a.splice(this.p, 0, chosen);
+            colours = a.slice(0, num);
+          }
+          this.players = colours.map((ci, i) => new Player(i, ci, this));
+          this.resetVariables();
+          this.msgs = [];
+          this.snakeAnim = null;
+          this.cpuTimer = null;
+          this.fx = [];
+          this.shake = 0;
+          this.rings = [];
+          this.sparks = [];
+          this.dice = new Dice(this);
+          this.main = App.pushLayer({
+            draw: (g) => this.draw(g),
+            onDown: () => false,
+          });
+          this.ui = new Interface(this);
+          Snd.setMusicVolume(SOUNDTRACK_VOLUME_IN_GAME);
+          App.fadeIn(600);
+          new HelpPanel(this, () => {
+            this.z = true;
+            this.r = true;
+            this.turnShown = false;
+          });
+        }
+        resetVariables() {
+          this.z = false;
+          this.r = false;
+          this.q = 0;
+          this.u = 0;
+          this.t = 0;
+          this.turnShown = false;
+          this.specialPending = false;
+          this.specialTimer = 0;
+          this.specialFn = null;
+          this.chuteFollow = false;
+          this.paused = false;
+          this.autoPlay = this.autoPlay || false;
+        }
+        pause(v) {
+          this.paused = v;
+          App.paused = v;
+        }
+        onExit() {
+          Snd.setMusicVolume(1);
+          App.setScreen(Menu);
+        }
+        sq(n) {
+          return BOARD_SQUARES[n];
+        }
+        /* ---- turn flow ---- */
+        checkForNextTurn() {
+          const P = this.players[this.t];
+          if (this.v === HUMAN_VS_CPU && this.t !== this.p) {
+            P.arrow = false;
+            this.ui.enableDice(false);
+            this.cpuTimer = delay(550, () => {
+              this.cpuTimer = null;
+              if (this.z && this.r) this.dice.show();
+            });
+          } else {
+            P.arrow = true;
+            this.ui.enableDice(true);
+            if (this.autoPlay) {
+              delay(220, () => {
+                if (
+                  this.autoPlay &&
+                  this.z &&
+                  this.r &&
+                  this.ui &&
+                  this.ui.diceEnabled
+                )
+                  this.launchDices();
+              });
+            }
+          }
+          this.ui.setTurn(this.t);
+        }
+        launchDices() {
+          if (this.v === HUMAN_VS_CPU && this.t !== this.p) return;
+          if (!this.ui.diceEnabled || !this.r || !this.z) return;
+          this.dice.show();
+          this.ui.enableDice(false);
+        }
+        onDiceEnd(v) {
+          this.u = v;
+          this.movePlayer(v);
+        }
+        movePlayer(n) {
+          this.q = n;
+          this.players[this.t].arrow = false;
+          this.playerAdvance(this.t, this.q);
+        }
+        checkToFlip(a) {
+          if (this.mode === MODE_SNAKES) return;
+          const P = this.players[a],
+            row = Math.floor((P.pos - 1) / 10);
+          P.flip = P.pos > 0 && row % 2 === 1;
+        }
+        playerAdvance(a, b) {
+          const P = this.players[a];
+          P.pos++;
+          if (b === 0) {
+            this.playerArrived(a);
+            return;
+          }
+          const [cx, cy] = this.sq(P.pos);
+          this.checkToFlip(a);
+          let ease;
+          if (this.mode === MODE_SNAKES) {
+            ease = Ease.quadIn;
+            TW.get(P)
+              .to({ hop: -20 }, 150, Ease.quadIn)
+              .to({ hop: 0 }, 150, Ease.quadIn);
+            TW.get(P)
+              .to({ shA: 0.5 }, 150, Ease.quadIn)
+              .to({ shA: 1 }, 150, Ease.quadIn);
+          } else {
+            ease = Ease.linear;
+            P.anim = "walk";
+          }
+          TW.get(P)
+            .to({ x: cx, y: cy }, 300, ease)
+            .call(() => {
+              Snd.play("step_land");
+              this.rings.push({ x: cx, y: cy, t: 0 });
+              this.checkFinalSquare(a, b - 1);
+            });
+        }
+        checkFinalSquare(a, b) {
+          const pos = this.players[a].pos;
+          if (PERFECT_SCORE) {
+            if (pos >= LAST_SQUARE && b > 0) this.playerBack(a, b);
+            else this.playerAdvance(a, b);
+          } else {
+            if (pos === LAST_SQUARE) this.onWin(a);
+            else this.playerAdvance(a, b);
+          }
+        }
+        playerBack(a, b) {
+          const P = this.players[a];
+          P.pos--;
+          if (b === 0) {
+            if (this.mode === MODE_CHUTES) P.anim = "idle";
+            P.pos++;
+            this.checkForSpecialSquares(a);
+            return;
+          }
+          this.checkToFlip(a);
+          const [cx, cy] = this.sq(P.pos);
+          TW.get(P)
+            .to({ x: cx, y: cy }, 100, Ease.quadIn)
+            .call(() => this.playerBack(a, b - 1));
+        }
+        playerArrived(a) {
+          const P = this.players[a];
+          if (this.mode === MODE_CHUTES) P.anim = "idle";
+          P.pos--;
+          this.checkToFlip(a);
+          this.checkForSpecialSquares(a);
+        }
+        checkForAnotherPlayer(sq, a) {
+          let c = 0;
+          for (const P of this.players) if (P.pos === sq) c++;
+          if (c > 1 && sq > 0) {
+            const off =
+              c % 2 === 0 ? 5 * Math.floor(c / 2) : -5 * Math.floor(c / 2);
+            const [x, y] = this.sq(sq);
+            TW.get(this.players[a]).to({ x: x + off, y: y + off }, 150);
+          }
+        }
+        checkForSpecialSquares(a) {
+          const P = this.players[a],
+            pos = P.pos;
+          this.checkForAnotherPlayer(pos, a);
+          if (pos === LAST_SQUARE) {
+            this.onWin(a);
+            return;
+          }
+          this.specialPending = true;
+          this.specialTimer = 0;
+          if (OBSTACLES_SQUARES.includes(pos)) {
+            Snd.play("malus");
+            this.showMsg(MSG_BAD);
+            this.specialFn = () => this.startObstacleAnimation(pos, a);
+          } else if (LADDERS_SQUARES.includes(pos)) {
+            Snd.play("bonus");
+            this.showMsg(MSG_GOOD);
+            this.specialFn = () => this.ladderSquare(a);
+          } else this.specialFn = () => this.changeTurn();
+        }
+        startObstacleAnimation(sq, a) {
+          const idx = OBSTACLES_SQUARES.indexOf(sq),
+            P = this.players[a];
+          if (this.mode === MODE_SNAKES) {
+            P.shVisible = false;
+            P.eaten = true;
+            this.snakeAnim = { idx, t: 0, dur: EAT_END + 90, player: a };
+            const [hx, hy] = snakeMouthPos(getSnake(idx));
+            // pawn is lifted and sucked between the open jaws, then the mouth snaps shut
+            TW.get(P)
+              .wait(90)
+              .to({ hop: -16, scale: 0.85 }, 170, Ease.quadOut)
+              .to(
+                { hop: -2, x: hx, y: hy + 8, scale: 0.3 },
+                EAT_CHOMP - 260,
+                Ease.quadIn,
+              )
+              .call(() => {
+                P.visible = false;
+              });
+            delay(EAT_CHOMP, () => {
+              Snd.play("eat");
+              this.shake = 5;
+            });
+            delay(EAT_END, () => this.obstacleAnimationOver(a, idx));
+          } else {
+            P.anim = "slide";
+            const path = getChutePath(sq);
+            Snd.play("chute");
+            TW.get(P)
+              .to({ x: path[0][0], y: path[0][1] }, 150, Ease.quadIn)
+              .call(() => {
+                P.curve = path;
+                P.curveI = 0;
+                P.curveAcc = 0;
+                this.chuteFollow = true;
+              });
+          }
+        }
+        obstacleAnimationOver(a, idx) {
+          const dest = OBSTACLES_MOVEMENT_SQUARES[idx][1],
+            P = this.players[a],
+            [x, y] = this.sq(dest);
+          if (this.mode === MODE_SNAKES) {
+            Snd.play("pop");
+            Snd.play("snake");
+            const tp = getSnake(idx).pts;
+            const tl = tp[tp.length - 1];
+            P.x = x;
+            P.y = y;
+            P.hop = 0;
+            P.scale = 0;
+            P.eaten = false;
+            P.visible = true;
+            P.shVisible = true;
+            TW.get(P)
+              .to({ scale: 1.25 }, 170, Ease.quadOut)
+              .to({ scale: 1 }, 260, Ease.backOut);
+            TW.get(P)
+              .to({ hop: -16 }, 170, Ease.quadOut)
+              .to({ hop: 0 }, 300, Ease.bounceOut);
+            this.puff(tl[0], tl[1]);
+          } else {
+            Snd.play("step_land");
+            Snd.play("pop");
+            this.rings.push({ x, y, t: 0 });
+            this.puff(x, y);
+            P.anim = "idle";
+            P.tilt = 0;
+            TW.get(P).to({ x, y }, 140, Ease.quadOut);
+            TW.get(P)
+              .to({ hop: -16 }, 130, Ease.quadOut)
+              .to({ hop: 0 }, 220, Ease.bounceOut);
+            TW.get(P)
+              .to({ scale: 1.2 }, 130, Ease.quadOut)
+              .to({ scale: 1 }, 200, Ease.backOut);
+          }
+          P.pos = dest + 1;
+          this.playerArrived(a);
+        }
+        ladderSquare(a) {
+          const P = this.players[a];
+          for (const [from, to] of LADDER_MOVEMENT_SQUARES)
+            if (P.pos === from) {
+              const [x, y] = this.sq(to);
+              Snd.play("ladder");
+              P.sparkle = true;
+              if (this.mode === MODE_CHUTES) P.anim = "walk";
+              TW.get(P)
+                .to({ x, y }, LADDERS_SPEED, Ease.cubicOut)
+                .call(() => {
+                  P.sparkle = false;
+                  this.rings.push({ x, y, t: 0 });
+                  P.pos = to + 1;
+                  this.playerArrived(a);
+                });
+            }
+        }
+        changeTurn() {
+          this.dice.fadeOut();
+          if (this.u !== 6) {
+            this.t = (this.t + 1) % this.f;
+            this.r = true;
+            this.turnShown = false;
+          } else {
+            Snd.play("bonus");
+            this.showMsg(MSG_DICE, () => {
+              if (this.z) {
+                if (this.autoPlay) delay(220, () => this.dice.show());
+                else this.dice.show();
+              }
+            });
+          }
+        }
+        showMsg(kind, onEnd) {
+          let str;
+          if (kind === MSG_DICE) str = T.EXTRA_DICE;
+          else str = (kind === MSG_GOOD ? T.GOOD : T.BAD)[irnd(5)];
+          const m = {
+            str,
+            kind,
+            s: 0.55,
+            x: kind === MSG_DICE ? HW : 0,
+            y: kind === MSG_DICE ? -100 : HH,
+          };
+          TW.get(m).to({ s: 1 }, 760, Ease.backOut);
+          const ex = kind === MSG_DICE ? [HW, H + 300] : [W + 300, HH];
+          this.msgs.push(m);
+          TW.get(m)
+            .to({ x: HW, y: HH }, 700, Ease.cubicIn)
+            .wait(700)
+            .to({ x: ex[0], y: ex[1] }, 350, Ease.cubicOut)
+            .call(() => {
+              this.msgs = this.msgs.filter((q) => q !== m);
+              onEnd && onEnd();
+            });
+        }
+        onWin(a) {
+          this.z = false;
+          for (const P of this.players) P.arrow = false;
+          this.ui.enableDice(false);
+          App.gamesPlayed++;
+          const won = this.v === HUMAN_VS_CPU ? a === this.p : true;
+          if (won) App.gamesWon++;
+          App.save();
+          if (this.mode === MODE_CHUTES)
+            for (const P of this.players) P.anim = "idle";
+          Snd.play(won ? "game_win" : "game_over");
+          this.end = new EndPanel(this, won);
+        }
+        puff(x, y) {
+          for (let i = 0; i < 14; i++) {
+            const a = Math.random() * Math.PI * 2,
+              sp = rnd(40, 95);
+            this.fx.push({
+              x,
+              y,
+              vx: Math.cos(a) * sp,
+              vy: Math.sin(a) * sp * 0.45 - 12,
+              r: rnd(3.5, 7),
+              t: 0,
+              max: rnd(380, 650),
+            });
+          }
+        }
+        restartGame() {
+          TW.clear();
+          this.dice.hide();
+          this.msgs = [];
+          this.snakeAnim = null;
+          this.fx = [];
+          this.shake = 0;
+          this.rings = [];
+          this.sparks = [];
+          for (const P of this.players) P.sparkle = false;
+          this.resetVariables();
+          for (const P of this.players) P.reset();
+          this.z = true;
+          this.r = true;
+          this.ui.setTurn(0);
+        }
+        /* ---- per-frame ---- */
+        update(dt) {
+          for (const P of this.players) P.animT += dt / 1000;
+          if (this.snakeAnim) {
+            this.snakeAnim.t += dt;
+            if (this.snakeAnim.t >= this.snakeAnim.dur) this.snakeAnim = null;
+          }
+          for (const f of this.fx) {
+            f.t += dt;
+            const k = dt / 1000;
+            f.x += f.vx * k;
+            f.y += f.vy * k;
+            f.vx *= 0.92;
+            f.vy *= 0.92;
+          }
+          this.fx = this.fx.filter((f) => f.t < f.max);
+          for (const r of this.rings) r.t += dt;
+          this.rings = this.rings.filter((r) => r.t < 450);
+          for (const P of this.players)
+            if (P.sparkle && Math.random() < dt / 22)
+              this.sparks.push({
+                x: P.x + rnd(-15, 15),
+                y: P.y - rnd(4, 44),
+                vy: -rnd(15, 45),
+                t: 0,
+                max: rnd(420, 720),
+                r: rnd(4, 8),
+              });
+          for (const sp of this.sparks) {
+            sp.t += dt;
+            sp.y += (sp.vy * dt) / 1000;
+          }
+          this.sparks = this.sparks.filter((sp) => sp.t < sp.max);
+          if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 0.03);
+          if (!this.z) return;
+          this.dice.update(dt);
+          if (this.r && !this.turnShown) {
+            this.turnShown = true;
+            this.checkForNextTurn();
+          }
+          if (this.specialPending) {
+            this.specialTimer += dt;
+            if (this.specialTimer > 500) {
+              this.specialPending = false;
+              const f = this.specialFn;
+              this.specialFn = null;
+              f && f();
+            }
+          }
+          if (this.chuteFollow) {
+            const P = this.players[this.t];
+            P.curveAcc += dt;
+            const u = P.curveI / P.curve.length;
+            const spd = 36 + 42 * Math.sin(Math.PI * Math.pow(u, 0.65));
+            while (P.curveAcc >= 1000 / spd && P.curve) {
+              P.curveAcc -= 1000 / spd;
+              const pt = P.curve[P.curveI];
+              const dx = pt[0] - P.x;
+              P.flip = pt[0] < P.x;
+              const nextI = Math.min(P.curve.length - 1, P.curveI + 3);
+              const targetTilt = clamp(
+                (P.curve[nextI][0] - pt[0]) * 0.045,
+                -0.28,
+                0.28,
+              );
+              P.tilt = (P.tilt || 0) * 0.65 + targetTilt * 0.35;
+              P.x = pt[0];
+              P.y = pt[1];
+              P.curveI++;
+              if (u > 0.2 && u < 0.82)
+                this.shake = Math.max(this.shake, 1.6 * Math.sin(u * Math.PI));
+              if (Math.random() < 0.55) {
+                const spdX = P.flip ? rnd(14, 36) : rnd(-36, -14);
+                this.fx.push({
+                  x: P.x + (P.flip ? 6 : -6) + rnd(-3, 3),
+                  y: P.y + 16 + rnd(-2, 4),
+                  vx: spdX,
+                  vy: -rnd(12, 32),
+                  r: rnd(2.5, 4.8),
+                  t: 0,
+                  max: rnd(220, 380),
+                  col: "water",
+                });
+              }
+              if (P.curveI >= P.curve.length) {
+                this.chuteFollow = false;
+                P.curve = null;
+                P.tilt = 0;
+                const idx = OBSTACLES_SQUARES.indexOf(P.pos);
+                this.obstacleAnimationOver(this.t, idx);
+                break;
+              }
+            }
+          }
+        }
+        draw(g) {
+          if (this.shake > 0)
+            g.translate(
+              (Math.random() - 0.5) * this.shake,
+              (Math.random() - 0.5) * this.shake,
+            );
+          g.drawImage(getBoard(this.mode), 0, 0, W, H);
+          if (this.mode === MODE_SNAKES) {
+            const now = performance.now(),
+              an = this.snakeAnim,
+              cur = this.players[this.t];
+            const eat = an ? snakeEatState(an.t, now) : null;
+            if (an && eat.bulge >= 0)
+              drawSnakeBody(g, getSnake(an.idx), eat.bulge);
+            for (let i = 0; i < 10; i++) {
+              const sd = getSnake(i),
+                [hx, hy] = sd.pts[0];
+              let st;
+              if (an && an.idx === i) {
+                st = eat;
+                const P = this.players[an.player];
+                if (P.eaten && P.visible)
+                  st.inside = (gg) =>
+                    drawPawn(gg, P.x, P.y + P.hop, P.ci, P.scale);
+                st.look = [0, 0.7];
+              } else {
+                st = snakeIdleState(sd, now);
+                let dx = 0,
+                  dy = 0.35;
+                if (cur && this.z) {
+                  const vx = cur.x - hx,
+                    vy = cur.y - 20 - hy,
+                    l = Math.hypot(vx, vy) || 1;
+                  if (l < 300) {
+                    dx = (vx / l) * 0.9;
+                    dy = (vy / l) * 0.9;
+                  }
+                }
+                st.look = [dx, dy];
+              }
+              drawSnakeHead(g, sd, st);
+            }
+          }
+          for (const r of this.rings) {
+            const u = r.t / 450;
+            g.strokeStyle = `rgba(255,255,255,${0.75 * (1 - u)})`;
+            g.lineWidth = 3.5 * (1 - u) + 0.5;
+            g.beginPath();
+            g.ellipse(r.x, r.y + 3, 9 + 22 * u, 3.5 + 8 * u, 0, 0, 7);
+            g.stroke();
+          }
+          const ps = this.players.slice().sort((a, b) => a.y - b.y);
+          if (this.mode === MODE_SNAKES)
+            for (const P of ps)
+              if (P.visible && P.shVisible) drawPawnShadow(g, P.x, P.y, P.shA);
+          for (const P of ps) {
+            if (!P.visible || P.scale <= 0.01 || P.eaten) continue;
+            if (this.mode === MODE_SNAKES)
+              drawPawn(g, P.x, P.y + P.hop, P.ci, P.scale);
+            else {
+              g.save();
+              g.fillStyle = "rgba(0,0,0,0.25)";
+              g.beginPath();
+              g.ellipse(P.x, P.y + 14, 18, 7, 0, 0, 7);
+              g.fill();
+              g.restore();
+              drawKid(
+                g,
+                P.x,
+                P.y + 13 + P.hop,
+                P.ci,
+                P.anim,
+                P.animT,
+                P.flip,
+                P.scale,
+                P.tilt,
+              );
+            }
+          }
+          for (const P of ps)
+            if (P.arrow) {
+              const bob = Math.sin(performance.now() / 160) * 6;
+              g.save();
+              g.translate(
+                P.x,
+                P.y - (this.mode === MODE_SNAKES ? 64 : 92) + bob,
+              );
+              g.fillStyle = "#ffd23a";
+              g.strokeStyle = "#7a3b08";
+              g.lineWidth = 2.5;
+              g.lineJoin = "round";
+              g.beginPath();
+              g.moveTo(0, 14);
+              g.lineTo(-15, -6);
+              g.lineTo(-6, -6);
+              g.lineTo(-6, -26);
+              g.lineTo(6, -26);
+              g.lineTo(6, -6);
+              g.lineTo(15, -6);
+              g.closePath();
+              g.fill();
+              g.stroke();
+              g.restore();
+            }
+          for (const sp of this.sparks) {
+            const u = sp.t / sp.max;
+            drawSpark(
+              g,
+              sp.x,
+              sp.y,
+              sp.r * (1 - u * 0.5),
+              Math.sin(Math.PI * u),
+            );
+          }
+          for (const f of this.fx) {
+            const u = f.t / f.max;
+            if (f.col === "water") {
+              g.fillStyle = `rgba(225,248,255,${(1 - u) * 0.85})`;
+              g.beginPath();
+              g.arc(f.x, f.y, f.r * (1 - u * 0.3), 0, 7);
+              g.fill();
+              g.fillStyle = `rgba(255,255,255,${(1 - u) * 0.95})`;
+              g.beginPath();
+              g.arc(
+                f.x - f.r * 0.2,
+                f.y - f.r * 0.2,
+                f.r * 0.45 * (1 - u * 0.3),
+                0,
+                7,
+              );
+              g.fill();
+            } else {
+              g.fillStyle = `rgba(245,236,214,${(1 - u) * 0.75})`;
+              g.beginPath();
+              g.arc(f.x, f.y, f.r * (1 + u * 1.2), 0, 7);
+              g.fill();
+            }
+          }
+          this.dice.draw(g);
+          for (const m of this.msgs) {
+            g.save();
+            g.translate(m.x, m.y);
+            g.scale(m.s, m.s);
+            const k = m.kind;
+            fancyText(
+              g,
+              m.str,
+              0,
+              0,
+              66,
+              k === MSG_DICE
+                ? "#f0fcff"
+                : k === MSG_BAD
+                  ? "#fff0e6"
+                  : "#fffbd6",
+              k === MSG_DICE
+                ? "#3cc0ff"
+                : k === MSG_BAD
+                  ? "#ff6a4a"
+                  : "#ffc21a",
+              k === MSG_DICE
+                ? "#0b3d6b"
+                : k === MSG_BAD
+                  ? "#5a0d0d"
+                  : "#6b2d00",
+              11,
+            );
+            g.restore();
+          }
+        }
+      }
 
-/* ---------- in-game interface: turn panel, dice button, settings menu ---------- */
-class Interface{
- constructor(game){
-  this.g=game;this.diceEnabled=false;this.open=false;this.turn=0;
-  const L=App.pushLayer({draw:g=>this.drawPanel(g)});this.L=L;
-  const self=this;
-  this.diceBtn=L.add(new Button({x:W-50,y:H-50,w:84,h:87,ax:'r',ay:'b',enabled:false,onClick:()=>{this.g.launchDices()},draw(g){glossRect(g,-42,-43,84,86,18,self.diceEnabled?'#f6a21c':'#b5a896');g.save();g.globalAlpha=self.diceEnabled?1:.65;drawDie3D(g,0,0,41,[.28,-.35,-.18]);g.restore()}}));
-  const sx=W-41,sy=41;
-  this.settings=L.add(iconButton(sx,sy,60,'settings','gear',()=>this.toggleMenu(),{ax:'r'}));
-  this.sub=[];
-  const mk=(kind,icon,y,fn,toggleKind)=>{let b;if(toggleKind==='audio')b=audioToggle(sx,sy,{ax:'r'});else if(toggleKind==='fs')b=fsToggle(sx,sy,{ax:'r'});else b=iconButton(sx,sy,60,kind,icon,fn,{ax:'r'});b.targetY=y;b.visible=false;this.sub.push(b);return b};
-  mk('exit','x',113,()=>new AreYouSurePanel(this.g,this));
-  mk('help','help',185,()=>{this.closeMenu();new HelpPanel(this.g,null,true)});
-  mk(null,null,257,null,'audio');
-  if(fsAvailable)mk(null,null,329,null,'fs');
-  // sub buttons must be above the settings button in z-order: re-add
-  for(const b of this.sub)L.add(b);
- }
- enableDice(v){this.diceEnabled=v;this.diceBtn.enabled=v;if(v)this.diceBtn.pulse();else this.diceBtn.stopTweens()}
- setTurn(t){this.turn=t}
- toggleMenu(){if(this.open)this.closeMenu();else this.openMenu()}
- openMenu(){
-  this.open=true;this.g.pause(true);
-  this.pauseLayer=App.pushLayer({modal:true,draw:g=>{dimScreen(g,.7);text(g,T.PAUSE,HW,HH,40,COL_PRIMARY,COL_THIRD,5)},onDown:()=>this.closeMenu()});
-  // keep interface buttons on top of the pause layer
-  App.removeLayer(this.L);App.layers.push(this.L);
-  for(const b of this.sub){b.visible=true;b.y=41;TWUI.remove(b);TWUI.get(b).to({y:b.targetY},300,Ease.cubicOut)}
- }
- closeMenu(){
-  if(!this.open)return;this.open=false;this.g.pause(false);
-  App.removeLayer(this.pauseLayer);this.pauseLayer=null;
-  for(const b of this.sub){TWUI.remove(b);TWUI.get(b).to({y:41},300,Ease.cubicIn).call(()=>{b.visible=false})}
- }
- drawRollPill(g){
-  if(!this.diceEnabled||!this.g.z||App.paused)return;
-  const P=this.g.players[this.turn],bx=W-50-App.offX,y=H-50-App.offY-74+Math.sin(performance.now()/210)*3;
-  const lbl=this.g.v===HUMAN_VS_CPU?'YOUR TURN!':'P'+(this.turn+1)+' TURN!';
-  g.save();g.font=`21px ${FONT}`;const w=g.measureText(lbl).width+34,x=Math.min(bx,W-App.offX-10-w/2);
-  let c=(this.g.mode===MODE_SNAKES?PAWN_COLORS:KID_COLORS)[P.ci];if(c==='#e8e8e8')c='#7d8b99';
-  g.fillStyle='rgba(0,0,0,0.3)';rr(g,x-w/2+2,y-18+4,w,36,18);g.fill();
-  g.beginPath();g.moveTo(bx-9,y+16);g.lineTo(bx+9,y+16);g.lineTo(bx,y+27);g.closePath();g.fillStyle=shade(c,-.15);g.fill();
-  const gr=g.createLinearGradient(0,y-18,0,y+18);gr.addColorStop(0,shade(c,.35));gr.addColorStop(1,shade(c,-.2));g.fillStyle=gr;rr(g,x-w/2,y-18,w,36,18);g.fill();
-  g.strokeStyle='#fff';g.lineWidth=2.5;g.stroke();g.fillStyle='rgba(255,255,255,0.3)';rr(g,x-w/2+5,y-15,w-10,13,7);g.fill();
-  text(g,lbl,x,y+1,21,'#fff',shade(c,-.55),5);g.restore();
- }
- drawPanel(g){
-  this.drawRollPill(g);
-  const x=20+App.offX,y=10,w=92,h=377;
-  g.save();g.translate(x,y);
-  g.fillStyle='rgba(0,0,0,0.3)';rr(g,3,5,w,h,18);g.fill();
-  const fr=g.createLinearGradient(0,0,0,h);fr.addColorStop(0,'#ffb347');fr.addColorStop(1,'#e2730f');g.fillStyle=fr;rr(g,0,0,w,h,18);g.fill();g.strokeStyle='rgba(80,30,0,0.7)';g.lineWidth=2.5;rr(g,0,0,w,h,18);g.stroke();
-  g.save();rr(g,8,8,w-16,h-16,12);g.clip();const bg=g.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#5fc1f6');bg.addColorStop(1,'#1b86d6');g.fillStyle=bg;g.fillRect(0,0,w,h);g.fillStyle='rgba(255,255,255,0.13)';for(let s=-h;s<w+h;s+=36){g.beginPath();g.moveTo(s,0);g.lineTo(s+16,0);g.lineTo(s+16-h,h);g.lineTo(s-h,h);g.closePath();g.fill()}g.restore();
-  g.strokeStyle='rgba(255,255,255,0.7)';g.lineWidth=2;rr(g,8,8,w-16,h-16,12);g.stroke();
-  text(g,'TURN',w/2,27,18,'#fff',COL_SECONDARY,3);
-  const n=this.g.players.length;
-  for(let i=0;i<n;i++){const P=this.g.players[i],cy=79.5+50*i,act=i===this.turn&&this.g.z;
-   if(act){g.fillStyle='rgba(255,255,255,0.35)';rr(g,12,cy-44,w-24,50,10);g.fill();g.strokeStyle='#ffe66d';g.lineWidth=2;rr(g,12,cy-44,w-24,50,10);g.stroke()}
-   else{g.fillStyle='rgba(0,0,0,0.12)';rr(g,12,cy-44,w-24,50,10);g.fill()}
-   g.save();if(!act)g.globalAlpha=.6;
-   if(this.g.mode===MODE_SNAKES){drawPawnShadow(g,32,cy+1,.6);drawPawn(g,32,cy+1,P.ci,act?.8:.72)}else drawKid(g,32,cy+2,P.ci,'idle',P.animT,false,act?.52:.46);
-   g.restore();
-   const lbl=this.g.v===HUMAN_VS_CPU?(i===this.g.p?'YOU':'CPU'):'P'+(i+1);
-   text(g,lbl,63,cy-18,13,act?'#fff':'rgba(255,255,255,0.75)','#003060',3);
-  }
-  g.restore();
- }
-}
+      /* ---------- in-game interface: turn panel, dice button, settings menu ---------- */
+      class Interface {
+        constructor(game) {
+          this.g = game;
+          this.diceEnabled = false;
+          this.open = false;
+          this.turn = 0;
+          const L = App.pushLayer({ draw: (g) => this.drawPanel(g) });
+          this.L = L;
+          const self = this;
+          this.diceBtn = L.add(
+            new Button({
+              x: W - 50,
+              y: H - 50,
+              w: 84,
+              h: 87,
+              ax: "r",
+              ay: "b",
+              enabled: false,
+              onClick: () => {
+                this.g.launchDices();
+              },
+              draw(g) {
+                glossRect(
+                  g,
+                  -42,
+                  -43,
+                  84,
+                  86,
+                  18,
+                  self.diceEnabled ? "#f6a21c" : "#b5a896",
+                );
+                g.save();
+                g.globalAlpha = self.diceEnabled ? 1 : 0.65;
+                drawDie3D(g, 0, 0, 41, [0.28, -0.35, -0.18]);
+                g.restore();
+              },
+            }),
+          );
+          this.autoBtn = L.add(
+            new Button({
+              x: W - 146,
+              y: H - 50,
+              w: 84,
+              h: 56,
+              ax: "r",
+              ay: "b",
+              onClick: () => {
+                self.g.autoPlay = !self.g.autoPlay;
+                if (self.g.autoPlay && self.diceEnabled && self.g.z && self.g.r)
+                  self.g.launchDices();
+              },
+              draw(g) {
+                const on = self.g.autoPlay;
+                glossRect(g, -42, -28, 84, 56, 16, on ? "#27ae60" : "#3a4856");
+                if (on) {
+                  g.fillStyle = "#4ade80";
+                  g.beginPath();
+                  g.arc(-26, -7, 4, 0, Math.PI * 2);
+                  g.fill();
+                }
+                text(g, "AUTO", on ? 4 : 0, -7, 16, "#ffffff", "#1a2632", 3);
+                text(
+                  g,
+                  on ? "[ON]" : "[OFF]",
+                  0,
+                  12,
+                  12,
+                  on ? "#bbf7d0" : "#94a3b8",
+                  "#0f172a",
+                  2.5,
+                );
+              },
+            }),
+          );
+          const sx = W - 41,
+            sy = 41;
+          this.settings = L.add(
+            iconButton(
+              sx,
+              sy,
+              60,
+              "settings",
+              "gear",
+              () => this.toggleMenu(),
+              { ax: "r" },
+            ),
+          );
+          this.sub = [];
+          const mk = (kind, icon, y, fn, toggleKind) => {
+            let b;
+            if (toggleKind === "audio") b = audioToggle(sx, sy, { ax: "r" });
+            else if (toggleKind === "fs") b = fsToggle(sx, sy, { ax: "r" });
+            else b = iconButton(sx, sy, 60, kind, icon, fn, { ax: "r" });
+            b.targetY = y;
+            b.visible = false;
+            this.sub.push(b);
+            return b;
+          };
+          mk("exit", "x", 113, () => new AreYouSurePanel(this.g, this));
+          mk("help", "help", 185, () => {
+            this.closeMenu();
+            new HelpPanel(this.g, null, true);
+          });
+          mk(null, null, 257, null, "audio");
+          // sub buttons must be above the settings button in z-order: re-add
+          for (const b of this.sub) L.add(b);
+        }
+        enableDice(v) {
+          this.diceEnabled = v;
+          this.diceBtn.enabled = v;
+          if (v) this.diceBtn.pulse();
+          else this.diceBtn.stopTweens();
+        }
+        setTurn(t) {
+          this.turn = t;
+        }
+        toggleMenu() {
+          if (this.open) this.closeMenu();
+          else this.openMenu();
+        }
+        openMenu() {
+          this.open = true;
+          this.g.pause(true);
+          this.pauseLayer = App.pushLayer({
+            modal: true,
+            draw: (g) => {
+              dimScreen(g, 0.7);
+              text(g, T.PAUSE, HW, HH, 40, COL_PRIMARY, COL_THIRD, 5);
+            },
+            onDown: () => this.closeMenu(),
+          });
+          // keep interface buttons on top of the pause layer
+          App.removeLayer(this.L);
+          App.layers.push(this.L);
+          for (const b of this.sub) {
+            b.visible = true;
+            b.y = 41;
+            TWUI.remove(b);
+            TWUI.get(b).to({ y: b.targetY }, 300, Ease.cubicOut);
+          }
+        }
+        closeMenu() {
+          if (!this.open) return;
+          this.open = false;
+          this.g.pause(false);
+          App.removeLayer(this.pauseLayer);
+          this.pauseLayer = null;
+          for (const b of this.sub) {
+            TWUI.remove(b);
+            TWUI.get(b)
+              .to({ y: 41 }, 300, Ease.cubicIn)
+              .call(() => {
+                b.visible = false;
+              });
+          }
+        }
+        drawRollPill(g) {
+          if (!this.diceEnabled || !this.g.z || App.paused) return;
+          const P = this.g.players[this.turn],
+            bx = W - 50 - App.offX,
+            y = H - 50 - App.offY - 74 + Math.sin(performance.now() / 210) * 3;
+          const lbl =
+            this.g.v === HUMAN_VS_CPU
+              ? "YOUR TURN!"
+              : "P" + (this.turn + 1) + " TURN!";
+          g.save();
+          g.font = `21px ${FONT}`;
+          const w = g.measureText(lbl).width + 34,
+            x = Math.min(bx, W - App.offX - 10 - w / 2);
+          let c = (this.g.mode === MODE_SNAKES ? PAWN_COLORS : KID_COLORS)[
+            P.ci
+          ];
+          if (c === "#e8e8e8") c = "#7d8b99";
+          g.fillStyle = "rgba(0,0,0,0.3)";
+          rr(g, x - w / 2 + 2, y - 18 + 4, w, 36, 18);
+          g.fill();
+          g.beginPath();
+          g.moveTo(bx - 9, y + 16);
+          g.lineTo(bx + 9, y + 16);
+          g.lineTo(bx, y + 27);
+          g.closePath();
+          g.fillStyle = shade(c, -0.15);
+          g.fill();
+          const gr = g.createLinearGradient(0, y - 18, 0, y + 18);
+          gr.addColorStop(0, shade(c, 0.35));
+          gr.addColorStop(1, shade(c, -0.2));
+          g.fillStyle = gr;
+          rr(g, x - w / 2, y - 18, w, 36, 18);
+          g.fill();
+          g.strokeStyle = "#fff";
+          g.lineWidth = 2.5;
+          g.stroke();
+          g.fillStyle = "rgba(255,255,255,0.3)";
+          rr(g, x - w / 2 + 5, y - 15, w - 10, 13, 7);
+          g.fill();
+          text(g, lbl, x, y + 1, 21, "#fff", shade(c, -0.55), 5);
+          g.restore();
+        }
+        drawPanel(g) {
+          this.drawRollPill(g);
+          const n = this.g.players.length;
+          const gap = n > 4 ? 6 : 8,
+            cardH = n > 4 ? 46 : 50,
+            headerH = 42,
+            padBottom = 12;
+          const w = 92,
+            h = headerH + n * cardH + (n - 1) * gap + padBottom;
+          const x = 20 + App.offX,
+            y = 10;
+          g.save();
+          g.translate(x, y);
+          g.fillStyle = "rgba(0,0,0,0.3)";
+          rr(g, 3, 5, w, h, 18);
+          g.fill();
+          const fr = g.createLinearGradient(0, 0, 0, h);
+          fr.addColorStop(0, "#ffb347");
+          fr.addColorStop(1, "#e2730f");
+          g.fillStyle = fr;
+          rr(g, 0, 0, w, h, 18);
+          g.fill();
+          g.strokeStyle = "rgba(80,30,0,0.7)";
+          g.lineWidth = 2.5;
+          rr(g, 0, 0, w, h, 18);
+          g.stroke();
+          g.save();
+          rr(g, 8, 8, w - 16, h - 16, 12);
+          g.clip();
+          const bg = g.createLinearGradient(0, 0, 0, h);
+          bg.addColorStop(0, "#5fc1f6");
+          bg.addColorStop(1, "#1b86d6");
+          g.fillStyle = bg;
+          g.fillRect(0, 0, w, h);
+          g.fillStyle = "rgba(255,255,255,0.13)";
+          for (let s = -h; s < w + h; s += 36) {
+            g.beginPath();
+            g.moveTo(s, 0);
+            g.lineTo(s + 16, 0);
+            g.lineTo(s + 16 - h, h);
+            g.lineTo(s - h, h);
+            g.closePath();
+            g.fill();
+          }
+          g.restore();
+          g.strokeStyle = "rgba(255,255,255,0.7)";
+          g.lineWidth = 2;
+          rr(g, 8, 8, w - 16, h - 16, 12);
+          g.stroke();
+          text(g, "TURN", w / 2, 26, 18, "#fff", COL_SECONDARY, 3);
+          const cardX = 12,
+            cardW = w - 24;
+          for (let i = 0; i < n; i++) {
+            const P = this.g.players[i],
+              cardY = headerH + i * (cardH + gap),
+              act = i === this.turn && this.g.z;
+            const cy = cardY + cardH / 2;
+            if (act) {
+              g.fillStyle = "rgba(255,255,255,0.32)";
+              rr(g, cardX, cardY, cardW, cardH, 10);
+              g.fill();
+              g.strokeStyle = "#ffe66d";
+              g.lineWidth = 2.2;
+              rr(g, cardX, cardY, cardW, cardH, 10);
+              g.stroke();
+            } else {
+              g.fillStyle = "rgba(0,0,0,0.14)";
+              rr(g, cardX, cardY, cardW, cardH, 10);
+              g.fill();
+            }
+            g.save();
+            rr(g, cardX + 1, cardY + 1, cardW - 2, cardH - 2, 9);
+            g.clip();
+            if (!act) g.globalAlpha = 0.62;
+            if (this.g.mode === MODE_SNAKES) {
+              drawPawnShadow(g, 28, cardY + cardH - 12, 0.4);
+              drawPawn(g, 28, cardY + cardH - 12, P.ci, act ? 0.74 : 0.66);
+            } else {
+              drawKid(
+                g,
+                28,
+                cardY + cardH - 10,
+                P.ci,
+                "idle",
+                P.animT,
+                false,
+                act ? 0.46 : 0.4,
+              );
+            }
+            g.restore();
+            const lbl =
+              this.g.v === HUMAN_VS_CPU
+                ? i === this.g.p
+                  ? "YOU"
+                  : "CPU"
+                : "P" + (i + 1);
+            text(
+              g,
+              lbl,
+              56,
+              cy,
+              13,
+              act ? "#fff" : "rgba(255,255,255,0.78)",
+              "#003060",
+              3,
+            );
+          }
+          g.restore();
+        }
+      }
 
-/* ---------- help panel ---------- */
-class HelpPanel{
- constructor(game,onClose,fromMenu){
-  this.g=game;this.onClose=onClose;this.t=0;
-  if(fromMenu)game.pause(true);
-  const L=App.pushLayer({modal:true,draw:g=>this.draw(g)});this.L=L;
-  L.add(iconButton(HW,HH+180,60,'skip','skip',()=>this.close(),{}));
-  this.anim={a:0,b:0};
-  TWUI.get(this.anim,{loop:true}).to({a:1},1000,Ease.cubicIn).wait(500).call(()=>{this.anim.a=0});
-  TWUI.get(this.anim,{loop:true}).to({b:1},900,Ease.linear).wait(500).call(()=>{this.anim.b=0});
- }
- close(){App.removeLayer(this.L);TWUI.remove(this.anim);if(this.onClose)this.onClose();else this.g.pause(false)}
- draw(g){
-  dimScreen(g,.7);drawMsgBox(g,HW,HH);
-  const m=this.g.mode;
-  textBox(g,T.HELP_1,HW-250,HH-160,500,70,22,COL_PRIMARY,COL_SECONDARY,4,'center');
-  textBox(g,T.HELP2_PT1,HW-110,HH-30,320,40,22,COL_PRIMARY,COL_SECONDARY,4,'left');
-  textBox(g,(m===MODE_SNAKES?T.MODE0:T.MODE1)+T.HELP2_PT2,HW-200,HH+64,320,40,22,COL_PRIMARY,COL_SECONDARY,4,'right');
-  // ladder demo
-  const lx=HW-200,ly=HH-10;
-  g.save();if(m===MODE_SNAKES){drawLadder(g,[lx+30,ly+45],[lx-20,ly-50],seeded(9));const a=this.anim.a;drawPawn(g,lerp(lx+35,lx-25,a),lerp(ly+55,ly-55,a)+10,2,1)}
-  else{drawLadder(g,[lx+30,ly+45],[lx-20,ly-50],seeded(9),true);const a=this.anim.a;drawKid(g,lerp(lx+35,lx-25,a),lerp(ly+55,ly-55,a)+12,2,'walk',a*2,true,.7)}
-  g.restore();
-  // snake / chute demo
-  const sx=HW+200,sy=HH+80,b=this.anim.b;
-  g.save();
-  if(m===MODE_SNAKES){const sd=this.snk||(this.snk={pts:samplePath([[sx-40,sy-60],[sx-5,sy-30],[sx+35,sy-5],[sx+10,sy+25],[sx+45,sy+45]],3),col:'#e23b2e'});renderSnake(g,sd,-1,true);const i=Math.floor(b*(sd.pts.length-1)),p=sd.pts[i];drawPawn(g,p[0],p[1]+6,3,.9)}
-  else{const path=this.cp||(this.cp=samplePath([[sx-45,sy-55],[sx-20,sy-25],[sx+20,sy-5],[sx+10,sy+25],[sx+50,sy+45]],1.2));renderChuteAlongPath(g,path,CHUTE_THEMES[47],15.0,10.5,true);const i=Math.floor(b*(path.length-1)),p=path[i];drawKid(g,p[0],p[1]+8,3,'slide',0,false,.7)}
-  g.restore();
- }
-}
-/* ---------- are you sure ---------- */
-class AreYouSurePanel{
- constructor(game,ui){
-  this.g=game;this.ui=ui;this.dim=.5;this.y=H+220;
-  const L=App.pushLayer({modal:true,draw:g=>this.draw(g)});this.L=L;
-  const self=this;const mk=(x,kind,icon,fn)=>{const b=iconButton(x,HH+60,60,kind,icon,fn);Object.defineProperty(b,'py',{get(){return HH+60+self.y}});L.add(b)};
-  mk(HW+100,'yes','check',()=>this.yes());mk(HW-100,'no','x',()=>this.no());
-  TWUI.get(this).to({dim:.7},500);TWUI.get(this).to({y:0},1000,Ease.backOut);
-  game.pause(true);
- }
- yes(){TWUI.get(this).to({dim:0},500);TWUI.get(this).to({y:H+220},400,Ease.backIn).call(()=>{App.removeLayer(this.L);this.g.onExit()})}
- no(){this.ui.closeMenu();TWUI.get(this).to({dim:0},500);TWUI.get(this).to({y:H+220},400,Ease.backIn).call(()=>App.removeLayer(this.L));this.g.pause(false)}
- draw(g){dimScreen(g,this.dim);g.save();g.translate(0,this.y);drawMsgBox(g,HW,HH);textBox(g,T.ARE_SURE,HW-200,HH-140,400,120,50,COL_PRIMARY,COL_SECONDARY,5,'center');g.restore()}
-}
-/* ---------- end panel ---------- */
-class EndPanel{
- constructor(game,won){
-  this.g=game;this.won=won;this.dim=0;this.y=H;this.st={a:0};this.conf=[];this.lt=performance.now();
-  const L=App.pushLayer({modal:true,draw:g=>this.draw(g)});this.L=L;
-  const self=this;const mk=(x,kind,icon,fn)=>{const b=iconButton(x,HH+80,92,kind,icon,fn);Object.defineProperty(b,'py',{get(){return HH+80+self.y}});L.add(b);return b};
-  mk(HW-180,'home','home',()=>{this.g.onExit()});
-  mk(HW,'check','eye',()=>this.peek());
-  this.restart=mk(HW+180,'restart','restart',()=>{App.removeLayer(this.L);this.g.restartGame()});
-  TWUI.get(this).to({dim:.55},500,Ease.cubicOut);
-  TWUI.get(this).wait(250).to({y:0},1250,Ease.elasticOut).call(()=>this.restart.pulse());
-  TWUI.get(this.st).wait(700).to({a:3.4},900,Ease.linear);
-  if(won){const cols=['#ff4d6d','#ffd23a','#3fc3ff','#5bd65b','#b06cff','#ff9a2e','#ffffff'];for(let i=0;i<170;i++)this.conf.push({x:rnd(0,W),y:rnd(-700,-10),vx:rnd(-50,50),vy:rnd(130,260),rot:rnd(0,6),vr:rnd(-7,7),w:rnd(7,13),h:rnd(4,8),c:cols[irnd(cols.length)],ph:rnd(0,6)})}
- }
- peek(){this.L.visible=false;const pl=App.pushLayer({modal:true,draw:g=>dimScreen(g,.4),onDown:()=>{App.removeLayer(pl);this.L.visible=true}})}
- draw(g){
-  const now=performance.now(),dt=Math.min(50,now-this.lt);this.lt=now;
-  dimScreen(g,this.dim);g.save();g.translate(0,this.y);
-  if(this.won){g.save();g.translate(HW,HH-20);g.rotate(now/4000);g.globalCompositeOperation='lighter';for(let i=0;i<14;i++){g.rotate(Math.PI/7);g.fillStyle='rgba(255,230,140,0.07)';g.beginPath();g.moveTo(0,0);g.arc(0,0,520,-.11,.11);g.closePath();g.fill()}g.restore()}
-  drawMsgBox(g,HW,HH);
-  const title=this.won?T.WIN:T.LOSE;g.save();g.font=`40px ${FONT}`;const tw=g.measureText(title).width;g.restore();
-  drawRibbon(g,HW,124,Math.max(320,tw+90),this.won?'#e8402a':'#5b6f8c');
-  fancyText(g,title,HW,121,40,'#ffffff',this.won?'#ffe58a':'#d6e4f5',this.won?'#6e1408':'#1e2c40',8);
-  for(let i=0;i<3;i++){const k=clamp(this.st.a-i,0,1),sc=k<=0?0:Ease.backOut(Math.min(1,k));if(sc<=0)continue;const R=i===1?30:24;g.save();g.translate(HW+(i-1)*72,i===1?190:200);g.scale(sc,sc);drawStar(g,0,0,R,this.won);g.restore()}
-  g.fillStyle='rgba(0,45,100,0.35)';rr(g,HW-175,238,350,80,18);g.fill();g.strokeStyle='rgba(255,255,255,0.35)';g.lineWidth=2;g.stroke();
-  text(g,T.GAMES_PLAYED+':',HW-150,262,22,COL_PRIMARY,COL_SECONDARY,5,'left');text(g,String(App.gamesPlayed),HW+150,262,24,'#ffe66d',COL_SECONDARY,5,'right');
-  text(g,T.GAMES_WON+':',HW-150,296,22,COL_PRIMARY,COL_SECONDARY,5,'left');text(g,String(App.gamesWon),HW+150,296,24,'#ffe66d',COL_SECONDARY,5,'right');
-  g.restore();
-  for(const c of this.conf){c.x+=c.vx*dt/1000+Math.sin(now/300+c.ph)*.6;c.y+=c.vy*dt/1000;c.rot+=c.vr*dt/1000;if(c.y>H+20){c.y=rnd(-60,-10);c.x=rnd(0,W)}
-   g.save();g.translate(c.x,c.y);g.rotate(c.rot);g.scale(1,Math.cos(now/180+c.ph));g.fillStyle=c.c;g.fillRect(-c.w/2,-c.h/2,c.w,c.h);g.restore()}
- }
-}
+      class HelpPanel {
+        constructor(game, onClose, fromMenu) {
+          this.g = game;
+          this.onClose = onClose;
+          this.t = 0;
+          if (fromMenu) game.pause(true);
+          const L = App.pushLayer({ modal: true, draw: (g) => this.draw(g) });
+          this.L = L;
+          const self = this;
+          this.skipBtn = L.add(
+            new Button({
+              x: HW,
+              y: HH + 118,
+              w: 52,
+              h: 52,
+              kind: "skip",
+              icon: "skip",
+              onClick: () => this.close(),
+              draw(g, b) {
+                drawIconButton(g, 52, BTN.skip, "skip");
+              },
+            }),
+          );
+          Object.defineProperty(this.skipBtn, "px", {
+            get() {
+              return HW;
+            },
+          });
+          Object.defineProperty(this.skipBtn, "py", {
+            get() {
+              const availH = H - App.offY * 2;
+              const ph = Math.min(
+                336,
+                Math.max(260, Math.floor(availH * 0.75)),
+              );
+              return HH + Math.round(ph / 2 - 46);
+            },
+          });
+          this.anim = { a: 0, b: 0 };
+          TWUI.get(this.anim, { loop: true })
+            .to({ a: 1 }, 1000, Ease.cubicIn)
+            .wait(500)
+            .call(() => {
+              this.anim.a = 0;
+            });
+          TWUI.get(this.anim, { loop: true })
+            .to({ b: 1 }, 900, Ease.linear)
+            .wait(500)
+            .call(() => {
+              this.anim.b = 0;
+            });
+        }
+        close() {
+          App.removeLayer(this.L);
+          TWUI.remove(this.anim);
+          if (this.onClose) this.onClose();
+          else this.g.pause(false);
+        }
+        draw(g) {
+          dimScreen(g, 0.7);
+          const cx = HW,
+            cy = HH;
+          const availW = W - App.offX * 2;
+          const availH = H - App.offY * 2;
+          const pw = Math.min(550, Math.max(340, Math.floor(availW * 0.8)));
+          const ph = Math.min(336, Math.max(260, Math.floor(availH * 0.75)));
+          drawStyledPanel(g, cx, cy, pw, ph, 24);
+          const m = this.g.mode;
 
-/* =====================================================================
+          // Top instruction text
+          const topTextW = pw - 50;
+          const topY = cy - ph / 2 + 16;
+          textBox(
+            g,
+            T.HELP_1,
+            cx - topTextW / 2,
+            topY,
+            topTextW,
+            48,
+            Math.min(18, Math.floor(pw * 0.035)),
+            COL_PRIMARY,
+            COL_SECONDARY,
+            4,
+            "center",
+          );
+
+          // Two columns for demos: ladder on left, snake/chute on right
+          const colOff = Math.min(135, Math.floor(pw * 0.25));
+          const demoY = cy - 24;
+
+          // Left column: Ladder Demo
+          const lx = cx - colOff,
+            ly = demoY;
+          g.save();
+          if (m === MODE_SNAKES) {
+            drawLadder(g, [lx - 20, ly + 36], [lx + 20, ly - 44], seeded(9));
+            const a = this.anim.a;
+            drawPawn(
+              g,
+              lerp(lx - 20, lx + 20, a),
+              lerp(ly + 36, ly - 44, a) - 6,
+              2,
+              0.88,
+            );
+          } else {
+            drawLadder(
+              g,
+              [lx - 20, ly + 36],
+              [lx + 20, ly - 44],
+              seeded(9),
+              true,
+            );
+            const a = this.anim.a;
+            drawKid(
+              g,
+              lerp(lx - 20, lx + 20, a),
+              lerp(ly + 36, ly - 44, a) - 4,
+              2,
+              "walk",
+              a * 2,
+              true,
+              0.6,
+            );
+          }
+          g.restore();
+          text(
+            g,
+            T.HELP2_PT1,
+            lx,
+            cy + 50,
+            Math.min(17, Math.floor(pw * 0.034)),
+            COL_PRIMARY,
+            COL_SECONDARY,
+            3.5,
+            "center",
+            "middle",
+            colOff * 1.85,
+          );
+
+          // Right column: Snake / Chute Demo
+          const sx = cx + colOff,
+            sy = demoY;
+          const b = this.anim.b;
+          g.save();
+          if (m === MODE_SNAKES) {
+            const spts = [
+              [sx - 34, sy - 46],
+              [sx - 8, sy - 22],
+              [sx + 24, sy - 2],
+              [sx + 8, sy + 18],
+              [sx + 30, sy + 36],
+              [sx + 38, sy + 40],
+            ];
+            const sd =
+              this.snk ||
+              (this.snk = { pts: samplePath(spts, 3), col: "#e23b2e" });
+            renderSnake(g, sd, -1, true);
+            const i = Math.floor(b * (sd.pts.length - 1)),
+              p = sd.pts[i];
+            drawPawn(g, p[0], p[1] + 4, 3, 0.85);
+          } else {
+            const cpts = [
+              [sx - 34, sy - 44],
+              [sx - 10, sy - 20],
+              [sx + 22, sy - 2],
+              [sx + 8, sy + 18],
+              [sx + 32, sy + 38],
+            ];
+            const path = this.cp || (this.cp = samplePath(cpts, 1.2));
+            renderChuteAlongPath(g, path, CHUTE_THEMES[47], 13.0, 9.0, true);
+            const i = Math.floor(b * (path.length - 1)),
+              p = path[i];
+            drawKid(g, p[0], p[1] + 5, 3, "slide", 0, false, 0.6);
+          }
+          g.restore();
+          text(
+            g,
+            (m === MODE_SNAKES ? T.MODE0 : T.MODE1) + T.HELP2_PT2,
+            sx,
+            cy + 50,
+            Math.min(17, Math.floor(pw * 0.034)),
+            COL_PRIMARY,
+            COL_SECONDARY,
+            3.5,
+            "center",
+            "middle",
+            colOff * 1.85,
+          );
+        }
+      }
+      /* ---------- are you sure ---------- */
+      class AreYouSurePanel {
+        constructor(game, ui) {
+          this.g = game;
+          this.ui = ui;
+          this.dim = 0.5;
+          this.y = H + 220;
+          const L = App.pushLayer({ modal: true, draw: (g) => this.draw(g) });
+          this.L = L;
+          const self = this;
+          const mk = (relX, kind, icon, fn) => {
+            const b = iconButton(HW + relX * 65, HH + 42, 62, kind, icon, fn);
+            Object.defineProperty(b, "px", {
+              get() {
+                const cx = HW;
+                const availW = W - App.offX * 2;
+                const boxW = Math.min(
+                  440,
+                  Math.max(300, Math.floor(availW * 0.75)),
+                );
+                const spacing = Math.min(68, Math.floor(boxW * 0.18));
+                return cx + (relX < 0 ? -spacing : spacing);
+              },
+            });
+            Object.defineProperty(b, "py", {
+              get() {
+                const cy = HH;
+                const availH = H - App.offY * 2;
+                const boxH = Math.min(
+                  210,
+                  Math.max(180, Math.floor(availH * 0.48)),
+                );
+                return cy + Math.round(boxH * 0.2) + self.y;
+              },
+            });
+            L.add(b);
+            return b;
+          };
+          mk(-1, "no", "x", () => this.no());
+          mk(1, "yes", "check", () => this.yes());
+          TWUI.get(this).to({ dim: 0.7 }, 500);
+          TWUI.get(this).to({ y: 0 }, 1000, Ease.backOut);
+          game.pause(true);
+        }
+        yes() {
+          TWUI.get(this).to({ dim: 0 }, 500);
+          TWUI.get(this)
+            .to({ y: H + 220 }, 400, Ease.backIn)
+            .call(() => {
+              App.removeLayer(this.L);
+              this.g.onExit();
+            });
+        }
+        no() {
+          this.ui.closeMenu();
+          TWUI.get(this).to({ dim: 0 }, 500);
+          TWUI.get(this)
+            .to({ y: H + 220 }, 400, Ease.backIn)
+            .call(() => App.removeLayer(this.L));
+          this.g.pause(false);
+        }
+        draw(g) {
+          dimScreen(g, this.dim);
+          g.save();
+          g.translate(0, this.y);
+          const cx = HW,
+            cy = HH;
+          const availW = W - App.offX * 2;
+          const availH = H - App.offY * 2;
+          const boxW = Math.min(440, Math.max(300, Math.floor(availW * 0.75)));
+          const boxH = Math.min(210, Math.max(180, Math.floor(availH * 0.48)));
+          drawStyledPanel(g, cx, cy, boxW, boxH, 22);
+          const titleY = cy - Math.round(boxH * 0.19);
+          const fontSize = Math.min(32, Math.max(22, Math.floor(boxW * 0.076)));
+          fancyText(
+            g,
+            T.ARE_SURE,
+            cx,
+            titleY,
+            fontSize,
+            "#ffffff",
+            "#bfe4ff",
+            "#004080",
+            6,
+            boxW - 40,
+          );
+          g.restore();
+        }
+      }
+      /* ---------- end panel ---------- */
+      class EndPanel {
+        constructor(game, won) {
+          this.g = game;
+          this.won = won;
+          this.dim = 0;
+          this.y = H;
+          this.st = { a: 0 };
+          this.conf = [];
+          this.lt = performance.now();
+          const L = App.pushLayer({ modal: true, draw: (g) => this.draw(g) });
+          this.L = L;
+          const self = this;
+          const mk = (relX, kind, icon, fn) => {
+            const b = iconButton(HW, HH + 80, 64, kind, icon, fn);
+            Object.defineProperty(b, "px", {
+              get() {
+                const cx = HW;
+                const availW = W - App.offX * 2;
+                const boxW = Math.min(
+                  500,
+                  Math.max(340, Math.floor(availW * 0.8)),
+                );
+                const spacing = Math.min(95, Math.floor((boxW - 80) / 3.2));
+                return cx + relX * spacing;
+              },
+            });
+            Object.defineProperty(b, "py", {
+              get() {
+                const cy = HH;
+                const availH = H - App.offY * 2;
+                const boxH = Math.min(
+                  330,
+                  Math.max(260, Math.floor(availH * 0.74)),
+                );
+                return cy + Math.round(boxH / 2 - 50) + self.y;
+              },
+            });
+            L.add(b);
+            return b;
+          };
+          mk(-1, "home", "home", () => {
+            this.g.onExit();
+          });
+          mk(0, "check", "eye", () => this.peek());
+          this.restart = mk(1, "restart", "restart", () => {
+            App.removeLayer(this.L);
+            this.g.restartGame();
+          });
+          TWUI.get(this).to({ dim: 0.55 }, 500, Ease.cubicOut);
+          TWUI.get(this)
+            .wait(250)
+            .to({ y: 0 }, 1250, Ease.elasticOut)
+            .call(() => this.restart.pulse());
+          TWUI.get(this.st).wait(700).to({ a: 3.4 }, 900, Ease.linear);
+          if (won) {
+            const cols = [
+              "#ff4d6d",
+              "#ffd23a",
+              "#3fc3ff",
+              "#5bd65b",
+              "#b06cff",
+              "#ff9a2e",
+              "#ffffff",
+            ];
+            for (let i = 0; i < 170; i++)
+              this.conf.push({
+                x: rnd(0, W),
+                y: rnd(-700, -10),
+                vx: rnd(-50, 50),
+                vy: rnd(130, 260),
+                rot: rnd(0, 6),
+                vr: rnd(-7, 7),
+                w: rnd(7, 13),
+                h: rnd(4, 8),
+                c: cols[irnd(cols.length)],
+                ph: rnd(0, 6),
+              });
+          }
+        }
+        peek() {
+          this.L.visible = false;
+          const pl = App.pushLayer({
+            modal: true,
+            draw: (g) => dimScreen(g, 0.4),
+            onDown: () => {
+              App.removeLayer(pl);
+              this.L.visible = true;
+            },
+          });
+        }
+        draw(g) {
+          const now = performance.now(),
+            dt = Math.min(50, now - this.lt);
+          this.lt = now;
+          dimScreen(g, this.dim);
+          g.save();
+          g.translate(0, this.y);
+          const cx = HW,
+            cy = HH;
+          const availW = W - App.offX * 2;
+          const availH = H - App.offY * 2;
+          const boxW = Math.min(500, Math.max(340, Math.floor(availW * 0.8)));
+          const boxH = Math.min(330, Math.max(260, Math.floor(availH * 0.74)));
+
+          if (this.won) {
+            g.save();
+            g.translate(cx, cy - 20);
+            g.rotate(now / 4000);
+            g.globalCompositeOperation = "lighter";
+            for (let i = 0; i < 14; i++) {
+              g.rotate(Math.PI / 7);
+              g.fillStyle = "rgba(255,230,140,0.07)";
+              g.beginPath();
+              g.moveTo(0, 0);
+              g.arc(0, 0, 520, -0.11, 0.11);
+              g.closePath();
+              g.fill();
+            }
+            g.restore();
+          }
+
+          drawStyledPanel(g, cx, cy, boxW, boxH, 26);
+
+          // Ribbon & title
+          const title = this.won ? T.WIN : T.LOSE;
+          const ribbonY = cy - boxH / 2 + 22;
+          g.save();
+          g.font = `36px ${FONT}`;
+          const tw = g.measureText(title).width;
+          g.restore();
+          const ribbonW = Math.min(boxW - 40, Math.max(250, tw + 80));
+          drawRibbon(g, cx, ribbonY, ribbonW, this.won ? "#e8402a" : "#5b6f8c");
+          fancyText(
+            g,
+            title,
+            cx,
+            ribbonY - 2,
+            Math.min(36, Math.max(24, Math.floor(boxW * 0.075))),
+            "#ffffff",
+            this.won ? "#ffe58a" : "#d6e4f5",
+            this.won ? "#6e1408" : "#1e2c40",
+            7,
+          );
+
+          // Stars
+          const starsY = ribbonY + 52;
+          const starR = Math.min(26, Math.floor(boxW * 0.052));
+          const starGap = Math.min(62, Math.floor(boxW * 0.125));
+          for (let i = 0; i < 3; i++) {
+            const k = clamp(this.st.a - i, 0, 1),
+              sc = k <= 0 ? 0 : Ease.backOut(Math.min(1, k));
+            if (sc <= 0) continue;
+            const R = i === 1 ? starR : starR * 0.8;
+            g.save();
+            g.translate(cx + (i - 1) * starGap, i === 1 ? starsY : starsY + 8);
+            g.scale(sc, sc);
+            drawStar(g, 0, 0, R, this.won);
+            g.restore();
+          }
+
+          // Stats card
+          const statsW = Math.min(boxW - 60, 320);
+          const statsH = 66;
+          const statsY = starsY + 38;
+          g.fillStyle = "rgba(0,45,100,0.35)";
+          rr(g, cx - statsW / 2, statsY, statsW, statsH, 16);
+          g.fill();
+          g.strokeStyle = "rgba(255,255,255,0.35)";
+          g.lineWidth = 2;
+          rr(g, cx - statsW / 2, statsY, statsW, statsH, 16);
+          g.stroke();
+          const statFontSize = Math.min(20, Math.floor(statsW * 0.065));
+          text(
+            g,
+            T.GAMES_PLAYED + ":",
+            cx - statsW / 2 + 20,
+            statsY + 19,
+            statFontSize,
+            COL_PRIMARY,
+            COL_SECONDARY,
+            4,
+            "left",
+          );
+          text(
+            g,
+            String(App.gamesPlayed),
+            cx + statsW / 2 - 20,
+            statsY + 19,
+            statFontSize + 2,
+            "#ffe66d",
+            COL_SECONDARY,
+            4,
+            "right",
+          );
+          text(
+            g,
+            T.GAMES_WON + ":",
+            cx - statsW / 2 + 20,
+            statsY + 46,
+            statFontSize,
+            COL_PRIMARY,
+            COL_SECONDARY,
+            4,
+            "left",
+          );
+          text(
+            g,
+            String(App.gamesWon),
+            cx + statsW / 2 - 20,
+            statsY + 46,
+            statFontSize + 2,
+            "#ffe66d",
+            COL_SECONDARY,
+            4,
+            "right",
+          );
+
+          g.restore();
+          for (const c of this.conf) {
+            c.x += (c.vx * dt) / 1000 + Math.sin(now / 300 + c.ph) * 0.6;
+            c.y += (c.vy * dt) / 1000;
+            c.rot += (c.vr * dt) / 1000;
+            if (c.y > H + 20) {
+              c.y = rnd(-60, -10);
+              c.x = rnd(0, W);
+            }
+            g.save();
+            g.translate(c.x, c.y);
+            g.rotate(c.rot);
+            g.scale(1, Math.cos(now / 180 + c.ph));
+            g.fillStyle = c.c;
+            g.fillRect(-c.w / 2, -c.h / 2, c.w, c.h);
+            g.restore();
+          }
+        }
+      }
+      /* =====================================================================
    MAIN LOOP / RESIZE / INPUT
    ===================================================================== */
-const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
-function resize(){
- const w=innerWidth,h=innerHeight;
- const mult=Math.min(h/(H-EDGE_Y*2),w/(W-EDGE_X*2));
- const dw=W*mult,dh=H*mult;
- const left=(w-dw)/2,top=(h-dh)/2;
- App.scale=mult;App.cssX=left;App.cssY=top;
- App.offX=clamp(Math.round(-left/mult),0,EDGE_X);App.offY=clamp(Math.round(-top/mult),0,EDGE_Y);
- const dpr=Math.min(window.devicePixelRatio||1,3),k=Math.min(3,mult*dpr);App.k=k;
- canvas.width=Math.round(W*k);canvas.height=Math.round(H*k);
- canvas.style.width=dw+'px';canvas.style.height=dh+'px';canvas.style.left=left+'px';canvas.style.top=top+'px';
- const q=clamp(Math.ceil(k*2)/2,1,2.5);
- if(q!==Q){clearTimeout(resize.tm);if(!grassTex){Q=q}else resize.tm=setTimeout(()=>{Q=q;invalidateCaches()},250)}
- const rot=document.getElementById('rot');if(rot)rot.classList.toggle('show',isMobile&&h>w&&w<900);
-}
-addEventListener('resize',resize);addEventListener('orientationchange',()=>setTimeout(resize,200));resize();
-document.addEventListener('fullscreenchange',()=>{App.fullscreen=!!document.fullscreenElement;for(const l of App.layers)for(const w of l.widgets)if(w.kind==='fullscreen')w.active=App.fullscreen;setTimeout(resize,100)});
-function toCanvas(e){return[(e.clientX-App.cssX)/App.scale,(e.clientY-App.cssY)/App.scale]}
-canvas.addEventListener('pointerdown',e=>{e.preventDefault();Snd.init();Snd.resume();const [x,y]=toCanvas(e);App.down(x,y)},{passive:false});
-addEventListener('pointerup',e=>{const [x,y]=toCanvas(e);App.up(x,y)});
-addEventListener('pointercancel',()=>{if(App.pressedW){App.pressedW.pressed=false;App.pressedW=null}});
-canvas.addEventListener('pointermove',e=>{const [x,y]=toCanvas(e);App.move(x,y)});
-canvas.addEventListener('contextmenu',e=>e.preventDefault());
-addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='Enter'){if(App.screen instanceof Game&&!App.paused&&App.layers[App.layers.length-1]===App.screen.ui.L){App.screen.launchDices()}}});
-document.addEventListener('visibilitychange',()=>{if(document.hidden)last=0});
+      const canvas = document.getElementById("c"),
+        ctx = canvas.getContext("2d");
+      function resize() {
+        const w = innerWidth,
+          h = innerHeight;
+        const mult = Math.min(h / (H - EDGE_Y * 2), w / (W - EDGE_X * 2));
+        const dw = W * mult,
+          dh = H * mult;
+        const left = (w - dw) / 2,
+          top = (h - dh) / 2;
+        App.scale = mult;
+        App.cssX = left;
+        App.cssY = top;
+        App.offX = clamp(Math.round(-left / mult), 0, EDGE_X);
+        App.offY = clamp(Math.round(-top / mult), 0, EDGE_Y);
+        const dpr = Math.min(window.devicePixelRatio || 1, 3),
+          k = Math.min(3, mult * dpr);
+        App.k = k;
+        canvas.width = Math.round(W * k);
+        canvas.height = Math.round(H * k);
+        canvas.style.width = dw + "px";
+        canvas.style.height = dh + "px";
+        canvas.style.left = left + "px";
+        canvas.style.top = top + "px";
+        const q = clamp(Math.ceil(k * 2) / 2, 1, 2.5);
+        if (q !== Q) {
+          clearTimeout(resize.tm);
+          if (!grassTex) {
+            Q = q;
+          } else
+            resize.tm = setTimeout(() => {
+              Q = q;
+              invalidateCaches();
+            }, 250);
+        }
+        const rot = document.getElementById("rot");
+        if (rot) rot.classList.toggle("show", isMobile && h > w && w < 900);
+      }
+      addEventListener("resize", resize);
+      addEventListener("orientationchange", () => setTimeout(resize, 200));
+      resize();
+      document.addEventListener("fullscreenchange", () => {
+        App.fullscreen = !!document.fullscreenElement;
+        for (const l of App.layers)
+          for (const w of l.widgets)
+            if (w.kind === "fullscreen") w.active = App.fullscreen;
+        setTimeout(resize, 100);
+      });
+      function toCanvas(e) {
+        return [
+          (e.clientX - App.cssX) / App.scale,
+          (e.clientY - App.cssY) / App.scale,
+        ];
+      }
+      canvas.addEventListener(
+        "pointerdown",
+        (e) => {
+          e.preventDefault();
+          Snd.init();
+          Snd.resume();
+          const [x, y] = toCanvas(e);
+          App.down(x, y);
+        },
+        { passive: false },
+      );
+      addEventListener("pointerup", (e) => {
+        const [x, y] = toCanvas(e);
+        App.up(x, y);
+      });
+      addEventListener("pointercancel", () => {
+        if (App.pressedW) {
+          App.pressedW.pressed = false;
+          App.pressedW = null;
+        }
+      });
+      canvas.addEventListener("pointermove", (e) => {
+        const [x, y] = toCanvas(e);
+        App.move(x, y);
+      });
+      canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+      addEventListener("keydown", (e) => {
+        if (
+          (e.code === "Space" || e.code === "Enter") &&
+          App.screen instanceof Game &&
+          !App.paused &&
+          App.layers[App.layers.length - 1] === App.screen.ui.L
+        ) {
+          App.screen.launchDices();
+        } else if (e.code === "KeyA" && App.screen instanceof Game) {
+          App.screen.autoPlay = !App.screen.autoPlay;
+          if (
+            App.screen.autoPlay &&
+            App.screen.ui.diceEnabled &&
+            App.screen.z &&
+            App.screen.r
+          ) {
+            App.screen.launchDices();
+          }
+        }
+      });
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) last = 0;
+      });
 
-let last=0;
-function frame(now){
- requestAnimationFrame(frame);
- if(!last)last=now;let dt=Math.min(100,now-last);last=now;
- TWUI.update(dt);
- if(!App.paused){TW.update(dt);if(App.screen&&App.screen.update)App.screen.update(dt)}
- ctx.setTransform(App.k,0,0,App.k,0,0);ctx.imageSmoothingQuality='high';ctx.clearRect(0,0,W,H);
- for(const l of App.layers){if(!l.visible)continue;ctx.save();ctx.globalAlpha=l.alpha;if(l.draw)l.draw(ctx);for(const w of l.widgets)w.render(ctx);ctx.restore()}
- if(App.fade.a>0){ctx.fillStyle=`rgba(0,0,0,${App.fade.a})`;ctx.fillRect(0,0,W,H)}
-}
-if(typeof location!=='undefined'&&location.search.includes('test=chutes')){
- App.mode=MODE_CHUTES;
- App.pushLayer({draw:g=>g.drawImage(getBoard(MODE_CHUTES),0,0)});
-}else{
- App.setScreen(Menu);
-}
-requestAnimationFrame(frame);
-</script>
-</body>
+      let last = 0;
+      function frame(now) {
+        requestAnimationFrame(frame);
+        if (!last) last = now;
+        let dt = Math.min(100, now - last);
+        last = now;
+        TWUI.update(dt);
+        if (!App.paused) {
+          TW.update(dt);
+          if (App.screen && App.screen.update) App.screen.update(dt);
+        }
+        ctx.setTransform(App.k, 0, 0, App.k, 0, 0);
+        ctx.imageSmoothingQuality = "high";
+        ctx.clearRect(0, 0, W, H);
+        for (const l of App.layers) {
+          if (!l.visible) continue;
+          ctx.save();
+          ctx.globalAlpha = l.alpha;
+          if (l.draw) l.draw(ctx);
+          for (const w of l.widgets) w.render(ctx);
+          ctx.restore();
+        }
+        if (App.fade.a > 0) {
+          ctx.fillStyle = `rgba(0,0,0,${App.fade.a})`;
+          ctx.fillRect(0, 0, W, H);
+        }
+      }
+      if (
+        typeof location !== "undefined" &&
+        location.search.includes("test=chutes")
+      ) {
+        App.mode = MODE_CHUTES;
+        App.pushLayer({
+          draw: (g) => g.drawImage(getBoard(MODE_CHUTES), 0, 0),
+        });
+      } else {
+        App.setScreen(Menu);
+      }
+      requestAnimationFrame(frame);
+    </script>
+  </body>
 </html>

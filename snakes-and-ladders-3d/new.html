@@ -2972,20 +2972,42 @@
           g.fill();
         },
         restart(g, s) {
-          g.strokeStyle = "#fff";
-          g.lineWidth = s * 0.11;
-          g.lineCap = "round";
-          g.beginPath();
-          g.arc(0, 0, s * 0.24, -Math.PI * 0.3, Math.PI * 1.45);
-          g.stroke();
-          g.fillStyle = "#fff";
+          const R = s * 0.24;
+          const lw = s * 0.11;
+          const aHead = -Math.PI * 0.28;
+          const aTail = Math.PI * 1.38;
+
           g.save();
-          g.rotate(-Math.PI * 0.3);
-          g.translate(s * 0.24, 0);
+          // 1. Smooth circular arc with clean butt caps
+          g.strokeStyle = "#fff";
+          g.lineWidth = lw;
+          g.lineCap = "butt";
           g.beginPath();
-          g.moveTo(-s * 0.13, -s * 0.02);
-          g.lineTo(s * 0.13, -s * 0.02);
-          g.lineTo(0, s * 0.17);
+          g.arc(0, 0, R, aHead, aTail);
+          g.stroke();
+
+          // 2. Rounded tail cap
+          g.fillStyle = "#fff";
+          const tx = Math.cos(aTail) * R;
+          const ty = Math.sin(aTail) * R;
+          g.beginPath();
+          g.arc(tx, ty, lw / 2, 0, Math.PI * 2);
+          g.fill();
+
+          // 3. Crisp, seamless arrowhead aligned along the curve tangent
+          const hx = Math.cos(aHead) * R;
+          const hy = Math.sin(aHead) * R;
+          const tAng = aHead - Math.PI / 2;
+          const bw = s * 0.24;
+          const arrowLen = s * 0.17;
+          const overlap = s * 0.02;
+
+          g.translate(hx, hy);
+          g.rotate(tAng);
+          g.beginPath();
+          g.moveTo(-overlap, -bw / 2);
+          g.lineTo(arrowLen, 0);
+          g.lineTo(-overlap, bw / 2);
           g.closePath();
           g.fill();
           g.restore();
@@ -5548,6 +5570,7 @@
           this.ui.setTurn(this.t);
         }
         launchDices() {
+          if (App.paused || this.paused || (this.ui && this.ui.open)) return;
           if (this.v === HUMAN_VS_CPU && this.t !== this.p) return;
           if (!this.ui.diceEnabled || !this.r || !this.z) return;
           this.dice.show();
@@ -6128,6 +6151,7 @@
               ay: "b",
               enabled: false,
               onClick: () => {
+                if (self.open || App.paused || self.g.paused) return;
                 this.g.launchDices();
               },
               draw(g) {
@@ -6160,6 +6184,7 @@
               ax: "r",
               ay: "b",
               onClick: () => {
+                if (self.open || App.paused || self.g.paused) return;
                 self.g.autoPlay = !self.g.autoPlay;
                 if (self.g.autoPlay && self.diceEnabled && self.g.z && self.g.r)
                   self.g.launchDices();
@@ -6189,7 +6214,9 @@
           );
           const sx = W - 41,
             sy = 41;
-          this.settings = L.add(
+          const menuL = App.pushLayer({});
+          this.menuL = menuL;
+          this.settings = menuL.add(
             iconButton(
               sx,
               sy,
@@ -6218,7 +6245,7 @@
           });
           mk(null, null, 257, null, "audio");
           // sub buttons must be above the settings button in z-order: re-add
-          for (const b of this.sub) L.add(b);
+          for (const b of this.sub) menuL.add(b);
         }
         enableDice(v) {
           this.diceEnabled = v;
@@ -6244,9 +6271,9 @@
             },
             onDown: () => this.closeMenu(),
           });
-          // keep interface buttons on top of the pause layer
-          App.removeLayer(this.L);
-          App.layers.push(this.L);
+          // keep menu buttons (settings + sub) on top of the pause layer
+          App.removeLayer(this.menuL);
+          App.layers.push(this.menuL);
           for (const b of this.sub) {
             if (b.kind === "audio") b.active = App.audio;
             b.visible = true;
@@ -6271,7 +6298,7 @@
           }
         }
         drawRollPill(g) {
-          if (!this.diceEnabled || !this.g.z || App.paused) return;
+          if (!this.diceEnabled || !this.g.z || App.paused || this.open) return;
           const P = this.g.players[this.turn],
             bx = W - 50 - App.offX,
             y = H - 50 - App.offY - 74 + Math.sin(performance.now() / 210) * 3;
@@ -6315,8 +6342,8 @@
         drawPanel(g) {
           this.drawRollPill(g);
           const n = this.g.players.length;
-          const gap = n > 4 ? 6 : 8,
-            cardH = n > 4 ? 46 : 50,
+          const gap = n > 4 ? 5 : 7,
+            cardH = n > 4 ? 48 : 52,
             headerH = 42,
             padBottom = 12;
           const w = 92,
@@ -6383,22 +6410,22 @@
               g.fill();
             }
             g.save();
-            rr(g, cardX + 1, cardY + 1, cardW - 2, cardH - 2, 9);
-            g.clip();
             if (!act) g.globalAlpha = 0.62;
+            const pawnBaseY = cardY + cardH - 8;
             if (this.g.mode === MODE_SNAKES) {
-              drawPawnShadow(g, 28, cardY + cardH - 12, 0.4);
-              drawPawn(g, 28, cardY + cardH - 12, P.ci, act ? 0.74 : 0.66);
+              const pScale = act ? 0.60 : 0.54;
+              drawPawn(g, 28, pawnBaseY, P.ci, pScale);
             } else {
+              const kScale = act ? 0.38 : 0.34;
               drawKid(
                 g,
                 28,
-                cardY + cardH - 10,
+                pawnBaseY,
                 P.ci,
                 "idle",
                 P.animT,
                 false,
-                act ? 0.46 : 0.4,
+                kScale,
               );
             }
             g.restore();
@@ -6807,23 +6834,6 @@
           const boxW = Math.min(500, Math.max(340, Math.floor(availW * 0.8)));
           const boxH = Math.min(330, Math.max(260, Math.floor(availH * 0.74)));
 
-          if (this.won) {
-            g.save();
-            g.translate(cx, cy - 20);
-            g.rotate(now / 4000);
-            g.globalCompositeOperation = "lighter";
-            for (let i = 0; i < 14; i++) {
-              g.rotate(Math.PI / 7);
-              g.fillStyle = "rgba(255,230,140,0.07)";
-              g.beginPath();
-              g.moveTo(0, 0);
-              g.arc(0, 0, 520, -0.11, 0.11);
-              g.closePath();
-              g.fill();
-            }
-            g.restore();
-          }
-
           drawStyledPanel(g, cx, cy, boxW, boxH, 26);
 
           // Ribbon & title
@@ -6921,13 +6931,14 @@
           );
 
           g.restore();
-          for (const c of this.conf) {
+          for (let i = this.conf.length - 1; i >= 0; i--) {
+            const c = this.conf[i];
             c.x += (c.vx * dt) / 1000 + Math.sin(now / 300 + c.ph) * 0.6;
             c.y += (c.vy * dt) / 1000;
             c.rot += (c.vr * dt) / 1000;
             if (c.y > H + 20) {
-              c.y = rnd(-60, -10);
-              c.x = rnd(0, W);
+              this.conf.splice(i, 1);
+              continue;
             }
             g.save();
             g.translate(c.x, c.y);
@@ -7027,10 +7038,15 @@
           (e.code === "Space" || e.code === "Enter") &&
           App.screen instanceof Game &&
           !App.paused &&
-          App.layers[App.layers.length - 1] === App.screen.ui.L
+          (!App.screen.ui || !App.screen.ui.open)
         ) {
           App.screen.launchDices();
-        } else if (e.code === "KeyA" && App.screen instanceof Game) {
+        } else if (
+          e.code === "KeyA" &&
+          App.screen instanceof Game &&
+          !App.paused &&
+          (!App.screen.ui || !App.screen.ui.open)
+        ) {
           App.screen.autoPlay = !App.screen.autoPlay;
           if (
             App.screen.autoPlay &&

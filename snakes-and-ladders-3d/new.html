@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -896,7 +896,7 @@
     </script>
     <script>
       /* =====================================================================
-   GRAPHICS ΓÇö everything is drawn procedurally
+   GRAPHICS — everything is drawn procedurally
    ===================================================================== */
       function mkCanvas(w, h) {
         const c = document.createElement("canvas");
@@ -2624,45 +2624,45 @@
       const DIE_PIPS = {
         1: [[0, 0]],
         2: [
-          [-0.43, -0.43],
-          [0.43, 0.43],
+          [-0.38, -0.38],
+          [0.38, 0.38],
         ],
         3: [
-          [-0.43, -0.43],
+          [-0.38, -0.38],
           [0, 0],
-          [0.43, 0.43],
+          [0.38, 0.38],
         ],
         4: [
-          [-0.43, -0.43],
-          [0.43, -0.43],
-          [-0.43, 0.43],
-          [0.43, 0.43],
+          [-0.38, -0.38],
+          [0.38, -0.38],
+          [-0.38, 0.38],
+          [0.38, 0.38],
         ],
         5: [
-          [-0.43, -0.43],
-          [0.43, -0.43],
+          [-0.38, -0.38],
+          [0.38, -0.38],
           [0, 0],
-          [-0.43, 0.43],
-          [0.43, 0.43],
+          [-0.38, 0.38],
+          [0.38, 0.38],
         ],
         6: [
-          [-0.43, -0.48],
-          [0.43, -0.48],
-          [-0.43, 0],
-          [0.43, 0],
-          [-0.43, 0.48],
-          [0.43, 0.48],
+          [-0.38, -0.44],
+          [0.38, -0.44],
+          [-0.38, 0],
+          [0.38, 0],
+          [-0.38, 0.44],
+          [0.38, 0.44],
         ],
       };
       const DIE_FINAL = {
-        1: [0, 0],
-        2: [Math.PI / 2, 0],
-        3: [0, -Math.PI / 2],
-        4: [0, Math.PI / 2],
-        5: [-Math.PI / 2, 0],
-        6: [Math.PI, 0],
+        1: [0.6184, -0.2816, 0.2834],
+        2: [-0.9516, -2.8616, -2.8616],
+        3: [2.0334, -0.8966, -1.6616],
+        4: [1.1134, 0.8984, 1.4834],
+        5: [2.1884, -2.8616, -2.8616],
+        6: [2.5234, 0.2784, -2.8616],
       };
-      function drawDie3D(g, x, y, size, rotation) {
+      function drawDie3D(g, x, y, size, rotation, highlightActive = false) {
         const [rx, ry, rz] = rotation,
           cx = Math.cos(rx),
           sx = Math.sin(rx),
@@ -2678,13 +2678,14 @@
           return [X * cz - Y * sz, X * sz + Y * cz, Z];
         };
         const project = (p) => {
-          const k = size * 0.5 * (1 + p[2] * 0.09);
+          const k = size * 0.46 * (1 + p[2] * 0.14);
           return [x + p[0] * k, y + p[1] * k];
         };
         const visible = [];
         for (const f of DIE_FACES) {
           const norm = spin(f.n);
-          if (norm[2] < 0.045) continue;
+          // Pure 3D back-face culling: all faces pointing towards the camera are always rendered
+          if (norm[2] <= 0.001) continue;
           const uv = (a, b, lift = 0) =>
             project(
               spin([
@@ -2699,58 +2700,159 @@
         g.save();
         g.lineJoin = "round";
         g.lineCap = "round";
+
+        // Key directional light from top-left-front
+        const klx = -0.32,
+          kly = -0.65,
+          klz = 0.68;
+
         for (const { f, norm, uv } of visible) {
           const corners = [uv(-1, -1), uv(1, -1), uv(1, 1), uv(-1, 1)];
+
           g.beginPath();
           g.moveTo(...corners[0]);
           for (let i = 1; i < 4; i++) g.lineTo(...corners[i]);
           g.closePath();
-          const lit = 0.69 + 0.31 * norm[2] - 0.13 * Math.max(0, norm[0]);
-          const base = Math.round(236 * lit + 17),
-            edge = Math.round(213 * lit + 20);
+
+          const isTop = norm[1] < -0.4;
+          const dot = Math.max(0, norm[0] * klx + norm[1] * kly + norm[2] * klz);
           const fg = g.createLinearGradient(
             corners[0][0],
             corners[0][1],
             corners[2][0],
             corners[2][1],
           );
-          fg.addColorStop(
-            0,
-            `rgb(${Math.min(255, base + 8)},${Math.min(255, base + 8)},${Math.min(255, base + 13)})`,
-          );
-          fg.addColorStop(1, `rgb(${edge},${edge},${Math.min(255, edge + 9)})`);
-          g.fillStyle = fg;
-          g.fill();
-          g.lineWidth = 3.4;
-          g.strokeStyle = "#a4a6b3";
-          g.stroke();
-          g.lineWidth = 1.2;
-          g.strokeStyle = "rgba(255,255,255,.9)";
-          g.beginPath();
-          g.moveTo(...uv(-0.89, 0.84));
-          g.lineTo(...uv(-0.89, -0.88));
-          g.lineTo(...uv(0.86, -0.88));
-          g.stroke();
-          for (const [px, py] of DIE_PIPS[f.value]) {
-            const center = uv(px, py, 0.012),
-              rad = 0.118;
-            g.beginPath();
-            for (let j = 0; j <= 16; j++) {
-              const a = (j * Math.PI) / 8,
-                p = uv(px + Math.cos(a) * rad, py + Math.sin(a) * rad, 0.016);
-              j ? g.lineTo(...p) : g.moveTo(...p);
+
+          if (!highlightActive || isTop) {
+            // Full premium ivory finish with directional lighting
+            const lit = highlightActive ? 0.94 + 0.06 * dot : 0.82 + 0.18 * dot;
+            const cBase = Math.round(255 * lit);
+            const cMid = Math.round(248 * lit);
+            const cEdge = Math.round(238 * lit);
+
+            fg.addColorStop(0, `rgb(${cBase},${cBase},${Math.min(255, cBase - 2)})`);
+            fg.addColorStop(0.5, `rgb(${cMid},${Math.min(255, cMid - 2)},${Math.min(255, cMid - 6)})`);
+            fg.addColorStop(1, `rgb(${cEdge},${Math.min(255, cEdge - 3)},${Math.min(255, cEdge - 8)})`);
+            g.fillStyle = fg;
+            g.fill();
+
+            if (highlightActive && isTop) {
+              // Active landed face in gameplay: luminous golden halo edge
+              g.lineWidth = Math.max(2.4, size * 0.04);
+              g.strokeStyle = "rgba(250, 204, 21, 0.95)";
+              g.stroke();
+            } else {
+              // Delicate clean beveled edge
+              const strokeR = Math.round(cBase * 0.85);
+              g.lineWidth = Math.max(1.2, size * 0.022);
+              g.strokeStyle = `rgb(${strokeR},${Math.round(strokeR * 0.98)},${Math.round(strokeR * 0.95)})`;
+              g.stroke();
             }
-            g.closePath();
-            g.fillStyle = "#171a24";
+
+            // Crisp specular rim highlight on top-left edges
+            if (norm[2] > 0.15) {
+              g.lineWidth = Math.max(1.2, size * 0.018);
+              g.strokeStyle = "rgba(255,255,255,0.85)";
+              g.beginPath();
+              g.moveTo(...uv(-0.96, 0.96));
+              g.lineTo(...uv(-0.96, -0.96));
+              g.lineTo(...uv(0.96, -0.96));
+              g.stroke();
+            }
+
+            // Bold, deep obsidian enamel pips with 3D depth and diamond glints
+            const rad = isTop ? 0.13 : 0.12;
+            for (const [px, py] of DIE_PIPS[f.value]) {
+              const center = uv(px, py, 0.016);
+
+              // 3D Countersunk pit shadow
+              const cShadow = uv(px, py + 0.022, 0.005);
+              g.fillStyle = "rgba(0,0,0,0.22)";
+              g.beginPath();
+              g.arc(cShadow[0], cShadow[1], size * rad * 0.52, 0, Math.PI * 2);
+              g.fill();
+
+              // Pip geometry
+              g.beginPath();
+              for (let j = 0; j <= 16; j++) {
+                const a = (j * Math.PI) / 8,
+                  p = uv(px + Math.cos(a) * rad, py + Math.sin(a) * rad, 0.018);
+                j ? g.lineTo(...p) : g.moveTo(...p);
+              }
+              g.closePath();
+
+              const bgPip = g.createRadialGradient(
+                center[0] - size * 0.015,
+                center[1] - size * 0.015,
+                1,
+                center[0],
+                center[1],
+                size * rad * 0.52,
+              );
+              bgPip.addColorStop(0, "#334155");
+              bgPip.addColorStop(0.5, "#0f172a");
+              bgPip.addColorStop(1, "#020617");
+              g.fillStyle = bgPip;
+              g.fill();
+              g.strokeStyle = "rgba(2,6,23,0.35)";
+              g.lineWidth = 1;
+              g.stroke();
+
+              // Diamond specular glint
+              const gl = uv(px - rad * 0.34, py - rad * 0.34, 0.022);
+              g.fillStyle = "rgba(255,255,255,0.92)";
+              g.beginPath();
+              g.arc(gl[0], gl[1], Math.max(1.1, size * 0.017), 0, Math.PI * 2);
+              g.fill();
+            }
+          } else {
+            // ONLY reached during in-game settled state for non-active side faces
+            const lit = 0.72 + 0.18 * dot;
+            const cBase = Math.round(242 * lit);
+            const cEdge = Math.round(220 * lit);
+            fg.addColorStop(0, `rgb(${cBase},${Math.min(255, cBase - 2)},${Math.min(255, cBase - 6)})`);
+            fg.addColorStop(1, `rgb(${cEdge},${Math.min(255, cEdge - 3)},${Math.min(255, cEdge - 8)})`);
+            g.fillStyle = fg;
             g.fill();
-            g.lineWidth = 1;
-            g.strokeStyle = "rgba(10,12,22,.25)";
+
+            const strokeR = Math.round(cBase * 0.82);
+            g.lineWidth = Math.max(1.2, size * 0.02);
+            g.strokeStyle = `rgb(${strokeR},${Math.round(strokeR * 0.98)},${Math.round(strokeR * 0.95)})`;
             g.stroke();
-            const gl = uv(px - rad * 0.31, py - rad * 0.32, 0.019);
-            g.fillStyle = "rgba(255,255,255,.48)";
-            g.beginPath();
-            g.arc(gl[0], gl[1], Math.max(1.2, size * 0.015), 0, Math.PI * 2);
-            g.fill();
+
+            // Softer pips on side faces during in-game settled state
+            const rad = 0.11;
+            for (const [px, py] of DIE_PIPS[f.value]) {
+              const center = uv(px, py, 0.012);
+              g.beginPath();
+              for (let j = 0; j <= 16; j++) {
+                const a = (j * Math.PI) / 8,
+                  p = uv(px + Math.cos(a) * rad, py + Math.sin(a) * rad, 0.014);
+                j ? g.lineTo(...p) : g.moveTo(...p);
+              }
+              g.closePath();
+
+              const bgPip = g.createRadialGradient(
+                center[0] - size * 0.01,
+                center[1] - size * 0.01,
+                1,
+                center[0],
+                center[1],
+                size * rad * 0.5,
+              );
+              bgPip.addColorStop(0, "rgba(75,88,108,0.5)");
+              bgPip.addColorStop(0.6, "rgba(42,52,70,0.55)");
+              bgPip.addColorStop(1, "rgba(20,28,40,0.6)");
+              g.fillStyle = bgPip;
+              g.fill();
+
+              // Subtle glint
+              const gl = uv(px - rad * 0.32, py - rad * 0.32, 0.016);
+              g.fillStyle = "rgba(255,255,255,0.3)";
+              g.beginPath();
+              g.arc(gl[0], gl[1], Math.max(0.8, size * 0.012), 0, Math.PI * 2);
+              g.fill();
+            }
           }
         }
         g.restore();
@@ -2850,17 +2952,24 @@
         home(g, s) {
           g.fillStyle = "#fff";
           g.beginPath();
+          // Roof
           g.moveTo(0, -s * 0.32);
           g.lineTo(s * 0.34, 0);
-          g.lineTo(s * 0.24, 0);
-          g.lineTo(s * 0.24, s * 0.28);
-          g.lineTo(-s * 0.24, s * 0.28);
-          g.lineTo(-s * 0.24, 0);
+          g.lineTo(s * 0.23, 0);
+          // Right wall & floor
+          g.lineTo(s * 0.23, s * 0.28);
+          g.lineTo(s * 0.08, s * 0.28);
+          // Arched doorway cutout
+          g.lineTo(s * 0.08, s * 0.08);
+          g.arcTo(s * 0.08, s * 0.04, 0, s * 0.04, s * 0.04);
+          g.arcTo(-s * 0.08, s * 0.04, -s * 0.08, s * 0.08, s * 0.04);
+          g.lineTo(-s * 0.08, s * 0.28);
+          // Left floor & wall
+          g.lineTo(-s * 0.23, s * 0.28);
+          g.lineTo(-s * 0.23, 0);
           g.lineTo(-s * 0.34, 0);
           g.closePath();
           g.fill();
-          g.fillStyle = BTN.home;
-          g.fillRect(-s * 0.07, s * 0.08, s * 0.14, s * 0.2);
         },
         restart(g, s) {
           g.strokeStyle = "#fff";
@@ -2922,10 +3031,10 @@
           g.lineTo(-s * 0.3, s * 0.12);
           g.closePath();
           g.fill();
-          g.strokeStyle = "#fff";
-          g.lineWidth = s * 0.07;
-          g.lineCap = "round";
           if (on) {
+            g.strokeStyle = "#fff";
+            g.lineWidth = s * 0.07;
+            g.lineCap = "round";
             g.beginPath();
             g.arc(s * 0.04, 0, s * 0.17, -0.9, 0.9);
             g.stroke();
@@ -2933,11 +3042,19 @@
             g.arc(s * 0.04, 0, s * 0.3, -0.9, 0.9);
             g.stroke();
           } else {
-            g.strokeStyle = "#e23b2e";
-            g.lineWidth = s * 0.11;
+            g.lineCap = "round";
+            g.strokeStyle = "rgba(0,0,0,0.4)";
+            g.lineWidth = s * 0.13;
             g.beginPath();
-            g.moveTo(-s * 0.3, -s * 0.3);
-            g.lineTo(s * 0.3, s * 0.3);
+            g.moveTo(-s * 0.28, -s * 0.28);
+            g.lineTo(s * 0.28, s * 0.28);
+            g.stroke();
+
+            g.strokeStyle = "#e23b2e";
+            g.lineWidth = s * 0.09;
+            g.beginPath();
+            g.moveTo(-s * 0.28, -s * 0.28);
+            g.lineTo(s * 0.28, s * 0.28);
             g.stroke();
           }
         },
@@ -3010,7 +3127,7 @@
       };
       function drawIconButton(g, size, col, icon, arg) {
         glossRect(g, -size / 2, -size / 2, size, size, size * 0.22, col);
-        if (icon) ICONS[icon](g, size, arg);
+        if (icon) ICONS[icon](g, size, arg, col);
       }
 
       /* ---------- message box (blue striped panel with orange frame) ---------- */
@@ -3805,7 +3922,7 @@
         rr(g, -bw / 2 + 3.5, -bh / 2 + 3.5, bw - 7, bh - 7, br - 3);
         g.stroke();
 
-        // 5. Soft Top Rim Glow ΓÇö clipped strictly inside the button face (CANNOT spill outside!)
+        // 5. Soft Top Rim Glow — clipped strictly inside the button face (CANNOT spill outside!)
         g.save();
         rr(g, -bw / 2 + 3.5, -bh / 2 + 3.5, bw - 7, bh - 7, br - 3);
         g.clip();
@@ -3979,7 +4096,8 @@
               active,
               onToggle,
               draw(g, b) {
-                drawIconButton(g, 60, BTN[b.kind], b.kind, b.active);
+                const act = b.kind === "audio" ? App.audio : b.active;
+                drawIconButton(g, 60, BTN[b.kind], b.kind, act);
               },
             },
             extra || {},
@@ -4267,6 +4385,155 @@
         }
       }
 
+      /* ---------- showcase 3D dice for title menu ---------- */
+      function drawMenuDie(g, x, y, size, rotation) {
+        const [rx, ry, rz] = rotation,
+          cx = Math.cos(rx),
+          sx = Math.sin(rx),
+          cy = Math.cos(ry),
+          sy = Math.sin(ry),
+          cz = Math.cos(rz),
+          sz = Math.sin(rz);
+        const spin = ([a, b, c]) => {
+          let Y = b * cx - c * sx,
+            Z = b * sx + c * cx;
+          let X = a * cy + Z * sy;
+          Z = -a * sy + Z * cy;
+          return [X * cz - Y * sz, X * sz + Y * cz, Z];
+        };
+        const project = (p) => {
+          const k = size * 0.46 * (1 + p[2] * 0.14);
+          return [x + p[0] * k, y + p[1] * k];
+        };
+        const visible = [];
+        for (const f of DIE_FACES) {
+          const norm = spin(f.n);
+          if (norm[2] <= 0.001) continue;
+          const uv = (a, b, lift = 0) =>
+            project(
+              spin([
+                f.n[0] * (1 + lift) + f.u[0] * a + f.v[0] * b,
+                f.n[1] * (1 + lift) + f.u[1] * a + f.v[1] * b,
+                f.n[2] * (1 + lift) + f.u[2] * a + f.v[2] * b,
+              ]),
+            );
+          visible.push({ f, norm, uv });
+        }
+        visible.sort((a, b) => a.norm[2] - b.norm[2]);
+
+        g.save();
+        g.lineJoin = "round";
+        g.lineCap = "round";
+
+        // Ambient golden warm halo behind the showcase die
+        const aura = g.createRadialGradient(x, y, size * 0.15, x, y, size * 0.95);
+        aura.addColorStop(0, "rgba(254, 240, 138, 0.28)");
+        aura.addColorStop(0.55, "rgba(245, 158, 11, 0.10)");
+        aura.addColorStop(1, "rgba(245, 158, 11, 0)");
+        g.fillStyle = aura;
+        g.beginPath();
+        g.arc(x, y, size * 0.95, 0, Math.PI * 2);
+        g.fill();
+
+        // Key light from top-left
+        const klx = -0.35,
+          kly = -0.65,
+          klz = 0.67;
+
+        for (const { f, norm, uv } of visible) {
+          const corners = [uv(-1, -1), uv(1, -1), uv(1, 1), uv(-1, 1)];
+
+          g.beginPath();
+          g.moveTo(...corners[0]);
+          for (let i = 1; i < 4; i++) g.lineTo(...corners[i]);
+          g.closePath();
+
+          const dot = Math.max(0, norm[0] * klx + norm[1] * kly + norm[2] * klz);
+          // Radiant, pristine white ivory shading
+          const lit = 0.82 + 0.18 * dot;
+          const cBase = Math.min(255, Math.round(255 * lit));
+          const cMid = Math.min(255, Math.round(250 * lit));
+          const cEdge = Math.min(255, Math.round(236 * lit));
+
+          const fg = g.createLinearGradient(
+            corners[0][0],
+            corners[0][1],
+            corners[2][0],
+            corners[2][1],
+          );
+          fg.addColorStop(0, `rgb(${cBase},${cBase},${Math.min(255, cBase - 2)})`);
+          fg.addColorStop(0.55, `rgb(${cMid},${Math.min(255, cMid - 2)},${Math.min(255, cMid - 6)})`);
+          fg.addColorStop(1, `rgb(${cEdge},${Math.min(255, cEdge - 3)},${Math.min(255, cEdge - 9)})`);
+          g.fillStyle = fg;
+          g.fill();
+
+          // Elegant beveled edge
+          const strokeR = Math.round(cBase * 0.84);
+          g.lineWidth = Math.max(1.3, size * 0.024);
+          g.strokeStyle = `rgb(${strokeR},${Math.round(strokeR * 0.98)},${Math.round(strokeR * 0.95)})`;
+          g.stroke();
+
+          // Crisp specular rim highlight on lit edges
+          if (norm[2] > 0.15) {
+            g.lineWidth = Math.max(1.2, size * 0.02);
+            g.strokeStyle = "rgba(255,255,255,0.92)";
+            g.beginPath();
+            g.moveTo(...uv(-0.96, 0.96));
+            g.lineTo(...uv(-0.96, -0.96));
+            g.lineTo(...uv(0.96, -0.96));
+            g.stroke();
+          }
+
+          // Deep obsidian enamel pips with 3D depth and diamond glints on ALL faces
+          const rad = 0.125;
+          for (const [px, py] of DIE_PIPS[f.value]) {
+            const center = uv(px, py, 0.016);
+
+            // 3D Countersunk pit shadow
+            const cShadow = uv(px, py + 0.022, 0.005);
+            g.fillStyle = "rgba(0,0,0,0.24)";
+            g.beginPath();
+            g.arc(cShadow[0], cShadow[1], size * rad * 0.52, 0, Math.PI * 2);
+            g.fill();
+
+            // Pip boundary
+            g.beginPath();
+            for (let j = 0; j <= 16; j++) {
+              const a = (j * Math.PI) / 8,
+                p = uv(px + Math.cos(a) * rad, py + Math.sin(a) * rad, 0.018);
+              j ? g.lineTo(...p) : g.moveTo(...p);
+            }
+            g.closePath();
+
+            // Rich obsidian enamel gradient
+            const bgPip = g.createRadialGradient(
+              center[0] - size * 0.015,
+              center[1] - size * 0.015,
+              1,
+              center[0],
+              center[1],
+              size * rad * 0.52,
+            );
+            bgPip.addColorStop(0, "#334155");
+            bgPip.addColorStop(0.5, "#0f172a");
+            bgPip.addColorStop(1, "#020617");
+            g.fillStyle = bgPip;
+            g.fill();
+            g.strokeStyle = "rgba(2,6,23,0.35)";
+            g.lineWidth = 1;
+            g.stroke();
+
+            // Diamond specular glint
+            const gl = uv(px - rad * 0.34, py - rad * 0.34, 0.022);
+            g.fillStyle = "rgba(255,255,255,0.92)";
+            g.beginPath();
+            g.arc(gl[0], gl[1], Math.max(1.1, size * 0.018), 0, Math.PI * 2);
+            g.fill();
+          }
+        }
+        g.restore();
+      }
+
       /* =====================================================================
    MENU
    ===================================================================== */
@@ -4335,26 +4602,47 @@
             g.fill();
           }
 
-          // Floating 3D Dice on left
+          // Floating 3D Showcase Dice on left
           const bob = (k) => Math.sin(now * 1.7 + k) * 9;
+          const bob1 = Math.sin(now * 1.8) * 8;
+          const bob2 = Math.sin(now * 1.6 + 2) * 6;
           const sh = (x, y, w, a) => {
             g.fillStyle = `rgba(0,0,0,${a})`;
             g.beginPath();
             g.ellipse(x, y, w, w * 0.36, 0, 0, 7);
             g.fill();
           };
-          sh(HW - 395, HH + 118, 42, 0.25);
-          drawDie3D(g, HW - 395, HH + 62 + bob(0), 72, [
-            0.28 + Math.sin(now * 0.9) * 0.12,
-            -0.36,
-            -0.18,
+
+          // Soft contact shadows on grass that respond to the float
+          const sh1 = Math.max(0.18, 0.28 - (bob1 / 8) * 0.06);
+          const sh2 = Math.max(0.15, 0.24 - (bob2 / 6) * 0.05);
+          sh(HW - 395, HH + 124, 44 + bob1 * 0.3, sh1);
+          sh(HW - 295, HH + 184, 28 + bob2 * 0.3, sh2);
+
+          // Hero showcase Die 1 (size 74, showing lucky faces 6, 5, 4 with a gentle slow drift)
+          drawMenuDie(g, HW - 395, HH + 60 + bob1, 74, [
+            0.46 + Math.sin(now * 0.8) * 0.08,
+            2.72 + Math.cos(now * 0.7) * 0.08,
+            -0.24 + Math.sin(now * 0.6) * 0.05,
           ]);
-          sh(HW - 300, HH + 182, 26, 0.22);
-          drawDie3D(g, HW - 300, HH + 148 + bob(2), 46, [
-            0.3,
-            -Math.PI / 2 + 0.15,
-            Math.sin(now * 1.1 + 1) * 0.2,
+
+          // Companion showcase Die 2 (size 48, showing faces 3, 2, 1 with playful tilt)
+          drawMenuDie(g, HW - 295, HH + 144 + bob2, 48, [
+            0.55 + Math.sin(now * 1.0 + 1) * 0.07,
+            -0.65 + Math.cos(now * 0.9 + 1) * 0.07,
+            0.32 + Math.sin(now * 0.7 + 1) * 0.05,
           ]);
+
+          // Subtle magical sparkles near the hero dice
+          for (let s = 0; s < 3; s++) {
+            const st = (now * 1.2 + s * 1.1) % 3;
+            if (st < 1.4) {
+              const sa = Math.sin((st / 1.4) * Math.PI);
+              const sx = HW - 425 + s * 55 + Math.sin(s * 2) * 15;
+              const sy = HH + 35 + s * 45 + Math.cos(s * 3) * 12;
+              drawSparkle(g, sx, sy, (6 + s * 2) * sa);
+            }
+          }
 
           // Floating Pawns on right
           sh(HW + 380, HH + 150, 22, 0.28);
@@ -4824,9 +5112,11 @@
           this.x = 1080;
           this.y = 480;
           this.h = 0;
-          this.angles = [0.28, -0.35, -0.18];
+          this.angles = DIE_FINAL[1].slice();
           this.duration = 1120;
           this.contacts = 0;
+          this.settle = 0;
+          this.sparkles = [];
         }
         fitToView() {
           if (this.layoutX === App.offX && this.layoutY === App.offY) return;
@@ -4850,22 +5140,34 @@
           this.t = 0;
           this.alpha = 1;
           this.contacts = 0;
+          this.settle = 0;
+          this.sparkles = [];
           this.layoutX = null;
           this.fitToView();
           this.x = this.startX;
           this.y = this.startY;
           this.h = 0;
-          const [rx, ry] = DIE_FINAL[this.value];
-          this.end = [rx + 0.22, ry - 0.26, 0.13];
+          this.end = DIE_FINAL[this.value].slice();
           this.begin = [
-            this.end[0] - Math.PI * 4.8,
-            this.end[1] + Math.PI * 3.6,
-            this.end[2] - Math.PI * 3.7,
+            this.end[0] - Math.PI * 4,
+            this.end[1] + Math.PI * 4,
+            this.end[2] - Math.PI * 2,
           ];
           this.angles = this.begin.slice();
           Snd.play("dices");
         }
         update(dt) {
+          if (this.state === "shown") {
+            this.settle += dt;
+            for (let i = this.sparkles.length - 1; i >= 0; i--) {
+              const sp = this.sparkles[i];
+              sp.x += sp.vx * (dt / 1000);
+              sp.y += sp.vy * (dt / 1000);
+              sp.life -= dt / 700;
+              if (sp.life <= 0) this.sparkles.splice(i, 1);
+            }
+            return;
+          }
           if (this.state !== "anim") return;
           this.fitToView();
           this.t = Math.min(this.duration, this.t + dt);
@@ -4874,20 +5176,24 @@
             const p = u / 0.52;
             this.x = lerp(this.startX, this.targetX - 25, Ease.quadOut(p));
             this.y = lerp(this.startY, this.targetY + 5, p);
-            this.h = 115 * Math.sin(Math.PI * p);
+            this.h = 120 * Math.sin(Math.PI * p);
           } else if (u < 0.77) {
             const p = (u - 0.52) / 0.25;
             this.x = lerp(this.targetX - 25, this.targetX + 8, p);
             this.y = lerp(this.targetY + 5, this.targetY, p);
-            this.h = 33 * Math.sin(Math.PI * p);
+            this.h = 35 * Math.sin(Math.PI * p);
           } else {
             const p = (u - 0.77) / 0.23;
             this.x = lerp(this.targetX + 8, this.targetX, Ease.quadOut(p));
             this.y = this.targetY;
             this.h = 9 * Math.sin(Math.PI * p);
           }
-          const spin = 1 - Math.pow(1 - u, 2.35);
-          this.angles = this.begin.map((a, i) => lerp(a, this.end[i], spin));
+          const spin = 1 - Math.pow(1 - u, 2.2);
+          this.angles = [
+            lerp(this.begin[0], this.end[0], spin),
+            lerp(this.begin[1], this.end[1], spin),
+            lerp(this.begin[2], this.end[2], spin),
+          ];
           if (u >= 0.52 && this.contacts < 1) {
             this.contacts = 1;
             Snd.play("dice_land");
@@ -4902,7 +5208,26 @@
             this.h = 0;
             this.angles = this.end.slice();
             this.state = "shown";
-            this.g.onDiceEnd(this.value);
+            this.settle = 0;
+            if (this.value === 6) {
+              for (let i = 0; i < 8; i++) {
+                const ang = (i * Math.PI) / 4 + (Math.random() - 0.5) * 0.4;
+                const spd = 35 + Math.random() * 45;
+                this.sparkles.push({
+                  x: 0,
+                  y: -25,
+                  vx: Math.cos(ang) * spd,
+                  vy: Math.sin(ang) * spd,
+                  life: 1,
+                  size: 7 + Math.random() * 5,
+                });
+              }
+            }
+            delay(320, () => {
+              if (this.state === "shown") {
+                this.g.onDiceEnd(this.value);
+              }
+            });
           }
         }
         fadeOut() {
@@ -4923,34 +5248,39 @@
           const px = clamp(this.x, App.offX + 64, W - App.offX - 64);
           const ground = this.y + 44,
             sh = 1 - clamp(this.h / 180, 0, 0.7);
+
+          // Realistic soft contact shadow on grass
           const shadow = g.createRadialGradient(
             px,
             ground,
             2,
             px,
             ground,
-            54 * sh,
+            58 * sh,
           );
-          shadow.addColorStop(0, `rgba(20,33,10,${0.34 * sh})`);
+          shadow.addColorStop(0, `rgba(15,28,8,${0.42 * sh})`);
+          shadow.addColorStop(0.5, `rgba(20,33,10,${0.2 * sh})`);
           shadow.addColorStop(1, "rgba(20,33,10,0)");
           g.fillStyle = shadow;
           g.beginPath();
-          g.ellipse(px, ground, 54 * sh, 21 * sh, 0, 0, Math.PI * 2);
+          g.ellipse(px, ground, 58 * sh, 22 * sh, 0, 0, Math.PI * 2);
           g.fill();
+
+          // Rolling contact shockwave ring during mid-air bounces
           if (this.state === "anim" && this.contacts) {
             const p =
               this.contacts === 1
                 ? this.t / this.duration - 0.52
                 : this.t / this.duration - 0.77;
-            if (p < 0.07) {
-              g.strokeStyle = `rgba(255,255,255,${0.55 * (1 - p / 0.07)})`;
-              g.lineWidth = 2;
+            if (p < 0.08) {
+              g.strokeStyle = `rgba(255,255,255,${0.6 * (1 - p / 0.08)})`;
+              g.lineWidth = 2.2;
               g.beginPath();
               g.ellipse(
                 px,
                 ground,
-                14 + p * 260,
-                5 + p * 80,
+                16 + p * 280,
+                6 + p * 90,
                 0,
                 0,
                 Math.PI * 2,
@@ -4958,7 +5288,173 @@
               g.stroke();
             }
           }
-          drawDie3D(g, px, this.y - this.h, 62, this.angles);
+
+          // Landing Squash-and-Stretch + Idle Breathing
+          let squashX = 1,
+            squashY = 1,
+            bobY = 0;
+          if (this.state === "shown") {
+            const st = this.settle / 1000;
+            // Juicy impact squash and rebound
+            if (st < 0.3) {
+              const sq = Math.sin((st / 0.3) * Math.PI) * 0.16 * (1 - st / 0.3);
+              squashX = 1 + sq;
+              squashY = 1 - sq;
+            }
+            // Gentle idle float
+            bobY = Math.sin(st * 4) * 2.2;
+
+            // Golden impact shockwave ring radiating along grass on landing
+            if (st < 0.45) {
+              const rp = st / 0.45;
+              g.strokeStyle = `rgba(250,204,21,${0.65 * (1 - rp)})`;
+              g.lineWidth = 2.4 * (1 - rp);
+              g.beginPath();
+              g.ellipse(
+                px,
+                ground,
+                45 + rp * 45,
+                18 + rp * 18,
+                0,
+                0,
+                Math.PI * 2,
+              );
+              g.stroke();
+            }
+
+            // Warm golden ambient glow under resting die
+            const glow = g.createRadialGradient(px, ground, 4, px, ground, 52);
+            glow.addColorStop(0, "rgba(250,204,21,0.22)");
+            glow.addColorStop(1, "rgba(250,204,21,0)");
+            g.fillStyle = glow;
+            g.beginPath();
+            g.ellipse(px, ground, 52, 20, 0, 0, Math.PI * 2);
+            g.fill();
+          }
+
+          // Draw the 3D die with physical squash and stretch
+          g.save();
+          g.translate(px, ground);
+          g.scale(squashX, squashY);
+          g.translate(-px, -ground);
+          drawDie3D(g, px, this.y - this.h + bobY, 72, this.angles, this.state === "shown");
+          g.restore();
+
+          // If rolled 6: Celebration sparkles
+          if (this.state === "shown" && this.value === 6) {
+            for (const sp of this.sparkles) {
+              drawSparkle(g, px + sp.x, this.y - 25 + sp.y, sp.size * sp.life);
+            }
+          }
+
+          // Crystal-clear Floating Result Badge & Pointer when settled
+          if (this.state === "shown") {
+            const st = this.settle / 1000;
+            const pop = Ease.backOut(Math.min(1, st / 0.25));
+            if (pop > 0) {
+              g.save();
+              const badgeY = this.y - 74 + bobY;
+              g.translate(px, badgeY);
+              g.scale(pop, pop);
+
+              // 1. Soft radial ambient glow behind badge
+              const bgGlow = g.createRadialGradient(0, 0, 4, 0, 0, 36);
+              bgGlow.addColorStop(0, "rgba(251,191,36,0.38)");
+              bgGlow.addColorStop(1, "rgba(251,191,36,0)");
+              g.fillStyle = bgGlow;
+              g.beginPath();
+              g.arc(0, 0, 36, 0, Math.PI * 2);
+              g.fill();
+
+              // 2. Clear pointer arrow pointing directly to the active top face!
+              g.save();
+              g.fillStyle = "rgba(0,0,0,0.32)";
+              g.beginPath();
+              g.moveTo(-8, 17);
+              g.lineTo(0, 26);
+              g.lineTo(8, 17);
+              g.closePath();
+              g.fill();
+
+              g.fillStyle = "#f59e0b";
+              g.beginPath();
+              g.moveTo(-7, 15);
+              g.lineTo(0, 24);
+              g.lineTo(7, 15);
+              g.closePath();
+              g.fill();
+              g.strokeStyle = "#ffffff";
+              g.lineWidth = 1.6;
+              g.stroke();
+              g.restore();
+
+              // 3. Drop shadow for badge
+              g.fillStyle = "rgba(0,0,0,0.35)";
+              g.beginPath();
+              g.arc(0, 2, 21, 0, Math.PI * 2);
+              g.fill();
+
+              // 4. Outer golden border ring
+              const goldRing = g.createLinearGradient(0, -21, 0, 21);
+              goldRing.addColorStop(0, "#fef08a");
+              goldRing.addColorStop(0.5, "#f59e0b");
+              goldRing.addColorStop(1, "#b45309");
+              g.fillStyle = goldRing;
+              g.beginPath();
+              g.arc(0, 0, 20.5, 0, Math.PI * 2);
+              g.fill();
+
+              // 5. Crisp white inner rim
+              g.strokeStyle = "#ffffff";
+              g.lineWidth = 1.8;
+              g.stroke();
+
+              // 6. Deep obsidian enamel badge face
+              const innerBg = g.createLinearGradient(0, -17, 0, 17);
+              innerBg.addColorStop(0, "#1e293b");
+              innerBg.addColorStop(0.5, "#0f172a");
+              innerBg.addColorStop(1, "#020617");
+              g.fillStyle = innerBg;
+              g.beginPath();
+              g.arc(0, 0, 17, 0, Math.PI * 2);
+              g.fill();
+
+              // 7. Glossy top shine crescent
+              g.fillStyle = "rgba(255,255,255,0.28)";
+              g.beginPath();
+              g.ellipse(0, -7, 12, 5, 0, 0, Math.PI * 2);
+              g.fill();
+
+              // 8. Large crystal-clear rolled number in Lilita One
+              fancyText(
+                g,
+                String(this.value),
+                0,
+                0.5,
+                24,
+                "#ffffff",
+                "#fef08a",
+                "#000000",
+                3,
+              );
+
+              // 9. Extra Roll celebratory tag when rolling 6
+              if (this.value === 6) {
+                const bannerPop = Ease.backOut(Math.min(1, Math.max(0, (st - 0.12) / 0.22)));
+                if (bannerPop > 0) {
+                  g.save();
+                  g.translate(0, -31);
+                  g.scale(bannerPop, bannerPop);
+                  glossRect(g, -48, -12, 96, 22, 6, "#eab308");
+                  text(g, "EXTRA ROLL!", 0, -1, 11, "#ffffff", "#78350f", 2.5);
+                  g.restore();
+                }
+              }
+
+              g.restore();
+            }
+          }
+
           g.restore();
         }
       }
@@ -5644,9 +6140,13 @@
                   18,
                   self.diceEnabled ? "#f6a21c" : "#b5a896",
                 );
+                const pulse = self.diceEnabled
+                  ? 1 + Math.sin(performance.now() / 240) * 0.04
+                  : 1;
                 g.save();
+                g.scale(pulse, pulse);
                 g.globalAlpha = self.diceEnabled ? 1 : 0.65;
-                drawDie3D(g, 0, 0, 41, [0.28, -0.35, -0.18]);
+                drawDie3D(g, 0, 0, 44, DIE_FINAL[1]);
                 g.restore();
               },
             }),
@@ -5711,7 +6211,7 @@
             this.sub.push(b);
             return b;
           };
-          mk("exit", "x", 113, () => new AreYouSurePanel(this.g, this));
+          mk("exit", "home", 113, () => new AreYouSurePanel(this.g, this));
           mk("help", "help", 185, () => {
             this.closeMenu();
             new HelpPanel(this.g, null, true);
@@ -5748,6 +6248,7 @@
           App.removeLayer(this.L);
           App.layers.push(this.L);
           for (const b of this.sub) {
+            if (b.kind === "audio") b.active = App.audio;
             b.visible = true;
             b.y = 41;
             TWUI.remove(b);

@@ -19,7 +19,7 @@
       body {
         margin: 0;
         padding: 0;
-        background: #000;
+        background: #448c22;
         overflow: hidden;
         width: 100%;
         height: 100%;
@@ -32,8 +32,10 @@
         position: absolute;
         left: 0;
         top: 0;
+        width: 100%;
+        height: 100%;
         display: block;
-        background: #000;
+        background: #448c22;
       }
       #rot {
         display: none;
@@ -1222,12 +1224,63 @@
           g.arc(x, y, 1.8, 0, 7);
           g.fill();
         }
-        const vg = g.createRadialGradient(HW, HH, 300, HW, HH, 900);
-        vg.addColorStop(0, "rgba(0,0,0,0)");
-        vg.addColorStop(1, "rgba(0,30,0,0.35)");
-        g.fillStyle = vg;
-        g.fillRect(0, 0, W, H);
         return (grassTex = c);
+      }
+
+      /* ---------- full-bleed infinite grass field (seamless mirrored repeat) ---------- */
+      function drawInfiniteGrass(g) {
+        const vL = Math.min(0, Math.floor(App.vwLeft || 0)) - 10;
+        const vT = Math.min(0, Math.floor(App.vwTop || 0)) - 10;
+        const vR = Math.max(W, Math.ceil(App.vwRight || W)) + 10;
+        const vB = Math.max(H, Math.ceil(App.vwBottom || H)) + 10;
+
+        // Base gradient under everything
+        const base = g.createLinearGradient(0, vT, 0, vB);
+        base.addColorStop(0, "#5fae34");
+        base.addColorStop(0.5, "#529f2b");
+        base.addColorStop(1, "#448c22");
+        g.fillStyle = base;
+        g.fillRect(vL, vT, vR - vL, vB - vT);
+
+        const gt = getGrass();
+
+        const minIx = Math.floor(vL / W);
+        const maxIx = Math.floor((vR - 1) / W);
+        const minIy = Math.floor(vT / H);
+        const maxIy = Math.floor((vB - 1) / H);
+
+        for (let iy = minIy; iy <= maxIy; iy++) {
+          const flipY = (iy & 1) !== 0;
+          const transY = flipY ? (iy + 1) * H : iy * H;
+          const scaleY = flipY ? -1 : 1;
+          for (let ix = minIx; ix <= maxIx; ix++) {
+            const flipX = (ix & 1) !== 0;
+            const transX = flipX ? (ix + 1) * W : ix * W;
+            const scaleX = flipX ? -1 : 1;
+
+            if (ix === 0 && iy === 0) {
+              g.drawImage(gt, 0, 0, W, H);
+            } else {
+              g.save();
+              g.translate(transX, transY);
+              g.scale(scaleX, scaleY);
+              g.drawImage(gt, 0, 0, W, H);
+              g.restore();
+            }
+          }
+        }
+
+        // Soft ambient vignette across full screen
+        const maxDist = Math.hypot(
+          Math.max(HW - vL, vR - HW),
+          Math.max(HH - vT, vB - HH)
+        );
+        const vg = g.createRadialGradient(HW, HH, Math.max(500, maxDist * 0.4), HW, HH, Math.max(900, maxDist));
+        vg.addColorStop(0, "rgba(0,0,0,0)");
+        vg.addColorStop(0.85, "rgba(0,20,0,0.06)");
+        vg.addColorStop(1, "rgba(0,15,0,0.2)");
+        g.fillStyle = vg;
+        g.fillRect(vL, vT, vR - vL, vB - vT);
       }
 
       /* ---------- stones ---------- */
@@ -1293,7 +1346,6 @@
         const c = mkHi(W, H),
           g = c.getContext("2d"),
           R = seeded(mode ? 777 : 99);
-        g.drawImage(getGrass(), 0, 0, W, H);
         const SQ = 53,
           L = 408,
           Rr = 957,
@@ -4154,6 +4206,15 @@
         scale: 1,
         cssX: 0,
         cssY: 0,
+        vwLeft: 0,
+        vwRight: W,
+        vwTop: 0,
+        vwBottom: H,
+        vwW: W,
+        vwH: H,
+        ctxOffsetX: 0,
+        ctxOffsetY: 0,
+        isPortrait: false,
         audio: true,
         fullscreen: false,
         mode: MODE_SNAKES,
@@ -4240,6 +4301,7 @@
         },
       };
       function drawBoardBg(g) {
+        drawInfiniteGrass(g);
         g.drawImage(getBoard(App.mode), 0, 0, W, H);
         if (App.mode === MODE_SNAKES) {
           const now = performance.now();
@@ -4259,7 +4321,11 @@
       }
       function dimScreen(g, a) {
         g.fillStyle = `rgba(0,0,0,${a})`;
-        g.fillRect(-W, -H, W * 3, H * 3);
+        const vL = Math.min(-W, Math.floor(App.vwLeft || 0) - 50);
+        const vT = Math.min(-H, Math.floor(App.vwTop || 0) - 50);
+        const vR = Math.max(W * 2, Math.ceil(App.vwRight || W) + 50);
+        const vB = Math.max(H * 2, Math.ceil(App.vwBottom || H) + 50);
+        g.fillRect(vL, vT, vR - vL, vB - vT);
       }
       function toggleFullscreen() {
         const d = document,
@@ -4370,11 +4436,19 @@
         }
         draw(g) {
           {
-            const bg = g.createRadialGradient(HW, HH - 60, 40, HW, HH, 820);
+            const vl = Math.min(0, Math.floor(App.vwLeft || 0));
+            const vt = Math.min(0, Math.floor(App.vwTop || 0));
+            const vr = Math.max(W, Math.ceil(App.vwRight || W));
+            const vb = Math.max(H, Math.ceil(App.vwBottom || H));
+            const maxDist = Math.hypot(
+              Math.max(HW - vl, vr - HW),
+              Math.max(HH - vt, vb - HH)
+            );
+            const bg = g.createRadialGradient(HW, HH - 60, 40, HW, HH, Math.max(820, maxDist));
             bg.addColorStop(0, "#4fa334");
             bg.addColorStop(1, "#123d0c");
             g.fillStyle = bg;
-            g.fillRect(0, 0, W, H);
+            g.fillRect(vl, vt, vr - vl, vb - vt);
           }
           g.save();
           g.globalAlpha = this.logoA;
@@ -4587,7 +4661,7 @@
           App.fadeIn(1000);
         }
         draw(g) {
-          g.drawImage(getGrass(), 0, 0, W, H);
+          drawInfiniteGrass(g);
           const now = performance.now() / 1000,
             cy = HH - 110;
           g.save();
@@ -4610,7 +4684,11 @@
             rg.addColorStop(0, "rgba(255,246,190,0.45)");
             rg.addColorStop(1, "rgba(255,246,190,0)");
             g.fillStyle = rg;
-            g.fillRect(0, 0, W, H);
+            const vl = Math.min(0, Math.floor(App.vwLeft || 0));
+            const vt = Math.min(0, Math.floor(App.vwTop || 0));
+            const vr = Math.max(W, Math.ceil(App.vwRight || W));
+            const vb = Math.max(H, Math.ceil(App.vwBottom || H));
+            g.fillRect(vl, vt, vr - vl, vb - vt);
           }
 
           // Ambient floating meadow pollen / sparkles
@@ -4878,7 +4956,7 @@
           App.fadeIn(1000);
         }
         draw(g) {
-          g.drawImage(getGrass(), 0, 0, W, H);
+          drawInfiniteGrass(g);
           dimScreen(g, 0.5);
           drawMsgBox(g, HW, HH);
           drawTitle(g, T.SELECT_MODE);
@@ -5144,11 +5222,12 @@
           if (this.layoutX === App.offX && this.layoutY === App.offY) return;
           this.layoutX = App.offX;
           this.layoutY = App.offY;
-          const right = W - App.offX - 20;
-          this.targetX = Math.min(1100, right - 85);
-          this.targetY = H - App.offY - 173;
-          this.startX = Math.min(right - 60, this.targetX + 55);
-          this.startY = H - App.offY - 83;
+          const diceX = this.g.ui ? this.g.ui.diceBtn.px : W - App.offX - 50;
+          const diceY = this.g.ui ? this.g.ui.diceBtn.py : H - App.offY - 50;
+          this.targetX = diceX;
+          this.targetY = diceY - 185;
+          this.startX = diceX;
+          this.startY = diceY - 20;
           if (this.state === "shown") {
             this.x = this.targetX;
             this.y = this.targetY;
@@ -5196,19 +5275,19 @@
           const u = this.t / this.duration;
           if (u < 0.52) {
             const p = u / 0.52;
-            this.x = lerp(this.startX, this.targetX - 25, Ease.quadOut(p));
-            this.y = lerp(this.startY, this.targetY + 5, p);
-            this.h = 120 * Math.sin(Math.PI * p);
+            this.x = this.targetX;
+            this.y = lerp(this.startY, this.targetY + 6, p);
+            this.h = 115 * Math.sin(Math.PI * p);
           } else if (u < 0.77) {
             const p = (u - 0.52) / 0.25;
-            this.x = lerp(this.targetX - 25, this.targetX + 8, p);
-            this.y = lerp(this.targetY + 5, this.targetY, p);
-            this.h = 35 * Math.sin(Math.PI * p);
+            this.x = this.targetX;
+            this.y = lerp(this.targetY + 6, this.targetY, p);
+            this.h = 32 * Math.sin(Math.PI * p);
           } else {
             const p = (u - 0.77) / 0.23;
-            this.x = lerp(this.targetX + 8, this.targetX, Ease.quadOut(p));
+            this.x = this.targetX;
             this.y = this.targetY;
-            this.h = 9 * Math.sin(Math.PI * p);
+            this.h = 8 * Math.sin(Math.PI * p);
           }
           const spin = 1 - Math.pow(1 - u, 2.2);
           this.angles = [
@@ -5288,29 +5367,6 @@
           g.ellipse(px, ground, 58 * sh, 22 * sh, 0, 0, Math.PI * 2);
           g.fill();
 
-          // Rolling contact shockwave ring during mid-air bounces
-          if (this.state === "anim" && this.contacts) {
-            const p =
-              this.contacts === 1
-                ? this.t / this.duration - 0.52
-                : this.t / this.duration - 0.77;
-            if (p < 0.08) {
-              g.strokeStyle = `rgba(255,255,255,${0.6 * (1 - p / 0.08)})`;
-              g.lineWidth = 2.2;
-              g.beginPath();
-              g.ellipse(
-                px,
-                ground,
-                16 + p * 280,
-                6 + p * 90,
-                0,
-                0,
-                Math.PI * 2,
-              );
-              g.stroke();
-            }
-          }
-
           // Landing Squash-and-Stretch + Idle Breathing
           let squashX = 1,
             squashY = 1,
@@ -5325,33 +5381,6 @@
             }
             // Gentle idle float
             bobY = Math.sin(st * 4) * 2.2;
-
-            // Golden impact shockwave ring radiating along grass on landing
-            if (st < 0.45) {
-              const rp = st / 0.45;
-              g.strokeStyle = `rgba(250,204,21,${0.65 * (1 - rp)})`;
-              g.lineWidth = 2.4 * (1 - rp);
-              g.beginPath();
-              g.ellipse(
-                px,
-                ground,
-                45 + rp * 45,
-                18 + rp * 18,
-                0,
-                0,
-                Math.PI * 2,
-              );
-              g.stroke();
-            }
-
-            // Warm golden ambient glow under resting die
-            const glow = g.createRadialGradient(px, ground, 4, px, ground, 52);
-            glow.addColorStop(0, "rgba(250,204,21,0.22)");
-            glow.addColorStop(1, "rgba(250,204,21,0)");
-            g.fillStyle = glow;
-            g.beginPath();
-            g.ellipse(px, ground, 52, 20, 0, 0, Math.PI * 2);
-            g.fill();
           }
 
           // Draw the 3D die with physical squash and stretch
@@ -5965,6 +5994,7 @@
               (Math.random() - 0.5) * this.shake,
               (Math.random() - 0.5) * this.shake,
             );
+          drawInfiniteGrass(g);
           g.drawImage(getBoard(this.mode), 0, 0, W, H);
           if (this.mode === MODE_SNAKES) {
             const now = performance.now(),
@@ -6164,13 +6194,18 @@
                   18,
                   self.diceEnabled ? "#f6a21c" : "#b5a896",
                 );
+                // In portrait mode, the 3D animated die renders right on the button pad; avoid drawing a duplicate die!
+                if (App.isPortrait && self.g.dice && self.g.dice.state !== "hidden") {
+                  return;
+                }
                 const pulse = self.diceEnabled
                   ? 1 + Math.sin(performance.now() / 240) * 0.04
                   : 1;
                 g.save();
                 g.scale(pulse, pulse);
                 g.globalAlpha = self.diceEnabled ? 1 : 0.65;
-                drawDie3D(g, 0, 0, 44, DIE_FINAL[1]);
+                const dieRot = DIE_FINAL[self.g.u || 1];
+                drawDie3D(g, 0, 0, 46, dieRot);
                 g.restore();
               },
             }),
@@ -6191,22 +6226,37 @@
               },
               draw(g) {
                 const on = self.g.autoPlay;
-                glossRect(g, -42, -28, 84, 56, 16, on ? "#27ae60" : "#3a4856");
                 if (on) {
-                  g.fillStyle = "#4ade80";
+                  g.save();
+                  g.shadowColor = "rgba(74, 222, 128, 0.45)";
+                  g.shadowBlur = 10;
+                  glossRect(g, -42, -28, 84, 56, 16, "#15803d");
+                  g.restore();
+                } else {
+                  glossRect(g, -42, -28, 84, 56, 16, "#2c3b4d");
+                }
+                // Sleek LED indicator
+                g.save();
+                g.fillStyle = on ? "#4ade80" : "#64748b";
+                g.beginPath();
+                g.arc(-24, -6, 4.5, 0, Math.PI * 2);
+                g.fill();
+                if (on) {
+                  g.fillStyle = "rgba(255,255,255,0.75)";
                   g.beginPath();
-                  g.arc(-26, -7, 4, 0, Math.PI * 2);
+                  g.arc(-25, -7.5, 1.8, 0, Math.PI * 2);
                   g.fill();
                 }
-                text(g, "AUTO", on ? 4 : 0, -7, 16, "#ffffff", "#1a2632", 3);
+                g.restore();
+                text(g, "AUTO", on ? 5 : 0, -6, 16, "#ffffff", on ? "#052e16" : "#0f172a", 3);
                 text(
                   g,
-                  on ? "[ON]" : "[OFF]",
+                  on ? "ACTIVE" : "OFF",
                   0,
+                  13,
                   12,
-                  12,
-                  on ? "#bbf7d0" : "#94a3b8",
-                  "#0f172a",
+                  on ? "#86efac" : "#94a3b8",
+                  on ? "#052e16" : "#0f172a",
                   2.5,
                 );
               },
@@ -6216,16 +6266,14 @@
             sy = 41;
           const menuL = App.pushLayer({});
           this.menuL = menuL;
-          this.settings = menuL.add(
-            iconButton(
-              sx,
-              sy,
-              60,
-              "settings",
-              "gear",
-              () => this.toggleMenu(),
-              { ax: "r" },
-            ),
+          this.settings = iconButton(
+            sx,
+            sy,
+            60,
+            "settings",
+            "gear",
+            () => this.toggleMenu(),
+            { ax: "r" },
           );
           this.sub = [];
           const mk = (kind, icon, y, fn, toggleKind) => {
@@ -6244,8 +6292,30 @@
             new HelpPanel(this.g, null, true);
           });
           mk(null, null, 257, null, "audio");
-          // sub buttons must be above the settings button in z-order: re-add
+          // Sub-buttons added first, then Settings on top so it is NEVER covered by closing icons
           for (const b of this.sub) menuL.add(b);
+          menuL.add(this.settings);
+          this.layout();
+        }
+        layout() {
+          this.settings.x = W - 41;
+          this.settings.y = 41;
+          this.settings.ax = "r";
+          this.settings.ay = null;
+          this.sub.forEach((b, i) => {
+            b.x = W - 41;
+            b.ax = "r";
+            b.targetY = [113, 185, 257][i];
+            if (!this.open && !b.visible) b.y = 41;
+          });
+          this.diceBtn.x = W - 50;
+          this.diceBtn.y = H - 50;
+          this.diceBtn.ax = "r";
+          this.diceBtn.ay = "b";
+          this.autoBtn.x = W - 146;
+          this.autoBtn.y = H - 50;
+          this.autoBtn.ax = "r";
+          this.autoBtn.ay = "b";
         }
         enableDice(v) {
           this.diceEnabled = v;
@@ -6271,15 +6341,17 @@
             },
             onDown: () => this.closeMenu(),
           });
-          // keep menu buttons (settings + sub) on top of the pause layer
+          // keep menu buttons on top of the pause layer
           App.removeLayer(this.menuL);
           App.layers.push(this.menuL);
+          const baseY = this.settings.y;
           for (const b of this.sub) {
             if (b.kind === "audio") b.active = App.audio;
             b.visible = true;
-            b.y = 41;
+            b.alpha = 0;
+            b.y = baseY;
             TWUI.remove(b);
-            TWUI.get(b).to({ y: b.targetY }, 300, Ease.cubicOut);
+            TWUI.get(b).to({ y: b.targetY, alpha: 1 }, 280, Ease.cubicOut);
           }
         }
         closeMenu() {
@@ -6288,28 +6360,32 @@
           this.g.pause(false);
           App.removeLayer(this.pauseLayer);
           this.pauseLayer = null;
+          const baseY = this.settings.y;
           for (const b of this.sub) {
             TWUI.remove(b);
             TWUI.get(b)
-              .to({ y: 41 }, 300, Ease.cubicIn)
+              .to({ y: baseY, alpha: 0 }, 220, Ease.cubicIn)
               .call(() => {
                 b.visible = false;
+                b.alpha = 1;
               });
           }
         }
         drawRollPill(g) {
           if (!this.diceEnabled || !this.g.z || App.paused || this.open) return;
-          const P = this.g.players[this.turn],
-            bx = W - 50 - App.offX,
-            y = H - 50 - App.offY - 74 + Math.sin(performance.now() / 210) * 3;
+          const P = this.g.players[this.turn];
+          const bx = this.diceBtn.px;
+          const y = this.diceBtn.py - 74 + Math.sin(performance.now() / 210) * 3;
           const lbl =
             this.g.v === HUMAN_VS_CPU
               ? "YOUR TURN!"
               : "P" + (this.turn + 1) + " TURN!";
           g.save();
           g.font = `21px ${FONT}`;
-          const w = g.measureText(lbl).width + 34,
-            x = Math.min(bx, W - App.offX - 10 - w / 2);
+          const w = g.measureText(lbl).width + 36;
+          // Clamp pill center so the bubble never crops past the right viewport boundary
+          const rightEdge = W - App.offX;
+          const x = Math.min(bx, rightEdge - w / 2 - 14);
           let c = (this.g.mode === MODE_SNAKES ? PAWN_COLORS : KID_COLORS)[
             P.ci
           ];
@@ -6340,95 +6416,128 @@
           g.restore();
         }
         drawPanel(g) {
+          this.layout();
           this.drawRollPill(g);
           const n = this.g.players.length;
+
+          // Vertical Scoreboard Panel permanently anchored in the home column directly above the start pen
           const gap = n > 4 ? 5 : 7,
             cardH = n > 4 ? 48 : 52,
             headerH = 42,
             padBottom = 12;
-          const w = 92,
+          const w = 94,
             h = headerH + n * cardH + (n - 1) * gap + padBottom;
-          const x = 20 + App.offX,
-            y = 10;
+          // Positioned in the home column with a clean ~15px breathing gap before the board stones
+          const x = 276,
+            y = 32;
           g.save();
           g.translate(x, y);
-          g.fillStyle = "rgba(0,0,0,0.3)";
+
+          // Ambient Drop Shadow
+          g.fillStyle = "rgba(0,0,0,0.38)";
           rr(g, 3, 5, w, h, 18);
           g.fill();
+
+          // Rich Golden/Amber Outer Bezel
           const fr = g.createLinearGradient(0, 0, 0, h);
-          fr.addColorStop(0, "#ffb347");
-          fr.addColorStop(1, "#e2730f");
+          fr.addColorStop(0, "#ffb84d");
+          fr.addColorStop(0.5, "#f39c12");
+          fr.addColorStop(1, "#d35400");
           g.fillStyle = fr;
           rr(g, 0, 0, w, h, 18);
           g.fill();
-          g.strokeStyle = "rgba(80,30,0,0.7)";
+          g.strokeStyle = "rgba(70,25,0,0.85)";
           g.lineWidth = 2.5;
           rr(g, 0, 0, w, h, 18);
           g.stroke();
+
+          // Specular top highlight
+          g.fillStyle = "rgba(255,255,255,0.32)";
+          rr(g, 5, 2, w - 10, 8, 4);
+          g.fill();
+
+          // Inner Glossy Blue Plate
           g.save();
-          rr(g, 8, 8, w - 16, h - 16, 12);
+          rr(g, 7, 7, w - 14, h - 14, 12);
           g.clip();
           const bg = g.createLinearGradient(0, 0, 0, h);
-          bg.addColorStop(0, "#5fc1f6");
-          bg.addColorStop(1, "#1b86d6");
+          bg.addColorStop(0, "#42a5f5");
+          bg.addColorStop(0.5, "#1e88e5");
+          bg.addColorStop(1, "#1565c0");
           g.fillStyle = bg;
           g.fillRect(0, 0, w, h);
-          g.fillStyle = "rgba(255,255,255,0.13)";
-          for (let s = -h; s < w + h; s += 36) {
+
+          // Subtle athletic racing diagonal stripes
+          g.fillStyle = "rgba(255,255,255,0.12)";
+          for (let s = -h; s < w + h; s += 24) {
             g.beginPath();
             g.moveTo(s, 0);
-            g.lineTo(s + 16, 0);
-            g.lineTo(s + 16 - h, h);
+            g.lineTo(s + 11, 0);
+            g.lineTo(s + 11 - h, h);
             g.lineTo(s - h, h);
             g.closePath();
             g.fill();
           }
           g.restore();
+
           g.strokeStyle = "rgba(255,255,255,0.7)";
           g.lineWidth = 2;
-          rr(g, 8, 8, w - 16, h - 16, 12);
+          rr(g, 7, 7, w - 14, h - 14, 12);
           g.stroke();
-          text(g, "TURN", w / 2, 26, 18, "#fff", COL_SECONDARY, 3);
-          const cardX = 12,
-            cardW = w - 24;
+
+          text(g, "TURN", w / 2, 26, 18, "#fff", "#041c44", 3.5);
+
+          const cardX = 11,
+            cardW = w - 22;
           for (let i = 0; i < n; i++) {
             const P = this.g.players[i],
               cardY = headerH + i * (cardH + gap),
               act = i === this.turn && this.g.z;
             const cy = cardY + cardH / 2;
+
             if (act) {
-              g.fillStyle = "rgba(255,255,255,0.32)";
-              rr(g, cardX, cardY, cardW, cardH, 10);
+              // Pulsing golden aura behind active card
+              const pulseA = 0.45 + Math.sin(performance.now() / 190) * 0.25;
+              g.fillStyle = `rgba(255, 230, 109, ${pulseA})`;
+              rr(g, cardX - 2, cardY - 2, cardW + 4, cardH + 4, 12);
               g.fill();
-              g.strokeStyle = "#ffe66d";
-              g.lineWidth = 2.2;
-              rr(g, cardX, cardY, cardW, cardH, 10);
+
+              // Active card surface
+              const actBg = g.createLinearGradient(0, cardY, 0, cardY + cardH);
+              actBg.addColorStop(0, "#ffffff");
+              actBg.addColorStop(1, "#fef3c7");
+              g.fillStyle = actBg;
+              rr(g, cardX, cardY, cardW, cardH, 11);
+              g.fill();
+              g.strokeStyle = "#f59e0b";
+              g.lineWidth = 2.4;
+              rr(g, cardX, cardY, cardW, cardH, 11);
               g.stroke();
             } else {
-              g.fillStyle = "rgba(0,0,0,0.14)";
-              rr(g, cardX, cardY, cardW, cardH, 10);
+              // Inactive card surface
+              g.fillStyle = "rgba(0,18,45,0.28)";
+              rr(g, cardX, cardY, cardW, cardH, 11);
               g.fill();
+              g.strokeStyle = "rgba(255,255,255,0.2)";
+              g.lineWidth = 1.2;
+              rr(g, cardX, cardY, cardW, cardH, 11);
+              g.stroke();
             }
+
+            // Character Avatar
             g.save();
-            if (!act) g.globalAlpha = 0.62;
+            if (!act) g.globalAlpha = 0.65;
             const pawnBaseY = cardY + cardH - 8;
             if (this.g.mode === MODE_SNAKES) {
-              const pScale = act ? 0.60 : 0.54;
+              const pScale = act ? 0.6 : 0.54;
               drawPawn(g, 28, pawnBaseY, P.ci, pScale);
             } else {
               const kScale = act ? 0.38 : 0.34;
-              drawKid(
-                g,
-                28,
-                pawnBaseY,
-                P.ci,
-                "idle",
-                P.animT,
-                false,
-                kScale,
-              );
+              drawKid(g, 28, pawnBaseY, P.ci, "idle", P.animT, false, kScale);
             }
             g.restore();
+
+            // Player Label
             const lbl =
               this.g.v === HUMAN_VS_CPU
                 ? i === this.g.p
@@ -6439,11 +6548,11 @@
               g,
               lbl,
               56,
-              cy,
+              cy + 1,
               13,
-              act ? "#fff" : "rgba(255,255,255,0.78)",
-              "#003060",
-              3,
+              act ? "#1e293b" : "rgba(255,255,255,0.9)",
+              act ? "#cbd5e1" : "#002850",
+              act ? 1.5 : 2.5,
             );
           }
           g.restore();
@@ -6958,25 +7067,47 @@
       function resize() {
         const w = innerWidth,
           h = innerHeight;
+        const isPortrait = h > w;
+        App.isPortrait = isPortrait;
+
+        // Scaling fits the entire layout: Left Turn Panel + Center Board + Right Controls
+        // (W - EDGE_X * 2) = 1360 - 500 = 860px (minimum width needed for board + panels)
+        // (H - EDGE_Y * 2) = 640 - 10 = 630px
         const mult = Math.min(h / (H - EDGE_Y * 2), w / (W - EDGE_X * 2));
-        const dw = W * mult,
-          dh = H * mult;
-        const left = (w - dw) / 2,
-          top = (h - dh) / 2;
+        const left = (w - W * mult) / 2,
+          top = (h - H * mult) / 2;
+        App.offX = clamp(Math.round(-left / mult), 0, EDGE_X);
+        App.offY = clamp(Math.round(-top / mult), 0, EDGE_Y);
         App.scale = mult;
         App.cssX = left;
         App.cssY = top;
-        App.offX = clamp(Math.round(-left / mult), 0, EDGE_X);
-        App.offY = clamp(Math.round(-top / mult), 0, EDGE_Y);
-        const dpr = Math.min(window.devicePixelRatio || 1, 3),
-          k = Math.min(3, mult * dpr);
+
+        // Virtual viewport bounds
+        App.vwW = w / mult;
+        App.vwH = h / mult;
+        App.vwLeft = HW - App.vwW / 2;
+        App.vwRight = HW + App.vwW / 2;
+        App.vwTop = HH - App.vwH / 2;
+        App.vwBottom = HH + App.vwH / 2;
+
+        const dpr = Math.min(window.devicePixelRatio || 1, 2.5),
+          k = mult * dpr;
         App.k = k;
-        canvas.width = Math.round(W * k);
-        canvas.height = Math.round(H * k);
-        canvas.style.width = dw + "px";
-        canvas.style.height = dh + "px";
-        canvas.style.left = left + "px";
-        canvas.style.top = top + "px";
+        App.ctxOffsetX = Math.round(left * dpr);
+        App.ctxOffsetY = Math.round(top * dpr);
+
+        // Full bleed canvas sizing: matches viewport 100%
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        canvas.style.width = w + "px";
+        canvas.style.height = h + "px";
+        canvas.style.left = "0px";
+        canvas.style.top = "0px";
+
+        if (App.screen && App.screen.ui && App.screen.ui.layout) {
+          App.screen.ui.layout();
+        }
+
         const q = clamp(Math.ceil(k * 2) / 2, 1, 2.5);
         if (q !== Q) {
           clearTimeout(resize.tm);
@@ -6989,7 +7120,7 @@
             }, 250);
         }
         const rot = document.getElementById("rot");
-        if (rot) rot.classList.toggle("show", isMobile && h > w && w < 900);
+        if (rot) rot.classList.remove("show");
       }
       addEventListener("resize", resize);
       addEventListener("orientationchange", () => setTimeout(resize, 200));
@@ -7073,9 +7204,13 @@
           TW.update(dt);
           if (App.screen && App.screen.update) App.screen.update(dt);
         }
-        ctx.setTransform(App.k, 0, 0, App.k, 0, 0);
+        ctx.setTransform(App.k, 0, 0, App.k, App.ctxOffsetX, App.ctxOffsetY);
         ctx.imageSmoothingQuality = "high";
-        ctx.clearRect(0, 0, W, H);
+        const cL = Math.min(0, Math.floor(App.vwLeft || 0)) - 20;
+        const cT = Math.min(0, Math.floor(App.vwTop || 0)) - 20;
+        const cR = Math.max(W, Math.ceil(App.vwRight || W)) + 20;
+        const cB = Math.max(H, Math.ceil(App.vwBottom || H)) + 20;
+        ctx.clearRect(cL, cT, cR - cL, cB - cT);
         for (const l of App.layers) {
           if (!l.visible) continue;
           ctx.save();
@@ -7086,7 +7221,7 @@
         }
         if (App.fade.a > 0) {
           ctx.fillStyle = `rgba(0,0,0,${App.fade.a})`;
-          ctx.fillRect(0, 0, W, H);
+          ctx.fillRect(cL, cT, cR - cL, cB - cT);
         }
       }
       if (

@@ -585,17 +585,27 @@
           return t;
         }
         remove(obj) {
-          for (const t of this.list) if (t.obj === obj) t.done = true;
-          this.list = this.list.filter((t) => !t.done);
+          for (let i = this.list.length - 1; i >= 0; i--) {
+            if (this.list[i].obj === obj || this.list[i].done) {
+              this.list[i].done = true;
+              this.list.splice(i, 1);
+            }
+          }
         }
         clear() {
           for (const t of this.list) t.done = true;
-          this.list = [];
+          this.list.length = 0;
         }
         update(dt) {
-          const l = this.list.slice();
-          for (const t of l) t.update(dt);
-          this.list = this.list.filter((t) => !t.done);
+          const list = this.list;
+          const len = list.length;
+          for (let i = 0; i < len; i++) {
+            const t = list[i];
+            if (t && !t.done) t.update(dt);
+          }
+          for (let i = list.length - 1; i >= 0; i--) {
+            if (list[i].done) list.splice(i, 1);
+          }
         }
       }
       const TW = new TweenGroup(); // game-layer tweens (pausable)
@@ -917,6 +927,8 @@
         return c;
       }
       function invalidateCaches() {
+        infiniteGrassCache = null;
+        igCacheKey = "";
         grassTex = null;
         for (const k in boardCache) delete boardCache[k];
         msgBoxTex = null;
@@ -1228,59 +1240,82 @@
       }
 
       /* ---------- full-bleed infinite grass field (seamless mirrored repeat) ---------- */
+      let infiniteGrassCache = null;
+      let igCacheKey = "";
       function drawInfiniteGrass(g) {
         const vL = Math.min(0, Math.floor(App.vwLeft || 0)) - 10;
         const vT = Math.min(0, Math.floor(App.vwTop || 0)) - 10;
         const vR = Math.max(W, Math.ceil(App.vwRight || W)) + 10;
         const vB = Math.max(H, Math.ceil(App.vwBottom || H)) + 10;
+        const w = vR - vL;
+        const h = vB - vT;
+        const key = `${vL},${vT},${vR},${vB},${Q}`;
 
-        // Base gradient under everything
-        const base = g.createLinearGradient(0, vT, 0, vB);
-        base.addColorStop(0, "#5fae34");
-        base.addColorStop(0.5, "#529f2b");
-        base.addColorStop(1, "#448c22");
-        g.fillStyle = base;
-        g.fillRect(vL, vT, vR - vL, vB - vT);
+        if (!infiniteGrassCache || igCacheKey !== key) {
+          igCacheKey = key;
+          infiniteGrassCache = mkHi(w, h);
+          const cg = infiniteGrassCache.getContext("2d");
+          cg.save();
+          cg.translate(-vL, -vT);
 
-        const gt = getGrass();
+          // Base gradient under everything
+          const base = cg.createLinearGradient(0, vT, 0, vB);
+          base.addColorStop(0, "#5fae34");
+          base.addColorStop(0.5, "#529f2b");
+          base.addColorStop(1, "#448c22");
+          cg.fillStyle = base;
+          cg.fillRect(vL, vT, w, h);
 
-        const minIx = Math.floor(vL / W);
-        const maxIx = Math.floor((vR - 1) / W);
-        const minIy = Math.floor(vT / H);
-        const maxIy = Math.floor((vB - 1) / H);
+          const gt = getGrass();
 
-        for (let iy = minIy; iy <= maxIy; iy++) {
-          const flipY = (iy & 1) !== 0;
-          const transY = flipY ? (iy + 1) * H : iy * H;
-          const scaleY = flipY ? -1 : 1;
-          for (let ix = minIx; ix <= maxIx; ix++) {
-            const flipX = (ix & 1) !== 0;
-            const transX = flipX ? (ix + 1) * W : ix * W;
-            const scaleX = flipX ? -1 : 1;
+          const minIx = Math.floor(vL / W);
+          const maxIx = Math.floor((vR - 1) / W);
+          const minIy = Math.floor(vT / H);
+          const maxIy = Math.floor((vB - 1) / H);
 
-            if (ix === 0 && iy === 0) {
-              g.drawImage(gt, 0, 0, W, H);
-            } else {
-              g.save();
-              g.translate(transX, transY);
-              g.scale(scaleX, scaleY);
-              g.drawImage(gt, 0, 0, W, H);
-              g.restore();
+          for (let iy = minIy; iy <= maxIy; iy++) {
+            const flipY = (iy & 1) !== 0;
+            const transY = flipY ? (iy + 1) * H : iy * H;
+            const scaleY = flipY ? -1 : 1;
+            for (let ix = minIx; ix <= maxIx; ix++) {
+              const flipX = (ix & 1) !== 0;
+              const transX = flipX ? (ix + 1) * W : ix * W;
+              const scaleX = flipX ? -1 : 1;
+
+              if (ix === 0 && iy === 0) {
+                cg.drawImage(gt, 0, 0, W, H);
+              } else {
+                cg.save();
+                cg.translate(transX, transY);
+                cg.scale(scaleX, scaleY);
+                cg.drawImage(gt, 0, 0, W, H);
+                cg.restore();
+              }
             }
           }
+
+          // Soft ambient vignette across full screen
+          const maxDist = Math.hypot(
+            Math.max(HW - vL, vR - HW),
+            Math.max(HH - vT, vB - HH),
+          );
+          const vg = cg.createRadialGradient(
+            HW,
+            HH,
+            Math.max(500, maxDist * 0.4),
+            HW,
+            HH,
+            Math.max(900, maxDist),
+          );
+          vg.addColorStop(0, "rgba(0,0,0,0)");
+          vg.addColorStop(0.85, "rgba(0,20,0,0.06)");
+          vg.addColorStop(1, "rgba(0,15,0,0.2)");
+          cg.fillStyle = vg;
+          cg.fillRect(vL, vT, w, h);
+          cg.restore();
         }
 
-        // Soft ambient vignette across full screen
-        const maxDist = Math.hypot(
-          Math.max(HW - vL, vR - HW),
-          Math.max(HH - vT, vB - HH)
-        );
-        const vg = g.createRadialGradient(HW, HH, Math.max(500, maxDist * 0.4), HW, HH, Math.max(900, maxDist));
-        vg.addColorStop(0, "rgba(0,0,0,0)");
-        vg.addColorStop(0.85, "rgba(0,20,0,0.06)");
-        vg.addColorStop(1, "rgba(0,15,0,0.2)");
-        g.fillStyle = vg;
-        g.fillRect(vL, vT, vR - vL, vB - vT);
+        g.drawImage(infiniteGrassCache, vL, vT, w, h);
       }
 
       /* ---------- stones ---------- */
@@ -2345,7 +2380,8 @@
       }
 
       /* ---------- pawns (Ludo style) ---------- */
-      function drawPawn(g, x, y, ci, s) {
+      const pawnCache = [];
+      function drawPawnDirect(g, x, y, ci, s) {
         s = s || 1;
         const col = PAWN_COLORS[ci];
         g.save();
@@ -2414,6 +2450,25 @@
         g.fill();
         g.restore();
       }
+      function getPawnTex(ci) {
+        if (pawnCache[ci]) return pawnCache[ci];
+        const w = 48,
+          h = 64;
+        const c = mkHi(w, h),
+          g = c.getContext("2d");
+        g.translate(w / 2, h - 6);
+        drawPawnDirect(g, 0, 0, ci, 1);
+        c.pw = w;
+        c.ph = h;
+        return (pawnCache[ci] = c);
+      }
+      function drawPawn(g, x, y, ci, s) {
+        s = s || 1;
+        const tex = getPawnTex(ci);
+        const w = tex.pw * s,
+          h = tex.ph * s;
+        g.drawImage(tex, x - w / 2, y - h + 6 * s, w, h);
+      }
       function drawPawnShadow(g, x, y, a) {
         g.save();
         g.globalAlpha = a == null ? 1 : a;
@@ -2425,7 +2480,93 @@
       }
 
       /* ---------- kids (Chutes mode characters) ---------- */
+      const kidShirtGrads = [];
+      function getKidShirtGrad(g, ci) {
+        if (kidShirtGrads[ci]) return kidShirtGrads[ci];
+        const col = KID_COLORS[ci];
+        const sg = g.createLinearGradient(-14, 0, 14, 0);
+        sg.addColorStop(0, shade(col, -0.25));
+        sg.addColorStop(0.5, shade(col, 0.25));
+        sg.addColorStop(1, shade(col, -0.35));
+        return (kidShirtGrads[ci] = sg);
+      }
+      function drawKidLeg(g, dx, a, sit, skin) {
+        g.save();
+        g.translate(dx, -22);
+        const ang = sit ? (dx < 0 ? -0.68 : -0.52) : a;
+        g.rotate(ang);
+        g.fillStyle = skin;
+        rr(g, -4.5, 0, 9, 16, 4);
+        g.fill();
+        g.stroke();
+        g.fillStyle = "#ffffff";
+        g.fillRect(-4.5, 9.5, 9, 3.5);
+        g.strokeRect(-4.5, 9.5, 9, 3.5);
+        g.fillStyle = "#3a3a48";
+        rr(g, -6, 13, 13, 8, 4);
+        g.fill();
+        g.stroke();
+        g.fillStyle = "#e4e7ec";
+        rr(g, -6, 17.5, 13, 3.5, 1.5);
+        g.fill();
+        g.stroke();
+        g.restore();
+      }
+      function drawKidArm(g, dx, a, sit, wave, col, skin) {
+        g.save();
+        g.translate(dx, -44);
+        g.rotate(sit ? (dx < 0 ? 2.38 + wave : -2.38 - wave) : a);
+        g.fillStyle = col;
+        rr(g, -4, 0, 8, 12, 4);
+        g.fill();
+        g.stroke();
+        g.fillStyle = skin;
+        g.beginPath();
+        g.arc(0, 16, 5, 0, 7);
+        g.fill();
+        g.stroke();
+        if (sit) {
+          g.beginPath();
+          g.arc(dx < 0 ? 3 : -3, 14, 2, 0, 7);
+          g.fill();
+          g.stroke();
+        }
+        g.restore();
+      }
+
+      const kidIdleCache = {};
+      function getKidIdleTex(ci, flip) {
+        const key = ci + (flip ? "_f" : "_n");
+        if (kidIdleCache[key]) return kidIdleCache[key];
+        const w = 64,
+          h = 96;
+        const c = mkHi(w, h),
+          g = c.getContext("2d");
+        g.translate(w / 2, h - 8);
+        drawKidDirect(g, 0, 0, ci, "idle", 0, flip, 1, 0);
+        c.pw = w;
+        c.ph = h;
+        return (kidIdleCache[key] = c);
+      }
+
       function drawKid(g, x, y, ci, pose, t, flip, s, tilt) {
+        s = s || 1;
+        if (pose === "idle") {
+          const bob = Math.sin(t * 2) * 1.2;
+          const tex = getKidIdleTex(ci, flip);
+          const w = tex.pw * s,
+            h = tex.ph * s;
+          g.save();
+          g.translate(x, y + bob);
+          if (tilt) g.rotate(tilt);
+          g.drawImage(tex, -w / 2, -h + 8 * s, w, h);
+          g.restore();
+          return;
+        }
+        drawKidDirect(g, x, y, ci, pose, t, flip, s, tilt);
+      }
+
+      function drawKidDirect(g, x, y, ci, pose, t, flip, s, tilt) {
         s = s || 1;
         const col = KID_COLORS[ci],
           skin = "#f7cfa6",
@@ -2447,66 +2588,19 @@
           bob = Math.sin(t * 2) * 1.2;
         }
         g.translate(0, sit ? 16 : bob);
-        const leg = (dx, a, ahead) => {
-          g.save();
-          g.translate(dx, -22);
-          const ang = sit ? (dx < 0 ? -0.68 : -0.52) : a;
-          g.rotate(ang);
-          g.fillStyle = skin;
-          rr(g, -4.5, 0, 9, 16, 4);
-          g.fill();
-          g.stroke();
-          g.fillStyle = "#ffffff";
-          g.fillRect(-4.5, 9.5, 9, 3.5);
-          g.strokeRect(-4.5, 9.5, 9, 3.5);
-          g.fillStyle = "#3a3a48";
-          rr(g, -6, 13, 13, 8, 4);
-          g.fill();
-          g.stroke();
-          g.fillStyle = "#e4e7ec";
-          rr(g, -6, 17.5, 13, 3.5, 1.5);
-          g.fill();
-          g.stroke();
-          g.restore();
-        };
         const wave = sit ? Math.sin(t * 18) * 0.22 : 0;
-        const arm = (dx, a) => {
-          g.save();
-          g.translate(dx, -44);
-          g.rotate(sit ? (dx < 0 ? 2.38 + wave : -2.38 - wave) : a);
-          g.fillStyle = col;
-          rr(g, -4, 0, 8, 12, 4);
-          g.fill();
-          g.stroke();
-          g.fillStyle = skin;
-          g.beginPath();
-          g.arc(0, 16, 5, 0, 7);
-          g.fill();
-          g.stroke();
-          if (sit) {
-            g.beginPath();
-            g.arc(dx < 0 ? 3 : -3, 14, 2, 0, 7);
-            g.fill();
-            g.stroke();
-          }
-          g.restore();
-        };
         // below head: body & limbs (swapped for walking/standing, normal for falling)
         const bFlip = sit ? flip : !flip;
         g.save();
         g.scale((bFlip ? -1 : 1) * s, s);
         if (sit) g.rotate(-0.14);
         // back arm
-        arm(-13, -armA * 0.8);
+        drawKidArm(g, -13, -armA * 0.8, sit, wave, col, skin);
         // legs (both under shorts so both are down symmetrically)
-        leg(-5, -legA);
-        leg(5, legA);
+        drawKidLeg(g, -5, -legA, sit, skin);
+        drawKidLeg(g, 5, legA, sit, skin);
         // body (shirt)
-        const sg = g.createLinearGradient(-14, 0, 14, 0);
-        sg.addColorStop(0, shade(col, -0.25));
-        sg.addColorStop(0.5, shade(col, 0.25));
-        sg.addColorStop(1, shade(col, -0.35));
-        g.fillStyle = sg;
+        g.fillStyle = getKidShirtGrad(g, ci);
         rr(g, -14, -48, 28, 30, 9);
         g.fill();
         g.stroke();
@@ -2536,7 +2630,7 @@
         g.arc(0, -36, 4, 0, 7);
         g.fill();
         // front arm
-        arm(13, armA * 0.8);
+        drawKidArm(g, 13, armA * 0.8, sit, wave, col, skin);
         g.restore();
         // head, cap and face
         g.save();
@@ -2662,6 +2756,21 @@
         g.restore();
 
         g.restore();
+      }
+
+      /* ---------- cached kid avatars for turn panel ---------- */
+      const kidAvatarCache = [];
+      function getKidAvatarTex(ci) {
+        if (kidAvatarCache[ci]) return kidAvatarCache[ci];
+        const w = 38,
+          h = 52;
+        const c = mkHi(w, h),
+          g = c.getContext("2d");
+        g.translate(w / 2, h - 6);
+        drawKidDirect(g, 0, 0, ci, "idle", 0, false, 0.36);
+        c.pw = w;
+        c.ph = h;
+        return (kidAvatarCache[ci] = c);
       }
 
       /* ---------- dice: project all six faces of one rotating cube ---------- */
@@ -4244,16 +4353,24 @@
           TWUI.remove(this.fade);
           TWUI.get(this.fade).to({ a: 0 }, ms || 1000);
         },
+        _target: { layer: null, w: null },
         topTarget(x, y) {
           for (let i = this.layers.length - 1; i >= 0; i--) {
             const l = this.layers[i];
             if (!l.visible) continue;
             for (let j = l.widgets.length - 1; j >= 0; j--) {
               const w = l.widgets[j];
-              if (w.visible && w.enabled && w.contains(x, y))
-                return { layer: l, w };
+              if (w.visible && w.enabled && w.contains(x, y)) {
+                this._target.layer = l;
+                this._target.w = w;
+                return this._target;
+              }
             }
-            if (l.onDown || l.modal) return { layer: l, w: null };
+            if (l.onDown || l.modal) {
+              this._target.layer = l;
+              this._target.w = null;
+              return this._target;
+            }
           }
           return null;
         },
@@ -4279,8 +4396,12 @@
         move(x, y) {
           if (isMobile) return;
           const t = this.topTarget(x, y);
-          this.hoverW = (t && t.w) || null;
-          canvas.style.cursor = this.hoverW ? "pointer" : "default";
+          const newHover = (t && t.w) || null;
+          if (this.hoverW !== newHover) {
+            this.hoverW = newHover;
+            const newCursor = newHover ? "pointer" : "default";
+            if (canvas.style.cursor !== newCursor) canvas.style.cursor = newCursor;
+          }
         },
         load() {
           try {
@@ -5045,36 +5166,44 @@
                 w: 120,
                 h: 128,
                 onClick: () => App.setScreen(ColourChoose, n, vs),
-                draw(g) {
-                  glossRect(
-                    g,
-                    -60,
-                    -64,
-                    120,
-                    128,
-                    24,
-                    App.mode === MODE_SNAKES ? "#f6a21c" : "#2fa0e8",
-                  );
-                  const arr = [
-                    [0],
-                    [0, 1],
-                    [0, 1, 2],
-                    [0, 1, 2, 3],
-                    [0, 1, 2, 3, 4],
-                    [0, 1, 2, 3, 4, 5],
-                  ][n - 1];
-                  const cols = n <= 3 ? n : 3;
-                  arr.forEach((ci, k) => {
-                    const row = Math.floor(k / cols),
-                      col = k % cols,
-                      inRow = Math.min(cols, n - row * cols),
-                      x = (col - (inRow - 1) / 2) * 26,
-                      y = (n > 3 ? -4 : 6) + row * 22;
-                    if (App.mode === MODE_SNAKES)
-                      drawPawn(g, x, y + 14, ci, 0.8);
-                    else drawKid(g, x, y + 16, ci, "idle", 0, false, 0.42);
-                  });
-                  text(g, n + " PLAYERS", 0, 46, 16, "#fff", "#4a2a00", 3);
+                draw(g, b) {
+                  if (!b.tex || b.texMode !== App.mode) {
+                    const c = mkHi(120, 128),
+                      tg = c.getContext("2d");
+                    tg.translate(60, 64);
+                    glossRect(
+                      tg,
+                      -60,
+                      -64,
+                      120,
+                      128,
+                      24,
+                      App.mode === MODE_SNAKES ? "#f6a21c" : "#2fa0e8",
+                    );
+                    const arr = [
+                      [0],
+                      [0, 1],
+                      [0, 1, 2],
+                      [0, 1, 2, 3],
+                      [0, 1, 2, 3, 4],
+                      [0, 1, 2, 3, 4, 5],
+                    ][n - 1];
+                    const cols = n <= 3 ? n : 3;
+                    arr.forEach((ci, k) => {
+                      const row = Math.floor(k / cols),
+                        col = k % cols,
+                        inRow = Math.min(cols, n - row * cols),
+                        x = (col - (inRow - 1) / 2) * 26,
+                        y = (n > 3 ? -4 : 6) + row * 22;
+                      if (App.mode === MODE_SNAKES)
+                        drawPawn(tg, x, y + 14, ci, 0.8);
+                      else drawKid(tg, x, y + 16, ci, "idle", 0, false, 0.42);
+                    });
+                    text(tg, n + " PLAYERS", 0, 46, 16, "#fff", "#4a2a00", 3);
+                    b.tex = c;
+                    b.texMode = App.mode;
+                  }
+                  g.drawImage(b.tex, -60, -64, 120, 128);
                 },
               }),
             );
@@ -5102,17 +5231,20 @@
           );
           L.add(audioToggle(W - 120, 51, { ax: "r" }));
           this.btns = [];
+          const snakes = App.mode === MODE_SNAKES;
+          const spacing = 84;
+          const kidScale = 1.15;
+          const pawnScale = 2.4;
           for (let i = 0; i < 6; i++) {
-            const snakes = App.mode === MODE_SNAKES;
-            const x = snakes ? 490 + 76 * i : HW + (i - 2.5) * 126,
-              y = snakes ? HH + 65 : HH + 50;
+            const x = HW + (i - 2.5) * spacing;
+            const y = snakes ? HH + 65 : HH + 50;
             this.btns.push(
               L.add(
                 new Button({
                   x,
                   y: snakes ? y - 62 : y - 40,
-                  w: snakes ? 64 : 100,
-                  h: snakes ? 140 : 110,
+                  w: snakes ? 64 : 78,
+                  h: snakes ? 140 : 115,
                   ci: i,
                   hover: 0,
                   draw(g, b) {
@@ -5120,11 +5252,11 @@
                     g.translate(0, snakes ? 62 : 40);
                     if (snakes) {
                       drawPawnShadow(g, 0, 0, 0.8);
-                      drawPawn(g, 0, 0, b.ci, 2.5);
+                      drawPawn(g, 0, 0, b.ci, pawnScale);
                     } else {
                       g.fillStyle = "rgba(0,0,0,0.3)";
                       g.beginPath();
-                      g.ellipse(0, 0, 30, 10, 0, 0, 7);
+                      g.ellipse(0, 0, 26 * kidScale, 9 * kidScale, 0, 0, 7);
                       g.fill();
                       drawKid(
                         g,
@@ -5134,7 +5266,7 @@
                         "idle",
                         performance.now() / 1000 + b.ci,
                         false,
-                        1.35,
+                        kidScale,
                       );
                     }
                     g.restore();
@@ -5631,12 +5763,12 @@
           this.checkToFlip(a);
           let ease;
           if (this.mode === MODE_SNAKES) {
-            ease = Ease.quadIn;
+            ease = Ease.quadInOut;
             TW.get(P)
-              .to({ hop: -20 }, 150, Ease.quadIn)
+              .to({ hop: -20 }, 150, Ease.quadOut)
               .to({ hop: 0 }, 150, Ease.quadIn);
             TW.get(P)
-              .to({ shA: 0.5 }, 150, Ease.quadIn)
+              .to({ shA: 0.5 }, 150, Ease.quadOut)
               .to({ shA: 1 }, 150, Ease.quadIn);
           } else {
             ease = Ease.linear;
@@ -5853,14 +5985,17 @@
           this.z = false;
           for (const P of this.players) P.arrow = false;
           this.ui.enableDice(false);
-          App.gamesPlayed++;
+          const isPvP = this.v === HUMAN_VS_HUMAN;
           const won = this.v === HUMAN_VS_CPU ? a === this.p : true;
-          if (won) App.gamesWon++;
-          App.save();
+          if (!isPvP) {
+            App.gamesPlayed++;
+            if (won) App.gamesWon++;
+            App.save();
+          }
           if (this.mode === MODE_CHUTES)
             for (const P of this.players) P.anim = "idle";
           Snd.play(won ? "game_win" : "game_over");
-          this.end = new EndPanel(this, won);
+          this.end = new EndPanel(this, a, won);
         }
         puff(x, y) {
           for (let i = 0; i < 14; i++) {
@@ -5900,17 +6035,20 @@
             this.snakeAnim.t += dt;
             if (this.snakeAnim.t >= this.snakeAnim.dur) this.snakeAnim = null;
           }
-          for (const f of this.fx) {
+          for (let i = this.fx.length - 1; i >= 0; i--) {
+            const f = this.fx[i];
             f.t += dt;
             const k = dt / 1000;
             f.x += f.vx * k;
             f.y += f.vy * k;
             f.vx *= 0.92;
             f.vy *= 0.92;
+            if (f.t >= f.max) this.fx.splice(i, 1);
           }
-          this.fx = this.fx.filter((f) => f.t < f.max);
-          for (const r of this.rings) r.t += dt;
-          this.rings = this.rings.filter((r) => r.t < 450);
+          for (let i = this.rings.length - 1; i >= 0; i--) {
+            this.rings[i].t += dt;
+            if (this.rings[i].t >= 450) this.rings.splice(i, 1);
+          }
           for (const P of this.players)
             if (P.sparkle && Math.random() < dt / 22)
               this.sparks.push({
@@ -5921,11 +6059,12 @@
                 max: rnd(420, 720),
                 r: rnd(4, 8),
               });
-          for (const sp of this.sparks) {
+          for (let i = this.sparks.length - 1; i >= 0; i--) {
+            const sp = this.sparks[i];
             sp.t += dt;
             sp.y += (sp.vy * dt) / 1000;
+            if (sp.t >= sp.max) this.sparks.splice(i, 1);
           }
-          this.sparks = this.sparks.filter((sp) => sp.t < sp.max);
           if (this.shake > 0) this.shake = Math.max(0, this.shake - dt * 0.03);
           if (!this.z) return;
           this.dice.update(dt);
@@ -6040,7 +6179,11 @@
             g.ellipse(r.x, r.y + 3, 9 + 22 * u, 3.5 + 8 * u, 0, 0, 7);
             g.stroke();
           }
-          const ps = this.players.slice().sort((a, b) => a.y - b.y);
+          if (!this._sortedPs || this._sortedPs.length !== this.players.length)
+            this._sortedPs = new Array(this.players.length);
+          const ps = this._sortedPs;
+          for (let i = 0; i < this.players.length; i++) ps[i] = this.players[i];
+          ps.sort((a, b) => a.y - b.y);
           if (this.mode === MODE_SNAKES)
             for (const P of ps)
               if (P.visible && P.shVisible) drawPawnShadow(g, P.x, P.y, P.shA);
@@ -6433,59 +6576,63 @@
           g.save();
           g.translate(x, y);
 
-          // Ambient Drop Shadow
-          g.fillStyle = "rgba(0,0,0,0.38)";
-          rr(g, 3, 5, w, h, 18);
-          g.fill();
-
-          // Rich Golden/Amber Outer Bezel
-          const fr = g.createLinearGradient(0, 0, 0, h);
-          fr.addColorStop(0, "#ffb84d");
-          fr.addColorStop(0.5, "#f39c12");
-          fr.addColorStop(1, "#d35400");
-          g.fillStyle = fr;
-          rr(g, 0, 0, w, h, 18);
-          g.fill();
-          g.strokeStyle = "rgba(70,25,0,0.85)";
-          g.lineWidth = 2.5;
-          rr(g, 0, 0, w, h, 18);
-          g.stroke();
-
-          // Specular top highlight
-          g.fillStyle = "rgba(255,255,255,0.32)";
-          rr(g, 5, 2, w - 10, 8, 4);
-          g.fill();
-
-          // Inner Glossy Blue Plate
-          g.save();
-          rr(g, 7, 7, w - 14, h - 14, 12);
-          g.clip();
-          const bg = g.createLinearGradient(0, 0, 0, h);
-          bg.addColorStop(0, "#42a5f5");
-          bg.addColorStop(0.5, "#1e88e5");
-          bg.addColorStop(1, "#1565c0");
-          g.fillStyle = bg;
-          g.fillRect(0, 0, w, h);
-
-          // Subtle athletic racing diagonal stripes
-          g.fillStyle = "rgba(255,255,255,0.12)";
-          for (let s = -h; s < w + h; s += 24) {
-            g.beginPath();
-            g.moveTo(s, 0);
-            g.lineTo(s + 11, 0);
-            g.lineTo(s + 11 - h, h);
-            g.lineTo(s - h, h);
-            g.closePath();
-            g.fill();
+          // Pre-cache TurnPanel scoreboard background bezel and racing stripes
+          if (!this.panelBg || this.panelBg.pw !== w || this.panelBg.ph !== h) {
+            const c = mkHi(w + 14, h + 14),
+              bgG = c.getContext("2d");
+            bgG.translate(4, 4);
+            // Ambient Drop Shadow
+            bgG.fillStyle = "rgba(0,0,0,0.38)";
+            rr(bgG, 0, 2, w, h, 18);
+            bgG.fill();
+            // Rich Golden/Amber Outer Bezel
+            const fr = bgG.createLinearGradient(0, 0, 0, h);
+            fr.addColorStop(0, "#ffb84d");
+            fr.addColorStop(0.5, "#f39c12");
+            fr.addColorStop(1, "#d35400");
+            bgG.fillStyle = fr;
+            rr(bgG, 0, 0, w, h, 18);
+            bgG.fill();
+            bgG.strokeStyle = "rgba(70,25,0,0.85)";
+            bgG.lineWidth = 2.5;
+            rr(bgG, 0, 0, w, h, 18);
+            bgG.stroke();
+            // Specular top highlight
+            bgG.fillStyle = "rgba(255,255,255,0.32)";
+            rr(bgG, 5, 2, w - 10, 8, 4);
+            bgG.fill();
+            // Inner Glossy Blue Plate
+            bgG.save();
+            rr(bgG, 7, 7, w - 14, h - 14, 12);
+            bgG.clip();
+            const bg = bgG.createLinearGradient(0, 0, 0, h);
+            bg.addColorStop(0, "#42a5f5");
+            bg.addColorStop(0.5, "#1e88e5");
+            bg.addColorStop(1, "#1565c0");
+            bgG.fillStyle = bg;
+            bgG.fillRect(0, 0, w, h);
+            // Racing stripes
+            bgG.fillStyle = "rgba(255,255,255,0.12)";
+            for (let s = -h; s < w + h; s += 24) {
+              bgG.beginPath();
+              bgG.moveTo(s, 0);
+              bgG.lineTo(s + 11, 0);
+              bgG.lineTo(s + 11 - h, h);
+              bgG.lineTo(s - h, h);
+              bgG.closePath();
+              bgG.fill();
+            }
+            bgG.restore();
+            bgG.strokeStyle = "rgba(255,255,255,0.7)";
+            bgG.lineWidth = 2;
+            rr(bgG, 7, 7, w - 14, h - 14, 12);
+            bgG.stroke();
+            text(bgG, "TURN", w / 2, 26, 18, "#fff", "#041c44", 3.5);
+            c.pw = w;
+            c.ph = h;
+            this.panelBg = c;
           }
-          g.restore();
-
-          g.strokeStyle = "rgba(255,255,255,0.7)";
-          g.lineWidth = 2;
-          rr(g, 7, 7, w - 14, h - 14, 12);
-          g.stroke();
-
-          text(g, "TURN", w / 2, 26, 18, "#fff", "#041c44", 3.5);
+          g.drawImage(this.panelBg, -4, -4, w + 14, h + 14);
 
           const cardX = 11,
             cardW = w - 22;
@@ -6532,8 +6679,12 @@
               const pScale = act ? 0.6 : 0.54;
               drawPawn(g, 28, pawnBaseY, P.ci, pScale);
             } else {
-              const kScale = act ? 0.38 : 0.34;
-              drawKid(g, 28, pawnBaseY, P.ci, "idle", P.animT, false, kScale);
+              if (act) {
+                drawKid(g, 28, pawnBaseY, P.ci, "idle", P.animT, false, 0.38);
+              } else {
+                const tex = getKidAvatarTex(P.ci);
+                g.drawImage(tex, 28 - tex.pw / 2, pawnBaseY - tex.ph + 6, tex.pw, tex.ph);
+              }
             }
             g.restore();
 
@@ -6674,13 +6825,13 @@
             const a = this.anim.a;
             drawKid(
               g,
-              lerp(lx - 20, lx + 20, a),
-              lerp(ly + 36, ly - 44, a) - 4,
+              lerp(lx - 12, lx + 28, a),
+              lerp(ly + 38, ly - 42, a),
               2,
               "walk",
-              a * 2,
-              true,
-              0.6,
+              a * 2.5,
+              false,
+              0.82,
             );
           }
           g.restore();
@@ -6721,17 +6872,28 @@
             drawPawn(g, p[0], p[1] + 4, 3, 0.85);
           } else {
             const cpts = [
-              [sx - 34, sy - 44],
-              [sx - 10, sy - 20],
-              [sx + 22, sy - 2],
-              [sx + 8, sy + 18],
-              [sx + 32, sy + 38],
+              [sx - 30, sy - 44],
+              [sx - 6, sy - 26],
+              [sx + 22, sy - 8],
+              [sx + 26, sy + 16],
+              [sx + 10, sy + 38],
             ];
             const path = this.cp || (this.cp = samplePath(cpts, 1.2));
-            renderChuteAlongPath(g, path, CHUTE_THEMES[47], 13.0, 9.0, true);
+            const norms = this.cn || (this.cn = computePathNormals(path));
+            renderChuteAlongPath(
+              g,
+              path,
+              CHUTE_THEMES[47],
+              15.0,
+              10.5,
+              true,
+              norms,
+            );
             const i = Math.floor(b * (path.length - 1)),
               p = path[i];
-            drawKid(g, p[0], p[1] + 5, 3, "slide", 0, false, 0.6);
+            const nextI = Math.min(path.length - 1, i + 3);
+            const tilt = clamp((path[nextI][0] - p[0]) * 0.038, -0.28, 0.28);
+            drawKid(g, p[0], p[1] + 6, 3, "slide", b * 3, false, 0.82, tilt);
           }
           g.restore();
           text(
@@ -6840,8 +7002,9 @@
       }
       /* ---------- end panel ---------- */
       class EndPanel {
-        constructor(game, won) {
+        constructor(game, winnerIdx, won) {
           this.g = game;
+          this.winnerIdx = winnerIdx !== undefined ? winnerIdx : (game.p || 0);
           this.won = won;
           this.dim = 0;
           this.y = H;
@@ -6852,14 +7015,15 @@
           this.L = L;
           const self = this;
           const mk = (relX, kind, icon, fn) => {
-            const b = iconButton(HW, HH + 80, 64, kind, icon, fn);
+            const b = iconButton(HW, HH + 80, 56, kind, icon, fn);
             Object.defineProperty(b, "px", {
               get() {
                 const cx = HW;
                 const availW = W - App.offX * 2;
+                const isPvP = self.g.v === HUMAN_VS_HUMAN;
                 const boxW = Math.min(
-                  500,
-                  Math.max(340, Math.floor(availW * 0.8)),
+                  520,
+                  Math.max(340, Math.floor(availW * 0.86)),
                 );
                 const spacing = Math.min(95, Math.floor((boxW - 80) / 3.2));
                 return cx + relX * spacing;
@@ -6869,9 +7033,11 @@
               get() {
                 const cy = HH;
                 const availH = H - App.offY * 2;
+                const isPvP = self.g.v === HUMAN_VS_HUMAN;
+                const pCount = self.g.players.length;
                 const boxH = Math.min(
-                  330,
-                  Math.max(260, Math.floor(availH * 0.74)),
+                  isPvP && pCount >= 4 ? 400 : 365,
+                  Math.max(300, Math.floor(availH * 0.84)),
                 );
                 return cy + Math.round(boxH / 2 - 50) + self.y;
               },
@@ -6940,104 +7106,313 @@
             cy = HH;
           const availW = W - App.offX * 2;
           const availH = H - App.offY * 2;
-          const boxW = Math.min(500, Math.max(340, Math.floor(availW * 0.8)));
-          const boxH = Math.min(330, Math.max(260, Math.floor(availH * 0.74)));
+          const isPvP = this.g.v === HUMAN_VS_HUMAN;
+          const pCount = this.g.players.length;
+          const boxW = Math.min(
+            520,
+            Math.max(340, Math.floor(availW * 0.86)),
+          );
+          const boxH = Math.min(
+            isPvP && pCount >= 4 ? 400 : 365,
+            Math.max(300, Math.floor(availH * 0.84)),
+          );
 
           drawStyledPanel(g, cx, cy, boxW, boxH, 26);
 
           // Ribbon & title
-          const title = this.won ? T.WIN : T.LOSE;
-          const ribbonY = cy - boxH / 2 + 22;
+          const title = isPvP
+            ? "PLAYER " + (this.winnerIdx + 1) + " WINS!"
+            : this.won
+              ? T.WIN
+              : T.LOSE;
+          const ribbonY = cy - boxH / 2 + 20;
           g.save();
-          g.font = `36px ${FONT}`;
+          g.font = `34px ${FONT}`;
           const tw = g.measureText(title).width;
           g.restore();
-          const ribbonW = Math.min(boxW - 40, Math.max(250, tw + 80));
+          const ribbonW = Math.min(boxW - 40, Math.max(250, tw + 70));
           drawRibbon(g, cx, ribbonY, ribbonW, this.won ? "#e8402a" : "#5b6f8c");
           fancyText(
             g,
             title,
             cx,
             ribbonY - 2,
-            Math.min(36, Math.max(24, Math.floor(boxW * 0.075))),
+            Math.min(34, Math.max(22, Math.floor(boxW * 0.07))),
             "#ffffff",
             this.won ? "#ffe58a" : "#d6e4f5",
             this.won ? "#6e1408" : "#1e2c40",
             7,
+            ribbonW - 60,
           );
 
-          // Stars
-          const starsY = ribbonY + 52;
-          const starR = Math.min(26, Math.floor(boxW * 0.052));
-          const starGap = Math.min(62, Math.floor(boxW * 0.125));
+          // Stars (compacted radius and precise spacing to guarantee zero overlap)
+          const starR = Math.min(19, Math.max(15, Math.floor(boxW * 0.04)));
+          const starsY = ribbonY + 38;
+          const starGap = Math.min(48, Math.floor(boxW * 0.1));
           for (let i = 0; i < 3; i++) {
             const k = clamp(this.st.a - i, 0, 1),
               sc = k <= 0 ? 0 : Ease.backOut(Math.min(1, k));
             if (sc <= 0) continue;
-            const R = i === 1 ? starR : starR * 0.8;
+            const R = i === 1 ? starR : starR * 0.82;
             g.save();
-            g.translate(cx + (i - 1) * starGap, i === 1 ? starsY : starsY + 8);
+            g.translate(cx + (i - 1) * starGap, i === 1 ? starsY : starsY + 5);
             g.scale(sc, sc);
             drawStar(g, 0, 0, R, this.won);
             g.restore();
           }
 
-          // Stats card
-          const statsW = Math.min(boxW - 60, 320);
-          const statsH = 66;
-          const statsY = starsY + 38;
-          g.fillStyle = "rgba(0,45,100,0.35)";
-          rr(g, cx - statsW / 2, statsY, statsW, statsH, 16);
-          g.fill();
-          g.strokeStyle = "rgba(255,255,255,0.35)";
-          g.lineWidth = 2;
-          rr(g, cx - statsW / 2, statsY, statsW, statsH, 16);
-          g.stroke();
-          const statFontSize = Math.min(20, Math.floor(statsW * 0.065));
-          text(
-            g,
-            T.GAMES_PLAYED + ":",
-            cx - statsW / 2 + 20,
-            statsY + 19,
-            statFontSize,
-            COL_PRIMARY,
-            COL_SECONDARY,
-            4,
-            "left",
-          );
-          text(
-            g,
-            String(App.gamesPlayed),
-            cx + statsW / 2 - 20,
-            statsY + 19,
-            statFontSize + 2,
-            "#ffe66d",
-            COL_SECONDARY,
-            4,
-            "right",
-          );
-          text(
-            g,
-            T.GAMES_WON + ":",
-            cx - statsW / 2 + 20,
-            statsY + 46,
-            statFontSize,
-            COL_PRIMARY,
-            COL_SECONDARY,
-            4,
-            "left",
-          );
-          text(
-            g,
-            String(App.gamesWon),
-            cx + statsW / 2 - 20,
-            statsY + 46,
-            statFontSize + 2,
-            "#ffe66d",
-            COL_SECONDARY,
-            4,
-            "right",
-          );
+          // Exact mathematical boundaries for middle card to ensure 100% responsiveness on any screen:
+          // 1) Top boundary: at least 11px clear air gap below lowest star point
+          const cardY = starsY + starR + 11;
+          // 2) Bottom boundary: at least 13px clear air gap above the bottom buttons
+          const btnCenterY = cy + Math.round(boxH / 2 - 50);
+          const btnSize = 56;
+          const cardBottom = btnCenterY - btnSize / 2 - 13;
+          const cardH = Math.max(76, cardBottom - cardY);
+
+          if (!isPvP) {
+            // Stats card (Solo vs CPU)
+            const statsW = Math.min(boxW - 60, 320);
+            const statsH = 66;
+            const statsY = cardY + Math.round((cardH - statsH) / 2);
+            g.fillStyle = "rgba(0,45,100,0.35)";
+            rr(g, cx - statsW / 2, statsY, statsW, statsH, 16);
+            g.fill();
+            g.strokeStyle = "rgba(255,255,255,0.35)";
+            g.lineWidth = 2;
+            rr(g, cx - statsW / 2, statsY, statsW, statsH, 16);
+            g.stroke();
+            const statFontSize = Math.min(20, Math.floor(statsW * 0.065));
+            text(
+              g,
+              T.GAMES_PLAYED + ":",
+              cx - statsW / 2 + 20,
+              statsY + 19,
+              statFontSize,
+              COL_PRIMARY,
+              COL_SECONDARY,
+              4,
+              "left",
+            );
+            text(
+              g,
+              String(App.gamesPlayed),
+              cx + statsW / 2 - 20,
+              statsY + 19,
+              statFontSize + 2,
+              "#ffe66d",
+              COL_SECONDARY,
+              4,
+              "right",
+            );
+            text(
+              g,
+              T.GAMES_WON + ":",
+              cx - statsW / 2 + 20,
+              statsY + 46,
+              statFontSize,
+              COL_PRIMARY,
+              COL_SECONDARY,
+              4,
+              "left",
+            );
+            text(
+              g,
+              String(App.gamesWon),
+              cx + statsW / 2 - 20,
+              statsY + 46,
+              statFontSize + 2,
+              "#ffe66d",
+              COL_SECONDARY,
+              4,
+              "right",
+            );
+          } else {
+            // Match Standings for Local Multiplayer (Friends PvP)
+            const standings = this.g.players
+              .map((p, i) => ({
+                player: p,
+                idx: i,
+                pos: p.pos,
+                isWinner: i === this.winnerIdx,
+              }))
+              .sort((a, b) => {
+                if (a.isWinner) return -1;
+                if (b.isWinner) return 1;
+                return b.pos - a.pos;
+              });
+
+            const cardW = Math.min(boxW - 44, 440);
+
+            // Standings container card with glassmorphic bevel
+            g.fillStyle = "rgba(0, 32, 75, 0.45)";
+            rr(g, cx - cardW / 2, cardY, cardW, cardH, 14);
+            g.fill();
+            g.strokeStyle = "rgba(255, 255, 255, 0.32)";
+            g.lineWidth = 1.5;
+            rr(g, cx - cardW / 2, cardY, cardW, cardH, 14);
+            g.stroke();
+
+            // Clear header: "MATCH RESULTS"
+            const headerH = Math.min(22, Math.max(17, Math.floor(cardH * 0.11)));
+            g.fillStyle = "rgba(0, 18, 45, 0.35)";
+            rr(g, cx - cardW / 2 + 6, cardY + 5, cardW - 12, headerH, 6);
+            g.fill();
+            text(
+              g,
+              "MATCH RESULTS",
+              cx,
+              cardY + 5 + headerH / 2,
+              Math.min(11.5, Math.max(9.5, headerH * 0.55)),
+              "#ffe082",
+              "#001d3d",
+              2.5,
+              "center",
+              "middle",
+            );
+
+            const medalCols = [
+              "#f59e0b",
+              "#94a3b8",
+              "#d97706",
+              "#64748b",
+              "#64748b",
+              "#64748b",
+            ];
+            const medalTexts = ["1st", "2nd", "3rd", "4th", "5th", "6th"];
+            const colorsList =
+              this.g.mode === MODE_SNAKES ? PAWN_COLORS : KID_COLORS;
+
+            const rowsY = cardY + headerH + 8;
+            const rowsAreaH = (cardY + cardH - 6) - rowsY;
+            const rowGap = pCount >= 5 ? 2.5 : pCount >= 4 ? 3.5 : 5;
+            const rowH = Math.min(
+              36,
+              Math.floor((rowsAreaH - (pCount - 1) * rowGap) / pCount),
+            );
+            const rowW = cardW - 14;
+            const rowX = cx - rowW / 2;
+
+            for (let i = 0; i < pCount; i++) {
+              const item = standings[i];
+              const ry = rowsY + i * (rowH + rowGap);
+              const rowCY = ry + rowH / 2;
+              const pct = clamp(item.pos / 100, 0, 1);
+              const fillW = Math.max(8, Math.round(rowW * pct));
+
+              // Row base background
+              g.fillStyle = "rgba(0, 20, 50, 0.4)";
+              rr(g, rowX, ry, rowW, rowH, 7);
+              g.fill();
+
+              // Visual board progress bar
+              if (pct > 0) {
+                g.save();
+                rr(g, rowX, ry, rowW, rowH, 7);
+                g.clip();
+                if (item.isWinner) {
+                  const gr = g.createLinearGradient(rowX, 0, rowX + fillW, 0);
+                  gr.addColorStop(0, "rgba(245, 158, 11, 0.32)");
+                  gr.addColorStop(1, "rgba(251, 191, 36, 0.5)");
+                  g.fillStyle = gr;
+                } else {
+                  g.fillStyle = "rgba(255, 255, 255, 0.12)";
+                }
+                g.fillRect(rowX, ry, fillW, rowH);
+                g.restore();
+              }
+
+              // Row border
+              if (item.isWinner) {
+                g.strokeStyle = "rgba(255, 215, 0, 0.7)";
+                g.lineWidth = 1.5;
+              } else {
+                g.strokeStyle = "rgba(255, 255, 255, 0.15)";
+                g.lineWidth = 1;
+              }
+              rr(g, rowX, ry, rowW, rowH, 7);
+              g.stroke();
+
+              // Rank medal badge
+              const badgeW = Math.min(32, Math.max(26, Math.floor(rowW * 0.08)));
+              const badgeH = Math.min(20, Math.max(14, rowH - 4));
+              g.fillStyle = medalCols[i];
+              rr(g, rowX + 6, rowCY - badgeH / 2, badgeW, badgeH, 4);
+              g.fill();
+              text(
+                g,
+                medalTexts[i],
+                rowX + 6 + badgeW / 2,
+                rowCY,
+                Math.min(11, Math.max(9, badgeH * 0.6)),
+                "#ffffff",
+                "#0f172a",
+                2,
+                "center",
+                "middle",
+              );
+
+              // Pawn / character colored token dot
+              let pCol = colorsList[item.player.ci];
+              if (pCol === "#e8e8e8") pCol = "#cbd5e1";
+              const tokenR = Math.min(7, Math.max(5, (rowH - 6) / 2));
+              const tokenX = rowX + 6 + badgeW + tokenR + 4;
+              g.beginPath();
+              g.arc(tokenX, rowCY, tokenR, 0, Math.PI * 2);
+              g.fillStyle = pCol;
+              g.fill();
+              g.strokeStyle = "#ffffff";
+              g.lineWidth = 1.3;
+              g.stroke();
+
+              // Player Name (always clearly "PLAYER X")
+              const nameStr = "PLAYER " + (item.idx + 1);
+              const nameFontSize = Math.min(13, Math.max(10, rowH * 0.52));
+              text(
+                g,
+                nameStr,
+                tokenX + tokenR + 6,
+                rowCY,
+                nameFontSize,
+                item.isWinner ? "#ffe66d" : "#ffffff",
+                "#002850",
+                2.5,
+                "left",
+                "middle",
+              );
+
+              // Status / Tile Reached
+              const statusFontSize = Math.min(12.5, Math.max(9.5, rowH * 0.5));
+              if (item.isWinner) {
+                text(
+                  g,
+                  "TILE 100  ★ WINNER ★",
+                  rowX + rowW - 8,
+                  rowCY,
+                  statusFontSize,
+                  "#ffe66d",
+                  "#002850",
+                  2.5,
+                  "right",
+                  "middle",
+                );
+              } else {
+                const tileStr = item.pos > 0 ? "TILE " + item.pos : "START";
+                text(
+                  g,
+                  tileStr,
+                  rowX + rowW - 8,
+                  rowCY,
+                  statusFontSize,
+                  "#e0f2fe",
+                  "#002850",
+                  2.5,
+                  "right",
+                  "middle",
+                );
+              }
+            }
+          }
 
           g.restore();
           for (let i = this.conf.length - 1; i >= 0; i--) {
@@ -7099,6 +7474,7 @@
         // Full bleed canvas sizing: matches viewport 100%
         canvas.width = Math.round(w * dpr);
         canvas.height = Math.round(h * dpr);
+        ctx.imageSmoothingQuality = "high";
         canvas.style.width = w + "px";
         canvas.style.height = h + "px";
         canvas.style.left = "0px";
@@ -7197,20 +7573,18 @@
       function frame(now) {
         requestAnimationFrame(frame);
         if (!last) last = now;
-        let dt = Math.min(100, now - last);
+        let dt = now - last;
+        if (dt <= 0 || dt > 100) dt = 16.6;
+        else if (dt > 34) dt = 34;
         last = now;
         TWUI.update(dt);
         if (!App.paused) {
           TW.update(dt);
           if (App.screen && App.screen.update) App.screen.update(dt);
         }
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.setTransform(App.k, 0, 0, App.k, App.ctxOffsetX, App.ctxOffsetY);
-        ctx.imageSmoothingQuality = "high";
-        const cL = Math.min(0, Math.floor(App.vwLeft || 0)) - 20;
-        const cT = Math.min(0, Math.floor(App.vwTop || 0)) - 20;
-        const cR = Math.max(W, Math.ceil(App.vwRight || W)) + 20;
-        const cB = Math.max(H, Math.ceil(App.vwBottom || H)) + 20;
-        ctx.clearRect(cL, cT, cR - cL, cB - cT);
         for (const l of App.layers) {
           if (!l.visible) continue;
           ctx.save();
@@ -7221,6 +7595,10 @@
         }
         if (App.fade.a > 0) {
           ctx.fillStyle = `rgba(0,0,0,${App.fade.a})`;
+          const cL = Math.min(0, Math.floor(App.vwLeft || 0)) - 20;
+          const cT = Math.min(0, Math.floor(App.vwTop || 0)) - 20;
+          const cR = Math.max(W, Math.ceil(App.vwRight || W)) + 20;
+          const cB = Math.max(H, Math.ceil(App.vwBottom || H)) + 20;
           ctx.fillRect(cL, cT, cR - cL, cB - cT);
         }
       }

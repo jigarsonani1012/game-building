@@ -2464,17 +2464,22 @@
       }
       function drawPawn(g, x, y, ci, s) {
         s = s || 1;
+        if (s > 1.25) {
+          drawPawnDirect(g, x, y, ci, s);
+          return;
+        }
         const tex = getPawnTex(ci);
         const w = tex.pw * s,
           h = tex.ph * s;
         g.drawImage(tex, x - w / 2, y - h + 6 * s, w, h);
       }
-      function drawPawnShadow(g, x, y, a) {
+      function drawPawnShadow(g, x, y, a, s) {
+        s = s || 1;
         g.save();
         g.globalAlpha = a == null ? 1 : a;
         g.fillStyle = "rgba(0,0,0,0.35)";
         g.beginPath();
-        g.ellipse(x, y + 1, 16, 7, 0, 0, 7);
+        g.ellipse(x, y + 1 * s, 16 * s, 7 * s, 0, 0, 7);
         g.fill();
         g.restore();
       }
@@ -2551,7 +2556,7 @@
 
       function drawKid(g, x, y, ci, pose, t, flip, s, tilt) {
         s = s || 1;
-        if (pose === "idle") {
+        if (pose === "idle" && s <= 1.05) {
           const bob = Math.sin(t * 2) * 1.2;
           const tex = getKidIdleTex(ci, flip);
           const w = tex.pw * s,
@@ -3040,30 +3045,50 @@
       };
       function glossRect(g, x, y, w, h, r, col) {
         g.save();
-        g.fillStyle = "rgba(0,0,0,0.3)";
+        // Drop shadow with matching smooth radius
+        g.fillStyle = "rgba(0,0,0,0.28)";
         rr(g, x + 2, y + 4, w, h, r);
         g.fill();
+
+        // Base vibrant card gradient
         const gr = g.createLinearGradient(0, y, 0, y + h);
-        gr.addColorStop(0, shade(col, 0.35));
+        gr.addColorStop(0, shade(col, 0.32));
         gr.addColorStop(0.5, col);
-        gr.addColorStop(1, shade(col, -0.35));
+        gr.addColorStop(1, shade(col, -0.32));
         g.fillStyle = gr;
         rr(g, x, y, w, h, r);
         g.fill();
-        g.strokeStyle = "rgba(60,20,0,0.65)";
+
+        // Inner gloss and rim highlight clipped precisely to card contour
+        g.save();
+        rr(g, x, y, w, h, r);
+        g.clip();
+
+        // Top glossy sheen (conforms seamlessly to top corners with zero side-corner cuts)
+        const gl = g.createLinearGradient(0, y, 0, y + h * 0.52);
+        gl.addColorStop(0, "rgba(255,255,255,0.52)");
+        gl.addColorStop(0.8, "rgba(255,255,255,0.1)");
+        gl.addColorStop(1, "rgba(255,255,255,0.0)");
+        g.fillStyle = gl;
+        g.fillRect(x - 2, y - 2, w + 4, h * 0.52 + 2);
+
+        // Concentric inner highlight rim
+        const pad = 1.5;
+        const innerR = Math.max(2, r - pad);
+        g.strokeStyle = "rgba(255,255,255,0.65)";
+        g.lineWidth = 1.6;
+        rr(g, x + pad, y + pad, w - pad * 2, h - pad * 2, innerR);
+        g.stroke();
+
+        g.restore();
+
+        // Outer border stroke in matching deep color tone
+        const strokeCol = shade(col, -0.6);
+        g.strokeStyle = strokeCol;
         g.lineWidth = 2.5;
         rr(g, x, y, w, h, r);
         g.stroke();
-        g.strokeStyle = "rgba(255,255,255,0.7)";
-        g.lineWidth = 2;
-        rr(g, x + 3, y + 3, w - 6, h - 6, Math.max(2, r - 3));
-        g.stroke();
-        const gl = g.createLinearGradient(0, y, 0, y + h * 0.5);
-        gl.addColorStop(0, "rgba(255,255,255,0.55)");
-        gl.addColorStop(1, "rgba(255,255,255,0.05)");
-        g.fillStyle = gl;
-        rr(g, x + 4, y + 4, w - 8, h * 0.48, Math.max(2, r - 3));
-        g.fill();
+
         g.restore();
       }
       const ICONS = {
@@ -4405,19 +4430,31 @@
         },
         load() {
           try {
-            const p = localStorage.getItem("snakesandladders_gamesplayed"),
-              w = localStorage.getItem("snakesandladders_gameswon");
-            if (p !== null) this.gamesPlayed = +p;
-            if (w !== null) this.gamesWon = +w;
+            const raw = localStorage.getItem("snakesandladders_data");
+            if (raw) {
+              const data = JSON.parse(raw);
+              if (data.gamesPlayed != null) this.gamesPlayed = +data.gamesPlayed;
+              if (data.gamesWon != null) this.gamesWon = +data.gamesWon;
+              if (data.audio != null) {
+                this.audio = !!data.audio;
+                if (typeof Snd !== "undefined" && Snd.setOn) Snd.setOn(this.audio);
+              }
+            } else {
+              const p = localStorage.getItem("snakesandladders_gamesplayed"),
+                w = localStorage.getItem("snakesandladders_gameswon");
+              if (p !== null) this.gamesPlayed = +p;
+              if (w !== null) this.gamesWon = +w;
+            }
           } catch (e) {}
         },
         save() {
           try {
-            localStorage.setItem(
-              "snakesandladders_gamesplayed",
-              this.gamesPlayed,
-            );
-            localStorage.setItem("snakesandladders_gameswon", this.gamesWon);
+            const data = {
+              gamesPlayed: this.gamesPlayed,
+              gamesWon: this.gamesWon,
+              audio: this.audio,
+            };
+            localStorage.setItem("snakesandladders_data", JSON.stringify(data));
           } catch (e) {}
         },
       };
@@ -4473,6 +4510,7 @@
           (v) => {
             App.audio = v;
             Snd.setOn(v);
+            App.save();
           },
           extra,
         );
@@ -4756,6 +4794,7 @@
    ===================================================================== */
       class Menu {
         constructor() {
+          App.load();
           Snd.setMusicVolume(1);
           this.logo = { y: -500, s: 1 };
           const L = App.pushLayer({ draw: (g) => this.draw(g) });
@@ -4778,7 +4817,6 @@
           TWUI.get(this.logo, { loop: true })
             .to({ s: 1.05 }, 850, Ease.quadOut)
             .to({ s: 1 }, 650, Ease.quadIn);
-          App.load();
           App.fadeIn(1000);
         }
         draw(g) {
@@ -5168,16 +5206,19 @@
                 onClick: () => App.setScreen(ColourChoose, n, vs),
                 draw(g, b) {
                   if (!b.tex || b.texMode !== App.mode) {
-                    const c = mkHi(120, 128),
+                    const pad = 12;
+                    const cw = 120 + pad * 2,
+                      ch = 128 + pad * 2;
+                    const c = mkHi(cw, ch),
                       tg = c.getContext("2d");
-                    tg.translate(60, 64);
+                    tg.translate(cw / 2, ch / 2);
                     glossRect(
                       tg,
                       -60,
                       -64,
                       120,
                       128,
-                      24,
+                      22,
                       App.mode === MODE_SNAKES ? "#f6a21c" : "#2fa0e8",
                     );
                     const arr = [
@@ -5203,7 +5244,7 @@
                     b.tex = c;
                     b.texMode = App.mode;
                   }
-                  g.drawImage(b.tex, -60, -64, 120, 128);
+                  g.drawImage(b.tex, -60 - 12, -64 - 12, 120 + 24, 128 + 24);
                 },
               }),
             );
@@ -5251,14 +5292,14 @@
                     g.save();
                     g.translate(0, snakes ? 62 : 40);
                     if (snakes) {
-                      drawPawnShadow(g, 0, 0, 0.8);
-                      drawPawn(g, 0, 0, b.ci, pawnScale);
+                      drawPawnShadow(g, 0, 0, 0.75, pawnScale);
+                      drawPawnDirect(g, 0, 0, b.ci, pawnScale);
                     } else {
                       g.fillStyle = "rgba(0,0,0,0.3)";
                       g.beginPath();
                       g.ellipse(0, 0, 26 * kidScale, 9 * kidScale, 0, 0, 7);
                       g.fill();
-                      drawKid(
+                      drawKidDirect(
                         g,
                         0,
                         0,
@@ -6353,6 +6394,7 @@
               },
             }),
           );
+          /*
           this.autoBtn = L.add(
             new Button({
               x: W - 146,
@@ -6405,6 +6447,7 @@
               },
             }),
           );
+          */
           const sx = W - 41,
             sy = 41;
           const menuL = App.pushLayer({});
@@ -6455,10 +6498,14 @@
           this.diceBtn.y = H - 50;
           this.diceBtn.ax = "r";
           this.diceBtn.ay = "b";
-          this.autoBtn.x = W - 146;
-          this.autoBtn.y = H - 50;
-          this.autoBtn.ax = "r";
-          this.autoBtn.ay = "b";
+          /*
+          if (this.autoBtn) {
+            this.autoBtn.x = W - 146;
+            this.autoBtn.y = H - 50;
+            this.autoBtn.ax = "r";
+            this.autoBtn.ay = "b";
+          }
+          */
         }
         enableDice(v) {
           this.diceEnabled = v;
@@ -7036,10 +7083,10 @@
                 const isPvP = self.g.v === HUMAN_VS_HUMAN;
                 const pCount = self.g.players.length;
                 const boxH = Math.min(
-                  isPvP && pCount >= 4 ? 400 : 365,
+                  pCount >= 4 ? 410 : (!isPvP ? 375 : 365),
                   Math.max(300, Math.floor(availH * 0.84)),
                 );
-                return cy + Math.round(boxH / 2 - 50) + self.y;
+                return cy + Math.round(boxH / 2 - 46) + self.y;
               },
             });
             L.add(b);
@@ -7113,7 +7160,7 @@
             Math.max(340, Math.floor(availW * 0.86)),
           );
           const boxH = Math.min(
-            isPvP && pCount >= 4 ? 400 : 365,
+            pCount >= 4 ? 410 : (!isPvP ? 375 : 365),
             Math.max(300, Math.floor(availH * 0.84)),
           );
 
@@ -7164,253 +7211,263 @@
           // Exact mathematical boundaries for middle card to ensure 100% responsiveness on any screen:
           // 1) Top boundary: at least 11px clear air gap below lowest star point
           const cardY = starsY + starR + 11;
-          // 2) Bottom boundary: at least 13px clear air gap above the bottom buttons
-          const btnCenterY = cy + Math.round(boxH / 2 - 50);
+          // 2) Bottom boundary: at least 12px clear air gap above bottom action buttons
+          const btnCenterY = cy + Math.round(boxH / 2 - 46);
           const btnSize = 56;
-          const cardBottom = btnCenterY - btnSize / 2 - 13;
+          const cardBottom = btnCenterY - btnSize / 2 - 12;
           const cardH = Math.max(76, cardBottom - cardY);
 
-          if (!isPvP) {
-            // Stats card (Solo vs CPU)
-            const statsW = Math.min(boxW - 60, 320);
-            const statsH = 66;
-            const statsY = cardY + Math.round((cardH - statsH) / 2);
-            g.fillStyle = "rgba(0,45,100,0.35)";
-            rr(g, cx - statsW / 2, statsY, statsW, statsH, 16);
+          // Standings for all players (both vs CPU and PvP)
+          const standings = this.g.players
+            .map((p, i) => ({
+              player: p,
+              idx: i,
+              pos: p.pos,
+              isWinner: i === this.winnerIdx,
+            }))
+            .sort((a, b) => {
+              if (a.isWinner) return -1;
+              if (b.isWinner) return 1;
+              return b.pos - a.pos;
+            });
+
+          const cardW = Math.min(boxW - 44, 440);
+
+          // Standings container card with glassmorphic bevel
+          g.fillStyle = "rgba(0, 32, 75, 0.45)";
+          rr(g, cx - cardW / 2, cardY, cardW, cardH, 14);
+          g.fill();
+          g.strokeStyle = "rgba(255, 255, 255, 0.32)";
+          g.lineWidth = 1.5;
+          rr(g, cx - cardW / 2, cardY, cardW, cardH, 14);
+          g.stroke();
+
+          // Clear header: "MATCH RESULTS"
+          const headerH = Math.min(22, Math.max(17, Math.floor(cardH * 0.11)));
+          g.fillStyle = "rgba(0, 18, 45, 0.35)";
+          rr(g, cx - cardW / 2 + 6, cardY + 5, cardW - 12, headerH, 6);
+          g.fill();
+          text(
+            g,
+            "MATCH RESULTS",
+            cx,
+            cardY + 5 + headerH / 2,
+            Math.min(11.5, Math.max(9.5, headerH * 0.55)),
+            "#ffe082",
+            "#001d3d",
+            2.5,
+            "center",
+            "middle",
+          );
+
+          const medalCols = [
+            "#f59e0b",
+            "#94a3b8",
+            "#d97706",
+            "#64748b",
+            "#64748b",
+            "#64748b",
+          ];
+          const medalTexts = ["1st", "2nd", "3rd", "4th", "5th", "6th"];
+          const colorsList =
+            this.g.mode === MODE_SNAKES ? PAWN_COLORS : KID_COLORS;
+
+          const rowsY = cardY + headerH + 8;
+          const statBarH = !isPvP ? Math.min(30, Math.max(24, Math.floor(cardH * 0.17))) : 0;
+          const statBarGap = !isPvP ? 7 : 0;
+          const rowsAreaH = (cardY + cardH - 6) - rowsY - (statBarH + statBarGap);
+          const rowGap = pCount >= 5 ? 2.5 : pCount >= 4 ? 3.5 : 5;
+          const rowH = Math.min(
+            !isPvP && pCount === 2 ? 38 : 36,
+            Math.floor((rowsAreaH - (pCount - 1) * rowGap) / pCount),
+          );
+          const rowW = cardW - 14;
+          const rowX = cx - rowW / 2;
+
+          for (let i = 0; i < pCount; i++) {
+            const item = standings[i];
+            const ry = rowsY + i * (rowH + rowGap);
+            const rowCY = ry + rowH / 2;
+            const pct = clamp(item.pos / 100, 0, 1);
+            const fillW = Math.max(8, Math.round(rowW * pct));
+            const isHuman = !isPvP && item.idx === this.g.p;
+
+            // Row base background
+            g.fillStyle = isHuman ? "rgba(14, 50, 100, 0.45)" : "rgba(0, 20, 50, 0.4)";
+            rr(g, rowX, ry, rowW, rowH, 7);
             g.fill();
-            g.strokeStyle = "rgba(255,255,255,0.35)";
-            g.lineWidth = 2;
-            rr(g, cx - statsW / 2, statsY, statsW, statsH, 16);
+
+            // Visual board progress bar
+            if (pct > 0) {
+              g.save();
+              rr(g, rowX, ry, rowW, rowH, 7);
+              g.clip();
+              if (item.isWinner) {
+                const gr = g.createLinearGradient(rowX, 0, rowX + fillW, 0);
+                gr.addColorStop(0, "rgba(245, 158, 11, 0.35)");
+                gr.addColorStop(1, "rgba(251, 191, 36, 0.55)");
+                g.fillStyle = gr;
+              } else if (isHuman) {
+                g.fillStyle = "rgba(56, 189, 248, 0.28)";
+              } else {
+                g.fillStyle = "rgba(255, 255, 255, 0.12)";
+              }
+              g.fillRect(rowX, ry, fillW, rowH);
+              g.restore();
+            }
+
+            // Row border
+            if (item.isWinner) {
+              g.strokeStyle = "rgba(255, 215, 0, 0.75)";
+              g.lineWidth = 1.5;
+            } else if (isHuman) {
+              g.strokeStyle = "rgba(56, 189, 248, 0.55)";
+              g.lineWidth = 1.3;
+            } else {
+              g.strokeStyle = "rgba(255, 255, 255, 0.15)";
+              g.lineWidth = 1;
+            }
+            rr(g, rowX, ry, rowW, rowH, 7);
             g.stroke();
-            const statFontSize = Math.min(20, Math.floor(statsW * 0.065));
-            text(
-              g,
-              T.GAMES_PLAYED + ":",
-              cx - statsW / 2 + 20,
-              statsY + 19,
-              statFontSize,
-              COL_PRIMARY,
-              COL_SECONDARY,
-              4,
-              "left",
-            );
-            text(
-              g,
-              String(App.gamesPlayed),
-              cx + statsW / 2 - 20,
-              statsY + 19,
-              statFontSize + 2,
-              "#ffe66d",
-              COL_SECONDARY,
-              4,
-              "right",
-            );
-            text(
-              g,
-              T.GAMES_WON + ":",
-              cx - statsW / 2 + 20,
-              statsY + 46,
-              statFontSize,
-              COL_PRIMARY,
-              COL_SECONDARY,
-              4,
-              "left",
-            );
-            text(
-              g,
-              String(App.gamesWon),
-              cx + statsW / 2 - 20,
-              statsY + 46,
-              statFontSize + 2,
-              "#ffe66d",
-              COL_SECONDARY,
-              4,
-              "right",
-            );
-          } else {
-            // Match Standings for Local Multiplayer (Friends PvP)
-            const standings = this.g.players
-              .map((p, i) => ({
-                player: p,
-                idx: i,
-                pos: p.pos,
-                isWinner: i === this.winnerIdx,
-              }))
-              .sort((a, b) => {
-                if (a.isWinner) return -1;
-                if (b.isWinner) return 1;
-                return b.pos - a.pos;
-              });
 
-            const cardW = Math.min(boxW - 44, 440);
-
-            // Standings container card with glassmorphic bevel
-            g.fillStyle = "rgba(0, 32, 75, 0.45)";
-            rr(g, cx - cardW / 2, cardY, cardW, cardH, 14);
-            g.fill();
-            g.strokeStyle = "rgba(255, 255, 255, 0.32)";
-            g.lineWidth = 1.5;
-            rr(g, cx - cardW / 2, cardY, cardW, cardH, 14);
-            g.stroke();
-
-            // Clear header: "MATCH RESULTS"
-            const headerH = Math.min(22, Math.max(17, Math.floor(cardH * 0.11)));
-            g.fillStyle = "rgba(0, 18, 45, 0.35)";
-            rr(g, cx - cardW / 2 + 6, cardY + 5, cardW - 12, headerH, 6);
+            // Rank medal badge
+            const badgeW = Math.min(32, Math.max(26, Math.floor(rowW * 0.08)));
+            const badgeH = Math.min(20, Math.max(14, rowH - 4));
+            g.fillStyle = medalCols[i];
+            rr(g, rowX + 6, rowCY - badgeH / 2, badgeW, badgeH, 4);
             g.fill();
             text(
               g,
-              "MATCH RESULTS",
-              cx,
-              cardY + 5 + headerH / 2,
-              Math.min(11.5, Math.max(9.5, headerH * 0.55)),
-              "#ffe082",
-              "#001d3d",
-              2.5,
+              medalTexts[i],
+              rowX + 6 + badgeW / 2,
+              rowCY,
+              Math.min(11, Math.max(9, badgeH * 0.6)),
+              "#ffffff",
+              "#0f172a",
+              2,
               "center",
               "middle",
             );
 
-            const medalCols = [
-              "#f59e0b",
-              "#94a3b8",
-              "#d97706",
-              "#64748b",
-              "#64748b",
-              "#64748b",
-            ];
-            const medalTexts = ["1st", "2nd", "3rd", "4th", "5th", "6th"];
-            const colorsList =
-              this.g.mode === MODE_SNAKES ? PAWN_COLORS : KID_COLORS;
+            // Pawn / character colored token dot
+            let pCol = colorsList[item.player.ci];
+            if (pCol === "#e8e8e8") pCol = "#cbd5e1";
+            const tokenR = Math.min(7, Math.max(5, (rowH - 6) / 2));
+            const tokenX = rowX + 6 + badgeW + tokenR + 4;
+            g.beginPath();
+            g.arc(tokenX, rowCY, tokenR, 0, Math.PI * 2);
+            g.fillStyle = pCol;
+            g.fill();
+            g.strokeStyle = "#ffffff";
+            g.lineWidth = 1.3;
+            g.stroke();
 
-            const rowsY = cardY + headerH + 8;
-            const rowsAreaH = (cardY + cardH - 6) - rowsY;
-            const rowGap = pCount >= 5 ? 2.5 : pCount >= 4 ? 3.5 : 5;
-            const rowH = Math.min(
-              36,
-              Math.floor((rowsAreaH - (pCount - 1) * rowGap) / pCount),
+            // Player Name ("YOU", "COMPUTER" / "CPU X", or "PLAYER X")
+            const nameStr = isPvP
+              ? "PLAYER " + (item.idx + 1)
+              : isHuman
+                ? "YOU"
+                : pCount > 2
+                  ? "CPU " + (item.idx + 1)
+                  : "COMPUTER";
+            const nameFontSize = Math.min(13, Math.max(10, rowH * 0.52));
+            text(
+              g,
+              nameStr,
+              tokenX + tokenR + 6,
+              rowCY,
+              nameFontSize,
+              item.isWinner ? "#ffe66d" : isHuman ? "#7dd3fc" : "#ffffff",
+              "#002850",
+              2.5,
+              "left",
+              "middle",
             );
-            const rowW = cardW - 14;
-            const rowX = cx - rowW / 2;
 
-            for (let i = 0; i < pCount; i++) {
-              const item = standings[i];
-              const ry = rowsY + i * (rowH + rowGap);
-              const rowCY = ry + rowH / 2;
-              const pct = clamp(item.pos / 100, 0, 1);
-              const fillW = Math.max(8, Math.round(rowW * pct));
-
-              // Row base background
-              g.fillStyle = "rgba(0, 20, 50, 0.4)";
-              rr(g, rowX, ry, rowW, rowH, 7);
-              g.fill();
-
-              // Visual board progress bar
-              if (pct > 0) {
-                g.save();
-                rr(g, rowX, ry, rowW, rowH, 7);
-                g.clip();
-                if (item.isWinner) {
-                  const gr = g.createLinearGradient(rowX, 0, rowX + fillW, 0);
-                  gr.addColorStop(0, "rgba(245, 158, 11, 0.32)");
-                  gr.addColorStop(1, "rgba(251, 191, 36, 0.5)");
-                  g.fillStyle = gr;
-                } else {
-                  g.fillStyle = "rgba(255, 255, 255, 0.12)";
-                }
-                g.fillRect(rowX, ry, fillW, rowH);
-                g.restore();
-              }
-
-              // Row border
-              if (item.isWinner) {
-                g.strokeStyle = "rgba(255, 215, 0, 0.7)";
-                g.lineWidth = 1.5;
-              } else {
-                g.strokeStyle = "rgba(255, 255, 255, 0.15)";
-                g.lineWidth = 1;
-              }
-              rr(g, rowX, ry, rowW, rowH, 7);
-              g.stroke();
-
-              // Rank medal badge
-              const badgeW = Math.min(32, Math.max(26, Math.floor(rowW * 0.08)));
-              const badgeH = Math.min(20, Math.max(14, rowH - 4));
-              g.fillStyle = medalCols[i];
-              rr(g, rowX + 6, rowCY - badgeH / 2, badgeW, badgeH, 4);
-              g.fill();
+            // Status / Score Reached (Intuitive X / 100 progress)
+            const statusFontSize = Math.min(12.5, Math.max(9.5, rowH * 0.5));
+            if (item.isWinner) {
               text(
                 g,
-                medalTexts[i],
-                rowX + 6 + badgeW / 2,
+                "100 / 100  ★ WINNER ★",
+                rowX + rowW - 8,
                 rowCY,
-                Math.min(11, Math.max(9, badgeH * 0.6)),
-                "#ffffff",
-                "#0f172a",
+                statusFontSize,
+                "#ffe66d",
+                "#002850",
+                2.5,
+                "right",
+                "middle",
+              );
+            } else {
+              const scoreStr = item.pos + " / 100";
+              text(
+                g,
+                scoreStr,
+                rowX + rowW - 8,
+                rowCY,
+                statusFontSize,
+                "#e0f2fe",
+                "#002850",
+                2.5,
+                "right",
+                "middle",
+              );
+            }
+          }
+
+          // Career Stats Bar (Solo vs CPU)
+          if (!isPvP) {
+            const statY = cardY + cardH - statBarH - 6;
+            const chipGap = 6;
+            const chipW = Math.floor((rowW - chipGap * 2) / 3);
+            const winRate =
+              App.gamesPlayed > 0
+                ? Math.round((App.gamesWon / App.gamesPlayed) * 100) + "%"
+                : "0%";
+            const statsData = [
+              { label: "PLAYED", val: String(App.gamesPlayed) },
+              { label: "WON", val: String(App.gamesWon) },
+              { label: "WIN RATE", val: winRate },
+            ];
+
+            for (let i = 0; i < 3; i++) {
+              const chipX = rowX + i * (chipW + chipGap);
+              const chipCY = statY + statBarH / 2;
+              g.fillStyle = "rgba(0, 20, 50, 0.45)";
+              rr(g, chipX, statY, chipW, statBarH, 6);
+              g.fill();
+              g.strokeStyle = "rgba(255, 255, 255, 0.18)";
+              g.lineWidth = 1;
+              rr(g, chipX, statY, chipW, statBarH, 6);
+              g.stroke();
+
+              const lblFontSize = Math.min(9.5, Math.max(8, statBarH * 0.32));
+              const valFontSize = Math.min(12.5, Math.max(10.5, statBarH * 0.42));
+              text(
+                g,
+                statsData[i].label,
+                chipX + chipW / 2,
+                chipCY - Math.round(statBarH * 0.22),
+                lblFontSize,
+                "#93c5fd",
+                "#001d3d",
                 2,
                 "center",
                 "middle",
               );
-
-              // Pawn / character colored token dot
-              let pCol = colorsList[item.player.ci];
-              if (pCol === "#e8e8e8") pCol = "#cbd5e1";
-              const tokenR = Math.min(7, Math.max(5, (rowH - 6) / 2));
-              const tokenX = rowX + 6 + badgeW + tokenR + 4;
-              g.beginPath();
-              g.arc(tokenX, rowCY, tokenR, 0, Math.PI * 2);
-              g.fillStyle = pCol;
-              g.fill();
-              g.strokeStyle = "#ffffff";
-              g.lineWidth = 1.3;
-              g.stroke();
-
-              // Player Name (always clearly "PLAYER X")
-              const nameStr = "PLAYER " + (item.idx + 1);
-              const nameFontSize = Math.min(13, Math.max(10, rowH * 0.52));
               text(
                 g,
-                nameStr,
-                tokenX + tokenR + 6,
-                rowCY,
-                nameFontSize,
-                item.isWinner ? "#ffe66d" : "#ffffff",
-                "#002850",
-                2.5,
-                "left",
+                statsData[i].val,
+                chipX + chipW / 2,
+                chipCY + Math.round(statBarH * 0.22),
+                valFontSize,
+                "#ffe66d",
+                "#001d3d",
+                2.2,
+                "center",
                 "middle",
               );
-
-              // Status / Tile Reached
-              const statusFontSize = Math.min(12.5, Math.max(9.5, rowH * 0.5));
-              if (item.isWinner) {
-                text(
-                  g,
-                  "TILE 100  ★ WINNER ★",
-                  rowX + rowW - 8,
-                  rowCY,
-                  statusFontSize,
-                  "#ffe66d",
-                  "#002850",
-                  2.5,
-                  "right",
-                  "middle",
-                );
-              } else {
-                const tileStr = item.pos > 0 ? "TILE " + item.pos : "START";
-                text(
-                  g,
-                  tileStr,
-                  rowX + rowW - 8,
-                  rowCY,
-                  statusFontSize,
-                  "#e0f2fe",
-                  "#002850",
-                  2.5,
-                  "right",
-                  "middle",
-                );
-              }
             }
           }
 

@@ -56,24 +56,24 @@ button{font:inherit;color:inherit;background:none;border:0;outline:0;cursor:poin
 .stile:hover{background:#3b3f54}
 .stile.sel{box-shadow:inset 0 0 0 3px var(--cy)}
 .stile canvas,.ptile canvas,#si-tile canvas,#shop-ship canvas{width:100%;height:100%;display:block}
-.sinfo{left:448px;top:366px;width:312px;height:80px}
+.sinfo{left:448px;top:366px;width:376px;height:80px}
 #si-tile{position:absolute;left:0;top:0;width:76px;height:76px;background:#2d3040}
-#si-name{position:absolute;left:90px;top:2px;font-size:29px;font-weight:800}
-#si-top{position:absolute;left:90px;top:42px;font-size:23px;font-weight:800}
-#si-eq{position:absolute;right:0;top:10px;width:56px;height:56px;border-radius:9px;background:#00b4d8;display:none}
+#si-name{position:absolute;left:90px;top:6px;font-size:24px;font-weight:800;white-space:nowrap}
+#si-top{position:absolute;left:90px;top:42px;font-size:21px;font-weight:800}
+#si-eq{position:absolute;right:0;top:10px;width:56px;height:56px;border-radius:9px;background:#00b4d8;box-shadow:0 0 0 2px rgba(255,255,255,0.18);display:none}
 #si-eq canvas{width:100%;height:100%}
 #btn-play{left:500px;top:462px;width:200px;height:48px;font-size:32px}
 #btn-weap{left:418px;top:524px;width:176px;height:42px;font-size:21px}
 #btn-mix{left:606px;top:524px;width:176px;height:42px;font-size:21px}
+#btn-mix svg{transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+#btn-mix:hover svg{transform:rotate(180deg)}
+#btn-mix:active svg{transform:rotate(360deg)}
 .setrow{left:448px;top:580px;width:312px;height:46px;background:#21232e;box-shadow:inset 0 0 0 2px rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;padding:0 12px 0 4px}
 #btn-gear,#btn-spk{width:38px;height:38px;display:flex;align-items:center;justify-content:center}
 #btn-gear{background:#2d3040}#btn-gear:hover{background:#3b3f54}
 input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:8px;background:#373a4e;outline:none;cursor:pointer}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:26px;background:#fff;border:2px solid #555}
 input[type=range]::-moz-range-thumb{width:15px;height:23px;background:#fff;border:2px solid #555;border-radius:0}
-.ver{left:8px;bottom:6px;font-size:20px;font-weight:500}
-.pik{right:112px;bottom:12px;color:#ffd600;font-size:18px;font-weight:800;text-shadow:0 2px 0 #222,2px 0 0 #222,-2px 0 0 #222,0 -2px 0 #222}
-#btn-credits{right:10px;bottom:8px;width:92px;height:32px;font-size:18px}
 #coinbox{position:absolute;right:12px;top:6px;display:none;align-items:center;gap:7px;pointer-events:none}
 #coinbox.on{display:flex}
 #coin-num{font-size:32px;font-weight:800;color:#f7eba6;text-shadow:2px 0 0 #4b4630,-2px 0 0 #4b4630,0 2px 0 #4b4630,0 -2px 0 #4b4630,1.5px 1.5px 0 #4b4630,-1.5px 1.5px 0 #4b4630,1.5px -1.5px 0 #4b4630,-1.5px -1.5px 0 #4b4630}
@@ -139,7 +139,8 @@ input[type=range]::-moz-range-thumb{width:15px;height:23px;background:#fff;borde
 #res-next{position:absolute;left:466px;top:56px;width:76px;height:76px;background:#21232e;display:flex;align-items:center;justify-content:center;font:700 46px var(--sans)}
 #res-next canvas{width:100%;height:100%}
 #res-newship{position:absolute;left:446px;top:24px;width:116px;text-align:center;font-size:17px;font-weight:800;color:#fff36b;display:none}
-#btn-retry{left:520px;top:472px;width:160px;height:46px;font-size:27px;display:none}
+#res-actions{position:absolute;left:0;right:0;top:472px;display:none;justify-content:center;gap:22px}
+#btn-res-retry,#btn-res-menu{position:relative;width:170px;height:48px;font-size:26px}
 /* modal */
 #scr-modal{background:rgba(12,13,18,.7)}
 .mpanel{left:300px;top:118px;width:600px;height:440px}
@@ -172,11 +173,8 @@ input[type=range]::-moz-range-thumb{width:15px;height:23px;background:#fff;borde
     <div class="abs sinfo"><div id="si-tile"></div><div id="si-name" class="otxt">basic</div><div id="si-top" class="otxt">top : 0</div><div id="si-eq" title="equipped weapon"></div></div>
     <button class="btn g" id="btn-play">PLAY</button>
     <button class="btn b" id="btn-weap">WEAPONS <svg width="26" height="26" viewBox="0 0 26 26"><rect x="6" y="13" width="4" height="11" fill="#fff"/><rect x="16" y="13" width="4" height="11" fill="#fff"/><circle cx="8" cy="9" r="5" fill="#fff"/><circle cx="18" cy="9" r="5" fill="#fff"/></svg></button>
-    <button class="btn b" id="btn-mix">MIX <svg width="24" height="24" viewBox="0 0 24 24"><path d="M19 8 A8 8 0 1 0 20 14" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M13 2.5 L21.5 7.5 L13.5 11.5 Z" fill="#fff"/></svg></button>
+    <button class="btn b" id="btn-mix">MIX <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></button>
     <div class="abs setrow"><button id="btn-gear" aria-label="settings"><svg width="28" height="28" viewBox="0 0 28 28"><g fill="#fff"><circle cx="14" cy="14" r="8.5"/><rect x="11.5" y="1" width="5" height="26" rx="1"/><rect x="1" y="11.5" width="26" height="5" rx="1"/><rect x="11.5" y="1" width="5" height="26" rx="1" transform="rotate(45 14 14)"/><rect x="11.5" y="1" width="5" height="26" rx="1" transform="rotate(-45 14 14)"/></g><circle cx="14" cy="14" r="3.6" fill="#7c7c7c"/></svg></button><button id="btn-spk" aria-label="mute"><svg id="spk-svg" width="30" height="26" viewBox="0 0 30 26"><path d="M3 9 H9 L16 3 V23 L9 17 H3 Z" fill="#fff"/><path id="spk-w" d="M20 8 Q24 13 20 18 M23.5 4.5 Q30 13 23.5 21.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round"/><path id="spk-x" d="M20 8 L28 18 M28 8 L20 18" stroke="#fff" stroke-width="2.8" stroke-linecap="round" style="display:none"/></svg></button><input id="vol" type="range" min="0" max="100" value="70" aria-label="volume" /></div>
-    <div class="abs ver otxt">version 1.2</div>
-    <div class="abs pik">ARCADE EDITION</div>
-    <button class="btn gr" id="btn-credits">credits</button>
   </section>
 
   <section id="scr-shop" class="screen">
@@ -224,7 +222,10 @@ input[type=range]::-moz-range-thumb{width:15px;height:23px;background:#fff;borde
       <div id="res-newship" class="otxt">NEW SHIP!</div>
       <div id="res-next">?</div>
     </div>
-    <button class="btn r" id="btn-retry">RETRY</button>
+    <div id="res-actions">
+      <button class="btn g" id="btn-res-retry">RETRY</button>
+      <button class="btn b" id="btn-res-menu">MENU</button>
+    </div>
   </section>
 
   <section id="scr-modal" class="screen">
@@ -1507,7 +1508,6 @@ function drawHUD() {
   coinIcon(cpx - (cs * pul - cs) / 2, cpy - (cs * pul - cs) / 2, cs * pul);
   otext(String(S.coins), cpx - 8 * u, cpy + cs / 2 + u, 30 * u, '#f7eba6', '#4b4630', 'right', 'middle');
   drawBombRing(u);
-  otext('version 1.2', 8 * u, H - 5 * u, 19 * u, '#e8e8e8', '#3a3a3a', 'left', 'bottom');
   if (touchMode && state === 'play') {
     const g = pauseGeom();
     cx.beginPath(); cx.arc(g.x, g.y, g.R, 0, TAU); cx.fillStyle = 'rgba(30,30,30,0.7)'; cx.fill(); cx.lineWidth = 2 * u; cx.strokeStyle = '#9a9a9a'; cx.stroke();
@@ -1708,8 +1708,8 @@ function showResult(r) {
   const frac = clamp(r.sc / Math.max(1, target), 0, 1);
   $('res-fill').style.width = (frac * 100) + '%';
   $('res-cur').style.left = (frac * 262) + 'px'; $('res-curn').textContent = r.sc; $('res-tgtn').textContent = target;
-  $('btn-retry').style.display = 'none'; clearTimeout(retryTimer);
-  retryTimer = setTimeout(() => { if (state === 'result') $('btn-retry').style.display = 'flex'; }, 1300);
+  $('res-actions').style.display = 'none'; clearTimeout(retryTimer);
+  retryTimer = setTimeout(() => { if (state === 'result') $('res-actions').style.display = 'flex'; }, 1000);
   if (newest || (r.newTop && r.sc > 0)) AU.play('buy');
 }
 
@@ -1798,14 +1798,14 @@ const toggleMode = () => { AU.init(); S.mode = S.mode === 'normal' ? 'hard' : 'n
 $('mode-prev').addEventListener('click', toggleMode);
 $('mode-next').addEventListener('click', toggleMode);
 $('btn-gear').addEventListener('click', () => openModal('settings'));
-$('btn-credits').addEventListener('click', () => openModal('credits'));
 $('vol').addEventListener('input', e => { AU.init(); const v = e.target.value / 100; AU.setVol(v); if (v > 0) S.lastVol = v; updSpk(); persist(); });
 $('btn-spk').addEventListener('click', () => { AU.init(); if (S.vol > 0) { S.lastVol = S.vol; AU.setVol(0); } else AU.setVol(S.lastVol || 0.7); $('vol').value = Math.round(S.vol * 100); updSpk(); persist(); AU.play('ui'); });
 $('btn-resume').addEventListener('click', resumeGame);
 $('btn-quit').addEventListener('click', () => { if (state !== 'pause') return; AU.play('ui'); AU.stopMusic(); showResult(endRun()); });
 $('btn-cont').addEventListener('click', () => { if (state === 'over') doContinue(); });
 $('btn-go').addEventListener('click', () => { if (state !== 'over') return; AU.play('ui'); showResult(endRun()); });
-$('btn-retry').addEventListener('click', () => { AU.play('ui'); goTitle(); });
+$('btn-res-retry').addEventListener('click', () => { AU.play('ui'); startGame(); });
+$('btn-res-menu').addEventListener('click', () => { AU.play('ui'); goTitle(); });
 document.addEventListener('pointerdown', e => { AU.init(); if (e.pointerType === 'touch') touchMode = true; else if (e.pointerType === 'mouse') touchMode = false; }, { capture: true });
 
 /* ---------------- gameplay input ---------------- */

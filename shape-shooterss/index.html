@@ -49,6 +49,13 @@ button{font:inherit;color:inherit;background:none;border:0;outline:0;cursor:poin
 .hrow{display:flex;align-items:center;gap:12px;height:56px}
 .hrow .t{font-size:25px;font-weight:800}
 .anti{font-size:19px;font-weight:800;display:flex;align-items:center;gap:5px;margin-left:10px}
+#touch-hints{display:none}
+@media (pointer: coarse), (any-pointer: coarse), (hover: none) {
+  #mouse-hints{display:none !important}
+  #touch-hints{display:flex !important;flex-direction:column}
+}
+body.is-touch #mouse-hints{display:none !important}
+body.is-touch #touch-hints{display:flex !important;flex-direction:column}
 .shippanel{left:448px;top:165px;width:312px;height:192px;background:#21232e;box-shadow:inset 0 0 0 2px rgba(255,255,255,0.08);padding:8px 4px 8px 8px}
 .shipgrid{width:100%;height:100%;overflow-y:auto;display:grid;grid-template-columns:repeat(4,66px);grid-auto-rows:66px;gap:6px;align-content:start}
 .shipgrid::-webkit-scrollbar{width:10px}.shipgrid::-webkit-scrollbar-track{background:#181922}.shipgrid::-webkit-scrollbar-thumb{background:#41455a}
@@ -60,6 +67,11 @@ button{font:inherit;color:inherit;background:none;border:0;outline:0;cursor:poin
 #si-tile{position:absolute;left:0;top:0;width:76px;height:76px;background:#2d3040}
 #si-name{position:absolute;left:90px;top:6px;font-size:24px;font-weight:800;white-space:nowrap}
 #si-top{position:absolute;left:90px;top:42px;font-size:21px;font-weight:800}
+.medal-10k{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff8c4 0%,#ffd54f 45%,#ffb300 75%,#ff8f00 100%);border:2px solid #fff9c4;box-shadow:0 2px 6px rgba(0,0,0,0.6),inset 0 0 0 1.5px #ff6f00,0 0 8px rgba(255,213,79,0.5);font-family:var(--sans);font-weight:900;color:#8c4b00;text-shadow:0 1px 0 rgba(255,255,255,0.7),0 -1px 0 rgba(140,75,0,0.3);letter-spacing:-0.5px;line-height:1;user-select:none;pointer-events:none}
+.medal-10k.m-stile{position:absolute;right:2px;bottom:2px;width:24px;height:24px;font-size:7px;border-width:1.5px;box-shadow:0 1px 3px rgba(0,0,0,0.7),inset 0 0 0 1px #ff6f00;letter-spacing:-0.4px}
+.medal-10k.m-pv{position:absolute;right:8px;bottom:8px;width:40px;height:40px;font-size:11px;display:none}
+.medal-10k.m-si{position:absolute;left:236px;top:38px;width:34px;height:34px;font-size:9.5px;display:none}
+.medal-10k.m-res{width:68px;height:68px;font-size:18px;letter-spacing:-0.8px;border-width:3px;box-shadow:0 4px 12px rgba(0,0,0,0.7),inset 0 0 0 2px #ff6f00,0 0 16px rgba(255,213,79,0.6)}
 #si-eq{position:absolute;right:0;top:10px;width:56px;height:56px;border-radius:9px;background:#00b4d8;box-shadow:0 0 0 2px rgba(255,255,255,0.18);display:none}
 #si-eq canvas{width:100%;height:100%}
 #btn-play{left:500px;top:462px;width:200px;height:48px;font-size:32px}
@@ -71,14 +83,19 @@ button{font:inherit;color:inherit;background:none;border:0;outline:0;cursor:poin
 .setrow{left:448px;top:580px;width:312px;height:46px;background:#21232e;box-shadow:inset 0 0 0 2px rgba(255,255,255,0.08);display:flex;align-items:center;gap:10px;padding:0 12px 0 4px}
 #btn-gear,#btn-spk{width:38px;height:38px;display:flex;align-items:center;justify-content:center}
 #btn-gear{background:#2d3040}#btn-gear:hover{background:#3b3f54}
-input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:8px;background:#373a4e;outline:none;cursor:pointer}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:26px;background:#fff;border:2px solid #555}
-input[type=range]::-moz-range-thumb{width:15px;height:23px;background:#fff;border:2px solid #555;border-radius:0}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:8px;background:#262939;outline:none;cursor:pointer;border-radius:4px;box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);position:relative}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:26px;background:#fff;border:2px solid #333;border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,0.6);cursor:ew-resize;transition:background .15s,transform .1s}
+input[type=range]::-webkit-slider-thumb:hover{background:#d5f8ff;border-color:#00b0ff;transform:scale(1.08)}
+input[type=range]::-moz-range-thumb{width:16px;height:24px;background:#fff;border:2px solid #333;border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,0.6);cursor:ew-resize}
+input[type=range]::-moz-range-progress{background:linear-gradient(90deg,#00e5ff,#00b0ff);height:8px;border-radius:4px}
+input[type=range]::-moz-range-track{background:#262939;height:8px;border-radius:4px}
 #coinbox{position:absolute;right:12px;top:6px;display:none;align-items:center;gap:7px;pointer-events:none}
 #coinbox.on{display:flex}
 #coin-num{font-size:32px;font-weight:800;color:#f7eba6;text-shadow:2px 0 0 #4b4630,-2px 0 0 #4b4630,0 2px 0 #4b4630,0 -2px 0 #4b4630,1.5px 1.5px 0 #4b4630,-1.5px 1.5px 0 #4b4630,1.5px -1.5px 0 #4b4630,-1.5px -1.5px 0 #4b4630}
 /* shop */
-#scr-shop{background:#151720}
+#scr-shop{position:absolute;left:0;top:0;width:100%;height:100%}
+#scr-shop::before{content:'';position:absolute;left:-4000px;top:-3000px;width:9200px;height:6675px;background:#151720;z-index:0;pointer-events:none}
+#scr-shop > *{position:absolute;z-index:1}
 .wgrid{left:250px;top:40px;width:720px;display:grid;grid-template-columns:repeat(5,112px);column-gap:34px;row-gap:26px}
 .wcell{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer}
 .wtile{width:104px;height:104px;background:#0091ea;border-radius:13px;position:relative;transition:transform .08s}
@@ -104,11 +121,26 @@ input[type=range]::-moz-range-thumb{width:15px;height:23px;background:#fff;borde
 .ptile{position:absolute;background:#21232e}
 #pause-ship{left:46px;top:112px;width:136px;height:136px}
 #pause-ups{position:absolute;left:204px;top:112px;width:630px;height:200px;display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;overflow:hidden}
-.upchip{display:flex;align-items:center;gap:7px;background:#262937;padding:4px 12px 4px 4px;height:44px;font-size:16px;font-weight:800}
+.upchip{display:flex;align-items:center;gap:7px;background:#262937;padding:4px 12px 4px 4px;height:44px;font-size:16px;font-weight:800;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08)}
 .upchip canvas{width:36px;height:36px;background:#0091ea;border-radius:6px;display:block}
 .upchip .lvp{color:#dffaff;font-size:14px}
 #btn-resume{left:128px;top:356px;width:250px;height:52px;font-size:32px}
 #btn-quit{left:498px;top:356px;width:250px;height:52px;font-size:32px}
+/* compact pause menu — eliminate dead space */
+#scr-pause::before{content:'';position:absolute;left:-4000px;top:-3000px;width:9200px;height:6675px;background:rgba(10,12,18,.55);pointer-events:none}
+#scr-pause .panel{left:290px;top:115px;width:620px;height:410px;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,0.75),inset 0 0 0 2px rgba(255,255,255,0.08),0 0 25px rgba(0,229,255,0.12)}
+#scr-pause .ptitle{top:14px;font-size:46px}
+#scr-pause #pause-ship{left:36px;top:80px;width:112px;height:112px;border-radius:10px}
+#scr-pause #pause-ups{left:166px;top:80px;width:418px;height:170px;overflow-y:auto}
+#scr-pause #pause-ups::-webkit-scrollbar{width:6px}
+#scr-pause #pause-ups::-webkit-scrollbar-thumb{background:#3b4056;border-radius:3px}
+#pause-sound{left:36px;top:266px;width:548px;height:46px;background:#21232e;box-shadow:inset 0 0 0 2px rgba(255,255,255,0.08);border-radius:8px;display:flex;align-items:center;padding:0 14px 0 6px;gap:12px}
+#btn-pause-spk{width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:#2d3040;border-radius:6px;transition:background .15s}
+#btn-pause-spk:hover{background:#3b3f54}
+#pause-sound .pause-lab{font-size:18px;font-weight:800;letter-spacing:1px;color:#00e5ff}
+#pause-sound input[type=range]{flex:1;margin:0 4px}
+#pause-sound #scr-pause #btn-resume{left:75px;top:334px;width:215px;height:50px;font-size:26px}
+#scr-pause #btn-quit{left:330px;top:334px;width:215px;height:50px;font-size:26px}
 .cards{position:absolute;left:38px;top:104px;width:800px;height:312px;display:flex;gap:25px}
 .card{position:relative;width:250px;height:312px;background:#21232e;box-shadow:inset 0 0 0 2px rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:20px 14px 10px;cursor:pointer;transition:transform .1s,background .1s}
 .card:hover{background:#2d3040;box-shadow:inset 0 0 0 4px var(--cy);transform:translateY(-4px)}
@@ -127,23 +159,30 @@ input[type=range]::-moz-range-thumb{width:15px;height:23px;background:#fff;borde
 /* result */
 #res-new{position:absolute;left:0;right:0;top:66px;text-align:center;font:700 40px var(--sans)}
 #res-score{position:absolute;left:0;right:0;top:112px;text-align:center;font:700 64px var(--sans)}
-.badge{position:absolute;height:34px;display:flex;align-items:center;justify-content:center;color:#6fe3ea;background:rgba(18,70,74,.45);box-shadow:inset 0 0 0 2px #6fe3ea;font-size:21px;font-weight:800;letter-spacing:1px}
+.badge{position:absolute;height:34px;display:flex;align-items:center;justify-content:center;color:#6fe3ea;background:rgba(18,70,74,.45);box-shadow:inset 0 0 0 2px #6fe3ea;font-size:21px;font-weight:800;letter-spacing:1px;border-radius:4px}
 #res-mode{left:525px;top:196px;width:150px}
-#res-panel{position:absolute;left:320px;top:244px;width:560px;height:200px;background:#1a1c26;box-shadow:inset 0 0 0 2px rgba(255,255,255,0.08)}
-#res-ship{left:24px;top:32px;width:136px;height:136px}
-#res-prog{position:absolute;left:184px;top:30px;width:262px;height:140px}
-#res-bar{position:absolute;left:0;top:58px;width:262px;height:24px;background:repeating-linear-gradient(90deg,#2b2e3e 0 9px,#43475d 9px 12px);box-shadow:inset 0 0 0 2px #15161d}
-#res-fill{position:absolute;left:0;top:0;height:100%;background:repeating-linear-gradient(90deg,#00e5ff 0 9px,#80d8ff 9px 12px);box-shadow:inset 0 0 0 2px #00b0ff;width:0}
-#res-cur{position:absolute;top:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;font:700 22px var(--sans);color:#fff;text-shadow:0 2px 0 #555,2px 0 0 #555,-2px 0 0 #555,0 -2px 0 #555}
-#res-tgt{position:absolute;right:0;top:86px;transform:translateX(50%);display:flex;flex-direction:column;align-items:center;font:700 22px var(--sans);color:#fff;text-shadow:0 2px 0 #555,2px 0 0 #555,-2px 0 0 #555,0 -2px 0 #555}
-#res-next{position:absolute;left:466px;top:56px;width:76px;height:76px;background:#21232e;display:flex;align-items:center;justify-content:center;font:700 46px var(--sans)}
+#res-panel{position:absolute;left:320px;top:235px;width:560px;height:220px;background:#1a1c26;box-shadow:0 12px 36px rgba(0,0,0,0.5),inset 0 0 0 2px rgba(255,255,255,0.08);border-radius:10px}
+#res-ship{left:18px;top:42px;width:136px;height:136px;border-radius:8px;overflow:hidden;background:#141620;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06)}
+#res-weaps{position:absolute;left:172px;top:12px;width:370px;height:78px;display:flex;flex-wrap:wrap;gap:5px 10px;align-content:flex-start;overflow:hidden}
+.res-wchip{width:112px;height:32px;background:#242736;border-radius:6px;display:inline-flex;align-items:center;justify-content:space-between;padding:3px 10px 3px 5px;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08)}
+.res-wic{width:24px;height:24px;background:#00b0ff;border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.res-wic canvas{width:100%;height:100%;display:block}
+.res-wlv{font:800 17px var(--sans);color:#fff}
+#res-prog{position:absolute;left:172px;top:100px;width:246px;height:106px}
+#res-bar{position:absolute;left:0;top:42px;width:246px;height:24px;background:repeating-linear-gradient(90deg,#242738 0 8px,#373c52 8px 11px);box-shadow:inset 0 0 0 2px #12131a;border-radius:3px;overflow:hidden}
+#res-fill{position:absolute;left:0;top:0;height:100%;background:repeating-linear-gradient(90deg,#00e5ff 0 8px,#80d8ff 8px 11px);box-shadow:inset 0 0 0 2px #00b0ff,0 0 10px rgba(0,229,255,0.4);width:0}
+#res-cur{position:absolute;top:2px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;font:700 19px var(--sans);color:#fff;text-shadow:0 2px 0 #333,2px 0 0 #333,-2px 0 0 #333,0 -2px 0 #333}
+#res-tgt{position:absolute;right:0;top:68px;transform:translateX(50%);display:flex;flex-direction:column;align-items:center;font:700 19px var(--sans);color:#fff;text-shadow:0 2px 0 #333,2px 0 0 #333,-2px 0 0 #333,0 -2px 0 #333}
+#res-get-badge{position:absolute;left:458px;top:86px;width:92px;text-align:center;font-family:var(--sans);font-weight:900;font-size:18px;color:#fff;text-shadow:0 0 10px #ff6d00,1.5px 1.5px 0 #d87b00,-1px -1px 0 #d87b00;letter-spacing:1.5px;display:none;z-index:3}
+#res-next{position:absolute;left:466px;top:114px;width:76px;height:76px;background:#21232e;border-radius:8px;display:flex;align-items:center;justify-content:center;font:700 44px var(--sans);box-shadow:inset 0 0 0 2px rgba(255,255,255,0.08);overflow:visible}
 #res-next canvas{width:100%;height:100%}
-#res-newship{position:absolute;left:446px;top:24px;width:116px;text-align:center;font-size:17px;font-weight:800;color:#fff36b;display:none}
-#res-actions{position:absolute;left:0;right:0;top:472px;display:none;justify-content:center;gap:22px}
+.medal-10k.m-res-box{width:72px;height:72px;font-size:16px;border-width:3px;box-shadow:0 4px 14px rgba(0,0,0,0.65),inset 0 0 0 2px #ff6f00,0 0 22px rgba(255,213,79,0.7)}
+#res-actions{position:absolute;left:0;right:0;top:474px;display:none;justify-content:center;gap:20px}
 #btn-res-retry,#btn-res-menu{position:relative;width:170px;height:48px;font-size:26px}
 /* modal */
-#scr-modal{background:rgba(12,13,18,.7)}
-.mpanel{left:300px;top:118px;width:600px;height:440px}
+#scr-modal{position:absolute;left:0;top:0;width:100%;height:100%}
+#scr-modal::before{content:'';position:absolute;left:-4000px;top:-3000px;width:9200px;height:6675px;background:rgba(12,13,18,.72);pointer-events:auto}
+.mpanel{left:300px;top:118px;width:600px;height:440px;position:relative;z-index:2}
 #m-body{position:absolute;left:40px;top:110px;width:520px;height:300px;font-size:19px;font-weight:500;line-height:1.5}
 #m-close{right:22px;bottom:22px;width:84px;height:84px}
 .mrow{display:flex;align-items:center;gap:16px;height:58px}
@@ -164,13 +203,17 @@ input[type=range]::-moz-range-thumb{width:15px;height:23px;background:#fff;borde
       <div class="modename" id="mode-name">NORMAL</div>
       <button class="arrow rr" id="mode-next" aria-label="next mode"><svg width="18" height="20" viewBox="0 0 18 20"><path d="M3 2 L15 10 L3 18 Z" fill="#fff"/></svg></button>
     </div>
-    <div class="abs preview"><canvas id="demo" width="600" height="332"></canvas><div id="pv-top" class="cytxt">TOP 0</div><div id="pv-lock" class="otxt"><div>score <b>10000</b> in NORMAL<br>to unlock this mode</div></div></div>
-    <div class="abs hints">
+    <div class="abs preview"><canvas id="demo" width="600" height="332"></canvas><div id="pv-top" class="cytxt">TOP 0</div><div id="pv-lock" class="otxt"><div>score <b>10000</b> in NORMAL<br>to unlock this mode</div></div><div id="pv-medal" class="medal-10k m-pv">10000</div></div>
+    <div class="abs hints" id="mouse-hints">
       <div class="hrow"><svg width="34" height="48" viewBox="0 0 34 48"><rect x="2" y="2" width="30" height="44" rx="15" fill="#f2f2f2" stroke="#555" stroke-width="3"/><path d="M17 3.5 A13.5 13.5 0 0 0 3.5 17 V20 H17 Z" fill="#f7941d"/><line x1="17" y1="2" x2="17" y2="20" stroke="#555" stroke-width="3"/><line x1="2" y1="20" x2="32" y2="20" stroke="#555" stroke-width="3"/></svg><span class="t otxt">bomb</span><span class="anti otxt">anti <svg width="22" height="22" viewBox="0 0 22 22"><path d="M4 3 L19 11 L4 19 Z" fill="#880e4f" stroke="#ff4081" stroke-width="2.5" stroke-linejoin="round"/></svg> &amp; <svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="8" fill="#e65100" stroke="#ffab00" stroke-width="2.5"/></svg></span></div>
       <div class="hrow"><svg width="34" height="48" viewBox="0 0 34 48"><rect x="2" y="2" width="30" height="44" rx="15" fill="#f2f2f2" stroke="#555" stroke-width="3"/><path d="M17 3.5 A13.5 13.5 0 0 1 30.5 17 V20 H17 Z" fill="#f7941d"/><line x1="17" y1="2" x2="17" y2="20" stroke="#555" stroke-width="3"/><line x1="2" y1="20" x2="32" y2="20" stroke="#555" stroke-width="3"/></svg><span class="t otxt">pause</span></div>
     </div>
+    <div class="abs hints" id="touch-hints">
+      <div class="hrow"><svg width="34" height="44" viewBox="0 0 24 24" fill="none" stroke="#6fe3ea" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg><span class="t otxt">drag to move</span></div>
+      <div class="hrow"><svg width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#ff6d00" stroke="#fff" stroke-width="2"/><text x="17" y="23" font-family="var(--sans)" font-weight="900" font-size="18" fill="#fff" text-anchor="middle">B</text></svg><span class="t otxt">tap bomb</span><span class="anti otxt">anti <svg width="22" height="22" viewBox="0 0 22 22"><path d="M4 3 L19 11 L4 19 Z" fill="#880e4f" stroke="#ff4081" stroke-width="2.5" stroke-linejoin="round"/></svg> &amp; <svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="8" fill="#e65100" stroke="#ffab00" stroke-width="2.5"/></svg></span></div>
+    </div>
     <div class="abs shippanel"><div class="shipgrid" id="ship-grid"></div></div>
-    <div class="abs sinfo"><div id="si-tile"></div><div id="si-name" class="otxt">basic</div><div id="si-top" class="otxt">top : 0</div><div id="si-eq" title="equipped weapon"></div></div>
+    <div class="abs sinfo"><div id="si-tile"></div><div id="si-name" class="otxt">basic</div><div id="si-top" class="otxt">top : 0</div><div id="si-medal" class="medal-10k m-si">10000</div><div id="si-eq" title="equipped weapon"></div></div>
     <button class="btn g" id="btn-play">PLAY</button>
     <button class="btn b" id="btn-weap">WEAPONS <svg width="26" height="26" viewBox="0 0 26 26"><rect x="6" y="13" width="4" height="11" fill="#fff"/><rect x="16" y="13" width="4" height="11" fill="#fff"/><circle cx="8" cy="9" r="5" fill="#fff"/><circle cx="18" cy="9" r="5" fill="#fff"/></svg></button>
     <button class="btn b" id="btn-mix">MIX <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></button>
@@ -191,6 +234,18 @@ input[type=range]::-moz-range-thumb{width:15px;height:23px;background:#fff;borde
       <div class="ptitle otxt3">Pause</div>
       <div id="pause-ship" class="ptile"></div>
       <div id="pause-ups"></div>
+      <div id="pause-sound" class="abs">
+        <button id="btn-pause-spk" aria-label="mute sound">
+          <svg id="pause-spk-svg" width="30" height="26" viewBox="0 0 30 26">
+            <path d="M3 9 H9 L16 3 V23 L9 17 H3 Z" fill="#fff"/>
+            <path id="pause-spk-w" d="M20 8 Q24 13 20 18 M23.5 4.5 Q30 13 23.5 21.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+            <path id="pause-spk-x" d="M20 8 L28 18 M28 8 L20 18" stroke="#fff" stroke-width="2.8" stroke-linecap="round" style="display:none"/>
+          </svg>
+        </button>
+        <div class="otxt pause-lab">SOUND</div>
+        <input id="pause-vol" type="range" min="0" max="100" value="70" aria-label="volume" />
+        <div id="pause-vol-txt" class="otxt pause-pct">70%</div>
+      </div>
       <button class="btn g" id="btn-resume">RESUME</button>
       <button class="btn o" id="btn-quit">QUIT</button>
     </div>
@@ -214,12 +269,13 @@ input[type=range]::-moz-range-thumb{width:15px;height:23px;background:#fff;borde
     <div id="res-mode" class="badge">NORMAL</div>
     <div id="res-panel">
       <div id="res-ship" class="ptile"></div>
+      <div id="res-weaps"></div>
       <div id="res-prog">
         <div id="res-cur"><span id="res-curn">0</span><svg width="18" height="12" viewBox="0 0 18 12"><path d="M1 1 H17 L9 11 Z" fill="#fff" stroke="#555" stroke-width="1.5"/></svg></div>
         <div id="res-bar"><div id="res-fill"></div></div>
         <div id="res-tgt"><svg width="18" height="12" viewBox="0 0 18 12"><path d="M1 11 H17 L9 1 Z" fill="#fff" stroke="#555" stroke-width="1.5"/></svg><span id="res-tgtn">10</span></div>
       </div>
-      <div id="res-newship" class="otxt">NEW SHIP!</div>
+      <div id="res-get-badge">GET!!</div>
       <div id="res-next">?</div>
     </div>
     <div id="res-actions">
@@ -256,7 +312,7 @@ const FONT = '"M PLUS Rounded 1c","Arial Rounded MT Bold","Nunito",Arial,sans-se
 
 /* ---------------- persistent data ---------------- */
 const SAVE_KEY = 'shape-strike-arena-data';
-const defSave = () => ({ coins: 0, best: { normal: 0, hard: 0 }, shipTop: {}, unlocked: ['basic'], sel: 'basic', mode: 'normal', hardOpen: false, owned: {}, equip: {}, vol: 0.7, lastVol: 0.7, shake: true });
+const defSave = () => ({ coins: 0, best: { normal: 0, hard: 0 }, shipTop: {}, progScore: 0, unlocked: ['basic'], sel: 'basic', mode: 'normal', hardOpen: false, owned: {}, equip: {}, vol: 0.7, lastVol: 0.7, shake: true });
 let S = defSave();
 try {
   let raw = localStorage.getItem(SAVE_KEY);
@@ -265,6 +321,21 @@ try {
     const o = JSON.parse(raw);
     S = Object.assign(defSave(), o);
     S.best = Object.assign({ normal: 0, hard: 0 }, o.best || {});
+    if (typeof S.progScore !== 'number' || isNaN(S.progScore)) {
+      S.progScore = 0;
+    }
+    // If dual striker was unlocked with 500+, normalize progScore to count from 0 for the 1000 ship
+    if (S.unlocked && S.unlocked.includes('twin') && !S.unlocked.includes('wide') && S.progScore >= 500) {
+      S.progScore = S.progScore - 500;
+    }
+    const bestSc = Math.max(S.best.normal || 0, S.best.hard || 0);
+    // If the player's best score is low (< 500), reset unlocked ships back to ['basic'] so cheap 15/50 test unlocks don't persist
+    if (bestSc < 500 && S.unlocked) {
+      S.unlocked = S.unlocked.filter(id => id === 'basic');
+      if (!S.unlocked.includes('basic')) S.unlocked.unshift('basic');
+      if (S.sel !== 'basic' && !S.unlocked.includes(S.sel)) S.sel = 'basic';
+      S.progScore = 0;
+    }
   }
 } catch (e) { /* storage unavailable */ }
 const persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) { /* ignore */ } };
@@ -303,7 +374,7 @@ const AU = {
   },
   play(n, x) {
     const c = this.ctx; if (!c || S.vol <= 0) return; const now = c.currentTime;
-    const gap = { shoot: 0.055, gshoot: 0.07, hit: 0.035, kill: 0.03, frag: 0.03, coin: 0.05, boom: 0.06, pop: 0.04 }[n] || 0;
+    const gap = { shoot: 0.055, gshoot: 0.07, hit: 0.035, kill: 0.03, frag: 0.03, coin: 0.05, boom: 0.06, pop: 0.04, tick: 0.035 }[n] || 0;
     if (gap && this.last[n] && now - this.last[n] < gap) return; this.last[n] = now;
     switch (n) {
       case 'shoot': this.tone('triangle', 920, 540, 0.05, 0.03); break;
@@ -328,6 +399,7 @@ const AU = {
       case 'boss': [0, 0.22, 0.44].forEach(w => this.tone('sawtooth', 116, 92, 0.18, 0.08, w)); break;
       case 'next': this.tone('triangle', 523, 1046, 0.2, 0.04); break;
       case 'pop': this.tone('sine', 900, 300, 0.06, 0.03); break;
+      case 'tick': this.tone('sine', 780, 780, 0.02, 0.015); break;
       case 'buy': [784, 988, 1175, 1568].forEach((f, i) => this.tone('square', f, f, 0.08, 0.03, i * 0.05)); break;
     }
   },
@@ -374,82 +446,98 @@ const COL = {
 /* ---------------- data: weapons / upgrades / ships / enemies ---------------- */
 const WEAPON_IDS = ['twin', 'wide', 'wave', 'grenade', 'freeze', 'cutter', 'missile', 'crescent', 'laser', 'flail'];
 const WEAPONS = {
-  twin: { name: 'Dual Blaster', cost: 25, desc: 'Twin pulse cannons fire parallel energy bolts straight ahead.', ups: { power: ['Dual Overcharge', 3, 'Twin bolt damage +40%'], rapid: ['Rapid Blaster', 3, 'Twin fire rate +25%'], triple: ['Triple Array', 2, 'Adds one more parallel cannon'] } },
-  wide: { name: 'Scatter Shot', cost: 25, desc: 'Flank cannons spray high-yield shots in a defensive V shape.', ups: { wider: ['Wide Fan', 2, 'Adds 2 more diagonal firing paths'], power: ['Scatter Force', 3, 'Scatter shot damage +40%'], rapid: ['Rapid Fan', 3, 'Scatter fire rate +25%'] } },
-  wave: { name: 'Sonic Pulse', cost: 30, desc: 'Emits piercing sonic shockwaves that pass through all targets.', ups: { big: ['Grand Shockwave', 3, 'Wider, high-amplitude pulse waves'], fast: ['Pulse Cadence', 3, 'Emit sonic shockwaves more frequently'], double: ['Dual Pulse', 1, 'Also projects shockwaves to the rear'] } },
-  grenade: { name: 'Cluster Mine', cost: 45, desc: 'Launches localized cluster charges that detonate on proximity.', ups: { big: ['Heavy Blast', 3, 'Detonation blast radius +30%'], double: ['Twin Mines', 3, 'Launch one additional cluster charge'], fast: ['Rapid Loader', 3, 'Deploy cluster charges faster'] } },
-  freeze: { name: 'Cryo Nova', cost: 45, desc: 'Discharges sub-zero cryo fields that freeze enemy momentum.', ups: { wide: ['Glacial Field', 3, 'Cryo freezing radius +30%'], long: ['Deep Freeze', 3, 'Enemies remain immobilized longer'], fast: ['Cryo Recharge', 3, 'Cryo discharge cycles more quickly'] } },
-  cutter: { name: 'Orbit Saws', cost: 50, desc: 'High-speed plasma sawblades orbit your perimeter, shredding nearby foes.', ups: { double: ['Dual Saws', 3, 'Doubles the number of orbiting blades'], wide: ['Wide Orbit', 3, 'Expands orbit ring and adds 2 sawblades'], fast: ['Overdrive Spin', 3, 'Sawblades rotate at high velocity'] } },
-  missile: { name: 'Seeker Rockets', cost: 60, desc: 'Fires radar-guided micro rockets that aggressively track hostile shapes.', ups: { double: ['Salvo Launch', 3, 'Launch one additional seeker rocket'], fast: ['Rapid Thrusters', 3, 'Launch seeker rockets more often'], big: ['Warhead Blast', 3, 'Rocket impact & explosion damage +40%'] } },
-  crescent: { name: 'Arc Blades', cost: 60, desc: 'Flings curved kinetic arc blades backward to neutralize flankers.', ups: { double: ['Arc Flurry', 2, 'Additional blades and wider aft coverage'], big: ['Heavy Blades', 3, 'Enlarged reinforced blade geometry'], fast: ['Blade Cycle', 3, 'Deploy arc blades with higher cadence'] } },
-  laser: { name: 'Photon Beam', cost: 75, desc: 'Unleashes an intense concentrated photon beam that melts lanes of enemies.', ups: { wide: ['Collimated Beam', 3, 'Broad beam aperture with higher damage'], fast: ['High Discharge', 3, 'Cycle photon beam more frequently'], double: ['Omni Beam', 1, 'Simultaneously fires an aft photon beam'] } },
-  flail: { name: 'Orbit Mace', cost: 75, desc: 'A dense kinetic wrecking ball swings around your hull. Decimates bosses.', ups: { big: ['Crushing Mace', 3, 'Heavier, higher-mass impact sphere'], double: ['Twin Maces', 1, 'Deploys a second counter-weighted sphere'], long: ['Extended Chain', 3, 'Extends reach of the magnetic chain'] } }
+  twin: { name: 'Dual Blaster', cost: 25, desc: 'Twin pulse cannons fire parallel energy bolts straight ahead.', ups: { power: ['Dual Overcharge', 5, 'Twin bolt damage +40%'], rapid: ['Rapid Blaster', 5, 'Twin fire rate +25%'], triple: ['Triple Array', 5, 'Adds one more parallel cannon'] } },
+  wide: { name: 'Scatter Shot', cost: 25, desc: 'Flank cannons spray high-yield shots in a defensive V shape.', ups: { wider: ['Wide Fan', 5, 'Adds 2 more diagonal firing paths'], power: ['Scatter Force', 5, 'Scatter shot damage +40%'], rapid: ['Rapid Fan', 5, 'Scatter fire rate +25%'] } },
+  wave: { name: 'Sonic Pulse', cost: 30, desc: 'Emits piercing sonic shockwaves that pass through all targets.', ups: { big: ['Grand Shockwave', 5, 'Wider, high-amplitude pulse waves'], fast: ['Pulse Cadence', 5, 'Emit sonic shockwaves more frequently'], double: ['Omni Pulse', 3, 'Projects shockwaves in multiple directions'] } },
+  grenade: { name: 'Cluster Mine', cost: 45, desc: 'Launches localized cluster charges that detonate on proximity.', ups: { big: ['Heavy Blast', 5, 'Detonation blast radius +30%'], double: ['Cluster Swarm', 5, 'Launch additional cluster charges'], fast: ['Rapid Loader', 5, 'Deploy cluster charges faster'] } },
+  freeze: { name: 'Cryo Nova', cost: 45, desc: 'Discharges sub-zero cryo fields that freeze enemy momentum.', ups: { wide: ['Glacial Field', 5, 'Cryo freezing radius +30%'], long: ['Deep Freeze', 5, 'Enemies remain immobilized longer'], fast: ['Cryo Recharge', 5, 'Cryo discharge cycles more quickly'] } },
+  cutter: { name: 'Orbit Saws', cost: 50, desc: 'High-speed plasma sawblades orbit your perimeter, shredding nearby foes.', ups: { double: ['Saw Swarm', 5, 'Multiplies orbiting plasma sawblades'], wide: ['Wide Orbit', 5, 'Expands orbit ring and adds sawblades'], fast: ['Overdrive Spin', 5, 'Sawblades rotate at high velocity'] } },
+  missile: { name: 'Seeker Rockets', cost: 60, desc: 'Fires radar-guided micro rockets that aggressively track hostile shapes.', ups: { double: ['Salvo Launch', 5, 'Launch additional seeker rockets'], fast: ['Rapid Thrusters', 5, 'Launch seeker rockets more often'], big: ['Warhead Blast', 5, 'Rocket impact & explosion damage +40%'] } },
+  crescent: { name: 'Arc Blades', cost: 60, desc: 'Flings curved kinetic arc blades backward to neutralize flankers.', ups: { double: ['Arc Flurry', 5, 'Additional blades with multi-angle coverage'], big: ['Heavy Blades', 5, 'Enlarged reinforced blade geometry'], fast: ['Blade Cycle', 5, 'Deploy arc blades with higher cadence'] } },
+  laser: { name: 'Photon Beam', cost: 75, desc: 'Unleashes an intense concentrated photon beam that melts lanes of enemies.', ups: { wide: ['Collimated Beam', 5, 'Broad beam aperture with higher damage'], fast: ['High Discharge', 5, 'Cycle photon beam more frequently'], double: ['Omni Beam', 3, 'Simultaneously fires aft and lateral photon beams'] } },
+  flail: { name: 'Orbit Mace', cost: 75, desc: 'A dense kinetic wrecking ball swings around your hull. Decimates bosses.', ups: { big: ['Crushing Mace', 5, 'Heavier, higher-mass impact sphere'], double: ['Multi Maces', 4, 'Deploys additional counter-weighted spheres'], long: ['Extended Chain', 5, 'Extends reach of the magnetic chain'] } }
 };
 const GUNUPS = {
   rapid: ['Turbo Fire', 5, 'Main cannon cycle rate +18%'],
   power: ['Plasma Power', 5, 'Main cannon damage output +30%'],
-  big: ['Heavy Caliber', 3, 'High-mass, heavy kinetic cannon rounds'],
+  big: ['Heavy Caliber', 5, 'High-mass, heavy kinetic cannon rounds'],
   back: ['Rear Battery', 1, 'Mounts an aft-firing defensive cannon'],
   side: ['Flank Cannons', 1, 'Mounts twin broadside lateral cannons'],
-  speed: ['Impulse Drive', 3, 'Hull maneuver propulsion +10%'],
-  magnet: ['Tractor Beam', 3, 'Collect energy bits and credits from greater distance'],
-  bomb: ['Capacitor Boost', 3, 'Nova bomb recharges 35% faster'],
-  shield: ['Shield Matrix', 3, 'Barrier matrix requires 2 fewer bits to restore']
+  speed: ['Impulse Drive', 5, 'Hull maneuver propulsion +10%'],
+  magnet: ['Tractor Beam', 5, 'Collect energy bits and credits from greater distance'],
+  bomb: ['Capacitor Boost', 5, 'Nova bomb recharges 35% faster'],
+  shield: ['Shield Matrix', 5, 'Barrier matrix requires 2 fewer bits to restore']
 };
 // barrel: [angle, lateral, length, width, bulletSize, damageMul, colour]
 const B0 = [0, 0, 1, 1, 1, 1, 'c'];
 const SHIPS = [
   { id: 'basic', name: 'Vanguard', need: 0, rate: 0.13, dmg: 1, barrels: [B0], start: [], desc: 'Balanced multi-role interceptor.' },
-  { id: 'twin', name: 'Dual Striker', need: 15, rate: 0.13, dmg: 1, barrels: [B0], start: ['twin'], desc: 'Special weapon: Dual Blaster.' },
-  { id: 'wide', name: 'Corsair', need: 50, rate: 0.13, dmg: 1, barrels: [B0], start: ['wide'], desc: 'Special weapon: Scatter Shot.' },
-  { id: 'cutter', name: 'Sawblade', need: 120, rate: 0.13, dmg: 1, barrels: [B0], start: ['cutter'], desc: 'Special weapon: Orbit Saws.' },
-  { id: 'rapid', name: 'Stinger', need: 250, rate: 0.072, dmg: 0.8, barrels: [[0, 0, 1.12, 0.9, 0.85, 1, 'r']], start: [], desc: 'Enhanced weapon: high-frequency rotary gatling.' },
-  { id: 'wave', name: 'Sonic Jet', need: 420, rate: 0.13, dmg: 1, barrels: [B0], start: ['wave'], desc: 'Special weapon: Sonic Pulse.' },
-  { id: 'grenade', name: 'Bombardier', need: 650, rate: 0.13, dmg: 1, barrels: [B0], start: ['grenade'], desc: 'Special weapon: Cluster Mine.' },
-  { id: 'freeze', name: 'Frostbite', need: 950, rate: 0.13, dmg: 1, barrels: [B0], start: ['freeze'], desc: 'Special weapon: Cryo Nova.' },
-  { id: 'triple', name: 'Trident', need: 1350, rate: 0.14, dmg: 1, barrels: [[0, 0, 1, 1, 0.8, 0.8, 'c'], [0.42, 0, 1, 1.2, 1.55, 1.6, 'r'], [-0.42, 0, 1, 1.2, 1.55, 1.6, 'r']], start: [], desc: 'Enhanced weapon: tri-barrel heavy assault battery.' },
-  { id: 'missile', name: 'Viper', need: 1850, rate: 0.13, dmg: 1, barrels: [B0], start: ['missile'], desc: 'Special weapon: Seeker Rockets.' },
-  { id: 'crescent', name: 'Eclipse', need: 2600, rate: 0.13, dmg: 1, barrels: [B0], start: ['crescent'], desc: 'Special weapon: Arc Blades.' },
-  { id: 'laser', name: 'Solaris', need: 3600, rate: 0.13, dmg: 1, barrels: [B0], start: ['laser'], desc: 'Special weapon: Photon Beam.' },
-  { id: 'flail', name: 'Ironclad', need: 5000, rate: 0.13, dmg: 1, barrels: [B0], start: ['flail'], desc: 'Special weapon: Orbit Mace.' },
-  { id: 'heavy', name: 'Juggernaut', need: 7200, rate: 0.3, dmg: 1, barrels: [[0, 0, 1.15, 1.6, 2.0, 3.6, 'r'], [2.55, 0, 0.85, 0.9, 0.9, 1, 'r'], [-2.55, 0, 0.85, 0.9, 0.9, 1, 'r']], start: [], desc: 'Enhanced weapon: colossal high-caliber siege cannon.' },
+  { id: 'twin', name: 'Dual Striker', need: 500, rate: 0.13, dmg: 1, barrels: [B0], start: ['twin'], desc: 'Special weapon: Dual Blaster.' },
+  { id: 'wide', name: 'Corsair', need: 1000, rate: 0.13, dmg: 1, barrels: [B0], start: ['wide'], desc: 'Special weapon: Scatter Shot.' },
+  { id: 'cutter', name: 'Sawblade', need: 1600, rate: 0.13, dmg: 1, barrels: [B0], start: ['cutter'], desc: 'Special weapon: Orbit Saws.' },
+  { id: 'rapid', name: 'Stinger', need: 2200, rate: 0.072, dmg: 0.8, barrels: [[0, 0, 1.12, 0.9, 0.85, 1, 'r']], start: [], desc: 'Enhanced weapon: high-frequency rotary gatling.' },
+  { id: 'wave', name: 'Sonic Jet', need: 2900, rate: 0.13, dmg: 1, barrels: [B0], start: ['wave'], desc: 'Special weapon: Sonic Pulse.' },
+  { id: 'grenade', name: 'Bombardier', need: 3600, rate: 0.13, dmg: 1, barrels: [B0], start: ['grenade'], desc: 'Special weapon: Cluster Mine.' },
+  { id: 'freeze', name: 'Frostbite', need: 4300, rate: 0.13, dmg: 1, barrels: [B0], start: ['freeze'], desc: 'Special weapon: Cryo Nova.' },
+  { id: 'triple', name: 'Trident', need: 5000, rate: 0.14, dmg: 1, barrels: [[0, 0, 1, 1, 0.8, 0.8, 'c'], [0.42, 0, 1, 1.2, 1.55, 1.6, 'r'], [-0.42, 0, 1, 1.2, 1.55, 1.6, 'r']], start: [], desc: 'Enhanced weapon: tri-barrel heavy assault battery.' },
+  { id: 'missile', name: 'Viper', need: 5700, rate: 0.13, dmg: 1, barrels: [B0], start: ['missile'], desc: 'Special weapon: Seeker Rockets.' },
+  { id: 'crescent', name: 'Eclipse', need: 6300, rate: 0.13, dmg: 1, barrels: [B0], start: ['crescent'], desc: 'Special weapon: Arc Blades.' },
+  { id: 'laser', name: 'Solaris', need: 6800, rate: 0.13, dmg: 1, barrels: [B0], start: ['laser'], desc: 'Special weapon: Photon Beam.' },
+  { id: 'flail', name: 'Ironclad', need: 7100, rate: 0.13, dmg: 1, barrels: [B0], start: ['flail'], desc: 'Special weapon: Orbit Mace.' },
+  { id: 'heavy', name: 'Juggernaut', need: 7400, rate: 0.3, dmg: 1, barrels: [[0, 0, 1.15, 1.6, 2.0, 3.6, 'r'], [2.55, 0, 0.85, 0.9, 0.9, 1, 'r'], [-2.55, 0, 0.85, 0.9, 0.9, 1, 'r']], start: [], desc: 'Enhanced weapon: colossal high-caliber siege cannon.' },
+  { id: 'phantom', name: 'Phantom Mk II', need: 7600, rate: 0.12, dmg: 1, barrels: [[0.22, 0, 1.1, 1, 1, 1.2, 'c'], [-0.22, 0, 1.1, 1, 1, 1.2, 'c']], start: ['twin'], desc: 'High-speed interceptor with dual assault cannons.' },
+  { id: 'dread', name: 'Dreadnought', need: 7800, rate: 0.16, dmg: 1.2, barrels: [[0, 0, 1.2, 1.4, 1.3, 1.8, 'r'], [0.55, 0, 1, 1, 1, 1, 'r'], [-0.55, 0, 1, 1, 1, 1, 'r']], start: ['wide'], desc: 'Heavy fleet dreadnought with wide scatter cannons.' },
   { id: 'omega', name: 'Apex Omega', need: 10000, rate: 0.1, dmg: 1, barrels: [[0, 0, 1.1, 1.1, 1.1, 1.3, 'r'], [Math.PI / 2, 0, 1, 1, 1, 1.1, 'r'], [-Math.PI / 2, 0, 1, 1, 1, 1.1, 'r'], [Math.PI, 0, 1, 1, 1, 1.1, 'r']], start: [], desc: 'Enhanced weapon: 360-degree omni assault fortress.' }
 ];
 const shipById = id => SHIPS.find(s => s.id === id) || SHIPS[0];
+// Ensure any accumulated milestone surplus in S auto-resolves correctly
+(function resolveProgMilestones() {
+  if (!S || !Array.isArray(S.unlocked)) return;
+  while (true) {
+    const nextShip = SHIPS.find(s => !S.unlocked.includes(s.id));
+    if (!nextShip) break;
+    if (typeof S.progScore === 'number' && S.progScore >= nextShip.need && nextShip.need > 0) {
+      S.progScore -= nextShip.need;
+      S.unlocked.push(nextShip.id);
+    } else {
+      break;
+    }
+  }
+})();
 const ET = {
-  square: { r: 29, hp: 3, sp: 74, sc: 1, shape: 'square' },
+  square: { r: 29, hp: 2, sp: 74, sc: 1, shape: 'square' },
   small: { r: 18, hp: 1, sp: 118, sc: 1, shape: 'square' },
-  tri: { r: 21, hp: 2, sp: 330, sc: 1, shape: 'tri' },
-  bigsquare: { r: 54, hp: 16, sp: 46, sc: 3, shape: 'square' },
-  pentagon: { r: 33, hp: 7, sp: 62, sc: 3, shape: 'pent' },
-  dart: { r: 26, hp: 4, sp: 72, sc: 2, shape: 'dart' },
+  tri: { r: 21, hp: 1.5, sp: 330, sc: 1, shape: 'tri' },
+  bigsquare: { r: 54, hp: 10, sp: 46, sc: 3, shape: 'square' },
+  pentagon: { r: 33, hp: 5, sp: 62, sc: 3, shape: 'pent' },
+  dart: { r: 26, hp: 3, sp: 72, sc: 2, shape: 'dart' },
   star: { r: 26, hp: 2, sp: 152, sc: 2, shape: 'star4' },
-  crescent: { r: 30, hp: 4, sp: 138, sc: 2, shape: 'cres' },
-  ibeam: { r: 50, hp: 24, sp: 40, sc: 5, shape: 'ibeam' },
-  rod: { r: 18, hp: 5, sp: 650, sc: 2, shape: 'rod' },
-  honey: { r: 52, hp: 20, sp: 52, sc: 5, shape: 'honey' },
+  crescent: { r: 30, hp: 3, sp: 138, sc: 2, shape: 'cres' },
+  ibeam: { r: 50, hp: 18, sp: 40, sc: 5, shape: 'ibeam' },
+  rod: { r: 18, hp: 4, sp: 650, sc: 2, shape: 'rod' },
+  honey: { r: 52, hp: 16, sp: 52, sc: 5, shape: 'honey' },
   hex: { r: 15, hp: 1, sp: 148, sc: 1, shape: 'hex' },
-  spawner: { r: 56, hp: 45, sp: 36, sc: 10, shape: 'dpent' },
+  spawner: { r: 56, hp: 36, sp: 36, sc: 10, shape: 'dpent' },
   mini: { r: 13, hp: 1, sp: 195, sc: 1, shape: 'tri' },
-  boss: { r: 105, hp: 420, sp: 44, sc: 100, shape: 'boss' },
-  carrier: { r: 25, hp: 6, sp: 42, sc: 0, shape: 'carrier' }
+  boss: { r: 105, hp: 400, sp: 44, sc: 100, shape: 'boss' },
+  carrier: { r: 25, hp: 5, sp: 42, sc: 0, shape: 'carrier' }
 };
 const WAVES = [
   [['square', 10]],
-  [['tri3', 4], ['square', 4]],
-  [['bigsquare', 3], ['square', 6]],
-  [['pentagon', 3], ['square', 8]],
-  [['dart', 5], ['tri3', 2]],
-  [['star', 8], ['square', 5]],
-  [['crescent', 5], ['pentagon', 2]],
-  [['ibeam', 2], ['square', 10], ['tri3', 2]],
-  [['rod', 6], ['star', 5]],
-  [['boss', 1], ['square', 6]],
-  [['honey', 3], ['tri3', 3]],
-  [['spawner', 1], ['square', 8], ['dart', 3]]
+  [['tri3', 4], ['square', 8]],
+  [['bigsquare', 3], ['square', 10]],
+  [['pentagon', 4], ['square', 12]],
+  [['dart', 7], ['tri3', 3], ['square', 8]],
+  [['star', 12], ['square', 10]],
+  [['crescent', 8], ['pentagon', 3], ['square', 10]],
+  [['ibeam', 3], ['square', 16], ['tri3', 3]],
+  [['rod', 8], ['star', 10]],
+  [['boss', 1], ['square', 12], ['star', 6]],
+  [['honey', 4], ['tri3', 5], ['dart', 7]],
+  [['spawner', 2], ['square', 16], ['dart', 7]]
 ];
-const BASECOUNT = { square: 9, tri3: 3, bigsquare: 3, pentagon: 3, dart: 4, star: 7, crescent: 4, ibeam: 2, rod: 5, honey: 2, spawner: 1 };
-const GROUP = { square: 3, bigsquare: 1, pentagon: 1, dart: 2, star: 2, crescent: 2, ibeam: 1, honey: 1, spawner: 1, tri3: 1, rod: 1 };
+const BASECOUNT = { square: 14, tri3: 4, bigsquare: 4, pentagon: 4, dart: 7, star: 12, crescent: 6, ibeam: 3, rod: 7, honey: 4, spawner: 2 };
+const GROUP = { square: 4, bigsquare: 1, pentagon: 2, dart: 3, star: 3, crescent: 2, ibeam: 1, honey: 1, spawner: 1, tri3: 1, rod: 1 };
 
 /* ---------------- canvas / view ---------------- */
 const cv = $('game'), cx = cv.getContext('2d');
@@ -470,7 +558,32 @@ let state = 'title';
 let G = null;
 const SHIELD_R = 64;
 const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-let touchMode = false, touchActive = false, touchStart = null, lvOpenT = 0;
+const isTouchDevice = () => (
+  ('ontouchstart' in window) ||
+  (navigator.maxTouchPoints > 0) ||
+  (navigator.msMaxTouchPoints > 0) ||
+  /Android|iPhone|iPad|iPod|Mobile|Tablet/i.test(navigator.userAgent) ||
+  (window.matchMedia && (
+    window.matchMedia('(pointer: coarse)').matches ||
+    window.matchMedia('(any-pointer: coarse)').matches ||
+    window.matchMedia('(hover: none)').matches
+  ))
+);
+let touchMode = Boolean(isTouchDevice()), touchActive = false, touchStart = null, lvOpenT = 0;
+function updInputHints() {
+  const isTouch = touchMode || isTouchDevice();
+  const mh = $('mouse-hints'), th = $('touch-hints');
+  if (isTouch) {
+    document.body.classList.add('is-touch');
+    if (mh) mh.style.setProperty('display', 'none', 'important');
+    if (th) { th.style.setProperty('display', 'flex', 'important'); th.style.flexDirection = 'column'; }
+  } else {
+    document.body.classList.remove('is-touch');
+    if (mh) mh.style.removeProperty('display');
+    if (th) th.style.setProperty('display', 'none', 'important');
+  }
+}
+if (touchMode) document.body.classList.add('is-touch');
 
 function newRun() {
   const ship = shipById(S.sel);
@@ -486,7 +599,11 @@ function newRun() {
 }
 function eqOf(sh) { const e = S.equip[sh.id]; return e && S.owned[e] && !sh.start.includes(e) ? e : null; }
 const scoreMul = () => (1 + Math.floor((G.wave - 1) / 10)) * (G.mode === 'hard' ? 2 : 1);
-const fragNeed = () => Math.max(4, 10 - 2 * (G.p.gu.shield || 0));
+const fragNeed = () => {
+  const base = Math.min(50, (1 + Math.floor(Math.max(0, (G ? G.wave : 1) - 1) / 10)) * 10);
+  const discount = 2 * (G && G.p ? (G.p.gu.shield || 0) : 0);
+  return Math.max(4, base - discount);
+};
 const spawnDist = () => Math.hypot(W, H) / VS / 2 + 50;
 const wl = (w, k) => (G.p.wu[w] && G.p.wu[w][k]) || 0;
 
@@ -494,20 +611,20 @@ const wl = (w, k) => (G.p.wu[w] && G.p.wu[w][k]) || 0;
 function buildWave(n) {
   const hard = G.mode === 'hard';
   let list;
-  if (n % 10 === 0) list = [['boss', 1], [pick(['square', 'star', 'dart']), 6]];
+  if (n % 10 === 0) list = [['boss', 1], [pick(['square', 'star', 'dart']), 12 + Math.min(18, n)], ['tri3', 4]];
   else if (!hard && n <= WAVES.length) list = WAVES[n - 1];
   else {
     const pool = ['square', 'tri3', 'bigsquare', 'pentagon', 'dart', 'star', 'crescent', 'ibeam', 'rod', 'honey', 'spawner'];
-    const k = Math.random() < 0.45 ? 3 : 2, used = [];
+    const k = Math.random() < 0.5 ? 4 : 3, used = [];
     while (used.length < k) { const t = pick(pool); if (!used.includes(t)) used.push(t); }
-    list = used.map(t => [t, BASECOUNT[t]]);
+    list = used.map(t => [t, Math.round(BASECOUNT[t] || 6)]);
   }
-  const mul = 1 + (n - 1) * 0.04 + (hard ? 0.5 : 0);
+  const mul = 1 + (n - 1) * 0.08 + (hard ? 0.55 : 0);
   const ev = [];
   for (const [type, cnt] of list) {
-    if (type === 'boss') { ev.push({ t: 1.2, type, n: 1 }); continue; }
-    let total = Math.max(1, Math.round(cnt * mul)); const g = GROUP[type] || 1;
-    while (total > 0) { const nn = Math.min(g, total); total -= nn; ev.push({ t: rnd(0.2, 10), type, n: nn }); }
+    if (type === 'boss') { ev.push({ t: 1.0, type, n: 1 }); continue; }
+    let total = Math.max(1, Math.round(cnt * mul)); const g = GROUP[type] || 2;
+    while (total > 0) { const nn = Math.min(g, total); total -= nn; ev.push({ t: rnd(0.15, 8.0), type, n: nn }); }
   }
   ev.sort((a, b) => a.t - b.t);
   return ev;
@@ -537,10 +654,20 @@ function spawnGroup(ev) {
 }
 function updWaves(dt) {
   G.waveT += dt;
-  while (G.events.length && G.events[0].t <= G.waveT) spawnGroup(G.events.shift());
   let alive = 0, boss = false;
   for (const e of G.enemies) { if (e.dead || e.type === 'carrier') continue; alive++; if (e.type === 'boss') boss = true; }
-  if (!G.events.length && !boss && ((alive <= 2 && G.waveT > 6) || G.waveT > 22)) nextWave();
+
+  // Continuous pacing: if player eliminated active pack and events remain, fast-forward next cluster immediately!
+  if (alive <= 1 && G.events.length && G.events[0].t > G.waveT) {
+    G.events[0].t = G.waveT;
+  }
+
+  while (G.events.length && G.events[0].t <= G.waveT) spawnGroup(G.events.shift());
+
+  // Swift wave progression: advance immediately once wave is cleared, no awkward empty delay
+  if (!G.events.length && !boss) {
+    if (alive === 0 || (alive <= 2 && G.waveT > 7) || G.waveT > 24) nextWave();
+  }
 }
 function updCarrier(dt) {
   if (G.carrier && G.carrier.dead) G.carrier = null;
@@ -558,8 +685,8 @@ function updCarrier(dt) {
 function spawnEnemy(type, x, y) {
   const d = ET[type], hard = G.mode === 'hard';
   let hpm = (1 + (G.wave - 1) * 0.075) * (hard ? 1.6 : 1);
-  if (type === 'boss') hpm = (1 + G.bossN * 0.85) * (hard ? 1.6 : 1);
-  if (type === 'carrier') hpm = 1 + G.wave * 0.08;
+  if (type === 'boss') hpm = (1 + G.bossN * 0.85) * (hard ? 1.5 : 1);
+  if (type === 'carrier') hpm = 1 + G.wave * 0.06;
   const spm = type === 'carrier' ? 1 : (1 + Math.min(0.3, (G.wave - 1) * 0.006)) * (hard ? 1.12 : 1);
   const e = { id: G.eid++, type, shape: d.shape, x, y, r: d.r, hp: d.hp * hpm, max: d.hp * hpm, sp: d.sp * spm, sc: d.sc,
     ang: Math.atan2(G.p.y - y, G.p.x - x), flash: 0, frozen: 0, kx: 0, ky: 0, t: 0, st: 0, stT: rnd(1, 2), spin: rnd(0, TAU),
@@ -612,7 +739,7 @@ function kill(e, scored) {
     const gain = e.sc * scoreMul();
     G.score += gain; G.gain = gain; G.gainT = 1.1;
     G.pops.push({ x: e.x, y: e.y - e.r * 0.4, txt: '+' + gain, t: 0, col: COL.hud });
-    if (!G.p.shield && G.p.alive) { const n = e.type === 'boss' ? 10 : big ? 3 : 1; for (let i = 0; i < n; i++) drop('frag', e.x, e.y, 110); }
+    if (!G.p.shield && G.p.alive) { const n = e.type === 'boss' ? fragNeed() : big ? 3 : 1; for (let i = 0; i < n; i++) drop('frag', e.x, e.y, 110); }
     const cc = e.type === 'boss' ? 0 : big ? 0.2 : e.r > 26 ? 0.08 : 0.035;
     if (Math.random() < cc) drop('coin', e.x, e.y, 90);
     if (e.type === 'boss') for (let i = 0; i < 18; i++) drop('coin', e.x, e.y, 300);
@@ -693,17 +820,22 @@ function updWeapons(dt) {
     const n = 2 + wl('twin', 'triple'), dmg = Math.pow(1.4, wl('twin', 'power'));
     for (let i = 0; i < n; i++) { const lat = (i - (n - 1) / 2) * 13; fireG(p.x + ca * 30 - sa * lat, p.y + sa * 30 + ca * lat, p.ang, 560, 6.5, dmg); }
     AU.play('gshoot');
-  }
-  if (Wn.wide && tick('wide', 0.24 * Math.pow(0.8, wl('wide', 'rapid')))) {
+  }  if (Wn.wide && tick('wide', 0.24 * Math.pow(0.8, wl('wide', 'rapid')))) {
     const dmg = Math.pow(1.4, wl('wide', 'power')), angs = [0.55, -0.55];
-    if (wl('wide', 'wider') >= 1) angs.push(1.0, -1.0);
-    if (wl('wide', 'wider') >= 2) angs.push(0.28, -0.28);
+    const wLevel = wl('wide', 'wider');
+    if (wLevel >= 1) angs.push(1.0, -1.0);
+    if (wLevel >= 2) angs.push(0.28, -0.28);
+    if (wLevel >= 3) angs.push(1.35, -1.35);
+    if (wLevel >= 4) angs.push(0.14, -0.14);
+    if (wLevel >= 5) angs.push(1.7, -1.7);
     for (const o of angs) { const a = p.ang + o; fireG(p.x + Math.cos(a) * 28, p.y + Math.sin(a) * 28, a, 540, 6.5, dmg); }
     AU.play('gshoot');
   }
   if (Wn.wave && tick('wave', 1.15 * Math.pow(0.75, wl('wave', 'fast')))) {
-    const big = wl('wave', 'big'), dirs = [p.ang];
-    if (wl('wave', 'double')) dirs.push(p.ang + Math.PI);
+    const big = wl('wave', 'big'), dirs = [p.ang], dbl = wl('wave', 'double');
+    if (dbl >= 1) dirs.push(p.ang + Math.PI);
+    if (dbl >= 2) dirs.push(p.ang + Math.PI / 2, p.ang - Math.PI / 2);
+    if (dbl >= 3) dirs.push(p.ang + Math.PI / 4, p.ang - Math.PI / 4, p.ang + 3 * Math.PI / 4, p.ang - 3 * Math.PI / 4);
     for (const a of dirs) G.bullets.push({ k: 'wave', x: p.x, y: p.y, ang: a, d: 26, sp: 370, half: 0.5 * (1 + 0.25 * big), dmg: 2.2 * (1 + 0.35 * big), life: 1.15, t: 0, hits: new Set() });
     AU.play('wave');
   }
@@ -726,8 +858,8 @@ function updWeapons(dt) {
     AU.play('freeze');
   }
   if (Wn.cutter) {
-    const n = Math.min(16, 2 * Math.pow(2, wl('cutter', 'double')) + 2 * wl('cutter', 'wide'));
-    const R = 78 + 26 * wl('cutter', 'wide'), spin = 3 * (1 + 0.35 * wl('cutter', 'fast'));
+    const n = Math.min(16, 2 * Math.pow(2, Math.min(3, wl('cutter', 'double'))) + 2 * wl('cutter', 'wide'));
+    const R = 78 + 22 * wl('cutter', 'wide'), spin = 3 * (1 + 0.35 * wl('cutter', 'fast'));
     p.cut = { n, R, a: p.rot * spin };
     for (let i = 0; i < n; i++) {
       const a = p.cut.a + i * TAU / n, x = p.x + Math.cos(a) * R, y = p.y + Math.sin(a) * R;
@@ -749,19 +881,22 @@ function updWeapons(dt) {
     const big = wl('crescent', 'big'), dbl = wl('crescent', 'double'), offs = [Math.PI - 0.25, Math.PI + 0.25];
     if (dbl >= 1) offs.push(Math.PI / 2 + 0.3, -Math.PI / 2 - 0.3);
     if (dbl >= 2) offs.push(Math.PI);
+    if (dbl >= 3) offs.push(Math.PI / 3, -Math.PI / 3);
+    if (dbl >= 4) offs.push(2 * Math.PI / 3, -2 * Math.PI / 3);
+    if (dbl >= 5) offs.push(0);
     for (const o of offs) { const a = p.ang + o; G.bullets.push({ k: 'cres', x: p.x + Math.cos(a) * 24, y: p.y + Math.sin(a) * 24, vx: Math.cos(a) * 430, vy: Math.sin(a) * 430, ang: a, r: 15 * (1 + 0.3 * big), dmg: 3 * (1 + 0.35 * big), pierce: 4, life: 0.85, hits: new Set() }); }
     AU.play('gshoot');
   }
   if (Wn.laser && tick('laser', 2.3 * Math.pow(0.75, wl('laser', 'fast')))) {
-    const wd = wl('laser', 'wide');
-    G.beams.push({ t: 0, dur: 0.42, w: 13 * (1 + 0.5 * wd), dps: 24 * (1 + 0.5 * wd), len: 720, back: wl('laser', 'double') > 0, tick: 0 });
+    const wd = wl('laser', 'wide'), dbl = wl('laser', 'double');
+    G.beams.push({ t: 0, dur: 0.42, w: 13 * (1 + 0.5 * wd), dps: 24 * (1 + 0.5 * wd), len: 720, back: dbl >= 1, sides: dbl >= 2, tick: 0 });
     AU.play('laser');
   }
   if (Wn.flail) {
-    const n = 1 + wl('flail', 'double'), L = 100 + 28 * wl('flail', 'long'), br = 17 * (1 + 0.3 * wl('flail', 'big'));
+    const n = 1 + wl('flail', 'double'), L = 100 + 24 * wl('flail', 'long'), br = 17 * (1 + 0.3 * wl('flail', 'big'));
     p.fl = { n, L, br, a: p.rot * 2.7 };
     for (let i = 0; i < n; i++) {
-      const a = p.fl.a + i * Math.PI, x = p.x + Math.cos(a) * L, y = p.y + Math.sin(a) * L;
+      const a = p.fl.a + i * TAU / n, x = p.x + Math.cos(a) * L, y = p.y + Math.sin(a) * L;
       for (const e of G.enemies) {
         if (e.dead || (e.cd.fl || 0) > G.time) continue;
         if (hitTest(e, x, y, br)) { e.cd.fl = G.time + 0.42; hurt(e, 5.5 * (1 + 0.35 * wl('flail', 'big')), Math.atan2(e.y - y, e.x - x), 260); spark(x, y, 'g'); }
@@ -793,6 +928,10 @@ function restoreShield() {
   const p = G.p; p.shield = true; p.frag = 0; p.pop = 0.4;
   G.rings.push({ kind: 'pop', x: p.x, y: p.y, r: 0, max: SHIELD_R * 1.25, t: 0, dur: 0.25, fade: 0.2, col: COL.fragLine });
   AU.play('shieldUp');
+  for (const k of G.pickups) {
+    if (k.k === 'frag') sqBurst(k.x, k.y, 3, COL.frag, COL.fragLine, 90, 4);
+  }
+  G.pickups = G.pickups.filter(k => k.k !== 'frag');
 }
 function useBomb() {
   if (state !== 'play' || !G.p.alive) return;
@@ -1001,7 +1140,9 @@ function updBeams(dt) {
     const bm = G.beams[i]; bm.t += dt; bm.tick -= dt;
     if (bm.tick <= 0 && p.alive) {
       bm.tick = 0.05;
-      const dirs = bm.back ? [p.ang, p.ang + Math.PI] : [p.ang];
+      const dirs = [p.ang];
+      if (bm.back) dirs.push(p.ang + Math.PI);
+      if (bm.sides) dirs.push(p.ang + Math.PI / 2, p.ang - Math.PI / 2);
       for (const a of dirs) {
         const c = Math.cos(a), s = Math.sin(a), x0 = p.x + c * 30, y0 = p.y + s * 30;
         for (const e of G.enemies) {
@@ -1068,10 +1209,13 @@ function genOpts() {
   return out;
 }
 function optInfo(o) {
-  if (o.kind === 'new') return { name: (WEAPONS[o.w] && WEAPONS[o.w].name) || o.w, desc: WEAPONS[o.w].desc, lv: 'special weapon', tag: 'NEW', icon: o.w };
-  if (o.kind === 'wup') { const u = WEAPONS[o.w].ups[o.u]; return { name: u[0], desc: u[2], lv: 'Lv ' + (wl(o.w, o.u) + 1) + ' / ' + u[1], tag: 'UP', icon: o.w }; }
-  const u = GUNUPS[o.u];
-  return { name: u[0], desc: u[2], lv: 'Lv ' + ((G.p.gu[o.u] || 0) + 1) + ' / ' + u[1], tag: '', icon: 'u_' + o.u };
+  if (o.kind === 'new') return { name: (WEAPONS[o.w] && WEAPONS[o.w].name) || o.w, desc: WEAPONS[o.w].desc, lv: 'NEW WEAPON', tag: 'NEW', icon: o.w };
+  if (o.kind === 'wup') {
+    const u = WEAPONS[o.w].ups[o.u], nxt = wl(o.w, o.u) + 1;
+    return { name: u[0], desc: u[2], lv: 'Level ' + nxt, tag: 'UP', icon: o.w };
+  }
+  const u = GUNUPS[o.u], nxt = (G.p.gu[o.u] || 0) + 1;
+  return { name: u[0], desc: u[2], lv: 'Level ' + nxt, tag: 'UP', icon: 'u_' + o.u };
 }
 function applyOpt(o) {
   const p = G.p;
@@ -1082,12 +1226,47 @@ function applyOpt(o) {
 function endRun() {
   const sc = G.score, mode = G.mode, newTop = sc > (S.best[mode] || 0);
   if (newTop) S.best[mode] = sc;
-  const sid = G.p.ship.id; if (sc > (S.shipTop[sid] || 0)) S.shipTop[sid] = sc;
-  const newly = [];
-  for (const sh of SHIPS) if (!S.unlocked.includes(sh.id) && sc >= sh.need) { S.unlocked.push(sh.id); newly.push(sh); }
-  if (sc >= 10000) S.hardOpen = true;
+  const sid = G.p.ship.id;
+  const prevShipTop = S.shipTop[sid] || 0;
+  if (sc > prevShipTop) S.shipTop[sid] = sc;
+  const currentShipTop = S.shipTop[sid] || 0;
+
+  const prevProg = S.progScore || 0;
+  let remaining = prevProg + sc;
+  const newlyUnlocked = [];
+
+  // Unlock all milestones earned by the player in sequence:
+  while (true) {
+    const nextShip = SHIPS.find(s => !S.unlocked.includes(s.id));
+    if (!nextShip) {
+      // All ships in the game unlocked! Milestone goes towards 10000 Mastery medal
+      S.progScore = Math.min(10000, remaining);
+      break;
+    }
+    if (remaining >= nextShip.need) {
+      remaining -= nextShip.need;
+      S.unlocked.push(nextShip.id);
+      newlyUnlocked.push(nextShip);
+    } else {
+      S.progScore = remaining;
+      break;
+    }
+  }
+
+  const finalNextShip = SHIPS.find(s => !S.unlocked.includes(s.id));
+  const finalProg = S.progScore || 0;
+
+  if (sc >= 10000 || currentShipTop >= 10000 || S.progScore >= 10000) S.hardOpen = true;
   persist();
-  return { sc, mode, newTop, newly };
+
+  return {
+    sc, mode, newTop,
+    newlyUnlocked,
+    finalNextShip,
+    prevProg,
+    finalProg,
+    prevShipTop, currentShipTop, sid
+  };
 }
 
 /* ---------------- simulation step ---------------- */
@@ -1336,7 +1515,9 @@ function drawSpecials() {
   }
   for (const bm of G.beams) {
     const f = bm.t / bm.dur, wv = bm.w * (f < 0.15 ? f / 0.15 : f > 0.8 ? (1 - f) / 0.2 : 1);
-    const dirs = bm.back ? [p.ang, p.ang + Math.PI] : [p.ang];
+    const dirs = [p.ang];
+    if (bm.back) dirs.push(p.ang + Math.PI);
+    if (bm.sides) dirs.push(p.ang + Math.PI / 2, p.ang - Math.PI / 2);
     for (const a of dirs) {
       const c = Math.cos(a), s = Math.sin(a), x0 = p.x + c * 30, y0 = p.y + s * 30, x1 = x0 + c * bm.len, y1 = y0 + s * bm.len;
       const seg = (col, lw) => { cx.strokeStyle = col; cx.lineWidth = lw; cx.beginPath(); cx.moveTo(x0, y0); cx.lineTo(x1, y1); cx.stroke(); };
@@ -1614,7 +1795,10 @@ function goTitle() { state = 'title'; setPlaying(false); AU.stopMusic(); showScr
 function refreshTitle() {
   const hard = S.mode === 'hard', locked = hard && !S.hardOpen;
   $('mode-name').textContent = hard ? (S.hardOpen ? 'HARD' : '???') : 'NORMAL';
-  $('pv-top').textContent = 'TOP ' + (S.best[S.mode] || 0);
+  const bestScore = S.best[S.mode] || 0;
+  $('pv-top').textContent = 'TOP ' + bestScore;
+  const pvMedal = $('pv-medal');
+  if (pvMedal) pvMedal.style.display = bestScore >= 10000 ? 'flex' : 'none';
   $('pv-lock').style.display = locked ? 'flex' : 'none';
   $('btn-play').classList.toggle('dis', locked);
   const grid = $('ship-grid'); grid.innerHTML = '';
@@ -1623,14 +1807,25 @@ function refreshTitle() {
     const t = document.createElement('div');
     t.className = 'stile' + (sh.id === S.sel ? ' sel' : ''); t.title = (sh.name || sh.id) + ' — ' + sh.desc;
     t.appendChild(shipCanvas(sh, 132, eqOf(sh)));
+    const stTop = S.shipTop[sh.id] || 0;
+    if (stTop >= 10000) {
+      const m = document.createElement('div');
+      m.className = 'medal-10k m-stile';
+      m.textContent = '10000';
+      t.appendChild(m);
+    }
     t.addEventListener('click', () => { AU.init(); S.sel = sh.id; persist(); AU.play('ui'); refreshTitle(); });
     grid.appendChild(t);
   }
   const sh = shipById(S.sel), eq = eqOf(sh);
   $('si-tile').innerHTML = ''; $('si-tile').appendChild(shipCanvas(sh, 152, eq));
-  $('si-name').textContent = sh.name || sh.id; $('si-top').textContent = 'top : ' + (S.shipTop[sh.id] || 0);
+  $('si-name').textContent = sh.name || sh.id;
+  const sTop = S.shipTop[sh.id] || 0;
+  $('si-top').textContent = 'top : ' + sTop;
+  const siMedal = $('si-medal');
+  if (siMedal) siMedal.style.display = sTop >= 10000 ? 'flex' : 'none';
   const se = $('si-eq'); se.innerHTML = ''; se.style.display = eq ? 'block' : 'none'; if (eq) se.appendChild(iconCanvas(eq, 112));
-  $('vol').value = Math.round(S.vol * 100); updSpk(); updCoins();
+  $('vol').value = Math.round(S.vol * 100); updSpk(); updCoins(); updInputHints();
 }
 function startGame() {
   if (S.mode === 'hard' && !S.hardOpen) { AU.play('deny'); return; }
@@ -1657,9 +1852,10 @@ function showPause() {
     if (lv) { const l = document.createElement('span'); l.className = 'lvp'; l.textContent = lv; d.appendChild(l); }
     box.appendChild(d);
   };
-  for (const id of WEAPON_IDS) if (G.p.w[id]) { let tot = 1; const u = G.p.wu[id] || {}; for (const k in u) tot += u[k]; add(id, (WEAPONS[id] && WEAPONS[id].name) || id, 'Lv' + tot); }
-  for (const k in G.p.gu) if (G.p.gu[k]) add('u_' + k, GUNUPS[k][0], '×' + G.p.gu[k]);
-  if (!box.children.length) { const d = document.createElement('div'); d.className = 'otxt'; d.style.cssText = 'font-size:21px;font-weight:800;padding:10px 4px;line-height:1.45'; d.innerHTML = 'Shoot the <span style="color:#69f0ae">green carrier</span>, then grab the <b>P</b> to power up!'; box.appendChild(d); }
+  for (const id of WEAPON_IDS) if (G.p.w[id]) { let tot = 1; const u = G.p.wu[id] || {}; for (const k in u) tot += u[k]; add(id, (WEAPONS[id] && WEAPONS[id].name) || id, 'Lv ' + tot); }
+  for (const k in G.p.gu) if (G.p.gu[k]) add('u_' + k, GUNUPS[k][0], 'Lv ' + G.p.gu[k]);
+  if (!box.children.length) { const d = document.createElement('div'); d.className = 'otxt'; d.style.cssText = 'font-size:17px;font-weight:700;padding:16px 8px;line-height:1.4;color:#94a3b8'; d.innerHTML = 'No extra equipment yet.<br>Destroy the <span style="color:#69f0ae">green carrier</span> and grab <b>P</b> to power up!'; box.appendChild(d); }
+  updSpk();
 }
 function openLevelUp() {
   const opts = genOpts();
@@ -1688,29 +1884,193 @@ function doContinue() {
   S.coins -= 100; persist(); G.continues++;
   const p = G.p; p.alive = true; p.shield = true; p.frag = 0; p.inv = 2.2; p.pop = 0.4;
   G.rings.push({ kind: 'bomb', x: p.x, y: p.y, r: 0, max: 520, t: 0, dur: 0.6, fade: 0.25, hit: new Set() });
-  G.eb.length = 0;
+  G.eb.length = 0; G.pickups = G.pickups.filter(k => k.k !== 'frag');
   state = 'play'; showScreen(null); setPlaying(true); AU.play('shieldUp'); AU.startMusic();
 }
+let animFrameId = null;
 let retryTimer = 0;
 function showResult(r) {
   state = 'result'; setPlaying(false); showScreen('scr-result');
   $('res-new').style.visibility = r.newTop && r.sc > 0 ? 'visible' : 'hidden';
-  $('res-score').textContent = 'score ' + r.sc;
   $('res-mode').textContent = r.mode === 'hard' ? 'HARD' : 'NORMAL';
+
+  // Render current ship preview
   const rs = $('res-ship'); rs.innerHTML = ''; rs.appendChild(shipCanvas(G.p.ship, 272, eqOf(G.p.ship)));
-  const newest = r.newly[r.newly.length - 1], next = SHIPS.find(s => !S.unlocked.includes(s.id));
-  const nb = $('res-next'); nb.innerHTML = '';
-  $('res-newship').style.display = newest ? 'block' : 'none';
-  let target;
-  if (newest) { nb.appendChild(shipCanvas(newest, 152)); nb.style.background = '#5f5f5f'; target = newest.need; }
-  else if (next) { nb.textContent = '?'; nb.style.background = '#8a8a8a'; target = next.need; }
-  else { nb.textContent = '★'; nb.style.background = '#8a8a8a'; target = 10000; }
-  const frac = clamp(r.sc / Math.max(1, target), 0, 1);
-  $('res-fill').style.width = (frac * 100) + '%';
-  $('res-cur').style.left = (frac * 262) + 'px'; $('res-curn').textContent = r.sc; $('res-tgtn').textContent = target;
-  $('res-actions').style.display = 'none'; clearTimeout(retryTimer);
-  retryTimer = setTimeout(() => { if (state === 'result') $('res-actions').style.display = 'flex'; }, 1000);
-  if (newest || (r.newTop && r.sc > 0)) AU.play('buy');
+
+  // Render 2-column active weapons grid
+  const wbox = $('res-weaps');
+  if (wbox) {
+    wbox.innerHTML = '';
+    const activeWeapons = [];
+    const seen = new Set();
+    const addW = (wId) => {
+      if (!wId || seen.has(wId)) return;
+      seen.add(wId);
+      let lv = 1;
+      if (G.p && G.p.wu && G.p.wu[wId]) {
+        lv = Object.values(G.p.wu[wId]).reduce((a, b) => a + b, 1);
+      }
+      activeWeapons.push({ id: wId, lv });
+    };
+    if (eqOf(G.p.ship)) addW(eqOf(G.p.ship));
+    if (G.p.ship.start) G.p.ship.start.forEach(addW);
+    if (G.p && G.p.w) Object.keys(G.p.w).forEach(addW);
+
+    for (const w of activeWeapons) {
+      const chip = document.createElement('div');
+      chip.className = 'res-wchip';
+      const ic = document.createElement('div');
+      ic.className = 'res-wic';
+      ic.appendChild(iconCanvas(w.id, 48));
+      const lvSpan = document.createElement('span');
+      lvSpan.className = 'res-wlv';
+      lvSpan.textContent = w.lv;
+      chip.appendChild(ic);
+      chip.appendChild(lvSpan);
+      wbox.appendChild(chip);
+    }
+  }
+
+  if (animFrameId) cancelAnimationFrame(animFrameId);
+  clearTimeout(retryTimer);
+  $('res-actions').style.display = 'none';
+
+  // Build sequential animation phases for all earned milestones + final in-progress milestone
+  const phases = [];
+  let curStart = r.prevProg || 0;
+
+  for (const ship of (r.newlyUnlocked || [])) {
+    phases.push({
+      type: 'unlock',
+      ship: ship,
+      target: ship.need,
+      startVal: curStart,
+      endVal: ship.need
+    });
+    curStart = 0; // subsequent milestones always start fresh from 0
+  }
+
+  if (r.finalNextShip) {
+    phases.push({
+      type: 'progress',
+      ship: r.finalNextShip,
+      target: r.finalNextShip.need,
+      startVal: curStart,
+      endVal: r.finalProg || 0
+    });
+  } else {
+    // All ships in the game unlocked! Final target is 10000 Mastery medal
+    phases.push({
+      type: 'mastery',
+      target: 10000,
+      startVal: curStart,
+      endVal: r.finalProg || 0
+    });
+  }
+
+  const nb = $('res-next');
+  const getBadge = $('res-get-badge');
+
+  function runPhase(idx) {
+    if (idx >= phases.length) {
+      if (r.newTop && r.sc > 0 && !(r.newlyUnlocked && r.newlyUnlocked.length)) AU.play('buy');
+      retryTimer = setTimeout(() => {
+        if (state === 'result') $('res-actions').style.display = 'flex';
+      }, 350);
+      return;
+    }
+
+    const ph = phases[idx];
+    const target = ph.target;
+    $('res-tgtn').textContent = target;
+
+    if (ph.type === 'unlock') {
+      nb.innerHTML = '';
+      nb.appendChild(shipCanvas(ph.ship, 140));
+      nb.style.background = '#21232e';
+      nb.style.boxShadow = 'inset 0 0 0 2px rgba(255,255,255,0.08), 0 0 14px rgba(255,109,0,0.5)';
+      nb.style.color = '#fff';
+      if (getBadge) getBadge.style.display = 'block';
+    } else if (ph.type === 'progress') {
+      nb.innerHTML = '';
+      nb.textContent = '?';
+      nb.style.background = '#21232e';
+      nb.style.boxShadow = 'inset 0 0 0 2px rgba(255,255,255,0.08)';
+      nb.style.color = '#fff';
+      if (getBadge) getBadge.style.display = 'none';
+    } else {
+      nb.innerHTML = '<div class="medal-10k m-res-box">(10000)</div>';
+      nb.style.background = 'transparent';
+      nb.style.boxShadow = 'none';
+      if (getBadge) getBadge.style.display = 'none';
+    }
+
+    function setProgBar(val) {
+      const displayVal = Math.round(val);
+      const frac = clamp(val / Math.max(1, target), 0, 1);
+      $('res-curn').textContent = displayVal;
+      $('res-fill').style.width = (frac * 100) + '%';
+      const arrowX = clamp(frac * 246, 9, 246);
+      $('res-cur').style.left = arrowX + 'px';
+    }
+
+    setProgBar(ph.startVal);
+
+    const isFirstPhase = (idx === 0);
+    const startScore = isFirstPhase ? 0 : (r.sc || 0);
+    const endScore = r.sc || 0;
+
+    const range = Math.max(0, ph.endVal - ph.startVal);
+    const duration = isFirstPhase
+      ? Math.min(1400, Math.max(500, endScore > 0 ? 850 : 250))
+      : Math.min(900, Math.max(400, range > 0 ? range * 2 : 250));
+
+    const startTime = performance.now();
+    let lastTick = 0;
+
+    function renderPhaseFrame(now) {
+      const elapsed = now - startTime;
+      const p = clamp(elapsed / duration, 0, 1);
+      const ease = 1 - Math.pow(1 - p, 2.5);
+
+      if (isFirstPhase) {
+        const curSc = Math.round(startScore + (endScore - startScore) * ease);
+        $('res-score').textContent = 'score ' + curSc;
+      }
+
+      const curProg = ph.startVal + (ph.endVal - ph.startVal) * ease;
+      setProgBar(curProg);
+
+      if (now - lastTick > 52 && p < 1 && (ph.endVal - ph.startVal) > 0) {
+        lastTick = now;
+        AU.play('tick');
+      }
+
+      if (p < 1) {
+        animFrameId = requestAnimationFrame(renderPhaseFrame);
+      } else {
+        animFrameId = null;
+        if (isFirstPhase) $('res-score').textContent = 'score ' + endScore;
+        setProgBar(ph.endVal);
+
+        if (ph.type === 'unlock') {
+          AU.play('buy');
+          retryTimer = setTimeout(() => {
+            if (state === 'result') runPhase(idx + 1);
+          }, 800);
+        } else {
+          retryTimer = setTimeout(() => {
+            if (state === 'result') $('res-actions').style.display = 'flex';
+          }, 350);
+        }
+      }
+    }
+
+    animFrameId = requestAnimationFrame(renderPhaseFrame);
+  }
+
+  $('res-score').textContent = 'score 0';
+  runPhase(0);
 }
 
 /* ---------------- weapon shop ---------------- */
@@ -1759,8 +2119,8 @@ function openModal(kind) {
     body.innerHTML = '<div class="mrow"><div class="lab otxt">sound</div><input type="range" id="m-vol" min="0" max="100" aria-label="volume"></div>' +
       '<div class="mrow"><div class="lab otxt">screen shake</div><button class="btn mbtn" id="m-shake"></button></div>' +
       '<div class="mrow"><div class="lab otxt">save data</div><button class="btn mbtn r" id="m-reset">RESET</button></div>' +
-      '<div class="otxt" style="font-size:16px;margin-top:14px;font-weight:500">Move: mouse (or drag on touch) · Bomb: left click / tap / Space · Pause: right click / Esc</div>';
-    const mv = $('m-vol'); mv.value = Math.round(S.vol * 100);
+      '<div class="otxt" style="font-size:16px;margin-top:14px;font-weight:500">' + ((touchMode || isTouchDevice()) ? 'Controls: Drag to move · Tap Bomb button · Tap ⏸ to pause' : 'Move: mouse · Bomb: left click / Space · Pause: right click / Esc · Mute: M') + '</div>';
+    const mv = $('m-vol'); mv.value = Math.round(S.vol * 100); updateSliderTrack(mv);
     mv.addEventListener('input', () => { const v = mv.value / 100; AU.setVol(v); if (v > 0) S.lastVol = v; persist(); updSpk(); });
     const sb = $('m-shake'); const upd = () => { sb.textContent = S.shake ? 'ON' : 'OFF'; sb.className = 'btn mbtn ' + (S.shake ? 'g' : 'gr'); };
     upd(); sb.addEventListener('click', () => { S.shake = !S.shake; persist(); upd(); AU.play('ui'); });
@@ -1779,9 +2139,26 @@ function openModal(kind) {
   }
 }
 $('m-close').addEventListener('click', () => { AU.play('ui'); goTitle(); });
+$('scr-modal').addEventListener('click', e => { if (e.target === $('scr-modal')) { AU.play('ui'); goTitle(); } });
 
 /* ---------------- title wiring ---------------- */
-function updSpk() { $('spk-w').style.display = S.vol > 0 ? '' : 'none'; $('spk-x').style.display = S.vol > 0 ? 'none' : ''; }
+function updateSliderTrack(el) {
+  if (!el) return;
+  const val = Number(el.value);
+  const min = Number(el.min || 0);
+  const max = Number(el.max || 100);
+  const pct = max > min ? ((val - min) / (max - min)) * 100 : val;
+  el.style.background = 'linear-gradient(to right, #00e5ff 0%, #00b0ff ' + pct + '%, #262939 ' + pct + '%, #262939 100%)';
+}
+function updSpk() {
+  const on = S.vol > 0;
+  if ($('spk-w')) $('spk-w').style.display = on ? '' : 'none';
+  if ($('spk-x')) $('spk-x').style.display = on ? 'none' : '';
+  if ($('pause-spk-w')) $('pause-spk-w').style.display = on ? '' : 'none';
+  if ($('pause-spk-x')) $('pause-spk-x').style.display = on ? 'none' : '';
+  if ($('vol')) { $('vol').value = Math.round(S.vol * 100); updateSliderTrack($('vol')); }
+    if ($('m-vol')) { $('m-vol').value = Math.round(S.vol * 100); updateSliderTrack($('m-vol')); }
+  }
 $('btn-play').addEventListener('click', startGame);
 $('btn-weap').addEventListener('click', openShop);
 $('btn-mix').addEventListener('click', () => {
@@ -1799,21 +2176,41 @@ $('mode-prev').addEventListener('click', toggleMode);
 $('mode-next').addEventListener('click', toggleMode);
 $('btn-gear').addEventListener('click', () => openModal('settings'));
 $('vol').addEventListener('input', e => { AU.init(); const v = e.target.value / 100; AU.setVol(v); if (v > 0) S.lastVol = v; updSpk(); persist(); });
-$('btn-spk').addEventListener('click', () => { AU.init(); if (S.vol > 0) { S.lastVol = S.vol; AU.setVol(0); } else AU.setVol(S.lastVol || 0.7); $('vol').value = Math.round(S.vol * 100); updSpk(); persist(); AU.play('ui'); });
+$('btn-spk').addEventListener('click', () => { AU.init(); if (S.vol > 0) { S.lastVol = S.vol; AU.setVol(0); } else AU.setVol(S.lastVol || 0.7); updSpk(); persist(); AU.play('ui'); });
+
 $('btn-resume').addEventListener('click', resumeGame);
 $('btn-quit').addEventListener('click', () => { if (state !== 'pause') return; AU.play('ui'); AU.stopMusic(); showResult(endRun()); });
 $('btn-cont').addEventListener('click', () => { if (state === 'over') doContinue(); });
 $('btn-go').addEventListener('click', () => { if (state !== 'over') return; AU.play('ui'); showResult(endRun()); });
-$('btn-res-retry').addEventListener('click', () => { AU.play('ui'); startGame(); });
-$('btn-res-menu').addEventListener('click', () => { AU.play('ui'); goTitle(); });
-document.addEventListener('pointerdown', e => { AU.init(); if (e.pointerType === 'touch') touchMode = true; else if (e.pointerType === 'mouse') touchMode = false; }, { capture: true });
+$('btn-res-retry').addEventListener('click', () => { if (animFrameId) cancelAnimationFrame(animFrameId); clearTimeout(retryTimer); AU.play('ui'); startGame(); });
+$('btn-res-menu').addEventListener('click', () => { if (animFrameId) cancelAnimationFrame(animFrameId); clearTimeout(retryTimer); AU.play('ui'); goTitle(); });
+document.addEventListener('pointerdown', e => {
+  AU.init();
+  if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+    touchMode = true;
+    updInputHints();
+  } else if (e.pointerType === 'mouse' && !isTouchDevice()) {
+    touchMode = false;
+    updInputHints();
+  }
+}, { capture: true });
+window.addEventListener('touchstart', () => {
+  touchMode = true;
+  updInputHints();
+}, { passive: true, capture: true });
 
 /* ---------------- gameplay input ---------------- */
-cv.addEventListener('pointermove', e => { mouse.x = e.clientX; mouse.y = e.clientY; if (e.pointerType !== 'touch') touchMode = false; });
+cv.addEventListener('pointermove', e => {
+  mouse.x = e.clientX; mouse.y = e.clientY;
+  if (e.pointerType !== 'touch' && !isTouchDevice()) {
+    if (touchMode) { touchMode = false; updInputHints(); }
+  }
+});
 cv.addEventListener('pointerdown', e => {
   mouse.x = e.clientX; mouse.y = e.clientY;
-  if (e.pointerType === 'touch') {
+  if (e.pointerType === 'touch' || e.pointerType === 'pen' || isTouchDevice()) {
     touchMode = true;
+    updInputHints();
     if (state !== 'play') return;
     const pg = pauseGeom(), bg = bombGeom();
     if (Math.hypot(e.clientX - pg.x, e.clientY - pg.y) < pg.R + 10) { pauseGame(); return; }
@@ -1822,6 +2219,7 @@ cv.addEventListener('pointerdown', e => {
     return;
   }
   touchMode = false;
+  updInputHints();
   if (state !== 'play') return;
   if (e.button === 0) useBomb(); else if (e.button === 2) pauseGame();
 });
@@ -1840,6 +2238,15 @@ window.addEventListener('contextmenu', e => e.preventDefault());
 window.addEventListener('keydown', e => {
   if (e.code === 'Space') { if (state === 'play') useBomb(); e.preventDefault(); }
   else if (e.code === 'Escape' || e.code === 'KeyP') { if (state === 'play') pauseGame(); else if (state === 'pause') resumeGame(); }
+  else if (e.code === 'KeyM') {
+    AU.init();
+    if (S.vol > 0) { S.lastVol = S.vol; AU.setVol(0); }
+    else AU.setVol(S.lastVol || 0.7);
+    persist(); updSpk();
+    if (state === 'play' && G && G.p) {
+      G.pops.push({ x: G.p.x, y: G.p.y - 48, txt: S.vol > 0 ? ('VOL ' + Math.round(S.vol * 100) + '%') : 'MUTED', t: 0, col: S.vol > 0 ? '#00e5ff' : '#ff5252' });
+    }
+  }
   else if (state === 'levelup' && /^Digit[123]$/.test(e.code)) chooseOpt(+e.code.slice(5) - 1);
   else if (state === 'title' && e.code === 'Enter') startGame();
 });
@@ -1920,6 +2327,7 @@ function frame(now) {
   AU.tickMusic();
   requestAnimationFrame(frame);
 }
+updInputHints();
 goTitle();
 requestAnimationFrame(frame);
 })();

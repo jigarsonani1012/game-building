@@ -139,7 +139,8 @@ input[type=range]::-moz-range-track{background:#262939;height:8px;border-radius:
 #btn-pause-spk:hover{background:#3b3f54}
 #pause-sound .pause-lab{font-size:18px;font-weight:800;letter-spacing:1px;color:#00e5ff}
 #pause-sound input[type=range]{flex:1;margin:0 4px}
-#pause-sound #scr-pause #btn-resume{left:75px;top:334px;width:215px;height:50px;font-size:26px}
+#pause-sound .pause-pct{font-size:17px;font-weight:800;min-width:50px;text-align:right}
+#scr-pause #btn-resume{left:75px;top:334px;width:215px;height:50px;font-size:26px}
 #scr-pause #btn-quit{left:330px;top:334px;width:215px;height:50px;font-size:26px}
 .cards{position:absolute;left:38px;top:104px;width:800px;height:312px;display:flex;gap:25px}
 .card{position:relative;width:250px;height:312px;background:#21232e;box-shadow:inset 0 0 0 2px rgba(255,255,255,0.06);display:flex;flex-direction:column;align-items:center;padding:20px 14px 10px;cursor:pointer;transition:transform .1s,background .1s}
@@ -684,7 +685,7 @@ function updCarrier(dt) {
 /* ---------------- entities ---------------- */
 function spawnEnemy(type, x, y) {
   const d = ET[type], hard = G.mode === 'hard';
-  let hpm = (1 + (G.wave - 1) * 0.075) * (hard ? 1.6 : 1);
+  let hpm = (0.75 + Math.min(1.6, (G.wave - 1) * 0.08)) * (hard ? 1.5 : 1);
   if (type === 'boss') hpm = (1 + G.bossN * 0.85) * (hard ? 1.5 : 1);
   if (type === 'carrier') hpm = 1 + G.wave * 0.06;
   const spm = type === 'carrier' ? 1 : (1 + Math.min(0.3, (G.wave - 1) * 0.006)) * (hard ? 1.12 : 1);
@@ -2157,8 +2158,10 @@ function updSpk() {
   if ($('pause-spk-w')) $('pause-spk-w').style.display = on ? '' : 'none';
   if ($('pause-spk-x')) $('pause-spk-x').style.display = on ? 'none' : '';
   if ($('vol')) { $('vol').value = Math.round(S.vol * 100); updateSliderTrack($('vol')); }
-    if ($('m-vol')) { $('m-vol').value = Math.round(S.vol * 100); updateSliderTrack($('m-vol')); }
-  }
+  if ($('pause-vol')) { $('pause-vol').value = Math.round(S.vol * 100); updateSliderTrack($('pause-vol')); }
+  if ($('m-vol')) { $('m-vol').value = Math.round(S.vol * 100); updateSliderTrack($('m-vol')); }
+  if ($('pause-vol-txt')) $('pause-vol-txt').textContent = on ? (Math.round(S.vol * 100) + '%') : 'MUTE';
+}
 $('btn-play').addEventListener('click', startGame);
 $('btn-weap').addEventListener('click', openShop);
 $('btn-mix').addEventListener('click', () => {
@@ -2177,7 +2180,8 @@ $('mode-next').addEventListener('click', toggleMode);
 $('btn-gear').addEventListener('click', () => openModal('settings'));
 $('vol').addEventListener('input', e => { AU.init(); const v = e.target.value / 100; AU.setVol(v); if (v > 0) S.lastVol = v; updSpk(); persist(); });
 $('btn-spk').addEventListener('click', () => { AU.init(); if (S.vol > 0) { S.lastVol = S.vol; AU.setVol(0); } else AU.setVol(S.lastVol || 0.7); updSpk(); persist(); AU.play('ui'); });
-
+$('pause-vol').addEventListener('input', e => { AU.init(); const v = e.target.value / 100; AU.setVol(v); if (v > 0) S.lastVol = v; updSpk(); persist(); });
+$('btn-pause-spk').addEventListener('click', () => { AU.init(); if (S.vol > 0) { S.lastVol = S.vol; AU.setVol(0); } else AU.setVol(S.lastVol || 0.7); updSpk(); persist(); AU.play('ui'); });
 $('btn-resume').addEventListener('click', resumeGame);
 $('btn-quit').addEventListener('click', () => { if (state !== 'pause') return; AU.play('ui'); AU.stopMusic(); showResult(endRun()); });
 $('btn-cont').addEventListener('click', () => { if (state === 'over') doContinue(); });
@@ -2252,6 +2256,11 @@ window.addEventListener('keydown', e => {
 });
 window.addEventListener('blur', () => { if (state === 'play') pauseGame(); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'play') pauseGame(); });
+window.addEventListener('beforeunload', () => {
+  if (G && (state === 'play' || state === 'pause' || state === 'over') && G.score > 0) {
+    endRun();
+  }
+});
 
 /* ---------------- title preview (live demo) ---------------- */
 const demo = {

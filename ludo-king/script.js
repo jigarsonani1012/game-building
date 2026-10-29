@@ -1285,7 +1285,7 @@ function update3DPawnPositions(){
   }
 }
 
-var dragStartY = 0;
+var dragStartX = 0, dragStartY = 0;
 function onPointerDown(e){
   lastInteractTime = performance.now();
   autoSpinBlend = 0;
@@ -1293,15 +1293,20 @@ function onPointerDown(e){
   isDragging = true;
   dragLastX = e.clientX;
   dragLastY = e.clientY;
+  dragStartX = e.clientX;
   dragStartY = e.clientY;
   boardVelY = 0;
   boardVelX = 0;
 }
 function onPointerMove(e){
   if(!isDragging || (gameState && gameState.is2DMode)) return;
+  // Deadzone to prevent small finger taps from accidentally rotating the board on mobile
+  var totalDist = Math.hypot(e.clientX - dragStartX, e.clientY - dragStartY);
+  if(totalDist < 6) return;
+
   var dx = e.clientX - dragLastX;
   var dy = e.clientY - dragLastY;
-  if(Math.abs(dx) > 2 || Math.abs(dy) > 2){
+  if(Math.abs(dx) > 1 || Math.abs(dy) > 1){
     var container = document.getElementById('canvas-container');
     var h = (container && container.clientHeight) || (window.innerHeight - 50);
     var centerY = h * 0.5;
@@ -1317,24 +1322,96 @@ function onPointerMove(e){
 function onPointerUp(e){
   isDragging = false;
   
+  if(!gameState || !gameState.hasRolled || gameState.gameOver) return;
+  var curPlayer = getCurrentPlayer();
+  var diceVal = gameState.diceValue;
+
   var rect = renderer.domElement.getBoundingClientRect();
-  mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-  mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  var clientX = e.clientX, clientY = e.clientY;
+  mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
   raycaster.setFromCamera(mouse, camera);
+
   var allPawnMeshes = [];
   PLAYERS.forEach(function(p){
     tokenMeshes[p].forEach(function(g){ g.children.forEach(function(ch){ allPawnMeshes.push(ch); }); });
   });
   var intersects = raycaster.intersectObjects(allPawnMeshes, true);
-  if(intersects.length > 0){
-    var rootGroup = intersects[0].object.parent;
-    if(rootGroup && rootGroup.userData){
-      var col = rootGroup.userData.color;
-      var idx = rootGroup.userData.tokIdx;
-      if(gameState.hasRolled && col === getCurrentPlayer() && isValidMove(col, idx, gameState.diceValue)){
-        executeMove(col, idx);
+
+  // Strategy 1: Check ALL intersected pawns along the ray for the current player's movable pawn
+  // (Prevents opponent's pawn or unmovable pawn from occluding the ray)
+  for(var i = 0; i < intersects.length; i++){
+    var grp = intersects[i].object.parent;
+    if(grp && grp.userData){
+      var col = grp.userData.color;
+      var idx = grp.userData.tokIdx;
+      if(col === curPlayer && isValidMove(curPlayer, idx, diceVal)){
+        executeMove(curPlayer, idx);
+        return;
       }
     }
+  }
+
+  // Strategy 2: Crowded Tile Cluster Tap Support
+  // When 5-6 pawns of different colors share a safe tile, the player taps the cluster.
+  // If the tap intersected an opponent's pawn, check if the current player has a movable pawn on that SAME tile!
+  for(var i = 0; i < intersects.length; i++){
+    var grp = intersects[i].object.parent;
+    if(grp && grp.userData){
+      var hitCol = grp.userData.color;
+      var hitIdx = grp.userData.tokIdx;
+      var hitTok = gameState.tokens[hitCol] && gameState.tokens[hitCol][hitIdx];
+      if(hitTok && hitTok.step >= 0){
+        var hitKey = "";
+        if(hitTok.step <= 50) hitKey = "P" + ((START_OFFSETS[hitCol] + hitTok.step) % 52);
+        else if(hitTok.step <= 55) hitKey = "H" + hitCol + hitTok.step;
+        else hitKey = "C" + hitCol;
+
+        for(var myIdx = 0; myIdx < 4; myIdx++){
+          var myTok = gameState.tokens[curPlayer][myIdx];
+          if(myTok && myTok.step >= 0 && isValidMove(curPlayer, myIdx, diceVal)){
+            var myKey = "";
+            if(myTok.step <= 50) myKey = "P" + ((START_OFFSETS[curPlayer] + myTok.step) % 52);
+            else if(myTok.step <= 55) myKey = "H" + curPlayer + myTok.step;
+            else myKey = "C" + curPlayer;
+
+            if(myKey === hitKey){
+              executeMove(curPlayer, myIdx);
+              return;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Strategy 3: Mobile Touch Proximity Fallback
+  // Handles small mobile screens, tiny scaled pawns (scale 0.42), and "fat finger" tap near the tile
+  var bestIdx = -1;
+  var bestDist = Infinity;
+  var maxTouchDist = 52; // 52px comfortable touch radius on mobile
+
+  for(var myIdx = 0; myIdx < 4; myIdx++){
+    if(isValidMove(curPlayer, myIdx, diceVal)){
+      var mesh = tokenMeshes[curPlayer] && tokenMeshes[curPlayer][myIdx];
+      if(mesh && mesh.visible){
+        var wp = new THREE.Vector3();
+        mesh.getWorldPosition(wp);
+        wp.project(camera);
+        var screenX = (wp.x + 1) * rect.width / 2 + rect.left;
+        var screenY = (-wp.y + 1) * rect.height / 2 + rect.top;
+        var dist = Math.hypot(clientX - screenX, clientY - screenY);
+        if(dist < maxTouchDist && dist < bestDist){
+          bestDist = dist;
+          bestIdx = myIdx;
+        }
+      }
+    }
+  }
+
+  if(bestIdx !== -1){
+    executeMove(curPlayer, bestIdx);
+    return;
   }
 }
 var _lastHalfBoard = -1;

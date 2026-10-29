@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>Shape Strike Arena</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&family=Saira:wght@800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css?v=20261030" />
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="rot">
+  <div class="rot-card">
+    <svg width="68" height="106" viewBox="0 0 72 112">
+      <rect x="4" y="4" width="64" height="104" rx="12" fill="#141620" stroke="#00e5ff" stroke-width="4"/>
+      <rect x="12" y="16" width="48" height="74" rx="4" fill="rgba(0,229,255,0.18)"/>
+      <circle cx="36" cy="98" r="4.5" fill="#00e5ff"/>
+    </svg>
+    <div class="rot-title">ROTATE FOR BEST VIEW</div>
+    <div class="rot-sub">Landscape mode gives you the widest arena view. Or play in portrait anytime!</div>
+    <button id="btn-play-portrait" class="btn g">PLAY IN PORTRAIT</button>
+  </div>
+</div>
+</div>
+<div id="stage">
+  <section id="scr-title" class="screen">
+    <div id="logo"><span class="m">Shape Strike</span> <span class="n">Arena</span></div>
+    <div class="tagline">Cyber Vector Arena Shooter</div>
+    <div class="abs modesel">
+      <button class="arrow l" id="mode-prev" aria-label="previous mode"><svg width="18" height="20" viewBox="0 0 18 20"><path d="M15 2 L3 10 L15 18 Z" fill="#fff"/></svg></button>
+      <div class="modename" id="mode-name">NORMAL</div>
+      <button class="arrow rr" id="mode-next" aria-label="next mode"><svg width="18" height="20" viewBox="0 0 18 20"><path d="M3 2 L15 10 L3 18 Z" fill="#fff"/></svg></button>
+    </div>
+    <div class="abs preview"><canvas id="demo" width="600" height="332"></canvas><div id="pv-top" class="cytxt">TOP 0</div><div id="pv-lock" class="otxt"><div>score <b>10000</b> in NORMAL<br>to unlock this mode</div></div><div id="pv-medal" class="medal-10k m-pv">10000</div></div>
+    <div class="abs hints" id="mouse-hints">
+      <div class="hrow"><svg width="34" height="48" viewBox="0 0 34 48"><rect x="2" y="2" width="30" height="44" rx="15" fill="#f2f2f2" stroke="#555" stroke-width="3"/><path d="M17 3.5 A13.5 13.5 0 0 0 3.5 17 V20 H17 Z" fill="#f7941d"/><line x1="17" y1="2" x2="17" y2="20" stroke="#555" stroke-width="3"/><line x1="2" y1="20" x2="32" y2="20" stroke="#555" stroke-width="3"/></svg><span class="t otxt">bomb</span><span class="anti otxt">anti <svg width="22" height="22" viewBox="0 0 22 22"><path d="M4 3 L19 11 L4 19 Z" fill="#880e4f" stroke="#ff4081" stroke-width="2.5" stroke-linejoin="round"/></svg> &amp; <svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="8" fill="#e65100" stroke="#ffab00" stroke-width="2.5"/></svg></span></div>
+      <div class="hrow"><svg width="34" height="48" viewBox="0 0 34 48"><rect x="2" y="2" width="30" height="44" rx="15" fill="#f2f2f2" stroke="#555" stroke-width="3"/><path d="M17 3.5 A13.5 13.5 0 0 1 30.5 17 V20 H17 Z" fill="#f7941d"/><line x1="17" y1="2" x2="17" y2="20" stroke="#555" stroke-width="3"/><line x1="2" y1="20" x2="32" y2="20" stroke="#555" stroke-width="3"/></svg><span class="t otxt">pause</span></div>
+    </div>
+    <div class="abs hints" id="touch-hints">
+      <div class="hrow"><svg width="34" height="44" viewBox="0 0 24 24" fill="none" stroke="#6fe3ea" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg><span class="t otxt">drag to move</span></div>
+      <div class="hrow"><svg width="34" height="34" viewBox="0 0 34 34"><circle cx="17" cy="17" r="15" fill="#ff6d00" stroke="#fff" stroke-width="2"/><text x="17" y="23" font-family="var(--sans)" font-weight="900" font-size="18" fill="#fff" text-anchor="middle">B</text></svg><span class="t otxt">tap bomb</span><span class="anti otxt">anti <svg width="22" height="22" viewBox="0 0 22 22"><path d="M4 3 L19 11 L4 19 Z" fill="#880e4f" stroke="#ff4081" stroke-width="2.5" stroke-linejoin="round"/></svg> &amp; <svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="8" fill="#e65100" stroke="#ffab00" stroke-width="2.5"/></svg></span></div>
+    </div>
+    <div class="abs shippanel"><div class="shipgrid" id="ship-grid"></div></div>
+    <div class="abs sinfo"><div id="si-tile"></div><div id="si-meta"><div id="si-name" class="otxt">basic</div><div class="si-row"><div id="si-top" class="otxt">top : 0</div><div id="si-medal" class="medal-10k m-si">10000</div></div></div><div id="si-eq" title="equipped weapon"></div></div>
+    <button class="btn g" id="btn-play">PLAY</button>
+    <button class="btn b" id="btn-weap">WEAPONS <svg width="26" height="26" viewBox="0 0 26 26"><rect x="6" y="13" width="4" height="11" fill="#fff"/><rect x="16" y="13" width="4" height="11" fill="#fff"/><circle cx="8" cy="9" r="5" fill="#fff"/><circle cx="18" cy="9" r="5" fill="#fff"/></svg></button>
+    <button class="btn b" id="btn-mix">MIX <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg></button>
+    <div class="abs setrow"><button id="btn-gear" aria-label="settings"><svg width="28" height="28" viewBox="0 0 28 28"><g fill="#fff"><circle cx="14" cy="14" r="8.5"/><rect x="11.5" y="1" width="5" height="26" rx="1"/><rect x="1" y="11.5" width="26" height="5" rx="1"/><rect x="11.5" y="1" width="5" height="26" rx="1" transform="rotate(45 14 14)"/><rect x="11.5" y="1" width="5" height="26" rx="1" transform="rotate(-45 14 14)"/></g><circle cx="14" cy="14" r="3.6" fill="#7c7c7c"/></svg></button><button id="btn-spk" aria-label="mute"><svg id="spk-svg" width="30" height="26" viewBox="0 0 30 26"><path d="M3 9 H9 L16 3 V23 L9 17 H3 Z" fill="#fff"/><path id="spk-w" d="M20 8 Q24 13 20 18 M23.5 4.5 Q30 13 23.5 21.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round"/><path id="spk-x" d="M20 8 L28 18 M28 8 L20 18" stroke="#fff" stroke-width="2.8" stroke-linecap="round" style="display:none"/></svg></button><input id="vol" type="range" min="0" max="100" value="70" aria-label="volume" /></div>
+  </section>
+
+  <section id="scr-shop" class="screen">
+    <div id="shop-header" class="abs otxt3 cytxt">WEAPONS</div>
+    <div class="abs wgrid" id="wgrid"></div>
+    <div class="abs shopbot">
+      <div id="shop-ship"></div>
+      <div id="shop-desc"><div id="sd-name" class="otxt">twin</div><div id="sd-text"></div><button class="btn g" id="sd-act">BUY</button><div id="sd-note"></div></div>
+      <button class="backbtn" id="shop-back" aria-label="back"><svg width="48" height="48" viewBox="0 0 60 60"><path d="M40 47 H25 A14.5 14.5 0 0 1 25 18 H42" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M35 7 L49 18 L35 29 Z" fill="#fff"/></svg><span class="shop-back-lbl">BACK</span></button>
+    </div>
+  </section>
+
+  <section id="scr-pause" class="screen">
+    <div class="panel">
+      <div class="ptitle otxt3">Pause</div>
+      <div id="pause-ship" class="ptile"></div>
+      <div id="pause-ups"></div>
+      <div id="pause-sound" class="abs">
+        <button id="btn-pause-spk" aria-label="mute sound">
+          <svg id="pause-spk-svg" width="30" height="26" viewBox="0 0 30 26">
+            <path d="M3 9 H9 L16 3 V23 L9 17 H3 Z" fill="#fff"/>
+            <path id="pause-spk-w" d="M20 8 Q24 13 20 18 M23.5 4.5 Q30 13 23.5 21.5" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+            <path id="pause-spk-x" d="M20 8 L28 18 M28 8 L20 18" stroke="#fff" stroke-width="2.8" stroke-linecap="round" style="display:none"/>
+          </svg>
+        </button>
+        <div class="otxt pause-lab">SOUND</div>
+        <input id="pause-vol" type="range" min="0" max="100" value="70" aria-label="volume" />
+        <div id="pause-vol-txt" class="otxt pause-pct">70%</div>
+      </div>
+      <button class="btn g" id="btn-resume">RESUME</button>
+      <button class="btn o" id="btn-quit">QUIT</button>
+    </div>
+  </section>
+
+  <section id="scr-lv" class="screen">
+    <div class="panel">
+      <div class="ptitle otxt3">Power Up</div>
+      <div class="cards" id="cards"></div>
+    </div>
+  </section>
+
+  <section id="scr-over" class="screen">
+    <button class="btn g" id="btn-cont"><span>CONTINUE</span><span class="cprice">100<i class="coin s">C</i></span></button>
+    <button class="btn r" id="btn-go">GAMEOVER</button>
+  </section>
+
+  <section id="scr-result" class="screen">
+    <div id="res-new" class="otxt3">new TOP !!</div>
+    <div id="res-score" class="otxt3">score 0</div>
+    <div id="res-mode" class="badge">NORMAL</div>
+    <div id="res-panel">
+      <div id="res-ship" class="ptile"></div>
+      <div id="res-weaps"></div>
+      <div id="res-prog">
+        <div id="res-cur"><span id="res-curn">0</span><svg width="18" height="12" viewBox="0 0 18 12"><path d="M1 1 H17 L9 11 Z" fill="#fff" stroke="#555" stroke-width="1.5"/></svg></div>
+        <div id="res-bar"><div id="res-fill"></div></div>
+        <div id="res-tgt"><svg width="18" height="12" viewBox="0 0 18 12"><path d="M1 11 H17 L9 1 Z" fill="#fff" stroke="#555" stroke-width="1.5"/></svg><span id="res-tgtn">10</span><span id="res-tgt-lbl"></span></div>
+      </div>
+      <div id="res-get-badge">GET!!</div>
+      <div id="res-next">?</div>
+    </div>
+    <div id="res-actions">
+      <button class="btn g" id="btn-res-retry">RETRY</button>
+      <button class="btn b" id="btn-res-menu">MENU</button>
+    </div>
+  </section>
+
+  <section id="scr-modal" class="screen">
+    <div class="panel mpanel">
+      <div class="ptitle otxt3" id="m-title">Settings</div>
+      <div id="m-body"></div>
+      <button class="backbtn" id="m-close" aria-label="close"><svg width="40" height="40" viewBox="0 0 60 60"><path d="M40 47 H25 A14.5 14.5 0 0 1 25 18 H42" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M35 7 L49 18 L35 29 Z" fill="#fff"/></svg><span class="m-close-lbl">CLOSE</span></button>
+    </div>
+  </section>
+
+  <div id="coinbox"><span id="coin-num">0</span><i class="coin">C</i></div>
+</div>
+<script src="script.js?v=20261031"></script>
+</body>
+</html>

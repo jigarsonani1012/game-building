@@ -2614,8 +2614,19 @@ function coinIcon(x, y, s) {
 }
 function bombGeom() {
   const isTouch = (typeof touchMode !== 'undefined' && touchMode) || ('ontouchstart' in window);
-  const r = isTouch ? Math.max(42, 46 * US) : 40 * US;
-  const bottomOffset = isTouch ? Math.max(54, 52 * US) : 48 * US;
+  if (isPortraitMode) {
+    const r = Math.max(38, Math.round(44 * US));
+    const bottomOffset = Math.max(94, Math.round(102 * US));
+    return { x: W / 2, y: H - bottomOffset, R: r };
+  }
+  if (isTouch) {
+    const r = Math.max(36, Math.round(42 * US));
+    const bottomOffset = Math.max(68, Math.round(74 * US));
+    return { x: W / 2, y: H - bottomOffset, R: r };
+  }
+  // Desktop
+  const r = 40 * US;
+  const bottomOffset = 48 * US;
   return { x: W / 2, y: H - bottomOffset, R: r };
 }
 function pauseGeom() {

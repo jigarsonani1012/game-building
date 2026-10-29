@@ -261,8 +261,8 @@
         ],
       };
       const STEP_LENGTH = 10,
-        LADDERS_SPEED = 700,
-        SNAKE_SPEED = 600;
+        LADDERS_SPEED = 1000,
+        SNAKE_SPEED = 800;
 
       /* ---------------- texts (localisation strings of the reference) ---------------- */
       const T = {
@@ -4286,6 +4286,7 @@
           this.layers = [];
           this.pressedW = null;
           this.screen = null;
+          this.fade.a = 0;
           this.screen = new ctor(...args);
         },
         fadeIn(ms) {
@@ -4732,7 +4733,7 @@
           TWUI.get(this.logo, { loop: true })
             .to({ s: 1.05 }, 850, Ease.quadOut)
             .to({ s: 1 }, 650, Ease.quadIn);
-          App.fadeIn(1000);
+          App.fadeIn(250);
         }
         draw(g) {
           drawInfiniteGrass(g);
@@ -4945,8 +4946,22 @@
       /* =====================================================================
    SELECTION SCREENS
    ===================================================================== */
+            function smoothPopInButtons(buttons, duration = 180) {
+        if (!buttons || !buttons.length) return;
+        buttons.forEach((b, i) => {
+          b.sx = 0.9;
+          b.sy = 0.9;
+          b.alpha = 0;
+          TWUI.get(b)
+            .wait(i * 18)
+            .to({ sx: 1, sy: 1, alpha: 1 }, duration, Ease.quadOut);
+        });
+      }
       class ModeChoose {
         constructor() {
+          this.popScale = 0.92;
+          this.dim = 0;
+          TWUI.get(this).to({ popScale: 1, dim: 0.5 }, 200, Ease.quadOut);
           const L = App.pushLayer({ draw: (g) => this.draw(g) });
           L.add(
             iconButton(W - 41, 41, 60, "exit", "x", () => App.setScreen(Menu), {
@@ -4954,7 +4969,7 @@
             }),
           );
           L.add(audioToggle(W - 110, 41, { ax: "r" }));
-          L.add(
+          const b1 = L.add(
             new Button({
               x: HW - 100,
               y: HH + 30,
@@ -4990,7 +5005,7 @@
               },
             }),
           );
-          L.add(
+          const b2 = L.add(
             new Button({
               x: HW + 100,
               y: HH + 30,
@@ -5027,13 +5042,19 @@
               },
             }),
           );
-          App.fadeIn(1000);
+          smoothPopInButtons([b1, b2], 180);
         }
         draw(g) {
           drawInfiniteGrass(g);
-          dimScreen(g, 0.5);
+          dimScreen(g, this.dim !== undefined ? this.dim : 0.5);
+          g.save();
+          g.translate(HW, HH);
+          const s = this.popScale !== undefined ? this.popScale : 1;
+          g.scale(s, s);
+          g.translate(-HW, -HH);
           drawMsgBox(g, HW, HH);
           drawTitle(g, T.SELECT_MODE);
+          g.restore();
         }
       }
       function vsPanel(g, robot) {
@@ -5057,7 +5078,7 @@
             }),
           );
           L.add(audioToggle(W - 110, 41, { ax: "r" }));
-          L.add(
+          const b1 = L.add(
             new Button({
               x: HW - 120,
               y: HH + 20,
@@ -5069,7 +5090,7 @@
               },
             }),
           );
-          L.add(
+          const b2 = L.add(
             new Button({
               x: HW + 120,
               y: HH + 20,
@@ -5081,7 +5102,7 @@
               },
             }),
           );
-          App.fadeIn(1000);
+          smoothPopInButtons([b1, b2], 180);
         }
         draw(g) {
           drawBoardBg(g);
@@ -5110,61 +5131,64 @@
               [c + C, b + 90],
               [c + 2 * C, b],
             ];
+          const btns = [];
           pos.forEach((p, i) => {
             const n = i + 2;
-            L.add(
-              new Button({
-                x: p[0],
-                y: p[1],
-                w: 120,
-                h: 128,
-                onClick: () => App.setScreen(ColourChoose, n, vs),
-                draw(g, b) {
-                  if (!b.tex || b.texMode !== App.mode) {
-                    const pad = 12;
-                    const cw = 120 + pad * 2,
-                      ch = 128 + pad * 2;
-                    const c = mkHi(cw, ch),
-                      tg = c.getContext("2d");
-                    tg.translate(cw / 2, ch / 2);
-                    glossRect(
-                      tg,
-                      -60,
-                      -64,
-                      120,
-                      128,
-                      22,
-                      App.mode === MODE_SNAKES ? "#f6a21c" : "#2fa0e8",
-                    );
-                    const arr = [
-                      [0],
-                      [0, 1],
-                      [0, 1, 2],
-                      [0, 1, 2, 3],
-                      [0, 1, 2, 3, 4],
-                      [0, 1, 2, 3, 4, 5],
-                    ][n - 1];
-                    const cols = n <= 3 ? n : 3;
-                    arr.forEach((ci, k) => {
-                      const row = Math.floor(k / cols),
-                        col = k % cols,
-                        inRow = Math.min(cols, n - row * cols),
-                        x = (col - (inRow - 1) / 2) * 26,
-                        y = (n > 3 ? -4 : 6) + row * 22;
-                      if (App.mode === MODE_SNAKES)
-                        drawPawn(tg, x, y + 14, ci, 0.8);
-                      else drawKid(tg, x, y + 16, ci, "idle", 0, false, 0.42);
-                    });
-                    text(tg, n + " PLAYERS", 0, 46, 16, "#fff", "#4a2a00", 3);
-                    b.tex = c;
-                    b.texMode = App.mode;
-                  }
-                  g.drawImage(b.tex, -60 - 12, -64 - 12, 120 + 24, 128 + 24);
-                },
-              }),
+            btns.push(
+              L.add(
+                new Button({
+                  x: p[0],
+                  y: p[1],
+                  w: 120,
+                  h: 128,
+                  onClick: () => App.setScreen(ColourChoose, n, vs),
+                  draw(g, b) {
+                    if (!b.tex || b.texMode !== App.mode) {
+                      const pad = 12;
+                      const cw = 120 + pad * 2,
+                        ch = 128 + pad * 2;
+                      const c = mkHi(cw, ch),
+                        tg = c.getContext("2d");
+                      tg.translate(cw / 2, ch / 2);
+                      glossRect(
+                        tg,
+                        -60,
+                        -64,
+                        120,
+                        128,
+                        22,
+                        App.mode === MODE_SNAKES ? "#f6a21c" : "#2fa0e8",
+                      );
+                      const arr = [
+                        [0],
+                        [0, 1],
+                        [0, 1, 2],
+                        [0, 1, 2, 3],
+                        [0, 1, 2, 3, 4],
+                        [0, 1, 2, 3, 4, 5],
+                      ][n - 1];
+                      const cols = n <= 3 ? n : 3;
+                      arr.forEach((ci, k) => {
+                        const row = Math.floor(k / cols),
+                          col = k % cols,
+                          inRow = Math.min(cols, n - row * cols),
+                          x = (col - (inRow - 1) / 2) * 26,
+                          y = (n > 3 ? -4 : 6) + row * 22;
+                        if (App.mode === MODE_SNAKES)
+                          drawPawn(tg, x, y + 14, ci, 0.8);
+                        else drawKid(tg, x, y + 16, ci, "idle", 0, false, 0.42);
+                      });
+                      text(tg, n + " PLAYERS", 0, 46, 16, "#fff", "#4a2a00", 3);
+                      b.tex = c;
+                      b.texMode = App.mode;
+                    }
+                    g.drawImage(b.tex, -60 - 12, -64 - 12, 120 + 24, 128 + 24);
+                  },
+                }),
+              ),
             );
           });
-          App.fadeIn(1000);
+          smoothPopInButtons(btns, 180);
         }
         draw(g) {
           drawBoardBg(g);
@@ -5181,11 +5205,11 @@
           this.chosen = [];
           const L = App.pushLayer({ draw: (g) => this.draw(g) });
           L.add(
-            iconButton(W - 51, 51, 60, "exit", "x", () => App.setScreen(Menu), {
+            iconButton(W - 41, 41, 60, "exit", "x", () => App.setScreen(Menu), {
               ax: "r",
             }),
           );
-          L.add(audioToggle(W - 120, 51, { ax: "r" }));
+          L.add(audioToggle(W - 110, 41, { ax: "r" }));
           this.btns = [];
           const snakes = App.mode === MODE_SNAKES;
           const spacing = 84;
@@ -5232,7 +5256,7 @@
               ),
             );
           }
-          App.fadeIn(1000);
+          smoothPopInButtons(this.btns, 180);
         }
         pick(i) {
           if (this.vs === HUMAN_VS_CPU) {
@@ -5300,7 +5324,7 @@
           this.y = 480;
           this.h = 0;
           this.angles = DIE_FINAL[1].slice();
-          this.duration = 760;
+          this.duration = 1120;
           this.contacts = 0;
           this.settle = 0;
           this.sparkles = [];
@@ -5411,7 +5435,7 @@
                 });
               }
             }
-            delay(170, () => {
+            delay(320, () => {
               if (this.state === "shown") {
                 this.g.onDiceEnd(this.value);
               }
@@ -5626,7 +5650,7 @@
           });
           this.ui = new Interface(this);
           Snd.setMusicVolume(SOUNDTRACK_VOLUME_IN_GAME);
-          App.fadeIn(600);
+          App.fadeIn(220);
           new HelpPanel(this, () => {
             this.z = true;
             this.r = true;
@@ -5720,18 +5744,19 @@
           let ease;
           if (this.mode === MODE_SNAKES) {
             ease = Ease.quadInOut;
+            TW.remove(P);
             TW.get(P)
-              .to({ hop: -20 }, 90, Ease.quadOut)
-              .to({ hop: 0 }, 95, Ease.quadIn);
+              .to({ hop: -20 }, 150, Ease.quadOut)
+              .to({ hop: 0 }, 150, Ease.quadIn);
             TW.get(P)
-              .to({ shA: 0.5 }, 90, Ease.quadOut)
-              .to({ shA: 1 }, 95, Ease.quadIn);
+              .to({ shA: 0.5 }, 150, Ease.quadOut)
+              .to({ shA: 1 }, 150, Ease.quadIn);
           } else {
             ease = Ease.linear;
             P.anim = "walk";
           }
           TW.get(P)
-            .to({ x: cx, y: cy }, 185, ease)
+            .to({ x: cx, y: cy }, 300, ease)
             .call(() => {
               Snd.play("step_land");
               this.rings.push({ x: cx, y: cy, t: 0 });
@@ -5768,6 +5793,12 @@
           if (this.mode === MODE_CHUTES) P.anim = "idle";
           P.pos--;
           this.checkToFlip(a);
+          if (this.mode === MODE_SNAKES) {
+            TW.remove(P);
+            TW.get(P)
+              .to({ scale: 1.08, hop: 0 }, 65, Ease.quadOut)
+              .to({ scale: 1 }, 110, Ease.quadIn);
+          }
           this.checkForSpecialSquares(a);
         }
         checkForAnotherPlayer(sq, a) {
@@ -5809,6 +5840,7 @@
             this.snakeAnim = { idx, t: 0, dur: EAT_END + 90, player: a };
             const [hx, hy] = snakeMouthPos(getSnake(idx));
             // pawn is lifted and sucked between the open jaws, then the mouth snaps shut
+            TW.remove(P);
             TW.get(P)
               .wait(90)
               .to({ hop: -16, scale: 0.85 }, 170, Ease.quadOut)
@@ -5888,8 +5920,9 @@
               Snd.play("ladder");
               P.sparkle = true;
               if (this.mode === MODE_CHUTES) P.anim = "walk";
+              TW.remove(P);
               TW.get(P)
-                .to({ x, y }, LADDERS_SPEED, Ease.cubicOut)
+                .to({ x, y }, LADDERS_SPEED, Ease.quadInOut)
                 .call(() => {
                   P.sparkle = false;
                   this.rings.push({ x, y, t: 0 });
@@ -6042,10 +6075,10 @@
             P.curveAcc += dt;
             const u = P.curveI / P.curve.length;
             const spd = 36 + 42 * Math.sin(Math.PI * Math.pow(u, 0.65));
-            while (P.curveAcc >= 1000 / spd && P.curve) {
-              P.curveAcc -= 1000 / spd;
+            const stepDur = 1000 / spd;
+            while (P.curveAcc >= stepDur && P.curve) {
+              P.curveAcc -= stepDur;
               const pt = P.curve[P.curveI];
-              const dx = pt[0] - P.x;
               P.flip = pt[0] < P.x;
               const nextI = Math.min(P.curve.length - 1, P.curveI + 3);
               const targetTilt = clamp(
@@ -6080,6 +6113,13 @@
                 this.obstacleAnimationOver(this.t, idx);
                 break;
               }
+            }
+            if (this.chuteFollow && P.curve && P.curveI < P.curve.length) {
+              const curPt = P.curve[Math.max(0, P.curveI - 1)];
+              const nextPt = P.curve[P.curveI];
+              const frac = clamp(P.curveAcc / stepDur, 0, 1);
+              P.x = curPt[0] + (nextPt[0] - curPt[0]) * frac;
+              P.y = curPt[1] + (nextPt[1] - curPt[1]) * frac;
             }
           }
         }
@@ -7542,18 +7582,24 @@
         }
       });
       document.addEventListener("visibilitychange", () => {
-        if (document.hidden) last = 0;
+        if (document.hidden) {
+          last = 0;
+          smoothDt = 16.666;
+        }
       });
 
       let last = 0;
-      let smoothDt = 16.66;
+      let smoothDt = 16.666;
       function frame(now) {
         requestAnimationFrame(frame);
-        if (!last) { last = now; return; }
+        if (!last) {
+          last = now;
+          smoothDt = 16.666;
+        }
         let rawDt = now - last;
         last = now;
-        if (rawDt <= 0 || rawDt > 250) rawDt = 16.66;
-        smoothDt = smoothDt * 0.65 + Math.min(rawDt, 50) * 0.35;
+        if (rawDt <= 0 || rawDt > 100) rawDt = 16.666;
+        smoothDt = smoothDt * 0.75 + Math.min(rawDt, 34) * 0.25;
         const dt = smoothDt;
         TWUI.update(dt);
         if (!App.paused) {
@@ -7563,6 +7609,8 @@
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.setTransform(App.k, 0, 0, App.k, App.ctxOffsetX, App.ctxOffsetY);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
         for (const l of App.layers) {
           if (!l.visible) continue;
           ctx.save();

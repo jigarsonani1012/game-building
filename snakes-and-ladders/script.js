@@ -261,8 +261,8 @@
         ],
       };
       const STEP_LENGTH = 10,
-        LADDERS_SPEED = 1000,
-        SNAKE_SPEED = 800;
+        LADDERS_SPEED = 700,
+        SNAKE_SPEED = 600;
 
       /* ---------------- texts (localisation strings of the reference) ---------------- */
       const T = {
@@ -328,17 +328,20 @@
           return s / 4294967296;
         };
       }
+      const _rgbCache = Object.create(null);
       function hexToRgb(h) {
-        h = h.replace("#", "");
-        if (h.length === 3)
-          h = h
-            .split("")
-            .map((c) => c + c)
-            .join("");
-        const n = parseInt(h, 16);
-        return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+        let res = _rgbCache[h];
+        if (res) return res;
+        let s = h.charCodeAt(0) === 35 ? h.slice(1) : h;
+        if (s.length === 3) s = s[0] + s[0] + s[1] + s[1] + s[2] + s[2];
+        const n = parseInt(s, 16);
+        return (_rgbCache[h] = [(n >> 16) & 255, (n >> 8) & 255, n & 255]);
       }
+      const _shadeCache = Object.create(null);
       function shade(hex, amt) {
+        const k = hex + amt;
+        let res = _shadeCache[k];
+        if (res) return res;
         const [r, g, b] = hexToRgb(hex);
         const f = (c) =>
           clamp(
@@ -346,11 +349,15 @@
             0,
             255,
           );
-        return `rgb(${f(r)},${f(g)},${f(b)})`;
+        return (_shadeCache[k] = `rgb(${f(r)},${f(g)},${f(b)})`);
       }
+      const _rgbaCache = Object.create(null);
       function rgba(hex, a) {
+        const k = hex + a;
+        let res = _rgbaCache[k];
+        if (res) return res;
         const [r, g, b] = hexToRgb(hex);
-        return `rgba(${r},${g},${b},${a})`;
+        return (_rgbaCache[k] = `rgba(${r},${g},${b},${a})`);
       }
       function fmt(s, ...a) {
         return s.replace(/\{(\d+)\}/g, (m, i) => a[i]);
@@ -501,14 +508,15 @@
         }
         update(dt) {
           const list = this.list;
-          const len = list.length;
-          for (let i = 0; i < len; i++) {
+          for (let i = 0; i < list.length; i++) {
             const t = list[i];
             if (t && !t.done) t.update(dt);
           }
-          for (let i = list.length - 1; i >= 0; i--) {
-            if (list[i].done) list.splice(i, 1);
+          let j = 0;
+          for (let i = 0; i < list.length; i++) {
+            if (!list[i].done) list[j++] = list[i];
           }
+          list.length = j;
         }
       }
       const TW = new TweenGroup(); // game-layer tweens (pausable)
@@ -1904,22 +1912,27 @@
         g.restore();
       }
       /* idle life: tongue flicks, blinks, breathing, gentle head sway */
+      const _idleStates = new Map();
       function snakeIdleState(sd, now) {
         const seed = sd.seed || 0,
           ph = (now + seed * 977) % 3600,
           tongue = ph < 620 ? Math.sin((Math.PI * ph) / 620) : 0;
         const bp = (now + seed * 1531) % 4700,
           blink = bp < 180 ? Math.sin((Math.PI * bp) / 180) : 0;
-        return {
-          open: 0,
-          lift: 0,
-          scale: 1,
-          squash: 1 + Math.sin(now / 700 + seed) * 0.025,
-          turn: Math.sin(now / 1500 + seed * 2) * 0.07,
-          tongue,
-          blink,
-          tw: now,
-        };
+        let st = _idleStates.get(sd);
+        if (!st) {
+          st = { open: 0, lift: 0, scale: 1, squash: 1, turn: 0, tongue: 0, blink: 0, tw: 0 };
+          _idleStates.set(sd, st);
+        }
+        st.open = 0;
+        st.lift = 0;
+        st.scale = 1;
+        st.squash = 1 + Math.sin(now / 700 + seed) * 0.025;
+        st.turn = Math.sin(now / 1500 + seed * 2) * 0.07;
+        st.tongue = tongue;
+        st.blink = blink;
+        st.tw = now;
+        return st;
       }
       /* eat timeline (ms): lunge & open 0-300, hold, chomp 440-560, swallow 560-1360 */
       const EAT_CHOMP = 440,
@@ -1989,6 +2002,15 @@
         return [x + Math.cos(d) * 27, y + Math.sin(d) * 27 - 9.5];
       }
       /* top-down cartoon head pointing along the body; eyes stay screen-upright so the face always reads */
+      function drawHeadPath(g) {
+        g.beginPath();
+        g.moveTo(-15, 0);
+        g.bezierCurveTo(-17, -12, -7, -19.5, 4, -19);
+        g.bezierCurveTo(16, -18.5, 25, -10, 25, 0);
+        g.bezierCurveTo(25, 10, 16, 18.5, 4, 19);
+        g.bezierCurveTo(-7, 19.5, -17, 12, -15, 0);
+        g.closePath();
+      }
       function drawSnakeHead(g, sd, st) {
         const col = sd.col,
           dk = shade(col, -0.45),
@@ -2002,9 +2024,8 @@
           ang = snakeDir(sd) + (st.turn || 0),
           ca = Math.cos(ang),
           sa = Math.sin(ang);
-        const toLocal = (vx, vy) => [vx * ca + vy * sa, -vx * sa + vy * ca];
         g.save();
-        const base = g.getTransform();
+        const base = st.inside ? g.getTransform() : null;
         g.translate(hx, hy);
 
         g.translate(0, -lift * 10);
@@ -2012,15 +2033,7 @@
         g.scale(s, s * sq);
         g.lineJoin = "round";
         g.lineCap = "round";
-        const headPath = () => {
-          g.beginPath();
-          g.moveTo(-15, 0);
-          g.bezierCurveTo(-17, -12, -7, -19.5, 4, -19);
-          g.bezierCurveTo(16, -18.5, 25, -10, 25, 0);
-          g.bezierCurveTo(25, 10, 16, 18.5, 4, 19);
-          g.bezierCurveTo(-7, 19.5, -17, 12, -15, 0);
-          g.closePath();
-        };
+        const headPath = () => drawHeadPath(g);
         if (open > 0.02) {
           const L = 8 + 17 * open;
           g.save();
@@ -2060,7 +2073,7 @@
           g.fillStyle = "#fff";
           g.strokeStyle = "rgba(60,20,30,0.5)";
           g.lineWidth = 0.8;
-          for (const sy of [-1, 1]) {
+          for (let sy = -1; sy <= 1; sy += 2) {
             g.beginPath();
             g.moveTo(L + 2, sy * 8.5);
             g.lineTo(L - 5, sy * 10.5);
@@ -2070,7 +2083,7 @@
             g.stroke();
           }
           g.restore();
-          if (st.inside) {
+          if (st.inside && base) {
             const cur = g.getTransform();
             g.setTransform(base);
             st.inside(g);
@@ -2078,7 +2091,7 @@
           }
           g.translate(-5 * open, 0);
         }
-        const [lx, ly] = toLocal(-0.45, -0.9);
+        const lx = -0.45 * ca - 0.9 * sa, ly = 0.45 * sa - 0.9 * ca;
         const hg = g.createRadialGradient(4 + lx * 9, ly * 9, 2, 4, 0, 27);
         hg.addColorStop(0, lt);
         hg.addColorStop(0.5, col);
@@ -2143,7 +2156,7 @@
           g.strokeStyle = ol;
           g.lineWidth = 1.7;
           const curl = st.happy ? 2.6 : 1.6;
-          for (const sy of [-1, 1]) {
+          for (let sy = -1; sy <= 1; sy += 2) {
             g.beginPath();
             g.moveTo(24.2, 0);
             g.quadraticCurveTo(22, sy * 11.5, 10, sy * 15.2);
@@ -2181,7 +2194,7 @@
         const look = st.look || [0, 0],
           blink = st.blink || 0,
           wide = 1 + open * 0.18;
-        for (const sy of [-1, 1]) {
+        for (let sy = -1; sy <= 1; sy += 2) {
           g.save();
           g.translate(-0.5, sy * 10.5);
           g.rotate(-ang);
@@ -5287,7 +5300,7 @@
           this.y = 480;
           this.h = 0;
           this.angles = DIE_FINAL[1].slice();
-          this.duration = 1120;
+          this.duration = 760;
           this.contacts = 0;
           this.settle = 0;
           this.sparkles = [];
@@ -5398,7 +5411,7 @@
                 });
               }
             }
-            delay(320, () => {
+            delay(170, () => {
               if (this.state === "shown") {
                 this.g.onDiceEnd(this.value);
               }
@@ -5583,6 +5596,7 @@
           g.restore();
         }
       }
+      const sortPawnY = (a, b) => a.y - b.y;
       class Game {
         constructor(num, chosen, vs, colours) {
           this.f = num;
@@ -5707,17 +5721,17 @@
           if (this.mode === MODE_SNAKES) {
             ease = Ease.quadInOut;
             TW.get(P)
-              .to({ hop: -20 }, 150, Ease.quadOut)
-              .to({ hop: 0 }, 150, Ease.quadIn);
+              .to({ hop: -20 }, 90, Ease.quadOut)
+              .to({ hop: 0 }, 95, Ease.quadIn);
             TW.get(P)
-              .to({ shA: 0.5 }, 150, Ease.quadOut)
-              .to({ shA: 1 }, 150, Ease.quadIn);
+              .to({ shA: 0.5 }, 90, Ease.quadOut)
+              .to({ shA: 1 }, 95, Ease.quadIn);
           } else {
             ease = Ease.linear;
             P.anim = "walk";
           }
           TW.get(P)
-            .to({ x: cx, y: cy }, 300, ease)
+            .to({ x: cx, y: cy }, 185, ease)
             .call(() => {
               Snd.play("step_land");
               this.rings.push({ x: cx, y: cy, t: 0 });
@@ -5894,8 +5908,8 @@
             Snd.play("bonus");
             this.showMsg(MSG_DICE, () => {
               if (this.z) {
-                if (this.autoPlay) delay(220, () => this.dice.show());
-                else this.dice.show();
+                this.r = true;
+                this.turnShown = false;
               }
             });
           }
@@ -6108,7 +6122,7 @@
                     dy = (vy / l) * 0.9;
                   }
                 }
-                st.look = [dx, dy];
+                if (st.look) { st.look[0] = dx; st.look[1] = dy; } else st.look = [dx, dy];
               }
               drawSnakeHead(g, sd, st);
             }
@@ -6125,7 +6139,7 @@
             this._sortedPs = new Array(this.players.length);
           const ps = this._sortedPs;
           for (let i = 0; i < this.players.length; i++) ps[i] = this.players[i];
-          ps.sort((a, b) => a.y - b.y);
+          ps.sort(sortPawnY);
           if (this.mode === MODE_SNAKES)
             for (const P of ps)
               if (P.visible && P.shVisible) drawPawnShadow(g, P.x, P.y, P.shA);
@@ -6507,7 +6521,11 @@
           g.restore();
         }
         drawPanel(g) {
-          this.layout();
+          if (this._lastOffX !== App.offX || this._lastOffY !== App.offY) {
+            this._lastOffX = App.offX;
+            this._lastOffY = App.offY;
+            this.layout();
+          }
           this.drawRollPill(g);
           const n = this.g.players.length;
 
@@ -7423,7 +7441,7 @@
         App.vwTop = HH - App.vwH / 2;
         App.vwBottom = HH + App.vwH / 2;
 
-        const dpr = Math.min(window.devicePixelRatio || 1, 2.5),
+        const dpr = Math.min(window.devicePixelRatio || 1, 2.0),
           k = mult * dpr;
         App.k = k;
         App.ctxOffsetX = Math.round(left * dpr);
@@ -7432,7 +7450,7 @@
         // Full bleed canvas sizing: matches viewport 100%
         canvas.width = Math.round(w * dpr);
         canvas.height = Math.round(h * dpr);
-        ctx.imageSmoothingQuality = "high";
+        ctx.imageSmoothingQuality = "medium";
         canvas.style.width = w + "px";
         canvas.style.height = h + "px";
         canvas.style.left = "0px";
@@ -7442,7 +7460,7 @@
           App.screen.ui.layout();
         }
 
-        const q = clamp(Math.ceil(k * 2) / 2, 1, 2.5);
+        const q = clamp(Math.ceil(k * 2) / 2, 1, 2.0);
         if (q !== Q) {
           clearTimeout(resize.tm);
           if (!grassTex) {
@@ -7466,11 +7484,11 @@
             if (w.kind === "fullscreen") w.active = App.fullscreen;
         setTimeout(resize, 100);
       });
+      const _toCanvasPt = [0, 0];
       function toCanvas(e) {
-        return [
-          (e.clientX - App.cssX) / App.scale,
-          (e.clientY - App.cssY) / App.scale,
-        ];
+        _toCanvasPt[0] = (e.clientX - App.cssX) / App.scale;
+        _toCanvasPt[1] = (e.clientY - App.cssY) / App.scale;
+        return _toCanvasPt;
       }
       canvas.addEventListener(
         "pointerdown",
@@ -7528,13 +7546,15 @@
       });
 
       let last = 0;
+      let smoothDt = 16.66;
       function frame(now) {
         requestAnimationFrame(frame);
-        if (!last) last = now;
-        let dt = now - last;
-        if (dt <= 0 || dt > 100) dt = 16.6;
-        else if (dt > 34) dt = 34;
+        if (!last) { last = now; return; }
+        let rawDt = now - last;
         last = now;
+        if (rawDt <= 0 || rawDt > 250) rawDt = 16.66;
+        smoothDt = smoothDt * 0.65 + Math.min(rawDt, 50) * 0.35;
+        const dt = smoothDt;
         TWUI.update(dt);
         if (!App.paused) {
           TW.update(dt);

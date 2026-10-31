@@ -66,17 +66,65 @@ var PAL_NEON={yellow:'#fff23a',orange:'#ff9a1f',red:'#ff3355',pink:'#ff4fd8',pur
 var PAL_WHITE={yellow:'#f7c541',orange:'#f99a52',red:'#f26b6b',pink:'#f48cc2',purple:'#b58af2',blue:'#6aa0f5',cyan:'#5fd0e8',green:'#6fd470'};
 var PAL_PINK={yellow:'#ffd04a',orange:'#ff8d3f',red:'#ff5a6b',pink:'#ff7ad0',purple:'#c566ff',blue:'#5b9cff',cyan:'#4fe3ff',green:'#62e36a'};
 var THEMES={
-  standard:{name:'Standard',bg:['#4059a0','#33457f'],board:'#23294d',cell:'#2b325a',text:'#ffffff',dim:'#aab4e0',panel:'#2c3566',panelEdge:'#1a2048',hud:'#303e6a',slot:'#191f43',track:'#182849',fill:'#f0be55',pal:PAL_STD,glow:false,dark:false},
-  pink:{name:'Pink',bg:['#f27db5','#d94f93'],board:'#5a1f49',cell:'#6a2a58',text:'#ffffff',dim:'#ffd4ea',panel:'#6e2a5c',panelEdge:'#4a1740',hud:'#7a3568',slot:'#471538',track:'#3f1233',fill:'#ffd34d',pal:PAL_PINK,glow:false,dark:false},
-  lightblue:{name:'Light Blue',bg:['#7cc4f5','#55a3e6'],board:'#1d4470',cell:'#25507f',text:'#ffffff',dim:'#d6ecff',panel:'#2a5588',panelEdge:'#173a60',hud:'#2f5d92',slot:'#153356',track:'#133052',fill:'#ffd34d',pal:PAL_STD,glow:false,dark:false},
-  pinkblue:{name:'Pink-Blue',bg:['#f06aa8','#4a7fe0'],board:'#2a2552',cell:'#352f66',text:'#ffffff',dim:'#e4d9ff',panel:'#38316e',panelEdge:'#221d4a',hud:'#433b7c',slot:'#1e1a44',track:'#1c1940',fill:'#ffd34d',pal:PAL_STD,glow:false,dark:false},
-  neon:{name:'Neon',bg:['#120f2a','#07060f'],board:'#15132c',cell:'#1e1b3b',text:'#ffffff',dim:'#9a93c8',panel:'#1b1838',panelEdge:'#0d0b1f',hud:'#26224a',slot:'#0f0d22',track:'#0f0d22',fill:'#19f5ff',pal:PAL_NEON,glow:true,dark:false},
-  white:{name:'White',bg:['#f6f7fb','#e6e9f2'],board:'#d9dde9',cell:'#ffffff',text:'#2b3358',dim:'#6b7599',panel:'#ffffff',panelEdge:'#c9cfdf',hud:'#e3e7f1',slot:'#c7cde0',track:'#cfd5e4',fill:'#f0b429',pal:PAL_WHITE,glow:false,dark:true}
+  standard:{
+    name:'Standard',
+    bg:['#223d86','#16255c','#0a102c'],
+    ambient:[[0,'rgba(100,170,255,0.22)'],[0.45,'rgba(70,120,230,0.10)'],[1,'rgba(30,60,160,0)']],
+    blocks:['#4a7bff','#7a4aff','#4ac8ff','#ff6ba8'],
+    vig:'rgba(0,0,0,.52)',
+    stroke:'rgba(255,255,255,.24)',
+    board:'#1c234a',cell:'#252d58',text:'#ffffff',dim:'#aab4e0',panel:'#222955',panelEdge:'#14193b',hud:'#28335f',slot:'#161b3b',track:'#141937',fill:'#f0be55',pal:PAL_STD,glow:false,dark:false
+  },
+  neon:{
+    name:'Neon',
+    bg:['#1a0c38','#100624','#06020e'],
+    ambient:[[0,'rgba(180,50,255,0.26)'],[0.45,'rgba(0,225,255,0.14)'],[1,'rgba(0,225,255,0)']],
+    blocks:['#00f0ff','#ff007f','#39ff14','#bc13fe'],
+    vig:'rgba(0,0,0,.60)',
+    stroke:'rgba(255,255,255,.30)',
+    board:'#131027',cell:'#1b1735',text:'#ffffff',dim:'#9a93c8',panel:'#171431',panelEdge:'#0a081a',hud:'#221c43',slot:'#0c0a1d',track:'#0a0817',fill:'#19f5ff',pal:PAL_NEON,glow:true,dark:false
+  },
+  pink:{
+    name:'Pink',
+    bg:['#8a1a58','#520e36','#240417'],
+    ambient:[[0,'rgba(255,130,190,0.24)'],[0.45,'rgba(255,80,150,0.11)'],[1,'rgba(255,60,130,0)']],
+    blocks:['#ff7ad0','#ff4081','#ff80ab','#ffd54f'],
+    vig:'rgba(0,0,0,.48)',
+    stroke:'rgba(255,255,255,.24)',
+    board:'#47183a',cell:'#592049',text:'#ffffff',dim:'#ffd4ea',panel:'#581e48',panelEdge:'#38102e',hud:'#642553',slot:'#360e2b',track:'#2e0a24',fill:'#ffd34d',pal:PAL_PINK,glow:false,dark:false
+  },
+  lightblue:{
+    name:'Light Blue',
+    bg:['#1a64b6','#103f76','#082142'],
+    ambient:[[0,'rgba(120,215,255,0.24)'],[0.45,'rgba(70,165,255,0.11)'],[1,'rgba(50,130,240,0)']],
+    blocks:['#38bdf8','#60a5fa','#818cf8','#34d399'],
+    vig:'rgba(0,0,0,.48)',
+    stroke:'rgba(255,255,255,.24)',
+    board:'#17365d',cell:'#1f4575',text:'#ffffff',dim:'#d6ecff',panel:'#204778',panelEdge:'#112c4e',hud:'#244d80',slot:'#112847',track:'#0d203a',fill:'#ffd34d',pal:PAL_STD,glow:false,dark:false
+  },
+  pinkblue:{
+    name:'Pink-Blue',
+    bg:['#781d60','#2e1e5c','#120d2c'],
+    ambient:[[0,'rgba(220,110,255,0.22)'],[0.45,'rgba(80,160,255,0.12)'],[1,'rgba(50,100,220,0)']],
+    blocks:['#f43f5e','#38bdf8','#c084fc','#f472b6'],
+    vig:'rgba(0,0,0,.50)',
+    stroke:'rgba(255,255,255,.24)',
+    board:'#241c48',cell:'#2e245a',text:'#ffffff',dim:'#e4d9ff',panel:'#30265c',panelEdge:'#1b143a',hud:'#382d6c',slot:'#191336',track:'#140e2d',fill:'#ffd34d',pal:PAL_STD,glow:false,dark:false
+  },
+  white:{
+    name:'White',
+    bg:['#f8fafc','#e2e8f0','#cbd5e1'],
+    ambient:[[0,'rgba(255,255,255,0.70)'],[0.45,'rgba(255,255,255,0.25)'],[1,'rgba(255,255,255,0)']],
+    blocks:['#60a5fa','#f472b6','#34d399','#a78bfa'],
+    vig:'rgba(30,41,59,.15)',
+    stroke:'rgba(30,41,59,.14)',
+    board:'#d9dde9',cell:'#ffffff',text:'#2b3358',dim:'#6b7599',panel:'#ffffff',panelEdge:'#c9cfdf',hud:'#e3e7f1',slot:'#c7cde0',track:'#cfd5e4',fill:'#f0b429',pal:PAL_WHITE,glow:false,dark:true
+  }
 };
 var THEME_ORDER=['standard','pink','lightblue','pinkblue','neon','white'];
 var theme=THEMES[data.theme]||THEMES.standard;
-function setTheme(id){theme=THEMES[id]||THEMES.standard;data.theme=id;persist();document.body.style.background=theme.bg[1];spriteCache={};}
-document.body.style.background=theme.bg[1];
+function setTheme(id){theme=THEMES[id]||THEMES.standard;data.theme=id;persist();document.body.style.background=theme.bg[theme.bg.length-1];spriteCache={};bgBase=null;bgVig=null;initBgBlocks();}
+document.body.style.background=theme.bg[theme.bg.length-1];
 var GEM={red:{dark:'#8e0c28',mid:'#ee2b4e',light:'#ff95aa'},blue:{dark:'#0c3a94',mid:'#2d7bf0',light:'#9ccdff'}};
 var TAN='#e6c48d', GREY='#6f7488';
 
@@ -143,16 +191,67 @@ resize();
 // ---------- block sprites (procedural bevelled blocks) ----------
 function poly(c,pts,fill){c.beginPath();c.moveTo(pts[0][0],pts[0][1]);for(var i=1;i<pts.length;i++)c.lineTo(pts[i][0],pts[i][1]);c.closePath();c.fillStyle=fill;c.fill();}
 function paintBlock(c,x,y,s,hex){
-  var b=Math.max(2,s*0.17);
-  c.fillStyle=hex;c.fillRect(x,y,s,s);
-  poly(c,[[x,y],[x+s,y],[x+s-b,y+b],[x+b,y+b]],shade(hex,0.42));
-  poly(c,[[x,y],[x+b,y+b],[x+b,y+s-b],[x,y+s]],shade(hex,0.18));
-  poly(c,[[x+s,y],[x+s,y+s],[x+s-b,y+s-b],[x+s-b,y+b]],shade(hex,-0.22));
-  poly(c,[[x,y+s],[x+b,y+s-b],[x+s-b,y+s-b],[x+s,y+s]],shade(hex,-0.45));
-  var g=c.createLinearGradient(0,y+b,0,y+s-b);g.addColorStop(0,shade(hex,0.12));g.addColorStop(0.55,hex);g.addColorStop(1,shade(hex,-0.08));
-  c.fillStyle=g;c.fillRect(x+b,y+b,s-2*b,s-2*b);
-  c.fillStyle='rgba(255,255,255,0.13)';c.fillRect(x+b,y+b,s-2*b,(s-2*b)*0.34);
-  c.strokeStyle='rgba(0,0,0,0.32)';c.lineWidth=1;c.strokeRect(x+0.5,y+0.5,s-1,s-1);
+  var r=Math.max(2,Math.round(s*0.115));
+  var b=Math.max(2,Math.round(s*0.165));
+
+  // 1. Tactile contact drop shadow (adds physical depth onto the board)
+  c.save();
+  c.shadowColor='rgba(0,0,0,0.36)';
+  c.shadowBlur=Math.round(s*0.14);
+  c.shadowOffsetY=Math.max(2,Math.round(s*0.07));
+  c.fillStyle=shade(hex,-0.55);
+  roundRect(c,x,y,s,s,r);
+  c.fill();
+  c.restore();
+
+  // 2. Beveled 3D facets (clipped inside the rounded rectangle)
+  var top=shade(hex,0.42),left=shade(hex,0.20),right=shade(hex,-0.26),bot=shade(hex,-0.46);
+  var inner={x:x+b,y:y+b,w:s-b*2,h:s-b*2};
+
+  c.save();
+  roundRect(c,x,y,s,s,r);
+  c.clip();
+
+  c.fillStyle=hex;
+  c.fillRect(x,y,s,s);
+
+  poly(c,[[x,y],[x+s,y],[inner.x+inner.w,inner.y],[inner.x,inner.y]],top);
+  poly(c,[[x,y],[inner.x,inner.y],[inner.x,inner.y+inner.h],[x,y+s]],left);
+  poly(c,[[x+s,y],[x+s,y+s],[inner.x+inner.w,inner.y+inner.h],[inner.x+inner.w,inner.y]],right);
+  poly(c,[[x,y+s],[inner.x,inner.y+inner.h],[inner.x+inner.w,inner.y+inner.h],[x+s,y+s]],bot);
+
+  // 3. Rounded inner face with soft vertical gradient
+  var innerR=Math.max(2,Math.round(r*0.55));
+  var g=c.createLinearGradient(0,inner.y,0,inner.y+inner.h);
+  g.addColorStop(0,shade(hex,0.14));
+  g.addColorStop(0.55,hex);
+  g.addColorStop(1,shade(hex,-0.12));
+  c.fillStyle=g;
+  roundRect(c,inner.x,inner.y,inner.w,inner.h,innerR);
+  c.fill();
+
+  // 4. Specular glass gloss highlight (angled upper-left crystal reflection)
+  var sg=c.createLinearGradient(inner.x,inner.y,inner.x+inner.w*0.82,inner.y+inner.h*0.82);
+  sg.addColorStop(0,'rgba(255,255,255,0.38)');
+  sg.addColorStop(0.42,'rgba(255,255,255,0.06)');
+  sg.addColorStop(1,'rgba(255,255,255,0)');
+  c.fillStyle=sg;
+  roundRect(c,inner.x,inner.y,inner.w,inner.h,innerR);
+  c.fill();
+
+  // 5. Subtle inner facet seam line
+  c.strokeStyle='rgba(0,0,0,0.13)';
+  c.lineWidth=Math.max(1,s*0.016);
+  roundRect(c,inner.x,inner.y,inner.w,inner.h,innerR);
+  c.stroke();
+  c.restore();
+
+  // 6. Soft rounded outer outline matching tile curvature
+  var strokeW=Math.max(1,s*0.026);
+  c.strokeStyle='rgba(0,0,0,0.22)';
+  c.lineWidth=strokeW;
+  roundRect(c,x+strokeW/2,y+strokeW/2,s-strokeW,s-strokeW,r);
+  c.stroke();
 }
 function paintGem(c,cx,cy,s,gem){
   var g=GEM[gem],rx=s*0.33,ry=s*0.25;

@@ -914,6 +914,150 @@ function drawLevels(){
   }
 }
 
+function drawToast(){
+  if(!fx.toast)return;
+  var tt=fx.toast;
+  var k3=(now-tt.t)/2.0;
+  if(k3>=1){fx.toast=null;return;}
+  var a3=k3<0.15?k3/0.15:k3>0.8?1-(k3-0.8)/0.2:1;
+  ctx.save();
+  ctx.globalAlpha=a3;
+  var w=measure(tt.txt,26,700)+64;
+  var ty=156;
+  ctx.shadowColor='rgba(0,0,0,0.4)';
+  ctx.shadowBlur=16;
+  ctx.shadowOffsetY=6;
+  rr(DW/2-w/2,ty,w,52,26);
+  ctx.fillStyle='rgba(15,20,44,0.94)';
+  ctx.fill();
+  ctx.strokeStyle='rgba(255,210,77,0.5)';
+  ctx.lineWidth=2;
+  ctx.stroke();
+  text(tt.txt,DW/2,ty+27,{size:24,weight:700,color:'#ffd34d'});
+  ctx.restore();
+}
+
+function drawLevels(){
+  var t=theme;
+  var maxUnlocked=data.adv+1;
+  var activePage=Math.floor((maxUnlocked-1)/LEVELS_PER_PAGE);
+  var maxNavPage=activePage+1;
+  if(levelsPage>maxNavPage)levelsPage=maxNavPage;
+  if(levelsPage<0)levelsPage=0;
+
+  var isLockedChapter=(levelsPage>activePage);
+
+  roundButton({id:'back',x:36,y:36,w:60,h:60,icon:function(x,y,s,c){icoBack(x,y,s*0.9,c);},onClick:function(){screen='title';}});
+  text('ADVENTURE',DW/2,66,{size:44,weight:700,color:t.text,shadow:true});
+
+  if(isLockedChapter){
+    text('🔒 Chapter '+(levelsPage+1)+'  ·  Unlocks after Level '+(levelsPage*LEVELS_PER_PAGE),DW/2,106,{size:22,weight:700,color:'#ff9a52'});
+  } else {
+    var completedInChapter=Math.min(LEVELS_PER_PAGE, Math.max(0, data.adv - levelsPage*LEVELS_PER_PAGE));
+    text('Chapter '+(levelsPage+1)+'  ·  '+completedInChapter+'/'+LEVELS_PER_PAGE+' Completed',DW/2,106,{size:22,weight:600,color:t.dim});
+  }
+
+  var startLv=levelsPage*LEVELS_PER_PAGE+1;
+  var endLv=(levelsPage+1)*LEVELS_PER_PAGE;
+
+  roundButton({
+    id:'prev_page',
+    x:DW/2-180,
+    y:126,
+    w:46,
+    h:46,
+    disabled:levelsPage<=0,
+    icon:function(x,y,s,c){icoBack(x,y,s*0.8,c);},
+    onClick:function(){if(levelsPage>0)levelsPage--;}
+  });
+
+  text('LEVELS  '+startLv+' – '+endLv,DW/2,149,{size:24,weight:700,color:isLockedChapter?'#ffaa66':'#ffd34d'});
+
+  roundButton({
+    id:'next_page',
+    x:DW/2+134,
+    y:126,
+    w:46,
+    h:46,
+    icon:function(x,y,s,c){icoNext(x,y,s*0.8,c);},
+    onClick:function(){
+      if(levelsPage<maxNavPage){
+        levelsPage++;
+      } else {
+        sfx.bad();
+        vibrate(20);
+        fx.toast={t:now,txt:'🔒 Complete Level '+(levelsPage*LEVELS_PER_PAGE)+' to unlock more!'};
+      }
+    }
+  });
+
+  var cols=5,tw=110,gap=16,gw=cols*tw+(cols-1)*gap,sx=DW/2-gw/2,sy=190;
+  for(var i=0;i<LEVELS_PER_PAGE;i++){
+    var lv=startLv+i,c=i%cols,r=Math.floor(i/cols),tileX=sx+c*(tw+gap),tileY=sy+r*(tw+gap);
+    var done=lv<=data.adv,unlocked=lv<=data.adv+1;
+
+    if(fx.shakeTile&&fx.shakeTile.id==='lv'+lv){
+      var sk=Math.max(0,1-(now-fx.shakeTile.t)/0.3);
+      if(sk>0)tileX+=Math.sin(now*60)*6*sk;
+    }
+
+    (function(lv,unlocked,done,tileX,tileY){
+      var pr=regButton({
+        id:'lv'+lv,
+        x:tileX,
+        y:tileY,
+        w:tw,
+        h:tw,
+        onClick:function(){
+          if(unlocked){
+            newGame('adventure',lv);
+          } else {
+            sfx.bad();
+            vibrate(20);
+            fx.shakeTile={id:'lv'+lv,t:now};
+            if(isLockedChapter){
+              fx.toast={t:now,txt:'🔒 Complete Level '+(levelsPage*LEVELS_PER_PAGE)+' to unlock Chapter '+(levelsPage+1)+'!'};
+            } else {
+              fx.toast={t:now,txt:'🔒 Complete Level '+(data.adv+1)+' first to unlock!'};
+            }
+          }
+        }
+      });
+
+      ctx.save();
+      ctx.shadowColor='rgba(0,0,0,0.25)';
+      ctx.shadowBlur=8;
+      ctx.shadowOffsetY=4;
+      rr(tileX,tileY+6,tw,tw-6,20);
+      ctx.fillStyle=done?'#2f9430':unlocked?'#2a5cb8':shade(t.board,-0.3);
+      ctx.fill();
+      ctx.restore();
+
+      rr(tileX,tileY+(pr?4:0),tw,tw-6,20);
+      ctx.fillStyle=done?'#55cf52':unlocked?'#4b90f3':(isLockedChapter?shade(t.board,-0.15):t.board);
+      ctx.fill();
+
+      if(!unlocked){
+        icoLock(tileX+tw/2,tileY+tw/2-4,40,isLockedChapter?'rgba(255,255,255,0.22)':'rgba(255,255,255,0.35)');
+      } else {
+        var fontSize=lv>=100?30:38;
+        text(String(lv),tileX+tw/2,tileY+tw/2-(done?10:2)+(pr?4:0),{size:fontSize,weight:700,color:'#fff',shadow:'rgba(0,0,0,0.3)',shadowY:2});
+        if(done)icoCheck(tileX+tw/2,tileY+tw/2+28,24,'#fff');
+      }
+
+      if(lv===data.adv+1&&unlocked){
+        rr(tileX-4,tileY-4,tw+8,tw+8,24);
+        ctx.strokeStyle=rgba('#ffd34d',0.6+0.4*Math.sin(now*5));
+        ctx.lineWidth=4;
+        ctx.stroke();
+      }
+    })(lv,unlocked,done,tileX,tileY);
+  }
+}
+
+// ---------- main loop ----------
+var last=0,fontsReady=false,bootT=performance.now();
+
 // ---------- main loop ----------
 var last=0,fontsReady=false,bootT=performance.now();
 function frame(ts){
@@ -939,6 +1083,7 @@ function frame(ts){
   else if(overlay==='gameover')drawGameOverOverlay();
   else if(overlay==='levelwin')drawLevelWinOverlay();
   else fx.winT=0;
+  drawToast();
   lastButtons=buttons;
 }
 requestAnimationFrame(frame);

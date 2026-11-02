@@ -173,6 +173,8 @@ function canPlace(grid,sh,r,c){if(r<0||c<0||r+sh.rows>GRID||c+sh.cols>GRID)retur
 function anyFit(grid,sh){for(var r=0;r<=GRID-sh.rows;r++)for(var c=0;c<=GRID-sh.cols;c++)if(canPlace(grid,sh,r,c))return true;return false;}
 function fullLines(grid){var rows=[],cols=[];for(var r=0;r<GRID;r++){var ok=true;for(var c=0;c<GRID;c++)if(!grid[r][c]){ok=false;break;}if(ok)rows.push(r);}for(var c2=0;c2<GRID;c2++){var ok2=true;for(var r2=0;r2<GRID;r2++)if(!grid[r2][c2]){ok2=false;break;}if(ok2)cols.push(c2);}return {rows:rows,cols:cols};}
 function previewLines(grid,sh,r,c){var g=grid.map(function(row){return row.slice();});sh.cells.forEach(function(p){g[r+p[0]][c+p[1]]={col:'x'};});return fullLines(g);}
+function canClearLine(grid,sh){for(var r=0;r<=GRID-sh.rows;r++)for(var c=0;c<=GRID-sh.cols;c++)if(canPlace(grid,sh,r,c)){var fl=previewLines(grid,sh,r,c);if(fl.rows.length>0||fl.cols.length>0)return true;}return false;}
+function isLargeShape(sid){var fam=SHAPES[sid].fam;return fam===6||fam===4||fam===7||fam===11;}
 
 // ---------- canvas setup ----------
 var cv=document.getElementById('game'),ctx=cv.getContext('2d');
@@ -440,7 +442,44 @@ function buildLevel(lv){
 }
 function nb(grid,p){var n=0;[[1,0],[-1,0],[0,1],[0,-1]].forEach(function(d){var r=p[0]+d[0],c=p[1]+d[1];if(r<0||c<0||r>=GRID||c>=GRID||grid[r][c])n++;});return n;}
 function genTray(){
-  for(var a=0;a<40;a++){var ps=[randomPiece(),randomPiece(),randomPiece()];if(ps.some(function(p){return anyFit(G.grid,SHAPES[p.s]);}))return ps;}
+  var grid=G&&G.grid;
+  if(!grid)return [randomPiece(),randomPiece(),randomPiece()];
+  var filled=0;
+  for(var r=0;r<GRID;r++)for(var c=0;c<GRID;c++)if(grid[r][c])filled++;
+  var density=filled/(GRID*GRID);
+  var clearingSids=[];
+  if(density>=0.55){
+    for(var s=0;s<SHAPES.length;s++)if(canClearLine(grid,SHAPES[s]))clearingSids.push(s);
+  }
+  for(var a=0;a<50;a++){
+    var ps=[];
+    var largeCount=0;
+    var needHero=(density>=0.70&&clearingSids.length>0)||(density>=0.55&&clearingSids.length>0&&Math.random()<0.85);
+    if(needHero){
+      var heroSid=clearingSids[Math.floor(Math.random()*clearingSids.length)];
+      ps.push(makePiece(heroSid));
+      if(isLargeShape(heroSid))largeCount++;
+    }
+    while(ps.length<3){
+      var sid=randomShape();
+      if(isLargeShape(sid)){
+        if(largeCount>0)continue;
+        largeCount++;
+      }
+      ps.push(makePiece(sid));
+    }
+    for(var i=ps.length-1;i>0;i--){
+      var j=Math.floor(Math.random()*(i+1));
+      var tmp=ps[i];ps[i]=ps[j];ps[j]=tmp;
+    }
+    if(ps.some(function(p){return anyFit(grid,SHAPES[p.s]);}))return ps;
+  }
+  var fallbackFits=[];
+  for(var f=0;f<SHAPES.length;f++)if(anyFit(grid,SHAPES[f]))fallbackFits.push(f);
+  if(fallbackFits.length>0){
+    var fSid=fallbackFits[Math.floor(Math.random()*fallbackFits.length)];
+    return [makePiece(fSid),randomPiece(),randomPiece()];
+  }
   return [randomPiece(),randomPiece(),randomPiece()];
 }
 function refillTray(){G.tray=genTray();fx.trayIn=[now,now+0.06,now+0.12];}

@@ -1015,8 +1015,14 @@ function drawGameOverOverlay(){
     text('NEW BEST!',0,0,{size:24,weight:700,color:'#ff6b9d',stroke:'#fff',strokeW:4});
     ctx.restore();
   }else{
-    icoTrophy(DW/2-50,scY+150,24,'#ffc53d');
-    text('BEST  '+fmt(data.best),DW/2+14,scY+150,{size:22,weight:600,color:theme.text});
+    var bLabel='BEST  '+fmt(data.best);
+    var tSz=24,tGap=10;
+    var tVisualW=tSz*1.1;
+    var tw=measure(bLabel,22,600);
+    var totalW=tVisualW+tGap+tw;
+    var startX=DW/2-totalW/2;
+    icoTrophy(startX+tVisualW/2,scY+150,tSz,'#ffc53d');
+    text(bLabel,startX+tVisualW+tGap,scY+150,{size:22,weight:600,align:'left',color:theme.text});
   }
 
   var by=scY+scH+20; // y + 106 + 192 + 20 = y + 318
@@ -1119,8 +1125,18 @@ function drawTitle(){
   ctx.save();ctx.font='700 104px '+FONT;var g2=ctx.createLinearGradient(0,ty+46,0,ty+146);g2.addColorStop(0,'#ffffff');g2.addColorStop(1,'#bcd4ff');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=g2;ctx.fillText('BLAST',DW/2,ty+96);ctx.restore();
   text('P U Z Z L E',DW/2,ty+170,{size:30,weight:600,color:t.text,shadow:true});
   // best
-  rr(DW/2-120,ty+210,240,52,26);ctx.fillStyle=t.dark?'rgba(0,0,0,0.08)':'rgba(0,0,0,0.25)';ctx.fill();
-  icoTrophy(DW/2-78,ty+236,30,'#ffc53d');text('BEST  '+fmt(data.best),DW/2+14,ty+237,{size:26,color:t.text});
+  // best
+  var tLabel='BEST  '+fmt(data.best);
+  var tSz=28,tGap=12;
+  var tVisualW=tSz*1.1;
+  var tw=measure(tLabel,26,700);
+  var tTotalW=tVisualW+tGap+tw;
+  var pillW=Math.max(240,tTotalW+44);
+  rr(DW/2-pillW/2,ty+210,pillW,52,26);ctx.fillStyle=t.dark?'rgba(0,0,0,0.08)':'rgba(0,0,0,0.25)';ctx.fill();
+  var tStartX=DW/2-tTotalW/2;
+  icoTrophy(tStartX+tVisualW/2,ty+236,tSz,'#ffc53d');
+  text(tLabel,tStartX+tVisualW+tGap,ty+237,{size:26,weight:700,align:'left',color:t.text});
+
   // buttons
   var run=data.run;
   button3d({id:'classic',x:DW/2-220,y:780,w:440,h:104,label:run?'CONTINUE':'CLASSIC',size:42,color:'gold',sub:run?'Classic  ·  '+fmt(run.score)+' pts':'Endless block puzzle',onClick:function(){if(!resumeRun())newGame('classic');}});

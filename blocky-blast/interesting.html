@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#3a4e8c">
-<title>Blocky Blast Puzzle</title>
+<title>Block Crush Puzzle</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
@@ -15,12 +15,12 @@
 </style>
 </head>
 <body>
-<canvas id="game" tabindex="0" aria-label="Blocky Blast Puzzle game"></canvas>
+<canvas id="game" tabindex="0" aria-label="Block Crush Puzzle game"></canvas>
 <script>
 (function(){
 'use strict';
 /* ============================================================
-   BLOCKY BLAST PUZZLE
+   BLOCK CRUSH PUZZLE
    Canvas 2D, procedural sprites, procedural audio, no assets.
    ============================================================ */
 
@@ -73,8 +73,8 @@ function unpackGrid(raw){
   if(Array.isArray(raw))return raw;
   return g;
 }
-var SAVE_KEY='blocky_blast_puzzle_v1';
-var data=(function(){try{var d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(d&&typeof d==='object')return d;}catch(e){}return null;})()||{};
+var SAVE_KEY='block_crush_puzzle_v1';
+var data=(function(){try{var d=JSON.parse(localStorage.getItem(SAVE_KEY)||localStorage.getItem('blocky_blast_puzzle_v1')||'null');if(d&&typeof d==='object')return d;}catch(e){}return null;})()||{};
 var defaults={best:0,totalScore:0,totalBlocks:0,adv:0,theme:'standard',sound:true,music:true,vibe:true,run:null};
 for(var k in defaults)if(!(k in data))data[k]=defaults[k];
 delete data.games;
@@ -1316,10 +1316,10 @@ function drawTitle(){
   LOGO.forEach(function(m,i){var parts=m[0].split(':');var bob=Math.sin(now*2+i*0.7)*2;var hex=parts[0]==='tan'?TAN:t.pal[parts[0]];drawBlock(lx+m[1]*cs+2,ly+m[2]*cs+2+bob,cs-4,hex,parts[1]||null);});
   // title text
   var ty=470;
-  text('BLOCKY',DW/2,ty,{size:104,color:'#ffd23f',stroke:t.dark?'#3a3f66':'#1b2250',strokeW:16,shadow:'rgba(0,0,0,0.4)',shadowY:8});
-  ctx.save();ctx.font='700 104px '+FONT;var g=ctx.createLinearGradient(0,ty-50,0,ty+50);g.addColorStop(0,'#fff0a8');g.addColorStop(0.5,'#ffcf3a');g.addColorStop(1,'#f59c1a');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=g;ctx.fillText('BLOCKY',DW/2,ty);ctx.restore();
-  text('BLAST',DW/2,ty+96,{size:104,color:'#fff',stroke:t.dark?'#3a3f66':'#1b2250',strokeW:16,shadow:'rgba(0,0,0,0.4)',shadowY:8});
-  ctx.save();ctx.font='700 104px '+FONT;var g2=ctx.createLinearGradient(0,ty+46,0,ty+146);g2.addColorStop(0,'#ffffff');g2.addColorStop(1,'#bcd4ff');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=g2;ctx.fillText('BLAST',DW/2,ty+96);ctx.restore();
+  text('BLOCK',DW/2,ty,{size:104,color:'#ffd23f',stroke:t.dark?'#3a3f66':'#1b2250',strokeW:16,shadow:'rgba(0,0,0,0.4)',shadowY:8});
+  ctx.save();ctx.font='700 104px '+FONT;var g=ctx.createLinearGradient(0,ty-50,0,ty+50);g.addColorStop(0,'#fff0a8');g.addColorStop(0.5,'#ffcf3a');g.addColorStop(1,'#f59c1a');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=g;ctx.fillText('BLOCK',DW/2,ty);ctx.restore();
+  text('CRUSH',DW/2,ty+96,{size:104,color:'#fff',stroke:t.dark?'#3a3f66':'#1b2250',strokeW:16,shadow:'rgba(0,0,0,0.4)',shadowY:8});
+  ctx.save();ctx.font='700 104px '+FONT;var g2=ctx.createLinearGradient(0,ty+46,0,ty+146);g2.addColorStop(0,'#ffffff');g2.addColorStop(1,'#bcd4ff');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=g2;ctx.fillText('CRUSH',DW/2,ty+96);ctx.restore();
   text('P U Z Z L E',DW/2,ty+170,{size:30,weight:600,color:t.text,shadow:true});
   // best
   var tLabel='BEST  '+fmt(data.best);
